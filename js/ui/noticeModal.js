@@ -183,14 +183,25 @@ function showNotice(message, titleKey = 'status.notice', showCancel = false, okB
 }
 
 /**
- * Replaces window.alert
+ * Displays an alert notice modal.
+ *
+ * @param {string} message - Message or i18n key to display.
+ * @param {string} [titleKey='status.notice'] - Modal title i18n key.
+ * @param {string|null} [okBtnKey=null] - OK button label i18n key.
+ * @returns {Promise<boolean>} Resolves to true when dismissed.
  */
 export async function showAlert(message, titleKey = 'status.notice', okBtnKey = null) {
     return showNotice(message, titleKey, false, okBtnKey);
 }
 
 /**
- * Replaces window.confirm
+ * Displays a confirmation dialog modal.
+ *
+ * @param {string} message - Confirmation message or i18n key to display.
+ * @param {string} [titleKey='actions.confirm'] - Modal title i18n key.
+ * @param {string|null} [okBtnKey=null] - Confirm button label i18n key.
+ * @param {string} [cancelBtnKey='actions.cancel'] - Cancel button label i18n key.
+ * @returns {Promise<boolean>} Resolves to true if confirmed, false if cancelled.
  */
 export async function showConfirm(message, titleKey = 'actions.confirm', okBtnKey = null, cancelBtnKey = 'actions.cancel') {
     return showNotice(message, titleKey, true, okBtnKey, cancelBtnKey);

@@ -1,5 +1,675 @@
-@forward 'modal/modal-backdrop';
-@forward 'modal/modal-content';
-@forward 'modal/modal-elements';
-@forward 'modal/modal-sheets';
-@forward 'modal/modal-specialized';
+@use '../abstracts/variables' as *;
+@use './placeholder';
+
+// --- 1. MODAL BACKDROP & BODY LOCK ---
+
+html:has(.modal.show),
+body:has(.modal.show),
+html:has(dialog.modal[open]),
+body:has(dialog.modal[open]),
+html:has(dialog.navigation-drawer[open]),
+body:has(dialog.navigation-drawer[open]) {
+    overflow: hidden !important;
+}
+
+dialog.modal,
+.modal {
+    border: none;
+    padding: 1rem;
+    background: transparent;
+    color: inherit;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    margin: auto;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    z-index: $z-index-modal;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: opacity $duration-base $ease-enter,
+                visibility $duration-base $ease-enter,
+                backdrop-filter $duration-base $ease-smooth,
+                -webkit-backdrop-filter $duration-base $ease-smooth,
+                display $duration-base allow-discrete,
+                overlay $duration-base allow-discrete;
+
+    .modal-content,
+    .eq-details-modal-content,
+    .accent-picker-modal-content,
+    [class*="modal-content"],
+    [class*="-modal-content"] {
+        transform: translate3d(0, 30px, 0) scale(0.96);
+        transition: transform $duration-base $ease-enter;
+    }
+
+    &[open],
+    &.show {
+        display: flex;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+
+        .modal-content,
+        .eq-details-modal-content,
+        .accent-picker-modal-content,
+        [class*="modal-content"],
+        [class*="-modal-content"] {
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+
+        @starting-style {
+            opacity: 0;
+
+            .modal-content,
+            .eq-details-modal-content,
+            .accent-picker-modal-content,
+            [class*="modal-content"],
+            [class*="-modal-content"] {
+                transform: translate3d(0, 30px, 0) scale(0.96);
+            }
+        }
+    }
+
+    &.show:not(dialog) {
+        background-color: $bg-overlay;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    &::backdrop {
+        background-color: $bg-overlay;
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+        opacity: 0;
+        transition: opacity $duration-base $ease-smooth,
+                    backdrop-filter $duration-base $ease-smooth,
+                    -webkit-backdrop-filter $duration-base $ease-smooth,
+                    display $duration-base allow-discrete,
+                    overlay $duration-base allow-discrete;
+    }
+
+    &[open]::backdrop {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+
+        @starting-style {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+        }
+    }
+
+    &.closing {
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity $duration-exit $ease-exit,
+                    backdrop-filter $duration-exit $ease-exit,
+                    -webkit-backdrop-filter $duration-exit $ease-exit;
+
+        .modal-content,
+        .eq-details-modal-content,
+        .accent-picker-modal-content,
+        [class*="modal-content"],
+        [class*="-modal-content"] {
+            transform: translate3d(0, 48px, 0) scale(0.95);
+            transition: transform $duration-exit $ease-exit;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none !important;
+
+        .modal-content,
+        .eq-details-modal-content,
+        .accent-picker-modal-content,
+        [class*="modal-content"],
+        [class*="-modal-content"] {
+            transition: none !important;
+            transform: none !important;
+        }
+
+        &::backdrop {
+            transition: none !important;
+        }
+    }
+}
+
+// --- 2. MODAL DIALOG CONTAINER & PRESENTATION ---
+
+dialog.modal,
+.modal {
+    -webkit-user-select: none;
+    user-select: none;
+
+    .modal-content,
+    .eq-details-modal-content,
+    .accent-picker-modal-content,
+    [class*="modal-content"],
+    [class*="-modal-content"] {
+        background-color: $bg-surface-secondary;
+        border-radius: $modal-radius-standard;
+        box-shadow: 0 6px 10px $palette-overlay-dark-10, 0 20px 30px $palette-overlay-dark-10;
+        width: 100%;
+        max-width: $modal-width-standard;
+        max-height: $modal-max-height-fallback;
+        max-height: $modal-max-height;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+
+        &.modal-expanded {
+            max-width: $modal-width-expanded;
+        }
+
+        &.modal-large {
+            max-width: $modal-width-large;
+            height: min(82dvh, 760px);
+            max-height: $modal-max-height;
+        }
+
+        > .privacy-notice {
+            padding-left: $spacing-xl;
+            padding-right: $spacing-xl;
+        }
+    }
+
+    &.modal-expanded .modal-content,
+    &.modal-expanded [class*="modal-content"] {
+        max-width: $modal-width-expanded;
+    }
+
+    &.modal-large .modal-content,
+    &.modal-large [class*="modal-content"] {
+        max-width: $modal-width-large;
+        height: min(82dvh, 760px);
+        max-height: $modal-max-height;
+    }
+}
+
+// --- 3. MODAL HEADER, FOOTER & INTERNAL ELEMENTS ---
+
+dialog.modal,
+.modal {
+    .modal-header {
+        padding: $spacing-xl $spacing-xl $spacing-lg;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid $border-primary;
+        flex-shrink: 0;
+        gap: $spacing-md;
+
+        h2,
+        h3,
+        .modal-title {
+            font-size: clamp(1.1rem, 2.5vw, 1.25rem);
+            font-weight: $font-weight-semibold;
+            color: $text-primary;
+            margin: 0;
+            letter-spacing: 0.01em;
+            min-width: 0;
+            overflow-wrap: break-word;
+            line-height: 1.3;
+        }
+
+        .modal-header-actions {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            flex-shrink: 0;
+        }
+
+        .modal__close-btn,
+        .close-button,
+        .modal-header-btn,
+        .modal-header-actions > * {
+            width: 36px;
+            min-width: 36px;
+            max-width: 36px;
+            height: 36px;
+            min-height: 36px;
+            max-height: 36px;
+            aspect-ratio: 1 / 1;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: $shape-corner-medium;
+            border: 1px solid $border-primary;
+            background-color: $bg-surface-secondary;
+            color: $text-secondary;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color $duration-fast $ease-smooth,
+                        border-color $duration-fast $ease-smooth,
+                        color $duration-fast $ease-smooth,
+                        transform $duration-fast $ease-smooth;
+
+            clashcalc-assets-svg,
+            orecalc-assets-svg,
+            svg,
+            clashcalc-assets-image,
+            orecalc-assets-image,
+            img {
+                width: 22px;
+                height: 22px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            img {
+                filter: brightness(0) invert(1);
+                opacity: 0.65;
+                transition: opacity $duration-fast $ease-smooth, filter $duration-fast $ease-smooth;
+
+                .light-mode & {
+                    filter: brightness(0);
+                }
+            }
+
+            &:hover,
+            &:focus-visible {
+                background-color: $bg-surface-tertiary;
+                border-color: $accent-primary;
+                color: $text-primary;
+                transform: scale(1.08);
+
+                img {
+                    opacity: 1;
+                }
+            }
+
+            &:active {
+                transform: scale(0.94);
+            }
+        }
+
+        .modal__close-btn,
+        .close-button {
+            transition: background-color $duration-fast $ease-smooth,
+                        border-color $duration-fast $ease-smooth,
+                        color $duration-fast $ease-smooth,
+                        transform $duration-moderate $ease-smooth;
+        }
+
+        .modal__close-btn:hover,
+        .modal__close-btn:focus-visible,
+        .close-button:hover,
+        .close-button:focus-visible {
+            transform: scale(1.08) rotate(90deg);
+        }
+
+        .reset-button,
+        .modal-reset-btn {
+            background-color: $color-danger-soft;
+            color: $color-danger;
+            border-color: $border-primary;
+
+            &:hover,
+            &:focus-visible {
+                background-color: $color-danger-soft-hover;
+                border-color: $color-danger;
+                color: $color-danger;
+                transform: scale(1.08);
+            }
+        }
+
+        .suggestion-message-btn,
+        .unhide-note-btn {
+            background-color: $accent-primary-soft;
+            border-color: $accent-primary;
+            color: $accent-primary;
+            position: relative;
+
+            .badge {
+                position: absolute;
+                top: -5px;
+                right: -5px;
+                background-color: $color-warning;
+                color: $text-on-accent;
+                border-radius: $shape-corner-full;
+                padding: 0;
+                font-size: 10px;
+                font-weight: $font-weight-bold;
+                width: 18px;
+                height: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid $border-secondary;
+                box-sizing: border-box;
+            }
+        }
+    }
+
+    .modal-body {
+        padding: $spacing-lg $spacing-xl $spacing-xl;
+        color: $text-primary;
+        line-height: 1.5;
+        font-size: $font-size-lg;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+        overflow-y: auto;
+        min-height: 0;
+
+        p {
+            margin: 0;
+        }
+
+        code {
+            font-family: 'Roboto Mono', monospace;
+            background-color: $palette-overlay-light-10;
+            padding: $spacing-2xs 6px;
+            border-radius: $shape-corner-xs;
+            font-size: 0.9em;
+            word-break: normal;
+            overflow-wrap: break-word;
+            display: inline-block;
+            margin: $spacing-2xs 0;
+            color: $accent-primary;
+        }
+    }
+
+    .modal-info-text {
+        padding: 0 $spacing-xl;
+        margin-top: 10px;
+        font-size: 0.9em;
+        color: $text-secondary;
+        line-height: 1.4;
+    }
+
+    .privacy-notice {
+        font-size: 11px;
+        color: $text-muted;
+        line-height: 1.4;
+        text-align: left;
+        border-top: 1px solid $border-primary;
+        padding-top: $spacing-md;
+        margin-top: 15px;
+
+        p {
+            margin: 0;
+        }
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: $spacing-lg $spacing-xl;
+        gap: $spacing-md;
+        background-color: $bg-surface-secondary;
+        flex-shrink: 0;
+
+        &.modal-actions-between {
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button,
+        a,
+        .btn,
+        .btn--primary,
+        .btn--secondary,
+        .btn-primary,
+        .btn-secondary {
+            min-width: $btn-min-width;
+            min-height: $btn-min-height;
+        }
+    }
+
+    .modal__close-btn,
+    .close-button {
+        @extend %flex-center;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-medium;
+        color: $text-secondary;
+        cursor: pointer;
+        width: 36px;
+        min-width: 36px;
+        max-width: 36px;
+        height: 36px;
+        min-height: 36px;
+        max-height: 36px;
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        flex-shrink: 0;
+        aspect-ratio: 1 / 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: background-color $duration-fast $ease-smooth,
+                    border-color $duration-fast $ease-smooth,
+                    color $duration-fast $ease-smooth,
+                    transform $duration-moderate $ease-smooth;
+
+        svg,
+        clashcalc-assets-svg,
+        orecalc-assets-svg {
+            fill: currentColor;
+            width: 22px;
+            height: 22px;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        &:hover,
+        &:focus {
+            background-color: $bg-surface-tertiary;
+            border-color: $accent-primary;
+            color: $text-primary;
+            transform: scale(1.08) rotate(90deg);
+        }
+
+        &.policy-header-btn,
+        &#terms-theme-toggle-btn,
+        &#terms-open-external-btn,
+        &#terms-translate-btn,
+        &#privacy-theme-toggle-btn,
+        &#privacy-open-external-btn,
+        &#privacy-translate-btn,
+        &[target="_blank"],
+        &#changelog-commits-btn,
+        &#running-costs-volunteer-btn {
+            &:hover,
+            &:focus {
+                transform: scale(1.08);
+            }
+        }
+
+        &:active {
+            transform: scale(0.94);
+        }
+    }
+
+    .info-btn {
+        @extend %flex-center;
+    }
+}
+
+// --- 4. RESPONSIVE BOTTOM SHEET ADAPTATION ---
+
+dialog.modal,
+.modal {
+    @media (max-width: $breakpoint-modal) {
+        .modal-content,
+        .eq-details-modal-content,
+        .guided-setup-modal-content,
+        .accent-picker-modal-content,
+        [class*="modal-content"],
+        [class*="-modal-content"] {
+            max-width: calc(100vw - 24px);
+            border-radius: $modal-radius-card;
+        }
+
+        .modal-header {
+            padding: $spacing-lg 20px $spacing-md;
+            gap: $spacing-sm;
+
+            h2,
+            h3,
+            .modal-title {
+                font-size: clamp(1.05rem, 3.5vw, 1.15rem);
+            }
+
+            .modal-header-actions {
+                gap: 6px;
+            }
+
+            .close-button,
+            .modal-header-actions > * {
+                width: 32px;
+                min-width: 32px;
+                max-width: 32px;
+                height: 32px;
+                min-height: 32px;
+                max-height: 32px;
+                aspect-ratio: 1 / 1;
+                padding: 0;
+                margin: 0;
+                box-sizing: border-box;
+                flex-shrink: 0;
+                border-radius: $card-radius;
+
+                clashcalc-assets-svg,
+                orecalc-assets-svg,
+                svg,
+                clashcalc-assets-image,
+                orecalc-assets-image,
+                img {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+        }
+
+        .modal-body {
+            padding: $spacing-md 20px 20px;
+            font-size: $font-size-md;
+        }
+
+        .modal-actions {
+            padding: $spacing-md 20px;
+            gap: $spacing-sm;
+        }
+
+        &.modal-sheet-mobile {
+            padding: 0 !important;
+
+            .modal-content,
+            .eq-details-modal-content,
+            .guided-setup-modal-content,
+            .accent-picker-modal-content,
+            [class*="modal-content"],
+            [class*="-modal-content"] {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                border-radius: 0 !important;
+                border: none !important;
+                margin: 0 !important;
+            }
+        }
+    }
+}
+
+#privacy-modal,
+#terms-modal,
+#star-bonus-multiplier-modal,
+#bug-report-modal,
+#licenses-modal,
+#running-costs-modal,
+#create-custom-chips-modal,
+#changelog-modal,
+#commits-modal,
+#global-pricing-modal,
+#calc-offense-modal,
+#calc-target-combos-modal,
+#guided-setup-modal {
+    @media (max-width: $breakpoint-modal) {
+        padding: 0 !important;
+
+        .modal-content,
+        .eq-details-modal-content,
+        .guided-setup-modal-content,
+        .accent-picker-modal-content,
+        [class*="modal-content"],
+        [class*="-modal-content"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            border-radius: 0 !important;
+            border: none !important;
+            margin: 0 !important;
+        }
+    }
+}
+
+// --- 5. SPECIALIZED NOTICES & MODAL VARIANTS ---
+
+.error-message code {
+    font-family: 'Roboto Mono', monospace;
+    background-color: rgba($palette-grey-500, 0.12);
+    border: 1px solid rgba($palette-grey-500, 0.24);
+    padding: $spacing-2xs 6px;
+    border-radius: $shape-corner-xs;
+    font-size: 0.9em;
+    color: $color-danger;
+    display: inline-block;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    vertical-align: middle;
+}
+
+.policy-modal-body {
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    border-radius: $shape-corner-large;
+}
+
+.policy-iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    background: transparent;
+    overflow: hidden;
+    border-radius: $shape-corner-large;
+}
+
+.stored-ores-prompt {
+    margin: 0;
+    color: $text-secondary;
+    text-align: center;
+}

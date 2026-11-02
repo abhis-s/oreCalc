@@ -14,7 +14,6 @@ process.on('uncaughtException', (err) => {
 
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
-// Ensure Firebase is initialized
 require('./services/firebase.js');
 
 const {

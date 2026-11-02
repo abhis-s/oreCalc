@@ -1,5 +1,4 @@
 @use '../abstracts/mixins' as *;
-@use '../components/profile/profile-header';
 
 .landing-active-profile {
     width: 100%;
@@ -24,7 +23,7 @@
     }
 
     &.is-collapsed {
-        @include profile-header.mobile-header-full-layout;
+        @include mobile-header-full-layout;
     }
 
     .player-maxed-equip-mini {

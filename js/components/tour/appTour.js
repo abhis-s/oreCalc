@@ -213,7 +213,6 @@ function positionTooltip(highlightRect, tooltip, placement) {
         }
     }
 
-    // Returns true if a position fits fully within the viewport
     function fits({ top, left }) {
         return (
             top >= margin &&

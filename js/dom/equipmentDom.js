@@ -1,5 +1,7 @@
 /**
  * Queries and caches DOM element references for the Equipment overview tab and stats cards.
+ *
+ * @returns {Record<string, any>} Equipment DOM element references.
  */
 export function getEquipmentDOMElements() {
     return {

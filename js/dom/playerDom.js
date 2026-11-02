@@ -1,5 +1,7 @@
 /**
  * Queries and caches DOM element references for the player dropdown and profile management modals.
+ *
+ * @returns {Record<string, any>} Player DOM element references.
  */
 export function getPlayerDOMElements() {
     return {

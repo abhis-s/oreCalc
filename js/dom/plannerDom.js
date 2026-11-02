@@ -1,5 +1,7 @@
 /**
  * Queries and caches DOM element references for the Planner tab, calendar, and income chips.
+ *
+ * @returns {Record<string, any>} Planner DOM element references.
  */
 export function getPlannerDOMElements() {
     return {

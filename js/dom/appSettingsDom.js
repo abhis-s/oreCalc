@@ -1,5 +1,7 @@
 /**
  * Queries and caches DOM element references for the App Settings tab and related modals.
+ *
+ * @returns {Record<string, any>} App settings DOM element references.
  */
 export function getAppSettingsDOMElements() {
     return {

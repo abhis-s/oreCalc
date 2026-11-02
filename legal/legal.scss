@@ -13,7 +13,6 @@
     --code-color: #2b6cb0;
 }
 
-// Explicit light theme
 html[data-theme="light"] {
     --bg-color: #f9f9f9;
     --surface-color: #ffffff;
@@ -29,7 +28,6 @@ html[data-theme="light"] {
     --code-color: #2b6cb0;
 }
 
-// Explicit dark theme
 html[data-theme="dark"] {
     --bg-color: #121212;
     --surface-color: #1a1a1a;
@@ -45,7 +43,6 @@ html[data-theme="dark"] {
     --code-color: #90cdf4;
 }
 
-// Fallback dark theme
 @media (prefers-color-scheme: dark) {
     html:not([data-theme="light"]) {
         --bg-color: #121212;
@@ -352,7 +349,6 @@ code {
     }
 }
 
-// Embedded iframe overrides
 html.is-embedded {
     background-color: var(--surface-color) !important;
 
@@ -377,7 +373,6 @@ html.is-embedded {
     }
 }
 
-// Accordion & Open Source licenses list
 .licenses-list {
     display: flex;
     flex-direction: column;

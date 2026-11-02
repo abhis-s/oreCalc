@@ -1,2 +1,186 @@
-@forward 'navigation/nav-tabs-bar';
-@forward 'navigation/nav-transitions';
+@use '../abstracts/variables' as *;
+@use '../base/placeholder';
+
+// --- 1. TAB BUTTONS & NAVIGATION BAR ---
+
+body.open-drawer {
+    overflow: hidden !important;
+    touch-action: none;
+    overscroll-behavior: contain;
+}
+
+.app-header__tab,
+.tab-button {
+    background-color: $bg-surface-tertiary;
+    border: none;
+    border-radius: $shape-corner-small;
+    color: $text-primary;
+    cursor: pointer;
+    padding: $spacing-sm 15px;
+    transition: background-color $duration-fast $ease-standard,
+                color $duration-fast $ease-standard,
+                transform $duration-fast $ease-standard,
+                box-shadow $duration-fast $ease-standard;
+
+    &:hover:not(.is-active) {
+        background-color: $accent-primary-soft;
+        color: $accent-primary;
+    }
+
+    &:active {
+        transform: scale(0.97);
+    }
+
+    &.is-active {
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        box-shadow: 0 4px 12px $accent-primary-soft;
+    }
+
+    &:focus-visible {
+        outline-offset: -3px !important;
+    }
+
+    &.nav-glide-active {
+        background: color-mix(in srgb, $accent-primary 35%, transparent) !important;
+        color: $accent-primary !important;
+        border: 1px solid color-mix(in srgb, $accent-primary 50%, transparent) !important;
+        box-shadow: 0 4px 16px color-mix(in srgb, $accent-primary 40%, transparent), 0 0 24px color-mix(in srgb, $accent-primary 25%, transparent) !important;
+        transform: scale(1.04) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        transition: transform $duration-fast $ease-enter, background-color $duration-fast $ease-standard, box-shadow $duration-fast $ease-standard !important;
+    }
+}
+
+.tab-content {
+    display: none;
+    width: 100%;
+
+    &.is-active {
+        display: block;
+    }
+}
+
+// --- 2. GLIDE & VIEW TRANSITIONS ---
+
+[data-transition-type="page-switch"] {
+    .app-header {
+        view-transition-name: app-header;
+    }
+
+    .app-footer {
+        view-transition-name: app-footer;
+    }
+
+    .navigation-drawer {
+        view-transition-name: none;
+    }
+
+    #main-content {
+        view-transition-name: main-content;
+    }
+}
+
+::view-transition-group(app-header),
+::view-transition-group(app-footer) {
+    z-index: $z-index-overlay;
+    animation-duration: 0s !important;
+}
+
+::view-transition-group(main-content) {
+    z-index: $z-index-base;
+}
+
+::view-transition-old(main-content) {
+    animation: $duration-exit $ease-standard both cc-fade-out;
+}
+
+::view-transition-new(main-content) {
+    animation: $duration-exit $ease-standard both cc-fade-in;
+}
+
+@keyframes cc-fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes cc-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-transition-type="page-switch"] {
+        ::view-transition-group(*),
+        ::view-transition-old(*),
+        ::view-transition-new(*) {
+            animation: none !important;
+        }
+    }
+}
+
+.app-header__tab.update-pending,
+.tab-button.update-pending {
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: -3px;
+        right: -3px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: $color-warning;
+        box-shadow: 0 0 4px $color-warning;
+        z-index: $z-index-overlay;
+    }
+}
+
+.nav-button.update-pending {
+    .nav-icon-wrapper {
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: $color-warning;
+            box-shadow: 0 0 4px $color-warning;
+            z-index: $z-index-overlay;
+        }
+    }
+}
+
+.navigation-drawer__tab.update-pending {
+    span {
+        position: relative;
+        padding-right: $spacing-md;
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: $color-warning;
+            box-shadow: 0 0 4px $color-warning;
+            z-index: $z-index-overlay;
+        }
+    }
+}

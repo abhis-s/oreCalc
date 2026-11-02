@@ -78,7 +78,6 @@
 
         <!-- DYNAMIC INSERTION: Account Page View Containers -->
         <div class="account-layout">
-            <!-- Guest State UI Shell -->
             <section id="account-guest-view" class="account-view" hidden>
                 <div class="account-grid">
                     <div class="account-card account-card--hero">
@@ -110,7 +109,6 @@
                                 <button type="button" id="account-guest-tab-sync-code" class="segmented-btn" role="tab" aria-selected="false" data-i18n="views.settings.cloudSync.tabEnterCode">Enter Sync Code</button>
                             </div>
 
-                            <!-- Pane 1: Your Sync Code -->
                             <div id="account-guest-pane-qr" class="account-guest-pairing-pane" role="tabpanel">
                                 <div class="account-pairing-body">
                                     <div class="account-pairing-qr-wrap">
@@ -125,14 +123,12 @@
                                     </div>
 
                                     <div class="account-pairing-info">
-                                        <!-- Shown when user has player tags -->
                                         <div id="account-guest-code-container" class="account-guest-code-container is-hidden">
                                             <span class="qr-user-id" id="account-guest-user-id" data-i18n-title="actions.clickToCopy"></span>
                                             <button type="button" class="btn btn--secondary btn--sm" id="account-guest-copy-btn" data-i18n="actions.copy">Copy</button>
                                         </div>
                                         <p class="account-item-desc" id="account-guest-sync-instruction" data-i18n="player.qrDisplayInstruction" hidden>Click the Sync Code below to copy it to your clipboard, or scan the QR code with another device's camera to link them instantly.</p>
 
-                                        <!-- Subcard shown for pure guest without player tags -->
                                         <div id="account-guest-hint-subcard" class="account-guest-hint-subcard">
                                             <div class="account-guest-hint-subcard__header">
                                                 <clashcalc-assets-svg name="sync-cloud" width="18" height="18"></clashcalc-assets-svg>
@@ -148,7 +144,6 @@
                                 </div>
                             </div>
 
-                            <!-- Pane 2: Enter Sync Code -->
                             <div id="account-guest-pane-sync-code" class="account-guest-pairing-pane is-hidden" role="tabpanel" hidden>
                                 <div class="account-guest-input-hub">
                                     <div class="account-guest-input-group">
@@ -202,10 +197,8 @@
                 </div>
             </section>
 
-            <!-- Authenticated State UI Shell -->
             <section id="account-auth-view" class="account-view" hidden>
                 <div class="account-grid">
-                    <!-- Profile Identity Card -->
                     <div class="account-card" id="account-profile-card">
                         <div class="account-profile-header">
                             <button type="button" id="account-profile-avatar-btn" class="account-profile-avatar-btn" aria-label="Change Avatar" data-i18n-aria-label="auth.changeAvatar" title="Change Avatar">
@@ -263,7 +256,6 @@
                         </div>
                     </div>
 
-                    <!-- Security & Authentication Card -->
                     <div class="account-card" id="account-security-card">
                         <div class="account-card__header">
                             <div class="account-card__title-group">
@@ -271,7 +263,6 @@
                             </div>
                         </div>
                         <div class="account-item-list">
-                            <!-- In-Page Passkeys Section -->
                             <div class="account-item-row account-item-row--block">
                                 <div class="account-item-row__header">
                                     <div class="account-item-icon-box">
@@ -302,7 +293,6 @@
                                 </div>
                             </div>
 
-                            <!-- In-Page Password Section -->
                             <div class="account-item-row account-item-row--block">
                                 <div class="account-item-row__header">
                                     <div class="account-item-icon-box">
@@ -319,10 +309,8 @@
                                     </div>
                                 </div>
 
-                                <!-- Collapsible Password Drawer -->
                                 <div id="account-password-drawer" class="account-password-drawer" hidden aria-expanded="false">
                                     <form id="account-password-form" class="account-password-form" novalidate autocomplete="off">
-                                        <!-- Current Password (only shown if user has password) -->
                                         <div id="account-password-current-group" class="form-group">
                                             <label for="account-input-current-password" class="account-form-label" data-i18n="auth.currentPassword">Current Password</label>
                                             <div class="input-with-icon">
@@ -339,7 +327,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- New Password -->
                                         <div class="form-group">
                                             <label for="account-input-new-password" class="account-form-label" data-i18n="auth.newPassword">New Password</label>
                                             <div class="input-with-icon">
@@ -352,7 +339,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- Confirm New Password -->
                                         <div class="form-group">
                                             <label for="account-input-confirm-password" class="account-form-label" data-i18n="auth.confirmPassword">Confirm Password</label>
                                             <div class="input-with-icon">
@@ -365,7 +351,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- Password Rules Checklist -->
                                         <div class="account-password-rules" id="account-password-rules">
                                             <div class="account-password-rule" id="rule-length">
                                                 <span class="account-rule-bullet" aria-hidden="true"></span>
@@ -377,7 +362,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- Actions -->
                                         <div class="account-drawer-actions">
                                             <button type="button" id="account-btn-cancel-password" class="btn btn--secondary" data-i18n="actions.cancel">Cancel</button>
                                             <button type="submit" id="account-btn-submit-password" class="btn btn--primary" data-i18n="actions.save" disabled>Save</button>
@@ -396,7 +380,6 @@
                         </div>
                     </div>
 
-                    <!-- Active Sessions Card -->
                     <div class="account-card" id="account-sessions-card">
                         <div class="account-card__header">
                             <div class="account-card__title-group">
@@ -423,7 +406,6 @@
                         </div>
                     </div>
 
-                    <!-- Cross-Device Linking / Pairing Card -->
                     <div class="account-card" id="account-pairing-card">
                         <div class="account-card__header">
                             <div class="account-card__title-group">
@@ -460,7 +442,6 @@
                         </div>
                     </div>
 
-                    <!-- Data Backup & Restore Card -->
                     <div class="account-card" id="account-data-card">
                         <div class="account-card__header">
                             <div class="account-card__title-group">

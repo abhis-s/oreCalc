@@ -71,8 +71,10 @@ export function ensureToastContainerInTopLayer(container) {
 
 /**
  * Displays a non-blocking toast notification banner with stacked positioning and screen reader announcements.
+ *
  * @param {string} message - Notification text message.
  * @param {'info'|'success'|'warning'|'error'} [type='info'] - Semantic toast theme type.
+ * @returns {HTMLElement|null} The mounted toast element or null if DOM is unavailable.
  */
 export function showToast(message, type = 'info') {
     if (typeof document === 'undefined') {

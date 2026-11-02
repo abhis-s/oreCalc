@@ -71,7 +71,10 @@ export function setModalSessionState(updates = {}) {
 }
 
 /**
- * Session dismissed notes set accessors.
+ * Checks if an equipment note has been dismissed in the current session.
+ *
+ * @param {string} equipId - Equipment unique identifier.
+ * @returns {boolean} True if the equipment note is dismissed.
  */
 export function isNoteDismissed(equipId) {
     return dismissedNotes.has(equipId);

@@ -1,7 +1,7 @@
 @use 'abstracts/variables' as *;
 @use 'abstracts/mixins' as *;
 @use 'account/account-layout';
-@use 'account/account-buttons';
+@use 'components/buttons';
 @use 'account/account-cards';
 @use 'account/account-erasure';
 @use 'account/account-avatar-tray';

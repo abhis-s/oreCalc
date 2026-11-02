@@ -1,5 +1,1198 @@
-@forward 'income/income-rates';
-@forward 'income/income-traders';
-@forward 'income/income-supercell-events';
-@forward 'income/income-prospector';
-@forward 'income/income-layout';
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// --- 1. INCOME CARDS GRID & SUBPANEL LAYOUT ---
+
+.income-cards-grid {
+    align-items: stretch;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.income-cards-grid.layout-compact,
+.settings-cards-grid.layout-compact {
+    align-items: start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+
+    .layout-grid-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        min-height: 1px;
+    }
+
+    .card-container {
+        height: auto;
+        width: 100%;
+
+        .income-card,
+        .settings-card {
+            height: auto;
+            width: 100%;
+            margin-bottom: 0;
+        }
+    }
+}
+
+@container (max-width: #{$container-card-compact}) {
+    .income-card {
+        --font-size-em-lg: 1.1em;
+        --font-size-em-md: 0.9em;
+        --font-size-lg: 16px;
+        --font-size-md: 14px;
+        --font-size-sm: 12px;
+        --font-size-xl: 20px;
+        --font-size-xs: 11px;
+
+        #inc-gem-trader-offers {
+            grid-template-columns: auto 1fr 1fr;
+        }
+
+        > .offer-grid:not(:first-child):not(:last-child) {
+            padding: 20px 0;
+        }
+
+        .inner-card {
+            padding: 10px;
+        }
+
+        .currency-symbol {
+            margin-left: 0;
+        }
+
+        .input-group-flex {
+            flex-wrap: wrap;
+            justify-content: center !important;
+            row-gap: 10px;
+
+            &:has(.switch) {
+                flex-wrap: nowrap;
+                justify-content: space-between !important;
+
+                label:not(.switch) {
+                    width: auto !important;
+                    text-align: left !important;
+                }
+            }
+
+            label,
+            span:not(.slider):not(.currency-symbol):not(.calculated) {
+                margin-right: 5px !important;
+                white-space: normal;
+                width: 100% !important;
+
+                &.switch {
+                    width: 52px !important;
+                    margin-right: 0 !important;
+                    flex-shrink: 0;
+                }
+            }
+
+            label[for="inc-star-bonus-league-select"],
+            label[for="inc-shop-offers-select"],
+            #cwl-per-attack-label,
+            #clan-war-per-attack-label {
+                text-align: center !important;
+            }
+
+            > input[type="number"] {
+                text-align: center !important;
+            }
+
+            > select {
+                text-align: center !important;
+                text-align-last: center !important;
+                padding-left: 28px !important;
+                padding-right: 28px !important;
+            }
+
+            > select,
+            > input[type="number"] {
+                width: 100% !important;
+            }
+        }
+
+        .ores-inputs-container {
+            flex-wrap: wrap;
+            justify-content: center !important;
+            padding-left: 5px;
+            row-gap: 10px;
+        }
+
+        input[type="number"].offer-input-number {
+            width: 50px;
+        }
+
+        #inc-raid-medals-total-input {
+            width: 60px !important;
+        }
+
+        #inc-raid-medals-remaining {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .offer-grid {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .offer-grid-row {
+            display: contents;
+        }
+
+        .offer-grid-row .offer-dropdown-instance {
+            grid-column: 3 / -1;
+        }
+
+        .offer-grid-row > :nth-child(n+5) {
+            display: none;
+        }
+
+        .rates-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 0 !important;
+        }
+
+        .rate-column {
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+
+            label {
+                text-align: left;
+                width: calc(100% - 100px);
+            }
+        }
+
+        .four-col-grid {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            .grid-row {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+
+                &:nth-child(odd) {
+                    align-items: flex-start;
+
+                    .grid-value-display {
+                        flex-direction: row-reverse;
+
+                        .ore-image {
+                            margin-left: 0;
+                        }
+                    }
+                }
+
+                &:nth-child(even) {
+                    align-items: flex-end;
+
+                    .grid-value-display {
+                        justify-content: flex-end;
+                    }
+                }
+            }
+
+            .grid-label {
+                font-weight: $font-weight-regular;
+                text-align: left;
+            }
+
+            .grid-value-display {
+                justify-content: flex-start;
+            }
+        }
+
+        .offer-dropdown-instance {
+            display: grid;
+            justify-self: center;
+            max-width: 100px;
+            width: 100%;
+        }
+
+        .offer-grid-row:has(.offer-dropdown-instance) .offer-checkbox-instance {
+            display: none;
+        }
+
+        .offer-select {
+            text-align: center;
+            text-align-last: center;
+            padding-left: 20px;
+            padding-right: 20px;
+            background-position: right 8px center;
+            background-size: 10px 10px;
+        }
+
+        .summary-grid {
+            gap: 15px;
+            grid-template-columns: 1fr;
+
+            .summary-item-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                justify-content: space-between;
+
+                .summary-label {
+                    text-align: right;
+                }
+
+                .summary-value-with-image {
+                    justify-content: flex-start;
+                }
+            }
+        }
+
+        .supercell-events-container {
+            padding: 0 !important;
+
+            .supercell-events-table {
+                .countdown-text {
+                    display: none;
+                }
+            }
+        }
+
+        &:has(#inc-shop-offers-checkboxes) {
+            .timeframe-income:has(> .four-col-grid) {
+                align-items: flex-start;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+    }
+}
+
+// --- 2. REGULAR INCOME RATES & INPUTS ---
+
+#inc-clan-war-shiny-bonus-input,
+#inc-cwl-shiny-bonus-input {
+    width: 60px;
+}
+
+#inc-clan-war-glowy-bonus-input,
+#inc-cwl-glowy-bonus-input {
+    width: 45px;
+}
+
+#inc-clan-war-starry-bonus-input,
+#inc-cwl-starry-bonus-input {
+    width: 30px;
+}
+
+.rates-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin-bottom: 15px;
+
+    .rate-column {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+
+        label {
+            color: $text-secondary;
+            margin-bottom: 5px;
+            text-align: center;
+            overflow-wrap: break-word;
+        }
+
+        input[type="number"] {
+            background-color: $bg-surface-primary;
+            border: 1px solid $border-primary;
+            border-radius: $shape-corner-compact;
+            color: $text-secondary;
+            padding: $spacing-sm;
+            text-align: center;
+            width: 80px;
+            @include input-focus-ring;
+        }
+    }
+}
+
+.summary-grid {
+    align-items: center;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 20px;
+
+    .summary-item-container {
+        align-items: center;
+        display: flex;
+        gap: 5px;
+
+        &:first-child {
+            justify-content: flex-start;
+        }
+
+        &:last-child {
+            justify-content: flex-end;
+        }
+
+        .summary-label {
+            flex: 0 0 50%;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .summary-value-with-image {
+            flex: 0 0 50%;
+            align-items: center;
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+
+            .ore-image {
+                height: 24px;
+                width: auto;
+            }
+
+            picture.raid-medal-image {
+                transform: scale(1.25);
+            }
+            img.raid-medal-image {
+                transform: none;
+            }
+        }
+    }
+}
+
+#inc-raid-medals-total-input {
+    width: 60px;
+}
+
+.four-col-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(4, minmax(min-content, 1fr));
+    margin-bottom: 10px;
+    min-width: 0;
+
+    .grid-row {
+        display: contents;
+
+        > div {
+            text-align: right;
+        }
+    }
+}
+
+.grid-row {
+    display: contents;
+}
+
+.grid-label {
+    color: $text-secondary;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-regular;
+    text-align: right;
+}
+
+.grid-value-display {
+    align-items: center;
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    transition: transform $duration-fast $ease-standard;
+
+    &:hover {
+        transform: scale(1.08);
+    }
+
+    .ore-image {
+        height: 18px;
+        margin-left: 2.5px;
+        width: auto;
+    }
+}
+
+.timeframe-income {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid $border-primary;
+}
+
+.negative-medals {
+    color: $color-danger;
+}
+
+// --- 3. TRADERS & ROTATING SHOP OFFERS ---
+
+.offer-grid {
+    align-items: center;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: auto 2fr 1fr 1fr;
+    margin-top: 15px;
+    padding: 0 20px;
+
+    &:empty {
+        display: none !important;
+    }
+
+    &#raid-medal-trader-offers {
+        grid-template-columns: auto 2fr 1fr 1fr;
+    }
+
+    &#inc-gem-trader-offers {
+        grid-template-columns: auto 1fr 1fr;
+    }
+
+    &#inc-event-trader-offers {
+        grid-template-columns: auto 1fr 1fr;
+    }
+
+    &#inc-shop-offers-checkboxes {
+        margin-top: 0px;
+    }
+
+    .offer-grid-row {
+        display: contents;
+    }
+
+    .offer-ore-display {
+        align-items: center;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 5px;
+        justify-content: flex-end;
+        padding-right: 10px;
+
+        .ore-image {
+            height: 18px;
+            width: auto;
+        }
+
+        span {
+            font-size: $font-size-md;
+        }
+    }
+
+    .offer-checkbox-instance,
+    .offer-input-instance {
+        align-items: center;
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        position: relative;
+
+        input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+            border: 2px solid $border-primary;
+            border-radius: $shape-corner-xs;
+            cursor: pointer;
+            height: 20px;
+            outline: none;
+            position: relative;
+            top: 2px;
+            transition: all $duration-moderate $ease-spring;
+            width: 20px;
+
+            &:checked {
+                background-color: $accent-primary;
+                border-color: $accent-primary;
+                transform: scale(1.1);
+            }
+
+            &:focus {
+                outline: none;
+            }
+
+            &:focus-visible {
+                border-color: $accent-primary;
+                box-shadow: 0 0 0 3px $accent-primary-soft;
+            }
+
+            &:active {
+                transform: scale(0.9);
+            }
+        }
+
+        .offer-checkbox-icon {
+            color: $text-on-accent;
+            display: flex;
+            height: 14px;
+            left: 50%;
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            top: calc(50% + 2px);
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform $duration-moderate $ease-spring, opacity $duration-fast $ease-smooth;
+            width: 14px;
+
+            svg {
+                display: block;
+                height: 14px;
+                width: 14px;
+            }
+        }
+
+        input[type="checkbox"]:checked ~ .offer-checkbox-icon {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        label {
+            color: $text-secondary;
+            cursor: pointer;
+            font-size: $font-size-sm;
+            margin-left: $spacing-sm;
+        }
+    }
+
+    .offer-dropdown-instance {
+        display: none;
+    }
+
+    .offer-cost-display {
+        align-items: center;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 5px;
+
+        picture.gem-icon,
+        picture.event-medal-icon {
+            padding: 5px;
+        }
+
+        picture.gem-icon {
+            transform: scale(0.9);
+        }
+
+        img.gem-icon,
+        img.event-medal-icon {
+            padding: 0;
+            transform: none;
+        }
+    }
+}
+
+// --- 4. SUPERCELL EVENTS & TOURNAMENTS ---
+
+.supercell-events-container {
+    padding: 0 20px;
+    margin-bottom: 20px;
+
+    .supercell-events-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: $font-size-sm;
+        color: $text-secondary;
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid $border-primary;
+        }
+
+        th {
+            color: $accent-primary;
+            font-weight: $font-weight-bold;
+            text-transform: uppercase;
+            font-size: $font-size-xs;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        td:last-child {
+            text-align: right;
+        }
+
+        th:last-child {
+            text-align: right;
+        }
+
+        tr.dimmed {
+            opacity: 0.4;
+            filter: grayscale(1);
+        }
+
+        tr.highlighted {
+            font-weight: $font-weight-bold;
+            td {
+                background-color: $accent-primary-soft;
+                color: $text-primary;
+                border-bottom: none;
+
+                &:first-child {
+                    border-radius: $shape-corner-small 0 0 $shape-corner-small;
+                }
+                &:last-child {
+                    border-radius: 0 $shape-corner-small $shape-corner-small 0;
+                }
+            }
+        }
+
+        tr.highlighted.golden {
+            td {
+                background-color: var(--color-gold-soft);
+                color: var(--color-gold);
+            }
+        }
+
+        .world-finals-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .world-finals-crown {
+            position: absolute;
+            width: 24px;
+            height: 18px;
+            top: -10px;
+            left: -6px;
+            transform: rotate(-15deg);
+            filter: drop-shadow(0 0 2px var(--color-gold));
+            pointer-events: none;
+        }
+
+        tr.is-live {
+            td {
+                animation: live-row-pulse 2.5s infinite ease-in-out;
+                color: $text-primary;
+
+                &:first-child {
+                    border-radius: $shape-corner-small 0 0 $shape-corner-small;
+                    box-shadow: inset 3px 0 0 $color-danger;
+                }
+                &:last-child {
+                    border-radius: 0 $shape-corner-small $shape-corner-small 0;
+                }
+            }
+        }
+
+        @keyframes live-row-pulse {
+            0%, 100% {
+                background-color: color-mix(in srgb, var(--color-event-red) 22%, transparent);
+            }
+            50% {
+                background-color: color-mix(in srgb, var(--color-event-red) 8%, transparent);
+            }
+        }
+
+        .watch-live-btn {
+            background-color: color-mix(in srgb, $color-danger 22%, transparent);
+            border: 1px solid color-mix(in srgb, $color-danger 65%, transparent);
+            color: $color-white-const !important;
+            padding: $spacing-xs 10px;
+            border-radius: $shape-corner-medium;
+            font-size: 0.72rem;
+            text-decoration: none !important;
+            font-weight: $font-weight-bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 10px;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px color-mix(in srgb, $color-danger 35%, transparent);
+            transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+
+            &:hover {
+                background-color: color-mix(in srgb, $color-danger 45%, transparent);
+                border-color: $color-danger;
+                box-shadow: 0 0 14px color-mix(in srgb, $color-danger 65%, transparent);
+            }
+
+            .live-beacon-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: $color-danger;
+                box-shadow: 0 0 8px color-mix(in srgb, $color-danger 90%, transparent), 0 0 14px color-mix(in srgb, $color-danger 60%, transparent);
+                display: inline-block;
+                flex-shrink: 0;
+                animation: live-beacon-pulse 2.5s infinite ease-in-out;
+            }
+        }
+
+        @keyframes live-beacon-pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+                box-shadow: 0 0 8px color-mix(in srgb, $color-danger 90%, transparent), 0 0 14px color-mix(in srgb, $color-danger 60%, transparent);
+            }
+            50% {
+                opacity: 0.35;
+                transform: scale(0.7);
+                box-shadow: 0 0 2px color-mix(in srgb, $color-danger 30%, transparent);
+            }
+        }
+
+        .countdown-text {
+            color: $accent-primary;
+            font-variant-numeric: tabular-nums;
+            margin-right: 5px;
+        }
+    }
+
+    .notice {
+        margin-top: 10px;
+        padding: 0;
+        font-style: italic;
+    }
+}
+
+// --- 5. ORE PROSPECTOR & CONVERTER ---
+
+.prospector-tip {
+    font-size: 0.85rem;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: opacity $duration-moderate $ease-standard,
+                max-height $duration-moderate $ease-standard,
+                transform $duration-moderate $ease-standard,
+                margin $duration-moderate $ease-standard,
+                padding $duration-moderate $ease-standard;
+    margin-top: 0;
+    padding: 0 10px !important;
+
+    &.show {
+        opacity: 1;
+        max-height: 500px;
+        transform: translateY(0);
+        pointer-events: auto;
+        margin-top: 15px;
+        padding: 10px !important;
+    }
+
+    .prospector-rec-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+        gap: $spacing-sm;
+        width: 100%;
+        margin-top: $spacing-2xs;
+        transition: none !important;
+    }
+
+    .prospector-rec-section {
+        background: color-mix(in srgb, $bg-surface-secondary 40%, transparent);
+        padding: $spacing-sm 10px;
+        border-radius: $shape-corner-small;
+        border: 1px solid color-mix(in srgb, $border-primary 80%, transparent);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        transition: none !important;
+
+        p {
+            margin: 0;
+            font-size: 1em;
+            color: $text-primary;
+        }
+
+        &[data-card-type="overall"] {
+            .prospector-rec-badge {
+                cursor: pointer;
+                transition: opacity $duration-fast $ease-smooth;
+
+                &:hover {
+                    opacity: 0.85;
+                }
+
+                .prospector-rec-icon {
+                    transition: transform $duration-fast $ease-smooth;
+                }
+
+                &:hover .prospector-rec-icon {
+                    transform: scale(1.15);
+                }
+            }
+        }
+
+        &[data-card-type="error"] {
+            border-color: $color-danger;
+
+            .prospector-rec-badge {
+                color: $color-danger;
+            }
+        }
+    }
+
+    .prospector-rec-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: $spacing-xs;
+        border-bottom: 1px solid color-mix(in srgb, $border-primary 50%, transparent);
+        padding-bottom: $spacing-xs;
+        margin-bottom: 0;
+
+        .prospector-rec-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            border-radius: $shape-corner-xs;
+            object-fit: contain;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .prospector-rec-badge {
+        font-weight: $font-weight-semibold;
+        font-size: 0.95em;
+        color: $accent-primary;
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+    }
+
+    .prospector-upgrade-subtitle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        .upgrade-levels {
+            font-size: 0.88em;
+            color: inherit;
+            opacity: 0.9;
+            font-weight: $font-weight-semibold;
+        }
+    }
+
+    .prospector-rec-time {
+        font-size: 0.88em;
+        color: $text-secondary;
+        font-weight: $font-weight-medium;
+
+        span {
+            font-weight: $font-weight-bold;
+            color: $text-primary;
+        }
+    }
+
+    .prospector-rec-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    .prospector-rec-item {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        font-size: 0.88em;
+        color: $text-secondary;
+        flex-wrap: wrap;
+
+        .day-count {
+            font-weight: $font-weight-bold;
+            color: $text-primary;
+            background: color-mix(in srgb, $accent-primary-soft 60%, transparent);
+            padding: 1.5px 5px;
+            border-radius: $shape-corner-xs;
+            min-width: 40px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .conversion-flow {
+            display: flex;
+            align-items: center;
+            gap: $spacing-xs;
+
+            span {
+                font-weight: $font-weight-semibold;
+                color: $text-primary;
+                display: inline-flex;
+                align-items: center;
+                gap: $spacing-xs;
+
+                clashcalc-assets-image,
+                orecalc-assets-image {
+                    width: 16px;
+                    height: 16px;
+                    display: inline-flex;
+                    vertical-align: middle;
+                }
+            }
+        }
+    }
+
+    .prospector-status-completed {
+        color: $color-success;
+    }
+
+    .prospector-status-success-icon {
+        color: $color-success;
+    }
+
+    .prospector-warning-icon {
+        vertical-align: middle;
+        margin-left: $spacing-2xs;
+    }
+
+    .prospector-rec-empty {
+        font-size: 0.88em;
+        color: $text-muted;
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        padding: $spacing-2xs 0;
+
+        .prospector-priority-btn {
+            all: unset;
+            display: inline;
+            color: var(--color-primary, $accent-tertiary);
+            font-weight: $font-weight-semibold;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 2px;
+            transition: color $duration-fast $ease-smooth, text-decoration-style $duration-fast $ease-smooth;
+
+            &:hover,
+            &:focus-visible {
+                color: var(--color-primary-light, $accent-tertiary);
+                text-decoration-style: solid;
+            }
+        }
+    }
+}
+
+.prospector-grid-wrapper {
+    position: relative;
+
+    &.is-assisted {
+        .prospector-grid {
+            filter: blur(2px);
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.5;
+        }
+    }
+}
+
+.prospector-assisted-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, $bg-surface-primary 60%, transparent);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: $shape-corner-small;
+    border: 1px dashed color-mix(in srgb, $accent-primary 50%, transparent);
+    padding: $spacing-sm $spacing-md;
+    z-index: $z-index-base;
+
+    span {
+        font-size: 0.82rem;
+        font-weight: $font-weight-semibold;
+        color: $accent-primary;
+        text-align: center;
+    }
+}
+
+.prospector-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 !important;
+}
+
+.prospector-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 5px;
+}
+
+.prospector-controls {
+    display: grid;
+    grid-template-columns: auto 1fr 2fr 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 10px;
+
+    .popover-wrapper {
+        width: 100%;
+    }
+
+    input[type="number"] {
+        background-color: $bg-surface-primary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-compact;
+        color: $text-secondary;
+        padding: $spacing-sm;
+        text-align: center;
+        width: 100%;
+        min-width: 50px;
+        box-sizing: border-box;
+        @include input-focus-ring;
+    }
+
+    input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        min-width: 120px;
+        background: transparent;
+        cursor: pointer;
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible::-webkit-slider-thumb {
+            box-shadow: 0 0 0 2px $accent-primary, 0 0 0 5px $accent-primary-soft;
+        }
+
+        &:focus-visible::-moz-range-thumb {
+            box-shadow: 0 0 0 2px $accent-primary, 0 0 0 5px $accent-primary-soft;
+        }
+
+        &::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: $material-track-inactive;
+            border-radius: $shape-corner-2xs;
+        }
+
+        &::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: $accent-primary;
+            border-radius: 50%;
+            margin-top: -7px;
+            transition: transform $duration-fast $ease-smooth;
+        }
+
+        &:hover::-webkit-slider-thumb {
+            transform: scale(1.1);
+        }
+        &:active::-webkit-slider-thumb {
+            transform: scale(1.2);
+        }
+
+        &::-moz-range-track {
+            width: 100%;
+            height: 4px;
+            background: $material-track-inactive;
+            border-radius: $shape-corner-2xs;
+            border: none;
+        }
+
+        &::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: $accent-primary;
+            border-radius: 50%;
+            border: none;
+            transition: transform $duration-fast $ease-smooth;
+        }
+
+        &:hover::-moz-range-thumb {
+            transform: scale(1.1);
+        }
+        &:active::-moz-range-thumb {
+            transform: scale(1.2);
+        }
+    }
+}
+
+@mixin prospector-responsive-layout {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+        "from-dd  .      to-dd"
+        "from-in  slider to-in";
+    gap: 0.5rem 1rem;
+
+    .custom-dropdown:first-of-type { grid-area: from-dd; justify-self: start; }
+    .custom-dropdown:last-of-type { grid-area: to-dd; justify-self: end; }
+
+    .popover-wrapper { grid-area: from-in; }
+    input[type="range"] { grid-area: slider; }
+    input[type="number"]:last-of-type { grid-area: to-in; }
+
+    input[type="range"],
+    input[type="number"] {
+        order: unset;
+        width: 100%;
+        flex-grow: unset;
+    }
+
+    .custom-dropdown {
+        width: calc(100% - 10px);
+
+        .dropdown-options {
+            width: calc(100% + 2px);
+        }
+    }
+}
+
+@media (min-width: $breakpoint-desktop) and (max-width: #{$breakpoint-wide - 1px}), (min-width: #{$breakpoint-compact + 1px}) and (max-width: $breakpoint-modal) {
+    .prospector-controls {
+        @include prospector-responsive-layout;
+    }
+}
+
+@media (max-width: $breakpoint-compact) {
+    .prospector-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto;
+        grid-template-areas:
+            "from-dd to-dd"
+            "from-in to-in"
+            "slider  slider";
+        gap: 0.5rem;
+
+        .custom-dropdown:first-of-type { grid-area: from-dd; justify-self: start; }
+        .custom-dropdown:last-of-type { grid-area: to-dd; justify-self: end; }
+        .popover-wrapper { grid-area: from-in; }
+        input[type="number"]:last-of-type { grid-area: to-in; }
+        input[type="range"] {
+            grid-area: slider;
+            padding: 10px 5px;
+            box-sizing: border-box;
+        }
+
+        .custom-dropdown {
+            width: calc(100% - 20px);
+
+            .dropdown-options {
+                width: calc(100% + 2px);
+            }
+        }
+
+        input[type="number"],
+        input[type="range"] {
+            width: 100%;
+            justify-self: stretch;
+        }
+    }
+
+    #inc-prospector-tip-container {
+        margin-top: 0;
+    }
+}

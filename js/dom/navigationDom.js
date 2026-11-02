@@ -1,5 +1,7 @@
 /**
  * Queries and caches DOM element references for navigation tabs, drawer, and FAB actions.
+ *
+ * @returns {Record<string, any>} Navigation DOM element references.
  */
 export function getNavigationDOMElements() {
     return {

@@ -38,7 +38,6 @@
             flex-shrink: 0;
         }
 
-        // Responsive filter stage 1: full desktop pill buttons
         &.table-filter-stage-1 {
             .hj-type-filters {
                 .hj-type-buttons {
@@ -51,7 +50,6 @@
             }
         }
 
-        // Responsive filter stage 2: compact select dropdown
         &.table-filter-stage-2 {
             .hj-type-filters {
                 .hj-type-buttons {
@@ -76,7 +74,6 @@
             }
         }
 
-        // Responsive filter stage 3: stacked multi-row mobile layout
         &.table-filter-stage-3 {
             display: flex;
             flex-wrap: wrap;

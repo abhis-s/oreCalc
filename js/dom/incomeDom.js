@@ -1,5 +1,7 @@
 /**
  * Queries and caches DOM element references for all Income tab subpanels and source cards.
+ *
+ * @returns {Record<string, any>} Income DOM element references.
  */
 export function getIncomeDOMElements() {
     return {

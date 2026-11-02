@@ -96,6 +96,9 @@ export const heroData = deepFreeze({
 
 /**
  * Returns the pool of epic equipment (name and image icon) for a given hero key derived directly from heroData.
+ *
+ * @param {string} heroKey - Hero identifier key.
+ * @returns {Array<{ key: string, name: string, icon: string, image?: string, heroJourneyNode: number|null }>} Pool of epic equipment.
  */
 export function getHeroEpicEquipmentPool(heroKey) {
     const hero = heroData[heroKey];

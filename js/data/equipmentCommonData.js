@@ -47,6 +47,9 @@ export const EQUIPMENT_MAX_LEVELS = Object.freeze({
 
 /**
  * Returns the maximum level cap based on equipment rarity (Common = 18, Epic = 27).
+ *
+ * @param {string} [rarity='Common'] - Equipment rarity ('Common' or 'Epic').
+ * @returns {number} Maximum level cap.
  */
 export function getEquipmentMaxLevel(rarity = 'Common') {
     if (!rarity) return EQUIPMENT_MAX_LEVELS.common;
@@ -56,6 +59,9 @@ export function getEquipmentMaxLevel(rarity = 'Common') {
 
 /**
  * Returns the upgrade cost object { shiny, glowy, starry } for a given equipment level.
+ *
+ * @param {number} level - Target equipment upgrade level.
+ * @returns {{ shiny: number, glowy: number, starry: number }} Upgrade cost breakdown.
  */
 export function getEquipmentUpgradeCost(level) {
     return upgradeCosts[level] || { shiny: 0, glowy: 0, starry: 0 };
@@ -63,6 +69,11 @@ export function getEquipmentUpgradeCost(level) {
 
 /**
  * Returns the minimum Town Hall level required for a given equipment level, rarity, and hero.
+ *
+ * @param {number} level - Equipment level.
+ * @param {string} [rarity='Common'] - Equipment rarity ('Common' or 'Epic').
+ * @param {string|null} [heroKey=null] - Hero identifier key.
+ * @returns {number} Required Town Hall level.
  */
 export function getRequiredTownHall(level, rarity = 'Common', heroKey = null) {
     const isEpic = rarity.toLowerCase() === 'epic';
@@ -90,6 +101,9 @@ export function getRequiredTownHall(level, rarity = 'Common', heroKey = null) {
 /**
  * Returns the Town Hall equipment caps ({ commonMax, epicMax, unlocks }) for a given Town Hall level.
  * Falls back to TH 8 caps for TH < 8, and the highest available TH caps for TH > 18.
+ *
+ * @param {number} [townHallLevel=8] - Target Town Hall level.
+ * @returns {{ commonMax: number, epicMax: number, unlocks: string[] }} Town Hall equipment caps.
  */
 export function getTownHallCaps(townHallLevel = 8) {
     const th = Math.floor(Number(townHallLevel)) || 8;

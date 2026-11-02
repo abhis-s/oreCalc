@@ -214,7 +214,6 @@ export function getSupercellEventsForYear(year, supercellEventsData, locale = ge
         events = generatedEvents;
     }
 
-    // Ensure all labels are translated/localized based on current language
     return events.map(event => {
         const hasDates = Boolean(event.start && event.end);
         const startDate = hasDates ? new Date(event.start) : null;

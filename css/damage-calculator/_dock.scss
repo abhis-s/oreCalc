@@ -256,14 +256,12 @@
     }
 }
 
-// Search input focus & keyboard avoidance
 body:has(#zq-search-input:focus) .calc-mobile-spell-dock:not(.is-expanded) {
     transform: translateY(calc(100% + 90px));
     opacity: 0;
     pointer-events: none;
 }
 
-// Modal, Drawer & Popover Suppression
 body:has(dialog.modal[open]) .calc-mobile-spell-dock,
 body:has(.modal.show) .calc-mobile-spell-dock,
 body:has(dialog.navigation-drawer[open]) .calc-mobile-spell-dock,

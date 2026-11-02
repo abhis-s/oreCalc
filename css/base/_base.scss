@@ -1,3 +1,731 @@
-@forward 'root-tokens';
-@forward 'theme-light';
-@forward 'elements-reset';
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// --- 1. ROOT DESIGN TOKENS & CSS VARIABLES ---
+
+:root {
+    color-scheme: dark;
+
+    --bg-app: #{$palette-slate-500};
+    --bg-surface-primary: #{$palette-slate-300};
+    --bg-surface-secondary: #{$palette-slate-100};
+    --bg-surface-tertiary: #{$palette-grey-800};
+    --bg-surface-popover: color-mix(in srgb, $bg-surface-secondary 85%, transparent);
+    --bg-overlay: #{$palette-overlay-dark-70};
+
+    --accent-primary: #{$palette-blue-300};
+    --accent-primary-hover: #{$palette-blue-200};
+    --accent-primary-active: #{$palette-blue-400};
+    --accent-primary-soft: rgba(138, 180, 248, 0.1);
+    --accent-soft: $accent-primary-soft;
+
+    --accent-secondary: #{$palette-lavender-200};
+    --accent-secondary-hover: #{$palette-lavender-100};
+    --accent-secondary-soft: rgba(204, 194, 220, 0.1);
+
+    --accent-tertiary: #{$palette-purple-300};
+    --accent-tertiary-hover: #{$palette-purple-200};
+    --accent-tertiary-soft: rgba(206, 147, 216, 0.1);
+
+    --color-success: #{$palette-green-400};
+    --color-success-soft: rgba(129, 199, 132, 0.1);
+    --color-warning: #{$palette-yellow-400};
+    --color-warning-soft: rgba(253, 214, 99, 0.1);
+    --color-danger: #{$palette-red-400};
+    --color-danger-soft: rgba(246, 148, 142, 0.1);
+    --color-danger-soft-hover: rgba(246, 148, 142, 0.2);
+    --color-info: #{$palette-blue-400};
+    --color-info-soft: rgba(102, 157, 246, 0.1);
+
+    --text-primary: #{$palette-white};
+    --text-secondary: #{$palette-grey-300};
+    --text-muted: #{$palette-grey-400};
+    --text-disabled: #{$palette-grey-500};
+    --text-on-accent: #{$palette-slate-500};
+    --text-inverse: #{$palette-slate-500};
+
+    --border-primary: #{$palette-grey-700};
+    --border-secondary: #{$palette-grey-800};
+    --border-accent: #{$palette-blue-300};
+    --border-danger: #{$palette-red-400};
+    --border-inverse: #{$palette-white};
+    --border-on-accent: #{$palette-slate-500};
+    --outline-focus: #{$palette-blue-300};
+
+    --color-rarity-common: #{$palette-blue-300};
+    --color-rarity-rare: #{$palette-green-300};
+    --color-rarity-epic: #{$palette-purple-300};
+    --color-rarity-legendary: #{$palette-yellow-300};
+
+    --color-gold-glow: #{$palette-yellow-300};
+    --color-gold-glow-shadow: color-mix(in srgb, var(--color-gold-glow) 30%, transparent);
+
+    --shiny-ore: #{$palette-ore-shiny};
+    --glowy-ore: #{$palette-ore-glowy};
+    --starry-ore: #{$palette-ore-starry};
+
+    --hero-bk: #{$palette-hero-bk};
+    --hero-aq: #{$palette-hero-aq};
+    --hero-mp: #{$palette-hero-mp};
+    --hero-gw: #{$palette-hero-gw};
+    --hero-rc: #{$palette-hero-rc};
+    --hero-dd: #{$palette-hero-dd};
+
+    --damage-arrow: #ef4444;
+    --damage-overload: #d946ef;
+    --damage-zap: #00e5ff;
+    --damage-quake: #f59e0b;
+
+    --color-income-star-bonus: #{$palette-cyan-200};
+    --color-income-clan-war: #{$palette-blue-200};
+    --color-income-cwl: #{$palette-indigo-200};
+    --color-income-raid-medals: #{$palette-grey-300};
+    --color-income-gems: #{$palette-emerald-200};
+    --color-income-event-pass: #{$palette-purple-200};
+    --color-income-event-trader: #{$palette-deep-orange-200};
+    --color-income-shop-offer: #{$palette-amber-200};
+    --color-income-prospector: #{$palette-brown-200};
+    --color-income-supercell-events: #{$palette-teal-200};
+    --color-income-custom: #{$palette-pink-200};
+    --color-on-income: #{$palette-grey-900};
+
+    --bg-primary: $bg-app;
+    --bg-secondary: $bg-surface-primary;
+    --surface-card: $bg-surface-secondary;
+    --border-color: $border-primary;
+    --color-success-400: $color-success;
+    --color-danger-300: $color-danger;
+
+    --font-family-base: #{$font-family-sans};
+    --font-size-3xs: 0.5625rem;
+    --font-size-2xs: 0.6875rem;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.8125rem;
+    --font-size-base: 0.875rem;
+    --font-size-md: 0.9375rem;
+    --font-size-lg: 1rem;
+    --font-size-xl: 1.125rem;
+    --font-size-2xl: 1.25rem;
+    --font-size-3xl: 1.5rem;
+    --font-weight-bold: 700;
+
+    --material-track-inactive: #{$palette-grey-800};
+    --material-track-border-inactive: rgba(255, 255, 255, 0.18);
+    --material-thumb-inactive: #{$palette-grey-300};
+    --material-track-active: color-mix(in srgb, var(--accent-primary) 32%, #141720);
+    --material-track-border-active: color-mix(in srgb, var(--accent-primary) 65%, transparent);
+    --material-thumb-active: var(--accent-primary);
+
+    --color-gold: #{$palette-gold};
+    --color-gold-soft: rgba(255, 215, 0, 0.15);
+    --color-event-red: #{$palette-red-500};
+    --color-event-red-hover: #{$palette-red-700};
+
+    --chip-border: #{$palette-overlay-light-10};
+    --input-hover-bg-color: #{$palette-overlay-light-10};
+
+    --btn-color-teal: #{$palette-teal-300};
+    --btn-bg-teal: color-mix(in srgb, var(--btn-color-teal) 12%, transparent);
+    --btn-border-teal: color-mix(in srgb, var(--btn-color-teal) 30%, transparent);
+    --btn-bg-teal-hover: color-mix(in srgb, var(--btn-color-teal) 22%, transparent);
+    --btn-border-teal-hover: color-mix(in srgb, var(--btn-color-teal) 45%, transparent);
+
+    --btn-color-red: #{$palette-red-400};
+    --btn-bg-red: color-mix(in srgb, var(--btn-color-red) 12%, transparent);
+    --btn-border-red: color-mix(in srgb, var(--btn-color-red) 30%, transparent);
+    --btn-bg-red-hover: color-mix(in srgb, var(--btn-color-red) 22%, transparent);
+    --btn-border-red-hover: color-mix(in srgb, var(--btn-color-red) 45%, transparent);
+
+    --btn-color-deep-orange: #{$palette-deep-orange-300};
+    --btn-bg-deep-orange: color-mix(in srgb, var(--btn-color-deep-orange) 12%, transparent);
+    --btn-border-deep-orange: color-mix(in srgb, var(--btn-color-deep-orange) 30%, transparent);
+    --btn-bg-deep-orange-hover: color-mix(in srgb, var(--btn-color-deep-orange) 22%, transparent);
+    --btn-border-deep-orange-hover: color-mix(in srgb, var(--btn-color-deep-orange) 45%, transparent);
+
+    --btn-color-emerald: #{$palette-emerald-400};
+    --btn-bg-emerald: color-mix(in srgb, var(--btn-color-emerald) 12%, transparent);
+    --btn-border-emerald: color-mix(in srgb, var(--btn-color-emerald) 30%, transparent);
+    --btn-bg-emerald-hover: color-mix(in srgb, var(--btn-color-emerald) 22%, transparent);
+    --btn-border-emerald-hover: color-mix(in srgb, var(--btn-color-emerald) 45%, transparent);
+
+    --btn-color-green: #{$palette-green-400};
+    --btn-bg-green: color-mix(in srgb, var(--btn-color-green) 12%, transparent);
+    --btn-border-green: color-mix(in srgb, var(--btn-color-green) 30%, transparent);
+    --btn-bg-green-hover: color-mix(in srgb, var(--btn-color-green) 22%, transparent);
+    --btn-border-green-hover: color-mix(in srgb, var(--btn-color-green) 45%, transparent);
+
+    --btn-color-amber: #{$palette-amber-300};
+    --btn-bg-amber: color-mix(in srgb, var(--btn-color-amber) 12%, transparent);
+    --btn-border-amber: color-mix(in srgb, var(--btn-color-amber) 30%, transparent);
+    --btn-bg-amber-hover: color-mix(in srgb, var(--btn-color-amber) 22%, transparent);
+    --btn-border-amber-hover: color-mix(in srgb, var(--btn-color-amber) 45%, transparent);
+
+    --btn-color-cyan: #{$palette-cyan-300};
+    --btn-bg-cyan: color-mix(in srgb, var(--btn-color-cyan) 12%, transparent);
+    --btn-border-cyan: color-mix(in srgb, var(--btn-color-cyan) 30%, transparent);
+    --btn-bg-cyan-hover: color-mix(in srgb, var(--btn-color-cyan) 22%, transparent);
+    --btn-border-cyan-hover: color-mix(in srgb, var(--btn-color-cyan) 45%, transparent);
+
+    --btn-color-purple: #{$palette-purple-300};
+    --btn-bg-purple: color-mix(in srgb, var(--btn-color-purple) 12%, transparent);
+    --btn-border-purple: color-mix(in srgb, var(--btn-color-purple) 30%, transparent);
+    --btn-bg-purple-hover: color-mix(in srgb, var(--btn-color-purple) 22%, transparent);
+    --btn-border-purple-hover: color-mix(in srgb, var(--btn-color-purple) 45%, transparent);
+
+    --btn-color-pink: #{$palette-pink-300};
+    --btn-bg-pink: color-mix(in srgb, var(--btn-color-pink) 12%, transparent);
+    --btn-border-pink: color-mix(in srgb, var(--btn-color-pink) 30%, transparent);
+    --btn-bg-pink-hover: color-mix(in srgb, var(--btn-color-pink) 22%, transparent);
+    --btn-border-pink-hover: color-mix(in srgb, var(--btn-color-pink) 45%, transparent);
+
+    --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
+    --ease-exit: cubic-bezier(0.4, 0, 0.8, 0.2);
+    --ease-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    --duration-instant: 100ms;
+    --duration-fast: 150ms;
+    --duration-exit: 180ms;
+    --duration-base: 250ms;
+    --duration-moderate: 300ms;
+    --duration-slow: 400ms;
+}
+
+// --- 2. LIGHT THEME TOKEN OVERRIDES ---
+
+.light-mode {
+    color-scheme: light;
+
+    --bg-app: #{$palette-grey-50};
+    --bg-surface-primary: #{$palette-white};
+    --bg-surface-secondary: #{$palette-grey-100};
+    --bg-surface-tertiary: #{$palette-grey-200};
+    --bg-surface-popover: color-mix(in srgb, $bg-surface-secondary 85%, transparent);
+    --bg-overlay: #{$palette-overlay-dark-30};
+
+    --accent-primary: #{$palette-blue-600};
+    --accent-primary-hover: #{$palette-blue-700};
+    --accent-primary-active: #{$palette-blue-800};
+    --accent-primary-soft: rgba(26, 115, 232, 0.12);
+    --accent-soft: $accent-primary-soft;
+
+    --accent-secondary: #{$palette-lavender-700};
+    --accent-secondary-hover: #{$palette-lavender-900};
+    --accent-secondary-soft: rgba(73, 69, 79, 0.12);
+
+    --accent-tertiary: #{$palette-purple-600};
+    --accent-tertiary-hover: #{$palette-purple-700};
+    --accent-tertiary-soft: rgba(156, 39, 176, 0.12);
+
+    --color-success: #{$palette-green-700};
+    --color-success-soft: rgba(30, 142, 62, 0.12);
+    --color-warning: #{$palette-yellow-900};
+    --color-warning-soft: rgba(227, 116, 0, 0.12);
+    --color-danger: #{$palette-red-700};
+    --color-danger-soft: rgba(217, 48, 37, 0.12);
+    --color-danger-soft-hover: rgba(217, 48, 37, 0.24);
+    --color-info: #{$palette-blue-600};
+    --color-info-soft: rgba(26, 115, 232, 0.12);
+
+    --text-primary: #{$palette-grey-850};
+    --text-secondary: #{$palette-grey-750};
+    --text-muted: #{$palette-grey-650};
+    --text-disabled: #{$palette-grey-400};
+    --text-on-accent: #{$palette-white};
+    --text-inverse: #{$palette-white};
+
+    --border-primary: #{$palette-grey-400};
+    --border-secondary: #{$palette-grey-300};
+    --border-accent: #{$palette-blue-600};
+    --border-danger: #{$palette-red-700};
+    --border-inverse: #{$palette-grey-800};
+    --border-on-accent: #{$palette-white};
+    --outline-focus: #{$palette-blue-600};
+
+    --color-rarity-common: #{$palette-blue-700};
+    --color-rarity-rare: #{$palette-green-700};
+    --color-rarity-epic: #{$palette-purple-700};
+    --color-rarity-legendary: #{$palette-yellow-900};
+
+    --color-gold-glow: #{$palette-amber-900};
+    --color-gold-glow-shadow: color-mix(in srgb, var(--color-gold-glow) 40%, transparent);
+
+    --shiny-ore: #0088cc;
+    --glowy-ore: #c020db;
+    --starry-ore: #d97706;
+
+    --damage-arrow: #e11d48;
+    --damage-overload: #c026d3;
+    --damage-zap: #0284c7;
+    --damage-quake: #d97706;
+
+    --color-income-star-bonus: #{$palette-cyan-200};
+    --color-income-clan-war: #{$palette-blue-200};
+    --color-income-cwl: #{$palette-indigo-200};
+    --color-income-raid-medals: #{$palette-grey-300};
+    --color-income-gems: #{$palette-emerald-200};
+    --color-income-event-pass: #{$palette-purple-200};
+    --color-income-event-trader: #{$palette-deep-orange-200};
+    --color-income-shop-offer: #{$palette-amber-200};
+    --color-income-prospector: #{$palette-brown-200};
+    --color-income-supercell-events: #{$palette-teal-200};
+    --color-income-custom: #{$palette-pink-200};
+    --color-on-income: #{$palette-grey-900};
+
+    --chip-border: #{$palette-overlay-dark-10};
+    --input-hover-bg-color: #{$palette-overlay-dark-10};
+
+    --material-track-inactive: #{$palette-grey-200};
+    --material-track-border-inactive: #{$palette-grey-400};
+    --material-thumb-inactive: #{$palette-grey-700};
+    --material-track-active: color-mix(in srgb, var(--accent-primary) 28%, #ffffff);
+    --material-track-border-active: color-mix(in srgb, var(--accent-primary) 60%, transparent);
+    --material-thumb-active: var(--accent-primary);
+
+    --color-gold: #{$palette-yellow-800};
+    --color-gold-soft: rgba(227, 116, 0, 0.15);
+    --color-event-red: #{$palette-red-600};
+    --color-event-red-hover: #{$palette-red-800};
+
+    --font-weight-bold: 600;
+
+    --btn-color-teal: #{$palette-teal-800};
+    --btn-bg-teal: color-mix(in srgb, var(--btn-color-teal) 10%, transparent);
+    --btn-border-teal: color-mix(in srgb, var(--btn-color-teal) 30%, transparent);
+    --btn-bg-teal-hover: color-mix(in srgb, var(--btn-color-teal) 18%, transparent);
+    --btn-border-teal-hover: color-mix(in srgb, var(--btn-color-teal) 45%, transparent);
+
+    --btn-color-red: #{$palette-red-800};
+    --btn-bg-red: color-mix(in srgb, var(--btn-color-red) 10%, transparent);
+    --btn-border-red: color-mix(in srgb, var(--btn-color-red) 30%, transparent);
+    --btn-bg-red-hover: color-mix(in srgb, var(--btn-color-red) 18%, transparent);
+    --btn-border-red-hover: color-mix(in srgb, var(--btn-color-red) 45%, transparent);
+
+    --btn-color-deep-orange: #{$palette-deep-orange-800};
+    --btn-bg-deep-orange: color-mix(in srgb, var(--btn-color-deep-orange) 10%, transparent);
+    --btn-border-deep-orange: color-mix(in srgb, var(--btn-color-deep-orange) 30%, transparent);
+    --btn-bg-deep-orange-hover: color-mix(in srgb, var(--btn-color-deep-orange) 18%, transparent);
+    --btn-border-deep-orange-hover: color-mix(in srgb, var(--btn-color-deep-orange) 45%, transparent);
+
+    --btn-color-emerald: #{$palette-emerald-800};
+    --btn-bg-emerald: color-mix(in srgb, var(--btn-color-emerald) 10%, transparent);
+    --btn-border-emerald: color-mix(in srgb, var(--btn-color-emerald) 30%, transparent);
+    --btn-bg-emerald-hover: color-mix(in srgb, var(--btn-color-emerald) 18%, transparent);
+    --btn-border-emerald-hover: color-mix(in srgb, var(--btn-color-emerald) 45%, transparent);
+
+    --btn-color-green: #{$palette-green-800};
+    --btn-bg-green: color-mix(in srgb, var(--btn-color-green) 10%, transparent);
+    --btn-border-green: color-mix(in srgb, var(--btn-color-green) 30%, transparent);
+    --btn-bg-green-hover: color-mix(in srgb, var(--btn-color-green) 18%, transparent);
+    --btn-border-green-hover: color-mix(in srgb, var(--btn-color-green) 45%, transparent);
+
+    --btn-color-amber: #{$palette-amber-900};
+    --btn-bg-amber: color-mix(in srgb, var(--btn-color-amber) 12%, transparent);
+    --btn-border-amber: color-mix(in srgb, var(--btn-color-amber) 35%, transparent);
+    --btn-bg-amber-hover: color-mix(in srgb, var(--btn-color-amber) 20%, transparent);
+    --btn-border-amber-hover: color-mix(in srgb, var(--btn-color-amber) 50%, transparent);
+
+    --btn-color-cyan: #{$palette-cyan-900};
+    --btn-bg-cyan: color-mix(in srgb, var(--btn-color-cyan) 10%, transparent);
+    --btn-border-cyan: color-mix(in srgb, var(--btn-color-cyan) 30%, transparent);
+    --btn-bg-cyan-hover: color-mix(in srgb, var(--btn-color-cyan) 18%, transparent);
+    --btn-border-cyan-hover: color-mix(in srgb, var(--btn-color-cyan) 45%, transparent);
+
+    --btn-color-purple: #{$palette-purple-800};
+    --btn-bg-purple: color-mix(in srgb, var(--btn-color-purple) 10%, transparent);
+    --btn-border-purple: color-mix(in srgb, var(--btn-color-purple) 30%, transparent);
+    --btn-bg-purple-hover: color-mix(in srgb, var(--btn-color-purple) 18%, transparent);
+    --btn-border-purple-hover: color-mix(in srgb, var(--btn-color-purple) 45%, transparent);
+
+    --btn-color-pink: #{$palette-pink-800};
+    --btn-bg-pink: color-mix(in srgb, var(--btn-color-pink) 10%, transparent);
+    --btn-border-pink: color-mix(in srgb, var(--btn-color-pink) 30%, transparent);
+    --btn-bg-pink-hover: color-mix(in srgb, var(--btn-color-pink) 18%, transparent);
+    --btn-border-pink-hover: color-mix(in srgb, var(--btn-color-pink) 45%, transparent);
+
+    background-color: $bg-app;
+    color: $text-primary;
+}
+
+// --- 3. GLOBAL ELEMENT RESETS & BASE STYLING ---
+
+html {
+    overflow-x: clip;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: $shape-corner-compact;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.24);
+    }
+}
+
+html:has(body.light-mode) {
+    scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+
+    ::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.12);
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.24);
+        }
+    }
+}
+
+input[type="checkbox"] {
+    transition: transform $duration-fast $ease-spring;
+    cursor: pointer;
+
+    &:hover {
+        transform: scale(1.15);
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
+}
+
+// Suppress native WebKit search cancel and decoration buttons across all search inputs
+input[type="search"] {
+    &::-webkit-search-decoration,
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-results-button,
+    &::-webkit-search-results-decoration {
+        -webkit-appearance: none;
+        appearance: none;
+        display: none;
+    }
+}
+
+html {
+    overscroll-behavior-y: contain;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100vw;
+    min-height: 100dvh;
+    background-color: $bg-app;
+    box-sizing: border-box;
+}
+
+html,
+body,
+dialog,
+.modal {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    overflow-x: clip;
+    color: $text-primary;
+    transition: background-color $duration-slow $ease-smooth, color $duration-slow $ease-smooth;
+    font-family: $font-family-sans;
+    -webkit-tap-highlight-color: transparent;
+}
+
+main,
+#main-content {
+    flex: 1 0 auto;
+
+    &:focus,
+    &:focus-visible {
+        outline: none !important;
+    }
+}
+
+[tabindex="-1"] {
+    &:focus,
+    &:focus-visible {
+        outline: none !important;
+    }
+}
+
+img,
+svg,
+picture,
+.income-chip,
+.card-drag-handle {
+    -webkit-user-drag: none;
+}
+
+button,
+a,
+select,
+input,
+textarea,
+[role="button"] {
+    -webkit-tap-highlight-color: transparent;
+}
+
+*:focus-visible:not(input):not(select):not(textarea):not(.dropdown-style):not(.custom-dropdown):not([tabindex="-1"]):not(#main-content):not(main) {
+    outline: 2px solid $outline-focus !important;
+    outline-offset: 2px;
+}
+
+.card,
+.inner-card,
+.income-card,
+.hero-card,
+.navigation-drawer,
+.income-summary-title,
+.income-table-cell,
+.app-header__tab,
+.tab-button,
+.nav-button,
+.fab-button,
+.fab-menu-pill,
+.income-chip,
+.ore-tooltip,
+.chip-tooltip {
+    transition: background-color $duration-slow $ease-smooth, color $duration-slow $ease-smooth, border-color $duration-slow $ease-smooth, box-shadow $duration-slow $ease-smooth, filter $duration-slow $ease-smooth;
+}
+
+input,
+select,
+textarea,
+.updatable {
+    -webkit-user-select: auto;
+    user-select: auto;
+    scroll-margin-top: 90px;
+}
+
+#player-tag-input-modal,
+#welcome-player-tag-input,
+#delete-player-tag-input {
+    text-transform: uppercase;
+}
+
+code {
+    font-family: 'Roboto Mono', monospace;
+    background-color: color-mix(in srgb, $color-danger 12%, transparent);
+    border: 1px solid color-mix(in srgb, $color-danger 24%, transparent);
+    padding: $spacing-2xs 6px;
+    border-radius: $shape-corner-xs;
+    font-size: 0.9em;
+    color: $color-danger;
+    display: inline-block;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    vertical-align: middle;
+    -webkit-user-select: all;
+    user-select: all;
+}
+
+#user-id-display {
+    user-select: text;
+}
+
+.container {
+    @include app-layout-container;
+}
+
+.negative-value {
+    color: $color-danger;
+}
+
+[hidden],
+.hidden,
+.is-hidden,
+.svg-sprite-sheet {
+    display: none !important;
+}
+
+.badge:empty,
+.form-setting-text:empty {
+    display: none !important;
+}
+
+.separator {
+    height: 0;
+    border-top: 1px solid $border-primary;
+    margin: 10px 0;
+    opacity: 0.5;
+}
+
+orecalc-assets-svg,
+clashcalc-assets-svg {
+    display: contents;
+
+    &:empty {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 1;
+
+        width: 24px;
+        height: 24px;
+
+        &[width="14"] { width: 14px; }
+        &[height="14"] { height: 14px; }
+        &[width="16"] { width: 16px; }
+        &[height="16"] { height: 16px; }
+        &[width="18"] { width: 18px; }
+        &[height="18"] { height: 18px; }
+        &[width="20"] { width: 20px; }
+        &[height="20"] { height: 20px; }
+        &[width="24"] { width: 24px; }
+        &[height="24"] { height: 24px; }
+        &[width="30"] { width: 30px; }
+        &[height="30"] { height: 30px; }
+        &[width="32"] { width: 32px; }
+        &[height="32"] { height: 32px; }
+        &[width="48"] { width: 48px; }
+        &[height="48"] { height: 48px; }
+    }
+}
+
+orecalc-assets-image,
+clashcalc-assets-image {
+    display: contents;
+
+    &:empty {
+        display: inline-block;
+        vertical-align: middle;
+
+        &.ore-image {
+            height: 30px;
+            width: 30px;
+        }
+
+        &.title-icon {
+            height: 30px;
+            width: 53.3px;
+        }
+
+        &.landing-tool-icon {
+            height: 26px;
+            width: 26px;
+        }
+
+        .resources-row & {
+            height: 24px;
+            width: 24px;
+        }
+    }
+}
+
+.theme-link {
+    color: $accent-primary;
+    text-decoration: underline;
+    transition: color $duration-fast $ease-standard;
+
+    &:hover {
+        color: $accent-primary-hover;
+    }
+}
+
+.open-in-new-icon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 3px;
+    position: relative;
+    top: -1px;
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+}
+
+.text-muted {
+    color: $text-muted;
+}
+
+.text-secondary {
+    color: $text-secondary;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: $font-weight-bold;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: $spacing-2xs 6px;
+    border-radius: $shape-corner-compact;
+    border: 1px solid transparent;
+    flex-shrink: 0;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.coming-soon-badge {
+    @extend .badge;
+    background-color: $bg-surface-secondary;
+    color: $text-secondary;
+    border-color: $border-secondary;
+}
+
+%app-tooltip {
+    background-color: $bg-surface-tertiary;
+    color: $text-primary;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $shape-corner-small;
+    white-space: nowrap;
+    z-index: $z-index-tooltip;
+    pointer-events: none;
+    box-shadow: $elevation-3;
+    border: 1px solid $border-primary;
+}
+
+%hide-scrollbar {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

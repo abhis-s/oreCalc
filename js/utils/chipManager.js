@@ -169,7 +169,6 @@ export function checkAndGenerateRecurringChips() {
 
         // Event Trader
         if (settings.eventTrader.monthly) {
-            // Check if current month is an event month
             const eventTraderSource = incomeData.eventTrader;
             const availableMonths = eventTraderSource.schedule.availableMonths[currentYear] || [];
             if (availableMonths.includes(currentMonth + 1)) {
@@ -330,7 +329,9 @@ export function clearMonthCalendarChips(monthYearKey) {
 
 /**
  * Re-indexes numeric IDs of calendar chips of a specified type across all calendar dates to maintain contiguous sequences.
+ *
  * @param {string} chipType - Income chip category identifier (e.g. 'starBonus', 'cwl').
+ * @returns {boolean} True if any chip IDs were modified and reindexed.
  */
 export function reindexCalendarChips(chipType) {
 

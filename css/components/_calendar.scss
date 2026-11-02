@@ -1,4 +1,958 @@
-@forward 'calendar/calendar-grid';
-@forward 'calendar/calendar-nav';
-@forward 'calendar/calendar-milestones';
-@forward 'calendar/calendar-popovers';
+@use '../abstracts/variables' as *;
+@use '../base/base';
+
+// --- 1. CALENDAR GRID & CELLS ---
+
+.calendar-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+#calendar-track {
+    display: flex;
+    align-items: flex-start;
+    width: 300%;
+    position: relative;
+}
+
+.calendar-grid {
+    width: calc(100% / 3);
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: auto;
+    grid-auto-rows: minmax(80px, auto);
+    text-align: center;
+    flex-shrink: 0;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    overflow: hidden;
+    background-color: $bg-surface-secondary;
+    gap: 1px;
+
+    .day-name {
+        font-weight: $font-weight-bold;
+        color: $text-secondary;
+        padding: $spacing-md 5px;
+        background-color: $bg-surface-primary;
+        font-size: 0.8em;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .day-cell {
+        padding: $spacing-md 5px $spacing-sm 5px;
+        cursor: pointer;
+        transition: background-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+        background-color: $bg-surface-primary;
+        min-height: 80px;
+
+        &:hover {
+            background-color: $bg-surface-tertiary;
+            z-index: $z-index-component;
+            box-shadow: inset 0 0 0 1px $accent-primary;
+        }
+
+        &.other-month {
+            background-color: $bg-app;
+            color: $text-muted;
+
+            .income-chip {
+                opacity: 0.4;
+                filter: grayscale(0.5);
+            }
+        }
+
+        .chip-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(32px, calc(50% - 2px)), 1fr));
+            gap: 3px;
+            justify-items: center;
+            align-items: center;
+            align-content: flex-start;
+            width: 100%;
+            box-sizing: border-box;
+
+            &.subgrid-1 {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+
+            &.subgrid-2 {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 3px;
+            }
+
+            &.subgrid-compact-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 3px;
+            }
+        }
+    }
+}
+
+@keyframes dropPulse {
+    0% {
+        background-color: transparent;
+        box-shadow: inset 0 0 0 0 rgba($accent-primary, 0);
+    }
+    30% {
+        background-color: rgba($accent-primary, 0.2);
+        box-shadow: inset 0 0 0 4px rgba($accent-primary, 0.4);
+    }
+    100% {
+        background-color: transparent;
+        box-shadow: inset 0 0 0 0 rgba($accent-primary, 0);
+    }
+}
+
+.day-cell {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: visible;
+    position: relative;
+
+    &.drop-pulse {
+        animation: dropPulse 0.6s ease-out;
+    }
+
+    &.drag-source-cell {
+        background-color: $accent-primary-soft;
+        border-color: $accent-primary;
+        box-shadow: 0 0 8px color-mix(in srgb, $accent-primary 25%, transparent);
+    }
+
+    &.drag-source-day {
+        background-color: $accent-primary-soft;
+        border-color: $accent-primary;
+        box-shadow: 0 0 8px color-mix(in srgb, $accent-primary 25%, transparent);
+    }
+
+    &.today {
+        .date-display {
+            background-color: $accent-primary;
+            color: $text-on-accent;
+            font-weight: $font-weight-bold;
+            box-shadow: $elevation-2;
+        }
+    }
+
+    .date-display {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        border-radius: 50%;
+        font-size: 0.95em;
+        transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+        flex-shrink: 0;
+    }
+
+    .chip-container {
+        flex-grow: 1;
+        min-height: 30px;
+        border-radius: $shape-corner-small;
+        transition: background-color $duration-fast $ease-smooth, outline-color $duration-fast $ease-smooth;
+
+        &.valid-drop-range {
+            outline: 1.5px dashed $border-accent;
+            outline-offset: -1.5px;
+            background-color: color-mix(in srgb, $accent-primary-soft 30%, transparent);
+        }
+
+        &.valid-drop-target {
+            outline: 2px dashed $color-success;
+            outline-offset: -2px;
+            background-color: $color-success-soft;
+        }
+
+        &.invalid-drop-target {
+            outline: 2px dashed $color-danger;
+            outline-offset: -2px;
+            background-color: $color-danger-soft;
+        }
+    }
+}
+
+// --- 2. CALENDAR NAVIGATION & MONTH CHIPS ---
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    color: $text-primary;
+    padding: 10px 15px;
+
+    .calendar-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .current-month-year {
+            display: inline-block;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: $font-weight-semibold;
+            min-width: 150px;
+
+            &.header-fade-in {
+                animation: headerFadeIn 0.3s ease-out forwards;
+            }
+        }
+    }
+
+    h2 {
+        margin: 0;
+        font-size: $font-size-2xl;
+        font-weight: $font-weight-semibold;
+        text-align: left;
+        flex-grow: 1;
+        color: $accent-primary;
+    }
+
+    .calendar-action-buttons {
+        display: flex;
+        gap: $spacing-sm;
+        align-items: center;
+    }
+
+    .planner-action-button {
+        background-color: $bg-surface-tertiary;
+        border-color: $border-primary;
+        color: $text-secondary;
+
+        &:hover {
+            background-color: $accent-primary-soft;
+            border-color: $accent-primary;
+            color: $accent-primary;
+        }
+    }
+}
+
+.month-chip-container {
+    display: flex;
+    overflow-x: auto;
+    padding: 10px;
+    gap: $spacing-sm;
+    @extend %hide-scrollbar;
+}
+
+.year-label {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-weight: $font-weight-bold;
+    color: $text-secondary;
+}
+
+.month-chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-sm $spacing-lg;
+    border-radius: $shape-corner-small;
+    background-color: $bg-surface-tertiary;
+    color: $text-primary;
+    cursor: pointer;
+    transition: background-color $duration-moderate $ease-smooth, border-color $duration-moderate $ease-smooth;
+    white-space: nowrap;
+    flex-grow: 1;
+    flex-shrink: 0;
+    border: 1px solid $border-primary;
+
+    &:hover {
+        background-color: $bg-surface-primary;
+        border-color: $accent-primary;
+    }
+
+    &.is-active {
+        font-weight: $font-weight-bold;
+        border-color: $accent-primary;
+
+        .month-name {
+            color: $accent-primary;
+        }
+    }
+}
+
+.week-numbers-container {
+    display: none;
+    flex-wrap: nowrap;
+    gap: 5px;
+    margin-left: 10px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.month-chip.is-active .week-numbers-container {
+    display: flex;
+}
+
+.week-chip {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: $bg-surface-tertiary;
+    color: $text-primary;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: background-color $duration-moderate $ease-smooth, color $duration-moderate $ease-smooth;
+
+    &:hover {
+        background-color: $accent-primary-soft;
+    }
+
+    &.is-active {
+        background-color: $accent-primary;
+        color: $text-on-accent;
+        font-weight: $font-weight-bold;
+    }
+}
+
+@keyframes headerFadeIn {
+    from {
+        opacity: 0.3;
+        transform: translateY(-2px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: #{$breakpoint-desktop - 1px}) {
+    .calendar-header {
+        h2 {
+            font-size: 1.1rem;
+        }
+    }
+}
+
+@media (max-width: $breakpoint-compact) {
+    .calendar-header {
+        padding: $spacing-sm 10px;
+
+        h2 {
+            font-size: 0.95rem;
+        }
+
+        .calendar-action-buttons {
+            gap: $spacing-xs;
+        }
+
+        .planner-action-button {
+            width: 32px;
+            height: 32px;
+
+            svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    }
+}
+
+// --- 3. MILESTONES & LEVEL-UP ACCUMULATION ---
+
+.day-cell.equipment-accumulating {
+    background-color: color-mix(in srgb, var(--equip-color) 4%, #{$bg-surface-primary}) !important;
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background-color: var(--equip-color);
+        opacity: 0.7;
+        z-index: $z-index-interactive;
+        transition: all $duration-fast $ease-smooth;
+    }
+
+    &.range-start::after {
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+        left: 4px;
+    }
+
+    &.range-end::after {
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        right: 4px;
+    }
+}
+
+.calendar-equipment-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: auto;
+    padding-top: 6px;
+    box-sizing: border-box;
+    z-index: 3;
+}
+
+.calendar-equipment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(45, 52, 54, 0.4);
+    border: 1.5px solid color-mix(in srgb, var(--equip-color) 40%, #{$border-primary});
+    border-radius: $shape-corner-compact;
+    padding: 3px 6px;
+    cursor: help;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, box-shadow $duration-fast $ease-smooth;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(4px);
+
+    &:hover {
+        background: rgba(45, 52, 54, 0.7);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25), 0 0 10px color-mix(in srgb, var(--equip-color) 50%, transparent);
+        border-color: var(--equip-color);
+        z-index: $z-index-overlay;
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+.calendar-equipment-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+.calendar-equipment-fallback {
+    width: 14px;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: $shape-corner-xs;
+}
+
+.calendar-equipment-level {
+    font-size: 0.72em;
+    font-weight: $font-weight-bold;
+    color: $color-white-const;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+#calendar-track > .weekly-view-grid {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    gap: $spacing-md;
+    width: calc(100% / 3);
+    flex-shrink: 0;
+    box-sizing: border-box;
+
+    .day-cell {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: $spacing-md 15px;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-large;
+        background-color: $bg-surface-primary;
+        min-height: auto;
+        gap: 15px;
+        overflow: hidden;
+
+        &:hover {
+            border-color: $accent-primary;
+            background-color: $bg-surface-secondary;
+            transform: translateX(4px);
+        }
+
+        .date-display {
+            margin: 0;
+        }
+
+        &.equipment-accumulating {
+            &::after {
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: auto;
+                width: 4px;
+                height: 100%;
+                border-top-left-radius: inherit;
+                border-bottom-left-radius: inherit;
+            }
+
+            &.range-start::after {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+                top: 4px;
+                height: calc(100% - 4px);
+            }
+
+            &.range-end::after {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: inherit;
+                bottom: 4px;
+                height: calc(100% - 4px);
+            }
+        }
+
+        .day-meta-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            flex-shrink: 0;
+            min-width: 60px;
+
+            .calendar-equipment-container {
+                margin-top: $spacing-2xs;
+                margin-left: 0;
+                width: auto;
+                padding-top: 0;
+                justify-content: flex-start;
+            }
+        }
+    }
+
+    .day-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+
+        .day-name-short {
+            font-weight: $font-weight-semibold;
+            color: $text-secondary;
+            text-transform: uppercase;
+            font-size: 0.85em;
+        }
+    }
+
+    .chip-container {
+        display: flex;
+        flex-wrap: wrap;
+        flex: 1 1 0px;
+        gap: $spacing-xs;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-content: center;
+        min-height: auto;
+    }
+}
+
+// --- 4. CALENDAR POPOVERS & TOOLTIPS ---
+
+.ore-tooltip,
+[role="tooltip"].ore-tooltip {
+    @extend %app-tooltip;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    font-size: clamp(11px, 2.5vw, 13px) !important;
+    padding: clamp(6px, 1.5vw, 10px) clamp($spacing-sm, 2vw, 14px) !important;
+    gap: clamp($spacing-xs, 1vw, 6px) !important;
+    max-width: 90vw;
+    box-sizing: border-box;
+
+    .tooltip-header {
+        font-weight: $font-weight-bold;
+        margin-bottom: $spacing-xs;
+        color: $accent-primary;
+        width: 100%;
+        text-align: center;
+        font-size: clamp(12px, 2.8vw, 14px) !important;
+        white-space: normal;
+    }
+
+    .tooltip-message {
+        color: $color-danger;
+        font-size: clamp(9px, 2vw, 11px) !important;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .tooltip-bottleneck {
+        font-size: clamp(10px, 2.2vw, 12px) !important;
+        font-weight: $font-weight-semibold;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .ore-count-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-sm;
+        width: 100%;
+        font-size: 0.85em;
+        font-weight: $font-weight-medium;
+
+        span {
+            flex: 1;
+            text-align: right;
+            font-family: 'Roboto Mono', monospace;
+        }
+    }
+
+    .ore-icon-small {
+        width: 16px;
+        height: 16px;
+    }
+
+    .tooltip-req-ores {
+        display: flex;
+        gap: clamp($spacing-xs, 1vw, $spacing-sm);
+        margin-top: 3px;
+        align-items: center;
+
+        span {
+            display: inline-flex;
+            align-items: center;
+            gap: clamp($spacing-2xs, 0.5vw, $spacing-xs);
+            font-size: clamp(10px, 2.2vw, 12px) !important;
+        }
+
+        clashcalc-assets-image,
+        orecalc-assets-image,
+        img {
+            width: clamp(10px, 2.2vw, 13px) !important;
+            height: clamp(10px, 2.2vw, 13px) !important;
+        }
+    }
+
+    .tooltip-in-progress {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: $spacing-xs;
+        margin-top: $spacing-sm;
+        width: 100%;
+        border-top: 1px dashed $border-primary;
+        padding-top: $spacing-sm;
+        box-sizing: border-box;
+
+        .in-progress-title {
+            font-size: clamp(9px, 2vw, 11px);
+            opacity: 0.8;
+            font-weight: $font-weight-medium;
+            text-align: center;
+            width: 100%;
+        }
+
+        .in-progress-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(45, 52, 54, 0.4);
+            padding: $spacing-xs $spacing-sm;
+            border-radius: $shape-corner-small;
+            border: 1px solid var(--equip-color, #2d3436);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+            margin-top: $spacing-2xs;
+        }
+
+        .in-progress-icon {
+            width: clamp(12px, 2.5vw, 16px) !important;
+            height: clamp(12px, 2.5vw, 16px) !important;
+            object-fit: contain;
+        }
+
+        .in-progress-fallback {
+            font-size: 0.7em;
+            font-weight: $font-weight-bold;
+            color: #dfe6e9;
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2d3436;
+            border-radius: $shape-corner-xs;
+        }
+
+        .in-progress-level {
+            font-size: clamp(9px, 2.2vw, 11px);
+            font-weight: $font-weight-bold;
+            color: $color-white-const;
+            white-space: nowrap;
+        }
+    }
+}
+
+.day-overview-popover {
+    position: fixed;
+    z-index: $z-index-popover;
+    width: 90vw;
+    max-width: min(300px, 90vw);
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-medium;
+    box-shadow: $elevation-4;
+    padding: 14px;
+    display: none;
+    flex-direction: column;
+    gap: $spacing-md;
+    box-sizing: border-box;
+
+    &.show,
+    &:popover-open {
+        display: flex;
+    }
+
+    .day-overview-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: $spacing-sm;
+        border-bottom: 1px solid $border-secondary;
+
+        .day-overview-date {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: $font-weight-semibold;
+            color: $accent-primary;
+        }
+
+        .day-overview-close-btn {
+            background: none;
+            border: none;
+            color: $text-secondary;
+            cursor: pointer;
+            padding: $spacing-xs;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: $shape-corner-small;
+            transition: background-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
+
+            svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            &:hover {
+                background-color: $bg-surface-tertiary;
+                color: $text-primary;
+            }
+        }
+    }
+
+    .day-overview-summary-card {
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-secondary;
+        border-radius: $shape-corner-small;
+        padding: 10px;
+
+        .day-overview-summary-title {
+            font-size: $font-size-xs;
+            font-weight: $font-weight-semibold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: $text-secondary;
+            margin-bottom: 6px;
+        }
+
+        .day-overview-ores-grid {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: $spacing-sm;
+
+            .day-ore-stat {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+
+                .day-ore-val {
+                    font-size: 0.85rem;
+                    font-weight: $font-weight-semibold;
+                    color: $text-primary;
+                    font-family: 'Roboto Mono', monospace;
+                }
+
+                .ore-icon-small {
+                    width: 16px;
+                    height: 16px;
+                }
+            }
+        }
+    }
+
+    .day-overview-milestones {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .day-overview-section-title {
+            font-size: $font-size-xs;
+            font-weight: $font-weight-semibold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: $text-secondary;
+        }
+
+        .day-overview-milestones-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .day-overview-milestone-item {
+                display: flex;
+                align-items: center;
+                gap: $spacing-sm;
+                background-color: $bg-surface-secondary;
+                border: 1.5px solid var(--equip-color, $border-primary);
+                border-radius: $shape-corner-small;
+                padding: 6px 10px;
+
+                .milestone-icon {
+                    width: 24px;
+                    height: 24px;
+                    object-fit: contain;
+                }
+
+                .milestone-fallback {
+                    width: 24px;
+                    height: 24px;
+                    background-color: $bg-surface-tertiary;
+                    color: $text-primary;
+                    border-radius: $shape-corner-xs;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: $font-size-xs;
+                    font-weight: $font-weight-bold;
+                }
+
+                .milestone-text-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: $spacing-2xs;
+
+                    .milestone-title {
+                        font-size: 0.85rem;
+                        font-weight: $font-weight-semibold;
+                        color: $text-primary;
+                    }
+
+                    .milestone-bottleneck {
+                        font-size: $font-size-xs;
+                        color: $color-danger;
+                    }
+                }
+            }
+        }
+    }
+
+    .day-overview-chips-section {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-height: 200px;
+        overflow-y: auto;
+
+        .day-overview-empty {
+            font-size: 0.8rem;
+            color: $text-muted;
+            text-align: center;
+            padding: $spacing-sm 0;
+            font-style: italic;
+        }
+
+        .day-overview-chips-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .day-overview-chip-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background-color: $bg-surface-secondary;
+                border: 1px solid $border-secondary;
+                border-radius: $shape-corner-small;
+                padding: 6px 10px;
+                gap: $spacing-sm;
+
+                .chip-row-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 3px;
+                    flex-grow: 1;
+
+                    .chip-row-title {
+                        font-size: 0.82rem;
+                        font-weight: $font-weight-semibold;
+                        color: $text-primary;
+                    }
+
+                    .chip-row-ores {
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        font-size: $font-size-xs;
+                        color: $text-secondary;
+                        font-family: 'Roboto Mono', monospace;
+
+                        .ore-icon-tiny {
+                            width: 12px;
+                            height: 12px;
+                            vertical-align: middle;
+                        }
+                    }
+                }
+
+                .chip-row-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: $spacing-xs;
+
+                    .chip-action-btn {
+                        background: none;
+                        border: 1px solid $border-primary;
+                        border-radius: $shape-corner-compact;
+                        color: $text-secondary;
+                        cursor: pointer;
+                        padding: $spacing-xs;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
+
+                        svg {
+                            width: 12px;
+                            height: 12px;
+                        }
+
+                        &.btn-remove:hover {
+                            background-color: $color-danger-soft;
+                            border-color: $color-danger;
+                            color: $color-danger;
+                        }
+
+                        &.btn-edit:hover {
+                            background-color: $accent-primary-soft;
+                            border-color: $accent-primary;
+                            color: $accent-primary;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
