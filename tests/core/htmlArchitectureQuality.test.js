@@ -165,4 +165,42 @@ describe('Native HTMLDialogElement Overlay Architecture', () => {
             }
         });
     });
+
+    describe('Favicon & App Icon Root-Absolute Path Invariants', () => {
+        test('All HTML templates declare root-absolute href="/assets/..." for favicons and touch icons', () => {
+            const htmlFiles = [
+                'index.html',
+                'ore-calculator/index.html',
+                'hero-journey/index.html',
+                'damage-calculator/index.html',
+                'account/index.html',
+                '404.html',
+                'legal/privacy-en.html',
+                'legal/privacy-de.html',
+                'legal/terms-en.html',
+                'legal/terms-de.html',
+                'legal/licenses.html'
+            ];
+
+            for (const relPath of htmlFiles) {
+                const fullPath = path.join(projectRoot, relPath);
+                assert.ok(fs.existsSync(fullPath), `${relPath} must exist in source tree`);
+                const html = fs.readFileSync(fullPath, 'utf8');
+
+                const iconLinks = html.match(/<link\s+[^>]*rel=["'](?:icon|apple-touch-icon|shortcut icon)["'][^>]*>/gi) ||
+                    html.match(/<link\s+[^>]*type=["']image\/(?:x-icon|png)["'][^>]*>/gi) || [];
+                assert.ok(iconLinks.length > 0, `${relPath} must define at least one favicon or touch icon link`);
+
+                for (const linkTag of iconLinks) {
+                    const hrefMatch = linkTag.match(/href=["']([^"']+)["']/i);
+                    assert.ok(hrefMatch, `Icon link tag in ${relPath} must have an href: ${linkTag}`);
+                    const hrefVal = hrefMatch[1];
+                    assert.ok(
+                        hrefVal.startsWith('/assets/'),
+                        `${relPath} icon link href "${hrefVal}" must start with root-absolute "/assets/" to prevent 404s on sub-routes`
+                    );
+                }
+            }
+        });
+    });
 });

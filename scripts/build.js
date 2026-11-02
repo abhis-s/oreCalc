@@ -215,11 +215,11 @@ async function build() {
         let oreCalcHtml = fs.readFileSync(path.join(projectRoot, 'ore-calculator/index.html'), 'utf8');
         oreCalcHtml = processHtmlIncludes(oreCalcHtml);
         oreCalcHtml = oreCalcHtml.replace('<meta charset="UTF-8">', envScript);
-        oreCalcHtml = oreCalcHtml.replace(/src="js\/app\.js(\?v=[^"]+)?"/g, `src="js/app.js?v=${encodeURIComponent(appVersion)}"`);
-        oreCalcHtml = oreCalcHtml.replace(/href="js\/app\.js(\?v=[^"]+)?"/g, `href="js/app.js?v=${encodeURIComponent(appVersion)}"`);
-        oreCalcHtml = oreCalcHtml.replace(/href="css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+        oreCalcHtml = oreCalcHtml.replace(/src="\/?js\/app\.js(\?v=[^"]+)?"/g, `src="/js/app.js?v=${encodeURIComponent(appVersion)}"`);
+        oreCalcHtml = oreCalcHtml.replace(/href="\/?js\/app\.js(\?v=[^"]+)?"/g, `href="/js/app.js?v=${encodeURIComponent(appVersion)}"`);
+        oreCalcHtml = oreCalcHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
         oreCalcHtml = oreCalcHtml.replace(/href="(\/)?manifest\.json(\?v=[^"]+)?"/g, `href="/manifest.json?v=${encodeURIComponent(appVersion)}"`);
-        oreCalcHtml = oreCalcHtml.replace(/<link rel="modulepreload" href="js\/(?!app\.js)[^"]+">\s*/g, '');
+        oreCalcHtml = oreCalcHtml.replace(/<link rel="modulepreload" href="\/?js\/(?!app\.js)[^"]+">\s*/g, '');
 
         let hjHtml = fs.readFileSync(path.join(projectRoot, 'hero-journey/index.html'), 'utf8');
         hjHtml = processHtmlIncludes(hjHtml);
