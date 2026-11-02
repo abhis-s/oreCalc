@@ -173,10 +173,12 @@ export function syncHeaderForRoute(newDoc, uiHooks = {}) {
     const currentPill = currentHeader.querySelector('.brand-page-pill');
     const newPill = newHeader.querySelector('.brand-page-pill');
     if (currentPill && newPill) {
-        currentPill.textContent = newPill.textContent;
-        const i18nKey = newPill.getAttribute('data-i18n');
-        if (i18nKey) currentPill.setAttribute('data-i18n', i18nKey);
-        else currentPill.removeAttribute('data-i18n');
+        const currentLabel = currentPill.querySelector('.brand-page-pill__label') || currentPill;
+        const newLabel = newPill.querySelector('.brand-page-pill__label') || newPill;
+        currentLabel.textContent = newLabel.textContent;
+        const i18nKey = newLabel.getAttribute('data-i18n') || newPill.getAttribute('data-i18n');
+        if (i18nKey) currentLabel.setAttribute('data-i18n', i18nKey);
+        else currentLabel.removeAttribute('data-i18n');
         currentPill.setAttribute('aria-expanded', 'false');
         currentPill.classList.remove('is-active');
     }

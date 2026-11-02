@@ -33,11 +33,10 @@ function isRunningStandalone() {
     const isStandalone = Boolean(window.matchMedia('(display-mode: standalone)')?.matches);
     const isWco = Boolean(window.matchMedia('(display-mode: window-controls-overlay)')?.matches);
     const isMinimalUi = Boolean(window.matchMedia('(display-mode: minimal-ui)')?.matches);
-    const isFullscreen = Boolean(window.matchMedia('(display-mode: fullscreen)')?.matches);
     const isIosStandalone = Boolean(typeof navigator !== 'undefined' && (/** @type {any} */ (navigator).standalone));
     const isAndroidTwa = typeof document !== 'undefined' && Boolean(document.referrer?.startsWith('android-app://'));
 
-    return isStandalone || isWco || isMinimalUi || isFullscreen || isIosStandalone || isAndroidTwa;
+    return isStandalone || isWco || isMinimalUi || isIosStandalone || isAndroidTwa;
 }
 
 /**

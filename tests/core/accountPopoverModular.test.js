@@ -341,6 +341,13 @@ describe('Account Popover Modularity & Pre-Rendered Panels Domain Suite', () => 
         assert.ok(installBtn.classList.contains('is-hidden'), 'Install button must be hidden on Brave iOS');
         assert.equal(installBtn.hasAttribute('hidden'), true);
 
+        globalThis.window.matchMedia = (q) => ({ matches: q.includes('fullscreen') });
+        setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15');
+        Object.defineProperty(globalThis.navigator, 'maxTouchPoints', { value: 0, configurable: true, writable: true });
+        configureAccountPopover();
+        assert.ok(!installBtn.classList.contains('is-hidden'), 'Install button must remain available when browser window is in full-screen mode');
+        assert.equal(installBtn.hasAttribute('hidden'), false);
+
         globalThis.window.matchMedia = (q) => ({ matches: q.includes('standalone') });
         setUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1');
         configureAccountPopover();

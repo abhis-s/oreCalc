@@ -585,6 +585,10 @@ clashcalc-assets-svg {
         width: 24px;
         height: 24px;
 
+        &[width="10"] { width: 10px; }
+        &[height="10"] { height: 10px; }
+        &[width="12"] { width: 12px; }
+        &[height="12"] { height: 12px; }
         &[width="14"] { width: 14px; }
         &[height="14"] { height: 14px; }
         &[width="16"] { width: 16px; }

@@ -8,13 +8,16 @@
 
 .brand-page-pill {
     font: inherit;
-    line-height: inherit;
+    line-height: 1;
     appearance: none;
     -webkit-appearance: none;
     margin: 0;
     display: inline-flex;
     align-items: center;
+    gap: $spacing-xs;
     flex-shrink: 0;
+    height: 19px;
+    box-sizing: border-box;
     padding: $spacing-2xs $spacing-sm;
     font-size: $font-size-2xs;
     font-weight: $font-weight-bold;
@@ -43,6 +46,42 @@
     &:focus-visible {
         outline: 2px solid $accent-primary;
         outline-offset: 2px;
+    }
+
+    &__label {
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    &__chevron {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 10px;
+        height: 10px;
+        flex-shrink: 0;
+        line-height: 1;
+        transition: transform $duration-fast $ease-smooth;
+
+        &,
+        &:empty {
+            width: 10px;
+            height: 10px;
+        }
+
+        svg {
+            width: 10px;
+            height: 10px;
+            display: block;
+            fill: currentColor;
+        }
+    }
+
+    &.is-active,
+    &[aria-expanded="true"] {
+        .brand-page-pill__chevron {
+            transform: rotate(180deg);
+        }
     }
 }
 
