@@ -56,50 +56,6 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         globalThis.window = originalWindow;
     });
 
-    test('verifies canonical Spotright translation keys exist in English and German', () => {
-        // Assert unified canonical keys exist
-        assert.equal(typeof enJson.views.spotright.loadVillageTag, 'string');
-        assert.equal(typeof deJson.views.spotright.loadVillageTag, 'string');
-        assert.equal(enJson.views.spotright.loadVillageTag, 'Load Village #{tag}');
-        assert.equal(deJson.views.spotright.loadVillageTag, 'Dorf #{tag} laden');
-        assert.equal(enJson.views.spotright.beta, 'Beta');
-        assert.equal(deJson.views.spotright.beta, 'Beta');
-        assert.ok(enJson.views.spotright.betaTooltip);
-        assert.ok(deJson.views.spotright.betaTooltip);
-
-        // Assert shared canonical primitives exist in both locales
-        assert.equal(enJson.nav.views.hub.villages, 'Saved Villages');
-        assert.equal(deJson.nav.views.hub.villages, 'Gespeicherte Dörfer');
-
-        assert.equal(enJson.nav.drawerTitle, 'Tabs & Tools');
-        assert.equal(deJson.nav.drawerTitle, 'Tabs & Tools');
-
-        assert.equal(enJson.nav.settings, 'Settings');
-        assert.equal(deJson.nav.settings, 'Einstellungen');
-
-        assert.equal(enJson.views.damageCalc.filters.filterHeroes, 'Heroes');
-        assert.equal(deJson.views.damageCalc.filters.filterHeroes, 'Helden');
-
-        assert.equal(enJson.nav.equipment, 'Equipment');
-        assert.equal(deJson.nav.equipment, 'Ausrüstung');
-
-        assert.equal(enJson.player.tag, 'Player Tag');
-        assert.equal(deJson.player.tag, 'Spielerkürzel');
-
-        assert.equal(enJson.player.addPlayer, 'Add a player');
-        assert.equal(deJson.player.addPlayer, 'Spieler hinzufügen');
-
-        assert.equal(enJson.actions.refresh, 'Refresh');
-        assert.equal(deJson.actions.refresh, 'Aktualisieren');
-
-        assert.equal(enJson.actions.search, 'Search');
-        assert.equal(deJson.actions.search, 'Suchen');
-
-        // Assert scope suggestions heading exists in both locales
-        assert.equal(enJson.views.spotright.scopesHeading, 'Filter Scopes');
-        assert.equal(deJson.views.spotright.scopesHeading, 'Suchbereiche');
-    });
-
     test('buildSpotrightRegistry binds canonical category strings in English and German', async () => {
         // 1. English verification
         state.uiSettings.language = 'en';

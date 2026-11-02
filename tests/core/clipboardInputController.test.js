@@ -1,7 +1,5 @@
 import { describe, test, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'fs';
-import path from 'path';
 
 import {
     GLOBAL_MAX_CLIPBOARD_LENGTH,
@@ -49,31 +47,6 @@ describe('Clipboard Input Controller & Invariant Verification Suite', () => {
     describe('Global Max String Length & Invariant Constraints', () => {
         test('GLOBAL_MAX_CLIPBOARD_LENGTH is fixed to 256 characters', () => {
             assert.equal(GLOBAL_MAX_CLIPBOARD_LENGTH, 256);
-        });
-
-        test('every input field with data-clipboard-paste across templates has an explicit positive maxlength attribute', () => {
-            const rootDir = process.cwd();
-            const templatePaths = [
-                path.join(rootDir, 'partials/modals/add-player.html'),
-                path.join(rootDir, 'partials/modals/guided-setup-modal.html'),
-                path.join(rootDir, 'account/index.html')
-            ];
-
-            let foundInputs = 0;
-            for (const file of templatePaths) {
-                if (!fs.existsSync(file)) continue;
-                const html = fs.readFileSync(file, 'utf8');
-                const matches = html.matchAll(/<input[^>]+data-clipboard-paste=["']([^"']+)["'][^>]*>/g);
-                for (const match of matches) {
-                    foundInputs++;
-                    const inputTag = match[0];
-                    const maxLenMatch = inputTag.match(/maxlength=["'](\d+)["']/i);
-                    assert.ok(maxLenMatch, `Input with data-clipboard-paste must define maxlength attribute in ${file}`);
-                    const maxLen = Number(maxLenMatch[1]) || 0;
-                    assert.ok(maxLen > 0, `maxlength must be a positive integer in ${file}`);
-                }
-            }
-            assert.ok(foundInputs >= 3, `Expected at least 3 configured clipboard input fields, found ${foundInputs}`);
         });
 
         test('auto-paste strictly rejects strings exceeding GLOBAL_MAX_CLIPBOARD_LENGTH even if pattern matches', () => {

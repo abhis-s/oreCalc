@@ -351,7 +351,7 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
 
         const items = mockContainer.querySelectorAll('.player-dropdown-item');
         assert.equal(items.length, 0);
-        assert.equal(mockLabel.textContent, enJson.player?.addPlayer || 'Add a player');
+        assert.equal(mockLabel.textContent, 'Add a player');
     });
 
     test('renders player items with correct data attributes and accessible roles', () => {

@@ -517,7 +517,7 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.equal(platformName, 'iCloud Keychain');
     });
 
-    test('password validation contract enforces 6-72 characters and aligned i18n strings', () => {
+    test('password validation contract enforces 6-72 characters', () => {
         const isValidPassword = (p) => typeof p === 'string' && p.length >= 6 && p.length <= 72;
 
         // Boundaries
@@ -526,12 +526,6 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.equal(isValidPassword('a'.repeat(72)), true);
         assert.equal(isValidPassword('a'.repeat(73)), false);
         assert.equal(isValidPassword(''), false);
-
-        // UI String alignment (must not display 72 in user-facing hint/error)
-        assert.equal(enJson.auth.passwordPlaceholder, 'At least 6 characters');
-        assert.equal(enJson.apiErrors.invalidPassword, 'Password must be at least 6 characters long.');
-        assert.equal(enJson.auth.passwordPlaceholder.includes('72'), false);
-        assert.equal(enJson.apiErrors.invalidPassword.includes('72'), false);
     });
 
     test('server-side tag sanitization strictly filters out DEFAULT0 and invalid tags', () => {

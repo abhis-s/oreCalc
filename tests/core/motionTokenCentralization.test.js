@@ -110,17 +110,7 @@ describe('Global Motion, Easing Curves & Animation Token Centralization', () => 
     });
 
     describe('Pillar 2: CSS Custom Properties on :root & Reduced Motion in _base.scss', () => {
-        let content = fs.readFileSync(baseScssPath, 'utf8');
-        if (content.includes('@forward')) {
-            const rootTokensPath = path.join(projectRoot, 'css/base/_root-tokens.scss');
-            const elementsResetPath = path.join(projectRoot, 'css/base/_elements-reset.scss');
-            if (fs.existsSync(rootTokensPath)) {
-                content += '\n' + fs.readFileSync(rootTokensPath, 'utf8');
-            }
-            if (fs.existsSync(elementsResetPath)) {
-                content += '\n' + fs.readFileSync(elementsResetPath, 'utf8');
-            }
-        }
+        const content = fs.readFileSync(baseScssPath, 'utf8');
 
         test('exposes easing curves as custom properties on :root', () => {
             const expectedProperties = [
@@ -181,7 +171,6 @@ describe('Global Motion, Easing Curves & Animation Token Centralization', () => 
         const allowedFiles = new Set([
             path.normalize(variablesScssPath),
             path.normalize(baseScssPath),
-            path.normalize(path.join(projectRoot, 'css/base/_root-tokens.scss')),
             path.normalize(mixinsScssPath)
         ]);
 

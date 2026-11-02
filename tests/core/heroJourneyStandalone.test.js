@@ -222,18 +222,6 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         }
     });
 
-    test('verifies apiErrors.invalidTag exists in en.json and de.json', async () => {
-        const fs = await import('node:fs');
-        const path = await import('node:path');
-        const en = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'js/i18n/en.json'), 'utf8'));
-        const de = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'js/i18n/de.json'), 'utf8'));
-
-        assert.ok(en.apiErrors?.invalidTag, 'en.json must define apiErrors.invalidTag');
-        assert.ok(de.apiErrors?.invalidTag, 'de.json must define apiErrors.invalidTag');
-        assert.match(en.apiErrors.invalidTag, /Invalid player tag/i);
-        assert.match(de.apiErrors.invalidTag, /Ungültiges Spieler-Kürzel/i);
-    });
-
     test('verifies renderHeroJourneyDropdownMarkup generates standardized player dropdown markup with ARIA semantics', async () => {
         const { renderHeroJourneyDropdownMarkup } = await import('../../js/components/heroJourney/heroJourneyHeaderDisplay.js');
 

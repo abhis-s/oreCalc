@@ -143,4 +143,26 @@ describe('Native HTMLDialogElement Overlay Architecture', () => {
             }
         });
     });
+
+    describe('Accessibility Landmark Architecture', () => {
+        test('All primary tool HTML templates define canonical main-content ID on <main>', () => {
+            const toolTemplates = [
+                'index.html',
+                'ore-calculator/index.html',
+                'hero-journey/index.html',
+                'damage-calculator/index.html',
+                'account/index.html'
+            ];
+
+            for (const relPath of toolTemplates) {
+                const fullPath = path.join(projectRoot, relPath);
+                assert.equal(fs.existsSync(fullPath), true, `${relPath} must exist in source tree`);
+                const html = fs.readFileSync(fullPath, 'utf8');
+                assert.ok(
+                    html.includes('id="main-content"'),
+                    `${relPath} must define id="main-content" on its <main> element`
+                );
+            }
+        });
+    });
 });
