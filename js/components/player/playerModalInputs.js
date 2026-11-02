@@ -1,5 +1,6 @@
 import { translate } from '../../i18n/translator.js';
 
+import { resolveAppRoute } from '../../core/appShellNavigator.js';
 import { saveState } from '../../core/localStorageManager.js';
 import { removePlayerTag } from '../../core/playerStorage.js';
 import { state } from '../../core/state.js';
@@ -280,13 +281,17 @@ export function initializePlayerModal() {
  */
 export function showAddPlayerModal(tag = '', forced = false) {
     if (typeof document !== 'undefined') {
-        const modal = document.getElementById('add-player-modal');
-        if (!modal) {
+        const isHub = typeof window !== 'undefined' && window.location?.pathname && resolveAppRoute(window.location.pathname) === 'hub';
+        if (isHub) {
             const landingInput = /** @type {HTMLInputElement | null} */ (document.getElementById('landing-search-input'));
             if (landingInput) {
-                landingInput.focus();
-                landingInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                landingInput.focus?.();
+                landingInput.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+                return;
             }
+        }
+        const modal = document.getElementById('add-player-modal');
+        if (!modal) {
             return;
         }
     }

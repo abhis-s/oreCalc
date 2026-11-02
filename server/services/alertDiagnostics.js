@@ -73,6 +73,14 @@ function isIgnoredNoise(message, source = '', line = 0, stack = '') {
         return true;
     }
 
+    // View transitions aborted due to document backgrounding or tab switching
+    if (
+        str.includes('Transition was aborted') ||
+        str.includes('Document hidden')
+    ) {
+        return true;
+    }
+
     // Clipboard permission denial / read failures (user denied permission or browser policy)
     if (
         str.toLowerCase().includes('clipboard') ||

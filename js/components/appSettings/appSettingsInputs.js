@@ -71,15 +71,21 @@ export function initializeAppSettings() {
             const updateState = () => {
                 state.uiSettings.hideMaxedEquipment = /** @type {HTMLInputElement} */ (e.target).checked;
             };
-            if (document.startViewTransition) {
-                document.startViewTransition(() => {
-                    window.__FORCE_SYNC_RENDER__ = true;
-                    try {
-                        handleStateUpdate(updateState, false, { preferencesOnly: true });
-                    } finally {
-                        window.__FORCE_SYNC_RENDER__ = false;
-                    }
-                });
+            if (typeof document.startViewTransition === 'function' && !document.hidden) {
+                try {
+                    const transition = document.startViewTransition(() => {
+                        window.__FORCE_SYNC_RENDER__ = true;
+                        try {
+                            handleStateUpdate(updateState, false, { preferencesOnly: true });
+                        } finally {
+                            window.__FORCE_SYNC_RENDER__ = false;
+                        }
+                    });
+                    transition?.ready?.catch(() => {});
+                    transition?.finished?.catch(() => {});
+                } catch (_) {
+                    handleStateUpdate(updateState, false, { preferencesOnly: true });
+                }
             } else {
                 handleStateUpdate(updateState, false, { preferencesOnly: true });
             }
@@ -94,15 +100,21 @@ export function initializeAppSettings() {
             const updateState = () => {
                 state.uiSettings.hideLockedEquipment = /** @type {HTMLInputElement} */ (e.target).checked;
             };
-            if (document.startViewTransition) {
-                document.startViewTransition(() => {
-                    window.__FORCE_SYNC_RENDER__ = true;
-                    try {
-                        handleStateUpdate(updateState, false, { preferencesOnly: true });
-                    } finally {
-                        window.__FORCE_SYNC_RENDER__ = false;
-                    }
-                });
+            if (typeof document.startViewTransition === 'function' && !document.hidden) {
+                try {
+                    const transition = document.startViewTransition(() => {
+                        window.__FORCE_SYNC_RENDER__ = true;
+                        try {
+                            handleStateUpdate(updateState, false, { preferencesOnly: true });
+                        } finally {
+                            window.__FORCE_SYNC_RENDER__ = false;
+                        }
+                    });
+                    transition?.ready?.catch(() => {});
+                    transition?.finished?.catch(() => {});
+                } catch (_) {
+                    handleStateUpdate(updateState, false, { preferencesOnly: true });
+                }
             } else {
                 handleStateUpdate(updateState, false, { preferencesOnly: true });
             }

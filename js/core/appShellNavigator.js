@@ -329,18 +329,26 @@ async function navigateTo(targetUrl, options = {}) {
 
         document.documentElement.dataset.transitionType = 'page-switch';
 
-        const documentWithViewTransition = /** @type {Document & { startViewTransition?: (cb: () => Promise<void>) => { updateCallbackDone?: Promise<void>, finished?: Promise<void> } }} */ (document);
-        if (typeof documentWithViewTransition.startViewTransition === 'function') {
-            const transition = documentWithViewTransition.startViewTransition(performSwap);
-            if (transition.updateCallbackDone) {
-                await transition.updateCallbackDone;
-            }
-            if (transition.finished) {
-                try {
-                    await transition.finished;
-                } catch (_) {
-                    // Visual transition animation was skipped by browser engine; DOM swap in performSwap already completed.
+        const documentWithViewTransition = /** @type {Document & { startViewTransition?: (cb: () => Promise<void>) => { updateCallbackDone?: Promise<void>, finished?: Promise<void>, ready?: Promise<void> } }} */ (document);
+        if (typeof documentWithViewTransition.startViewTransition === 'function' && !document.hidden) {
+            try {
+                const transition = documentWithViewTransition.startViewTransition(performSwap);
+                transition.ready?.catch(() => {});
+                transition.finished?.catch(() => {});
+                if (transition.updateCallbackDone) {
+                    try {
+                        await transition.updateCallbackDone;
+                    } catch (_) {}
                 }
+                if (transition.finished) {
+                    try {
+                        await transition.finished;
+                    } catch (_) {
+                        // Visual transition animation was skipped by browser engine; DOM swap in performSwap already completed.
+                    }
+                }
+            } catch (_) {
+                await performSwap();
             }
         } else {
             await performSwap();

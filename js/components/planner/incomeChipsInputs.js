@@ -150,7 +150,6 @@ export function initializeIncomeChipsEventListeners() {
     const incomeChipsContainer = plannerDOMElements.incomeChipsContainer;
 
     if (!incomeChipsContainer) {
-        console.error('Income chips container not found.');
         return;
     }
 

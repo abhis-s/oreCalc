@@ -110,19 +110,7 @@ export function renderPlayerModal(isVisible, currentTag, message, isError, error
         return;
     }
 
-    if (!playerTagInput || !errorMessageElement || !loadButton) {
-        console.error('Modal DOM elements not found for rendering.');
-        return;
-    }
-
-    if (isVisible) {
-        openModal(modal);
-        enhanceClipboardInput(playerTagInput);
-        if (!currentTag) {
-            void triggerAutoPaste(playerTagInput);
-        }
-        playerTagInput.focus();
-    } else {
+    if (!isVisible) {
         if (modal.classList.contains('show') || modal.open) {
             closeModalAnimated(modal);
         } else {
@@ -132,7 +120,19 @@ export function renderPlayerModal(isVisible, currentTag, message, isError, error
             }
         }
         resetModalState();
+        return;
     }
+
+    if (!playerTagInput || !errorMessageElement || !loadButton) {
+        return;
+    }
+
+    openModal(modal);
+    enhanceClipboardInput(playerTagInput);
+    if (!currentTag) {
+        void triggerAutoPaste(playerTagInput);
+    }
+    playerTagInput.focus();
 
     if (currentTag !== undefined && currentTag !== null) {
         playerTagInput.value = currentTag;

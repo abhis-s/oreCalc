@@ -54,6 +54,8 @@ describe('Server Alert Throttling and Diagnostic Rules Suite', () => {
         assert.equal(isIgnoredNoise('Console Error: [ERROR] Failed to read clipboard: NotAllowedError: Read permission denied.'), true);
         assert.equal(isIgnoredNoise('DOMException: Clipboard read permission was denied.'), true);
         assert.equal(isIgnoredNoise('Unhandled Promise Rejection: NotAllowedError: Failed to execute \'readText\' on \'Clipboard\': Read permission denied.'), true);
+        assert.equal(isIgnoredNoise('Unhandled Promise Rejection: Transition was aborted because of invalid state. Document hidden'), true);
+        assert.equal(isIgnoredNoise('Console Error: [ERROR] Unhandled promise rejection: Transition was aborted because of invalid state. Document hidden'), true);
 
         // Injected browser extensions, Web3 wallets, and document line 1 script errors must be discarded
         assert.equal(isIgnoredNoise("TypeError: undefined is not an object (evaluating 'window.ethereum.selectedAddress = undefined')", 'https://clashcalc.com/ore-calculator/?tag=2JUGPLUP', 1, 'global code@https://clashcalc.com/ore-calculator/:1:16'), true);

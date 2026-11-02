@@ -220,7 +220,6 @@ export function renderIncomeChips(year, month) {
     const incomeChipsLegend = document.getElementById('income-chips-legend');
 
     if (!incomeChipsContainer) {
-        console.error('Income chips container not found.');
         return;
     }
 
