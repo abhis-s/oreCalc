@@ -2,8 +2,6 @@ import { translate } from '../../i18n/translator.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 
 let countdownInterval = null;
-let settingsInterval = null;
-let activeWorkboxInstance = null;
 let hasAddedGrace = false;
 
 function applyTimerColor(element, timeLeft) {
@@ -25,165 +23,58 @@ function applyTimerColor(element, timeLeft) {
  */
 export function updateNavigationBadges() {
     const hasPending = !!sessionStorage.getItem('oreCalcUpdateDetectedAt');
-    const headerSettingsBtn = document.querySelector('.app-header__tab[data-tab="settings"], .tab-button[data-tab="settings"]');
-    const drawerSettingsBtn = document.querySelector('.navigation-drawer__tab[data-tab="settings"]');
-    const bottomSettingsBtn = document.querySelector('.nav-button[data-tab="settings"]');
 
-    [headerSettingsBtn, drawerSettingsBtn, bottomSettingsBtn].forEach(btn => {
+    const headerAccountBtn = document.getElementById('header-account-btn');
+    if (headerAccountBtn) {
+        headerAccountBtn.classList.toggle('update-pending', hasPending);
+    }
+
+    const headerAccountDot = document.getElementById('header-account-update-dot');
+    if (headerAccountDot) {
+        headerAccountDot.classList.toggle('is-hidden', !hasPending);
+        headerAccountDot.hidden = !hasPending;
+    }
+
+    const updateBtns = [
+        document.getElementById('account-popover-update-btn'),
+        document.getElementById('account-popover-guest-update-btn')
+    ];
+    updateBtns.forEach(btn => {
         if (btn) {
-            if (hasPending) {
-                btn.classList.add('update-pending');
-            } else {
-                btn.classList.remove('update-pending');
-            }
+            btn.classList.toggle('is-hidden', !hasPending);
+            btn.hidden = !hasPending;
         }
     });
 
-    // Also hide the settings page update card if update is no longer pending
-    if (!hasPending) {
-        const card = document.getElementById('orecalc-settings-update-card');
-        if (card) {
-            card.hidden = true;
-            card.style.display = 'none';
-        }
-        if (settingsInterval) {
-            clearInterval(settingsInterval);
-            settingsInterval = null;
-        }
-    }
-}
-
-function initSettingsUpdateCard(wb) {
-    if (wb) activeWorkboxInstance = wb;
-    const currentWb = wb || activeWorkboxInstance;
-    const card = document.getElementById('orecalc-settings-update-card');
-    const countdownText = document.getElementById('settings-update-countdown');
-    const reloadBtn = document.getElementById('settings-update-now-btn');
-
-    if (!card) return;
-
-    const detectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt');
-
-    if (!detectedAtStr) {
-        card.hidden = true;
-        card.style.display = 'none';
-        if (settingsInterval) {
-            clearInterval(settingsInterval);
-            settingsInterval = null;
-        }
-        return;
+    if (typeof document !== 'undefined') {
+        document.dispatchEvent(new CustomEvent('app:update-pending', { detail: { hasPending } }));
     }
 
-    const limitMs = 48 * 60 * 60 * 1000; // 48 hours
-
-    const forceReload = () => {
-        if (settingsInterval) clearInterval(settingsInterval);
-        if (countdownInterval) clearInterval(countdownInterval);
-
-        // Safeguard to prevent infinite reload loops (e.g. if blocked by another tab)
-        const lastReload = sessionStorage.getItem('clashCalc_lastSwReload');
-        const now = Date.now();
-        if (lastReload && (now - parseInt(lastReload, 10) < 15000)) {
-            console.warn('Update reload loop detected. Aborting forced reload.');
-            return;
-        }
-
-        sessionStorage.setItem('clashCalc_lastSwReload', now.toString());
-        sessionStorage.removeItem('oreCalcUpdateDetectedAt');
-        updateNavigationBadges();
-
-        card.hidden = true;
-        card.style.display = 'none';
-
-        if (currentWb) {
-            currentWb.addEventListener('controlling', () => {
-                window.location.reload();
-            });
-            currentWb.messageSkipWaiting();
-        } else {
-            window.location.reload();
-        }
-    };
-
-    const updateCardCountdown = () => {
-        const currentDetectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt');
-
-        if (!currentDetectedAtStr) {
-            if (settingsInterval) {
-                clearInterval(settingsInterval);
-                settingsInterval = null;
+    if (hasPending) {
+        const detectedAtStr = sessionStorage.getItem('oreCalcUpdateDetectedAt');
+        if (detectedAtStr) {
+            let detectedAt = parseInt(detectedAtStr, 10);
+            if (isNaN(detectedAt) || detectedAt <= 0 || detectedAt > Date.now()) {
+                detectedAt = Date.now();
             }
-            card.hidden = true;
-            card.style.display = 'none';
-            return;
-        }
-
-        let currentDetectedAt = parseInt(currentDetectedAtStr, 10);
-
-        // Handle negative, NaN, or future offsets
-        if (isNaN(currentDetectedAt) || currentDetectedAt <= 0 || currentDetectedAt > Date.now()) {
-            currentDetectedAt = Date.now();
-            sessionStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
-        }
-
-        const elapsed = Date.now() - currentDetectedAt;
-        let timeLeft = limitMs - elapsed;
-
-        if (timeLeft <= 0) {
-            forceReload();
-            return;
-        }
-
-        // Apply 2 minutes grace adjustment when time left drops below 1 hour
-        const oneHourMs = 1 * 60 * 60 * 1000;
-        if (timeLeft > 0 && timeLeft < oneHourMs) {
-            if (!hasAddedGrace) {
-                let newDetectedAt = currentDetectedAt - (2 * 60 * 1000); // Shift backward to add 2 mins
-                let newTimeLeft = limitMs - (Date.now() - newDetectedAt);
-                if (newTimeLeft > oneHourMs) {
-                    newDetectedAt = Date.now() - limitMs + oneHourMs; // Cap at 1 hour max
-                }
-                currentDetectedAt = newDetectedAt;
-                sessionStorage.setItem('oreCalcUpdateDetectedAt', currentDetectedAt.toString());
-                hasAddedGrace = true;
-
-                timeLeft = limitMs - (Date.now() - currentDetectedAt);
-            }
-        }
-
-        if (timeLeft < 0) {
-            timeLeft = 0;
-        }
-
-        if (countdownText) {
-            const days = Math.floor(timeLeft / (24 * 60 * 60 * 1000));
-            const hours = Math.floor((timeLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+            const limitMs = 48 * 60 * 60 * 1000;
+            const timeLeft = Math.max(0, limitMs - (Date.now() - detectedAt));
+            const hours = Math.floor(timeLeft / (60 * 60 * 1000));
             const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+            const timerText = hours > 0 ? `${hours}h` : `${minutes}m`;
 
-            let timeStr = '';
-            if (days > 0) {
-                timeStr += `${days}d `;
-            }
-            timeStr += `${hours}h ${minutes}m`;
-
-            countdownText.textContent = translate('status.updateForcedShort', { time: timeStr });
-            applyTimerColor(countdownText, timeLeft);
+            const timerEls = [
+                document.getElementById('account-popover-update-timer'),
+                document.getElementById('account-popover-guest-update-timer')
+            ];
+            timerEls.forEach(el => {
+                if (el) {
+                    el.textContent = timerText;
+                    applyTimerColor(el, timeLeft);
+                }
+            });
         }
-    };
-
-    if (reloadBtn) {
-        reloadBtn.onclick = () => {
-            forceReload();
-        };
     }
-
-    card.hidden = false;
-    card.removeAttribute('hidden');
-    card.style.display = 'block';
-
-    if (settingsInterval) clearInterval(settingsInterval);
-    updateCardCountdown();
-    settingsInterval = setInterval(updateCardCountdown, 60000); // Update card every 1 minute
 }
 
 /**
@@ -206,13 +97,11 @@ export function showUpdateModal(wb) {
         sessionStorage.setItem('oreCalcUpdateDetectedAt', detectedAtStr);
     }
 
-    // Apply badge and settings card immediate update
+    // Apply badge immediate update
     updateNavigationBadges();
-    initSettingsUpdateCard(wb);
 
     const forceReload = () => {
         if (countdownInterval) clearInterval(countdownInterval);
-        if (settingsInterval) clearInterval(settingsInterval);
 
         // Safeguard to prevent infinite reload loops (e.g. if blocked by another tab)
         const lastReload = sessionStorage.getItem('clashCalc_lastSwReload');
@@ -287,9 +176,10 @@ export function showUpdateModal(wb) {
             const hours = Math.floor((timeLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
             const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
 
+            const daysSuffix = translate('time.daysSuffix') || 'd';
             let timeStr = '';
             if (days > 0) {
-                timeStr += `${days}d `;
+                timeStr += `${days}${daysSuffix} `;
             }
             timeStr += `${hours}h ${minutes}m`;
 
@@ -339,9 +229,6 @@ export function showUpdateModal(wb) {
 
 if (typeof document !== 'undefined') {
     document.addEventListener('app:translate', () => {
-        const card = document.getElementById('orecalc-settings-update-card');
-        if (card && card.style.display !== 'none') {
-            initSettingsUpdateCard();
-        }
+        updateNavigationBadges();
     });
 }

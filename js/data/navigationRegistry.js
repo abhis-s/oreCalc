@@ -24,11 +24,5 @@ export const navigationRegistry = [
         i18nKey: 'nav.planner',
         iconOutline: '#icon-planner-outline',
         iconFilled: '#icon-planner-filled',
-    },
-    {
-        id: 'settings',
-        i18nKey: 'nav.settings',
-        iconOutline: '#icon-settings-outline',
-        iconFilled: '#icon-settings-filled',
     }
 ];

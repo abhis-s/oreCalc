@@ -101,8 +101,7 @@ function runNamingChecks() {
     // 3. Feature Switches
     const expectedSwitchIds = [
         'app-theme-switch',
-        'settings-theme-switch',
-        'settings-cozy-quilt-switch',
+        'app-card-layout-switch',
         'eq-enable-level-edit-switch',
         'eq-hide-maxed-switch',
         'eq-hide-locked-switch',

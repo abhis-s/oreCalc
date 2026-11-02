@@ -41,7 +41,6 @@
         "refresh": "Aktualisieren",
         "reload": "Neu laden",
         "remove": "Entfernen",
-        "report": "Melden",
         "reset": "Zurücksetzen",
         "restore": "Wiederherstellen",
         "save": "Speichern",
@@ -64,8 +63,7 @@
         "validate": "Überprüfen",
         "verify": "Bestätigen",
         "view": "Ansehen",
-        "viewSuggestions": "Vorschläge anzeigen",
-        "visit": "Besuchen"
+        "viewSuggestions": "Vorschläge anzeigen"
     },
     "alerts": {
         "bugReportFailure": "Fehlerbericht konnte nicht übermittelt werden. Bitte versuche es später noch einmal.",
@@ -156,7 +154,6 @@
             "timeIcon": "Zeit-Icon"
         },
         "brandToolName": "OreCalc",
-        "comingSoon": "Demnächst!",
         "description": "Der ultimative Clash of Clans Erz-Rechner und Upgrade-Planer. Prognostiziere dein Erz-Einkommen, plane Heldenausrüstungs-Upgrades mit einem Drag-and-Drop-Kalender und verwalte mehrere Accounts. Bietet umfassendes Einkommens-Tracking, Upgrade-Prioritätslisten, Offline-Unterstützung (PWA) und Cloud-Synchronisation.",
         "domainNotice": {
             "cta": "Zu ClashCalc wechseln",
@@ -629,9 +626,7 @@
         "saving": "Speichern...",
         "success": "Erfolg",
         "updateAvailable": "Update Verfügbar",
-        "updateAvailableMsg": "Eine neue Version der Anwendung ist verfügbar.",
         "updateForcedIn": "Empfohlenes Update wird in {time} automatisch installiert.",
-        "updateForcedShort": "Auto-Update in: {time}",
         "updatePrompt": "Eine neue Version der Anwendung ist verfügbar. Lade die Seite neu, um die neuesten Funktionen und Korrekturen zu erhalten.",
         "warning": "Warnung"
     },
@@ -1426,13 +1421,10 @@
             "about": {
                 "author": "Autor",
                 "buyMeACoffee": "Buy Me A Coffee",
-                "buyMeACoffeeDesc": "Unterstütze meine Arbeit.",
                 "changelog": "Neuheiten",
-                "changelogHelp": "Zeige den Verlauf von Updates, Fehlerbehebungen und neuen Funktionen an, die in jeder Version der App hinzugefügt wurden.",
                 "contact": "Kontakt",
                 "contactInfo": "Für Fragen, Feedback oder Feature-Vorschläge kannst du uns unter <code>support@clashcalc.com</code> kontaktieren. Klicke auf die Schaltfläche unten, um dein E-Mail-Programm zu öffnen.",
                 "crowdin": "Hilf uns bei der Übersetzung",
-                "crowdinHelp": "Trage Übersetzungen bei, um uns zu helfen, die App in deine Sprache zu übersetzen.",
                 "errorLoadingLicense": "Fehler beim Laden des Lizenztexts.",
                 "github": "GitHub",
                 "loadingLicense": "Lizenz wird geladen...",
@@ -1449,12 +1441,14 @@
                 "info": "Alternativ kannst du das Problem auch direkt auf unserer {link}-Seite melden.",
                 "privacyInfo": "Durch das Absenden dieses Berichts erklärst du dich damit einverstanden, dass deine Benutzerdaten und die angegebene E-Mail-Adresse gemäß unserer {link} verarbeitet werden.",
                 "swDesc": "Lokale App-Caches leeren, um die neueste Version und Fixes zu erzwingen.",
-                "title": "Fehler melden"
+                "title": "Fehler melden",
+                "updateAvailableDesc": "Eine neue Version der App ist bereit. Jetzt neu starten, um die neuesten Updates und Korrekturen anzuwenden.",
+                "updateAvailableTitle": "Update bereit zur Installation",
+                "updateNowLabel": "Jetzt aktualisieren"
             },
             "cards": {
                 "accountAndSync": "Konto & Cloud-Synchronisierung",
                 "developmentSupport": "Entwicklung & Unterstützung",
-                "preferences": "Präferenzen",
                 "transparency": "Rechtliches & Transparenz"
             },
             "cloudSync": {
@@ -1529,7 +1523,6 @@
                 "globalPricing": "Globale Preise",
                 "language": "Sprache",
                 "layoutCompactLabel": "Kompakt",
-                "layoutCozyLabel": "Gemütlich",
                 "theme": "Hell-/Dunkelmodus",
                 "themeDark": "Dunkles Design",
                 "themeLight": "Helles Design",
@@ -1613,10 +1606,8 @@
             "navIncomeDesc": "Hier kannst du alle deine Erzeinkommensquellen konfigurieren. Jede leuchtende Karte steht für eine andere Einkommensquelle wie Sternenboni, Clan-Kriege, Shop-Angebote und mehr.",
             "navPlannerDesc": "Im Planer-Reiter läuft alles zusammen. Setze deine Upgrade-Ziele, priorisiere Ausrüstung und verfolge deinen Fortschritt im Kalender.",
             "navPlannerTitle": "Upgrade-Planer",
-            "navSettingsDesc": "Im Einstellungs-Reiter kannst du die App personalisieren. Wähle ein Thema, eine Akzentfarbe, die Sprache und verwalte deine Daten.",
             "oresDesc": "Halte deine aktuellen Erzbestände hier auf dem Laufenden. Dies hilft dem Planer zu berechnen, wie viele Erze du noch benötigst.",
             "oresTitle": "Erzbestand-Tracker",
-            "preferencesDesc": "Ändere hier das Aussehen der App. Zusätzlich kannst du die globalen Preise für In-Game-Gegenstände und Shop-Angebote anpassen, falls diese nicht mit deinen In-Game-Preisen übereinstimmen.",
             "profileCardDesc": "Diese Karte bietet eine allgemeine Übersicht deines aktiven Profils. Sie zeigt dein Profil, die Anzahl der maximierten Ausrüstungsgegenstände sowie detaillierte prozentuale Fortschritte für jedes Erz-Upgrade.",
             "profileCardTitle": "Spielerübersicht & Fortschritt",
             "profileDesc": "Wechsle zwischen verschiedenen gespeicherten Profilen, klicke auf die Aktualisieren-Schaltfläche, um die Spielerdaten zu aktualisieren, oder klicke auf '+ Spieler hinzufügen', um weitere Konten hinzuzufügen.",

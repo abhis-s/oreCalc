@@ -4,10 +4,8 @@ import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
 
-import { getAppLastUpdatedDateFormatted } from '../../utils/dateUtils.js';
 import { addCurrencyValidation } from '../../utils/inputValidator.js';
 import { formatCurrency } from '../../utils/numberFormatter.js';
-import { getSVG } from '../../utils/svgManager.js';
 
 import { dom } from '../../dom/domElements.js';
 
@@ -46,107 +44,6 @@ export function populateDropdowns() {
             }
         });
     }
-}
-
-/**
- * Renders labeled action rows with trigger buttons and help popovers into settings containers.
- * @param {string} containerSelector - Target CSS query selector.
- * @param {Array<any>} data - List of action configuration objects.
- */
-export function renderLabeledActions(containerSelector, data) {
-    const container = document.querySelector(containerSelector);
-    if (!container) return;
-
-    container.innerHTML = '';
-
-    data.forEach(item => {
-        const itemRow = document.createElement('div');
-        itemRow.className = 'settings-item';
-
-        const labelWrapper = document.createElement('div');
-        labelWrapper.className = 'settings-item-label-wrapper';
-
-        const label = document.createElement('label');
-        label.className = 'settings-item-label';
-        if (item.i18nHelp) {
-            const labelTextSpan = document.createElement('span');
-            labelTextSpan.dataset.i18n = item.i18nLabel;
-            labelTextSpan.textContent = translate(item.i18nLabel);
-            label.appendChild(labelTextSpan);
-
-            const infoBtn = document.createElement('button');
-            infoBtn.className = 'info-btn';
-            infoBtn.dataset.info = item.i18nHelp;
-            infoBtn.setAttribute('aria-label', translate('actions.showInfo'));
-            infoBtn.dataset.i18nAriaLabel = 'actions.showInfo';
-            infoBtn.innerHTML = '<clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>';
-
-            label.style.display = 'flex';
-            label.style.alignItems = 'center';
-            label.style.gap = '6px';
-            label.style.margin = '0';
-            label.style.cursor = 'pointer';
-
-            label.appendChild(infoBtn);
-        } else {
-            label.dataset.i18n = item.i18nLabel;
-            label.textContent = translate(item.i18nLabel);
-        }
-        labelWrapper.appendChild(label);
-
-        let labelSide = labelWrapper;
-        if (item.i18nDesc) {
-            const descriptorGroup = document.createElement('div');
-            descriptorGroup.className = 'field-descriptor-group';
-            descriptorGroup.appendChild(labelWrapper);
-
-            const descPara = document.createElement('p');
-            descPara.className = 'form-setting-text';
-            descPara.dataset.i18n = item.i18nDesc;
-
-            if (item.id === 'bugReport') {
-                const formattedDate = getAppLastUpdatedDateFormatted(state.uiSettings?.language || 'en');
-                descPara.dataset.i18nArgs = JSON.stringify({ date: formattedDate });
-                descPara.textContent = translate(item.i18nDesc, { date: formattedDate });
-            } else {
-                descPara.textContent = translate(item.i18nDesc);
-            }
-
-            descriptorGroup.appendChild(descPara);
-            labelSide = descriptorGroup;
-        }
-
-        itemRow.appendChild(labelSide);
-
-        const btn = document.createElement('button');
-        btn.className = `animated-btn ${item.colorClass}`;
-        btn.id = `manual-${item.id}-btn`;
-        btn.dataset.actionType = item.actionType;
-        btn.dataset.itemId = item.id;
-        if (item.url) {
-            btn.dataset.url = item.url;
-        }
-        label.htmlFor = btn.id;
-
-        const btnText = document.createElement('span');
-        btnText.className = 'animated-btn-text';
-        if (item.id === 'version') {
-            const versionText = window.__ENV__?.APP_VERSION || state.appVersion || '3.0.0';
-            btnText.textContent = versionText;
-        } else {
-            btnText.dataset.i18n = item.i18nAction;
-            btnText.textContent = translate(item.i18nAction);
-        }
-
-        const iconWrapper = document.createElement('span');
-        iconWrapper.className = 'animated-btn-icon-wrapper';
-        iconWrapper.innerHTML = getSVG(item.icon, '', 24, 24, 'currentColor');
-
-        btn.appendChild(iconWrapper);
-        btn.appendChild(btnText);
-        itemRow.appendChild(btn);
-        container.appendChild(itemRow);
-    });
 }
 
 /**
@@ -240,7 +137,6 @@ export function renderAppSettings(uiSettings) {
     const languageSelect = dom.appSettings?.languageSelect;
     const enableLevelInputToggle = dom.equipment?.enableLevelInputToggle;
     const themeToggle = document.getElementById('settings-theme-switch');
-    const accentColorSwatches = dom.appSettings?.accentColorSwatches;
 
     if (currencySelect) {
         currencySelect.value = uiSettings.currency.code;
@@ -274,32 +170,10 @@ export function renderAppSettings(uiSettings) {
         }
     }
 
-    if (accentColorSwatches) {
-        accentColorSwatches.forEach(swatch => {
-            const matches = swatch.dataset.color === uiSettings.accentColor;
-            swatch.classList.toggle('is-active', matches);
-            swatch.classList.toggle('active', matches);
-        });
-    }
-
-    const mobileAccentSwatches = dom.appSettings?.mobileAccentSwatches;
-    if (mobileAccentSwatches) {
-        mobileAccentSwatches.forEach(swatch => {
-            const matches = swatch.dataset.color === uiSettings.accentColor;
-            swatch.classList.toggle('is-active', matches);
-            swatch.classList.toggle('active', matches);
-        });
-    }
-
-    const cozyQuiltToggle = document.getElementById('settings-cozy-quilt-switch');
-    const layoutBtns = document.querySelectorAll('.layout-segmented-control .segmented-btn');
+    const cozyQuiltToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-card-layout-switch') || document.getElementById('settings-cozy-quilt-switch'));
 
     if (cozyQuiltToggle) {
         const isCompact = uiSettings.cardLayout === 'compact0' || uiSettings.cardLayout === 'compact1' || uiSettings.cardLayout === 'quilt';
         cozyQuiltToggle.checked = isCompact;
-        layoutBtns.forEach(btn => {
-            const isQuilt = btn.dataset.layout === 'quilt';
-            btn.classList.toggle('active', isQuilt === isCompact);
-        });
     }
 }

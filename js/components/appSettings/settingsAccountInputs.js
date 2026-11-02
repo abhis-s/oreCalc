@@ -11,6 +11,7 @@ import { openAuthModal } from '../auth/authModalInputs.js';
 import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 import { updateAccountUI, configureAccountPopover, togglePopoverPanel } from './settingsAccountDisplay.js';
 import { promptPwaInstall } from '../../services/pwaService.js';
+import { showUpdateModal } from '../modals/updateModal.js';
 
 let activeAccountDismissListener = null;
 let activeAccountEscapeListener = null;
@@ -147,6 +148,17 @@ export function initializeSettingsAccount(options = {}) {
     popoverManageBtn?.addEventListener('click', () => {
         toggleAccountPopover(false);
     });
+
+    const handleUpdateClick = () => {
+        toggleAccountPopover(false);
+        showUpdateModal();
+    };
+
+    const popoverUpdateBtn = document.getElementById('account-popover-update-btn');
+    popoverUpdateBtn?.addEventListener('click', handleUpdateClick);
+
+    const popoverGuestUpdateBtn = document.getElementById('account-popover-guest-update-btn');
+    popoverGuestUpdateBtn?.addEventListener('click', handleUpdateClick);
 
     const panelsContainer = document.getElementById('account-popover-panels');
     panelsContainer?.addEventListener('click', (e) => {

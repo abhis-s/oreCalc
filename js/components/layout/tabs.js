@@ -4,7 +4,6 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { closeFabMenu } from '../fab/fab.js';
-import { showUpdateModal } from '../modals/updateModal.js';
 import { setAnimateNextRender } from '../planner/calendar.js';
 import { openStoredOresModal } from '../planner/priorityListModal.js';
 
@@ -30,8 +29,7 @@ const tabScrollPositions = {
     'home-tab': 0,
     'equipment-tab': 0,
     'income-tab': 0,
-    'planner-tab': 0,
-    'settings-tab': 0
+    'planner-tab': 0
 };
 
 /**
@@ -74,7 +72,7 @@ export function constructTabUrl(tabKey, pathname, search, hash = '') {
  * @returns {string} Canonical tab ID (e.g. 'equipment-tab').
  */
 export function resolveTabFromUrl(search, hash) {
-    const validTabKeys = ['home', 'equipment', 'income', 'planner', 'settings'];
+    const validTabKeys = ['home', 'equipment', 'income', 'planner'];
     const currentSearch = search !== undefined
         ? search
         : (typeof window !== 'undefined' && window.location ? window.location.search : '');
@@ -112,8 +110,8 @@ const boundTabWindows = new WeakSet();
  * Initializes query/hash routing, tab switching click listeners, popstate listeners, and scroll state preservation.
  */
 export function initializeTabs() {
-    const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
-    const validTabKeys = ['home', 'equipment', 'income', 'planner', 'settings'];
+    const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab'];
+    const validTabKeys = ['home', 'equipment', 'income', 'planner'];
     let initialTab = resolveTabFromUrl();
 
     if (typeof window !== 'undefined' && window.location?.hash) {
@@ -185,11 +183,6 @@ export function initializeTabs() {
             if (!validTabKeys.includes(button.dataset.tab)) return;
 
             closeFabMenu();
-
-            // If clicking on Settings with update pending, trigger the update modal
-            if (button.dataset.tab === 'settings' && button.classList.contains('update-pending') && window.__WB__) {
-                showUpdateModal(window.__WB__);
-            }
 
             const tabId = `${button.dataset.tab}-tab`;
             if (tabId === state.activeTab) {

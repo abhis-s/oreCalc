@@ -255,7 +255,7 @@ export async function mount(options = {}) {
             const rawHash = window.location.hash.substring(1);
             const isDeepLink = rawHash.startsWith('equip-') || rawHash.startsWith('hero-');
             const initialTab = isDeepLink ? 'equipment-tab' : `${rawHash}-tab`;
-            const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab', 'settings-tab'];
+            const validTabs = ['home-tab', 'planner-tab', 'equipment-tab', 'income-tab'];
             if (validTabs.includes(initialTab)) {
                 state.activeTab = initialTab;
             } else {

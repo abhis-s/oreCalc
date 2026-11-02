@@ -10,8 +10,7 @@
     grid-template-columns: 1fr 1fr;
 }
 
-.income-cards-grid.layout-compact,
-.settings-cards-grid.layout-compact {
+.income-cards-grid.layout-compact {
     align-items: start;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -29,8 +28,7 @@
         height: auto;
         width: 100%;
 
-        .income-card,
-        .settings-card {
+        .income-card {
             height: auto;
             width: 100%;
             margin-bottom: 0;

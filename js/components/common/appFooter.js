@@ -145,7 +145,7 @@ export function initAppFooter(options = {}) {
     const rawVersion = (typeof window !== 'undefined' && window.__ENV__?.APP_VERSION) || options.version || '3.0.0';
     const formattedVersion = 'v' + String(rawVersion).replace(/^v/, '');
 
-    const versionDisplays = document.querySelectorAll('#app-version-display, .navigation-drawer__app-version');
+    const versionDisplays = document.querySelectorAll('#app-version-display, .navigation-drawer__app-version, #support-sw-version-text');
     versionDisplays.forEach(el => {
         el.textContent = formattedVersion;
     });

@@ -5,10 +5,47 @@ import { getActiveUserId } from '../../core/storageKeys.js';
 
 import { logger } from '../../utils/logger.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
+import { getAppLastUpdatedDateFormatted } from '../../utils/dateUtils.js';
 
 import { openPrivacyModal } from './settingsLegalModals.js';
 import { submitBugReport } from '../../services/apiService.js';
 import { showAlert } from '../../ui/noticeModal.js';
+
+/**
+ * Synchronizes the Service Worker troubleshoot box state with whether an update is pending.
+ *
+ * @param {HTMLElement | null} [modal=document.getElementById('bug-report-modal')]
+ */
+function syncTroubleshootUpdateState(modal = (typeof document !== 'undefined' ? document.getElementById('bug-report-modal') : null)) {
+    if (!modal || typeof document === 'undefined') return;
+    const hasPending = typeof sessionStorage !== 'undefined' && Boolean(sessionStorage.getItem('oreCalcUpdateDetectedAt'));
+    const box = /** @type {HTMLElement | null} */ (document.getElementById('support-sw-troubleshoot-box'));
+    const titleEl = /** @type {HTMLElement | null} */ (document.getElementById('support-sw-troubleshoot-title'));
+    const descEl = /** @type {HTMLElement | null} */ (document.getElementById('support-sw-troubleshoot-desc'));
+    const iconEl = /** @type {HTMLElement | null} */ (document.getElementById('support-reset-sw-icon'));
+    const labelEl = /** @type {HTMLElement | null} */ (document.getElementById('support-reset-sw-label'));
+
+    if (!box || !titleEl || !descEl || !iconEl || !labelEl) return;
+
+    box.classList.toggle('has-update', hasPending);
+    if (hasPending) {
+        titleEl.setAttribute('data-i18n', 'views.settings.bugReport.updateAvailableTitle');
+        titleEl.textContent = translate('views.settings.bugReport.updateAvailableTitle');
+        descEl.setAttribute('data-i18n', 'views.settings.bugReport.updateAvailableDesc');
+        descEl.textContent = translate('views.settings.bugReport.updateAvailableDesc');
+        iconEl.setAttribute('name', 'update');
+        labelEl.setAttribute('data-i18n', 'views.settings.bugReport.updateNowLabel');
+        labelEl.textContent = translate('views.settings.bugReport.updateNowLabel');
+    } else {
+        titleEl.setAttribute('data-i18n', 'views.settings.bugReport.appNotUpdatingTitle');
+        titleEl.textContent = translate('views.settings.bugReport.appNotUpdatingTitle');
+        descEl.setAttribute('data-i18n', 'views.settings.bugReport.swDesc');
+        descEl.textContent = translate('views.settings.bugReport.swDesc');
+        iconEl.setAttribute('name', 'sync');
+        labelEl.setAttribute('data-i18n', 'views.settings.bugReport.forceUpdateLabel');
+        labelEl.textContent = translate('views.settings.bugReport.forceUpdateLabel');
+    }
+}
 
 /**
  * Opens the unified Bug Report & Feedback modal dialog.
@@ -187,6 +224,24 @@ export function openBugReportModal(initialMode = 'bug', options = {}) {
             resetSWBtn.disabled = true;
             resetSWBtn.style.opacity = '0.7';
 
+            const hasPending = typeof sessionStorage !== 'undefined' && Boolean(sessionStorage.getItem('oreCalcUpdateDetectedAt'));
+
+            if (hasPending) {
+                if ('serviceWorker' in navigator) {
+                    try {
+                        const reg = await navigator.serviceWorker.getRegistration();
+                        if (reg?.waiting) {
+                            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        }
+                    } catch (err) {
+                        logger.error('Failed to notify waiting service worker:', err);
+                    }
+                }
+                sessionStorage.removeItem('oreCalcUpdateDetectedAt');
+                window.location.reload();
+                return;
+            }
+
             if ('serviceWorker' in navigator) {
                 try {
                     const registrations = await navigator.serviceWorker.getRegistrations();
@@ -302,6 +357,24 @@ export function openBugReportModal(initialMode = 'bug', options = {}) {
         };
     });
 
+    const versionEl = document.getElementById('support-sw-version-text');
+    if (versionEl) {
+        const rawVersion = (typeof window !== 'undefined' && window.__ENV__?.APP_VERSION) || state.appVersion || '2.0.0';
+        versionEl.textContent = 'v' + String(rawVersion).replace(/^v/, '');
+    }
+
+    const lastUpdatedEl = document.getElementById('support-last-updated-text');
+    if (lastUpdatedEl) {
+        const currentLang = state.uiSettings?.language || 'en';
+        const formattedDate = getAppLastUpdatedDateFormatted(currentLang);
+        if (lastUpdatedEl.dataset) {
+            lastUpdatedEl.dataset.i18nArgs = JSON.stringify({ date: formattedDate });
+        }
+        lastUpdatedEl.textContent = translate('views.settings.bugReport.desc', { date: formattedDate });
+    }
+
+    syncTroubleshootUpdateState(modal);
+
     openModal(modal, options);
 }
 
@@ -353,4 +426,29 @@ export function openContactModal(options = {}) {
     }
 
     openModal(modal, options);
+}
+
+if (typeof document !== 'undefined') {
+    document.addEventListener('app:update-pending', () => {
+        const modal = /** @type {HTMLDialogElement | null} */ (document.getElementById('bug-report-modal'));
+        if (modal && 'open' in modal && modal.open) {
+            syncTroubleshootUpdateState(modal);
+        }
+    });
+
+    document.addEventListener('app:translate', () => {
+        const modal = /** @type {HTMLDialogElement | null} */ (document.getElementById('bug-report-modal'));
+        if (modal && 'open' in modal && modal.open) {
+            syncTroubleshootUpdateState(modal);
+            const lastUpdatedEl = document.getElementById('support-last-updated-text');
+            if (lastUpdatedEl) {
+                const currentLang = state.uiSettings?.language || 'en';
+                const formattedDate = getAppLastUpdatedDateFormatted(currentLang);
+                if (lastUpdatedEl.dataset) {
+                    lastUpdatedEl.dataset.i18nArgs = JSON.stringify({ date: formattedDate });
+                }
+                lastUpdatedEl.textContent = translate('views.settings.bugReport.desc', { date: formattedDate });
+            }
+        }
+    });
 }

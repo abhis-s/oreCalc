@@ -222,38 +222,11 @@ export const tourSteps = [
     },
 
     {
-        // Navigates to Settings, highlights the tab button
-        id: 'nav-settings',
-        setId: 'v1.0',
-        order: '05',
-        target: () => {
-            const isSmallScreen = window.innerWidth < 780;
-            return isSmallScreen ? '.nav-button[data-tab="settings"]' : '.app-header__tab[data-tab="settings"], .tab-button[data-tab="settings"]';
-        },
-        tab: 'settings',
-        titleKey: 'nav.settings',
-        descKey: 'views.tour.navSettingsDesc',
-        placement: () => {
-            const isSmallScreen = window.innerWidth < 780;
-            return isSmallScreen ? 'top' : 'bottom';
-        }
-    },
-    {
-        id: 'preferences',
-        setId: 'v1.0',
-        order: '05.01',
-        target: '#orecalc-settings-preferences-card',
-        tab: 'settings',
-        titleKey: 'views.settings.cards.preferences',
-        descKey: 'views.tour.preferencesDesc',
-        placement: 'bottom'
-    },
-    {
         id: 'backup-sync',
         setId: 'v1.0',
-        order: '05.02',
+        order: '05',
         target: '#header-account-btn',
-        tab: 'settings',
+        tab: 'planner',
         titleKey: 'views.settings.cards.accountAndSync',
         descKey: 'views.tour.backupSyncDesc',
         placement: 'bottom'

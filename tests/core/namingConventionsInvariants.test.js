@@ -121,8 +121,7 @@ describe('DOM Identifier & Semantic Control Suffix Invariants', () => {
         // Verify that canonical UI feature switches are detected and enforce -switch
         const expectedSwitchIds = [
             'app-theme-switch',
-            'settings-theme-switch',
-            'settings-cozy-quilt-switch',
+            'app-card-layout-switch',
             'eq-enable-level-edit-switch',
             'eq-hide-maxed-switch',
             'eq-hide-locked-switch',

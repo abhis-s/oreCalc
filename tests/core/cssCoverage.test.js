@@ -58,10 +58,6 @@ export const HTML_ALLOWED_JS_HOOKS = [
     {
         name: 'calendar-track',
         rationale: 'Queried by calendarInputs.js to coordinate calendar scroll and chip placements'
-    },
-    {
-        name: 'development-list',
-        rationale: 'Queried by settingsPricingInputs.js to mount development support action buttons'
     }
 ];
 

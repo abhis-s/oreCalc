@@ -449,66 +449,6 @@
 }
 
 // --- 2. COMMUNITY & SUPPORT BUTTONS ---
-.btn-changelog {
-    background-color: var(--btn-bg-teal);
-    color: var(--btn-color-teal);
-    border: 1px solid var(--btn-border-teal);
-    &:hover {
-        background-color: var(--btn-bg-teal-hover);
-        border-color: var(--btn-border-teal-hover);
-    }
-}
-
-.btn-github {
-    background-color: rgba($palette-grey-500, 0.1);
-    color: $text-primary;
-    border: 1px solid rgba($palette-grey-500, 0.3);
-    &:hover {
-        background-color: rgba($palette-grey-500, 0.2);
-        border-color: rgba($palette-grey-500, 0.5);
-    }
-}
-
-.btn-crowdin {
-    background-color: var(--btn-bg-green);
-    color: var(--btn-color-green);
-    border: 1px solid var(--btn-border-green);
-    &:hover {
-        background-color: var(--btn-bg-green-hover);
-        border-color: var(--btn-border-green-hover);
-    }
-}
-
-.btn-bmc {
-    background-color: var(--btn-bg-amber);
-    color: var(--btn-color-amber);
-    border: 1px solid var(--btn-border-amber);
-    &:hover {
-        background-color: var(--btn-bg-amber-hover);
-        border-color: var(--btn-border-amber-hover);
-    }
-}
-
-.btn-bug {
-    background-color: var(--btn-bg-red);
-    color: var(--btn-color-red);
-    border: 1px solid var(--btn-border-red);
-    &:hover {
-        background-color: var(--btn-bg-red-hover);
-        border-color: var(--btn-border-red-hover);
-    }
-}
-
-.btn-contact {
-    background-color: var(--btn-bg-deep-orange);
-    color: var(--btn-color-deep-orange);
-    border: 1px solid var(--btn-border-deep-orange);
-    &:hover {
-        background-color: var(--btn-bg-deep-orange-hover);
-        border-color: var(--btn-border-deep-orange-hover);
-    }
-}
-
 .btn-pricing {
     @include btn-accent-style;
 }

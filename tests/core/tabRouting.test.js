@@ -62,7 +62,6 @@ describe("Tab Routing & Canonical URL Construction", () => {
             assert.strictEqual(constructTabUrl("equipment", basePath, ""), "/ore-calculator/?tab=equipment");
             assert.strictEqual(constructTabUrl("income", basePath, ""), "/ore-calculator/?tab=income");
             assert.strictEqual(constructTabUrl("planner", basePath, ""), "/ore-calculator/?tab=planner");
-            assert.strictEqual(constructTabUrl("settings", basePath, ""), "/ore-calculator/?tab=settings");
         });
 
         test("normalizes -tab suffix cleanly", () => {
@@ -70,7 +69,6 @@ describe("Tab Routing & Canonical URL Construction", () => {
             assert.strictEqual(constructTabUrl("equipment-tab", basePath, ""), "/ore-calculator/?tab=equipment");
             assert.strictEqual(constructTabUrl("income-tab", basePath, ""), "/ore-calculator/?tab=income");
             assert.strictEqual(constructTabUrl("planner-tab", basePath, ""), "/ore-calculator/?tab=planner");
-            assert.strictEqual(constructTabUrl("settings-tab", basePath, ""), "/ore-calculator/?tab=settings");
         });
     });
 
@@ -163,7 +161,6 @@ describe("Tab Routing & Canonical URL Construction", () => {
             assert.strictEqual(resolveTabFromUrl("?tab=equipment", ""), "equipment-tab");
             assert.strictEqual(resolveTabFromUrl("?tab=income", ""), "income-tab");
             assert.strictEqual(resolveTabFromUrl("?tab=planner", ""), "planner-tab");
-            assert.strictEqual(resolveTabFromUrl("?tab=settings", ""), "settings-tab");
             assert.strictEqual(resolveTabFromUrl("?tab=home", ""), "home-tab");
         });
 
@@ -171,7 +168,6 @@ describe("Tab Routing & Canonical URL Construction", () => {
             assert.strictEqual(resolveTabFromUrl("", "#equipment"), "equipment-tab");
             assert.strictEqual(resolveTabFromUrl("", "#income"), "income-tab");
             assert.strictEqual(resolveTabFromUrl("", "#planner"), "planner-tab");
-            assert.strictEqual(resolveTabFromUrl("", "#settings"), "settings-tab");
             assert.strictEqual(resolveTabFromUrl("", "#home"), "home-tab");
         });
 

@@ -19,15 +19,6 @@ export const LAYOUT_CONFIGS = [
         hasCompactMode: true
     },
     {
-        name: 'settings',
-        gridSelector: '#settings-tab .settings-cards-grid',
-        containerSelector: '.card-container',
-        dragHandleSelector: '.card > h2, .card > h3',
-        orderKey: 'settingsCardOrder',
-        prefix: 'settings',
-        hasCompactMode: true
-    },
-    {
         name: 'home',
         gridSelector: '#home-tab .main-content',
         containerSelector: '.left-panel, .right-panel',

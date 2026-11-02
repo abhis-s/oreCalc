@@ -37,6 +37,27 @@
                         </h2>
                         <div class="inner-card">
                             <div class="input-group-flex">
+                                <label for="currency-select" data-i18n="views.settings.options.currency"></label>
+                                <select id="currency-select" class="dropdown-style updatable">
+                                    <!-- DYNAMIC INSERTION: Currency select options -->
+                                </select>
+                            </div>
+                            <div class="input-group-flex">
+                                <label for="open-global-pricing-btn" class="form-label-inline">
+                                    <span data-i18n="views.settings.options.globalPricing"></span>
+                                    <button type="button" class="info-btn" data-info="views.settings.globalPricing.desc" data-i18n-aria-label="actions.showInfo">
+                                        <clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>
+                                    </button>
+                                </label>
+                                <button type="button" id="open-global-pricing-btn" class="animated-btn btn-pricing">
+                                    <span class="animated-btn-icon-wrapper">
+                                        <clashcalc-assets-svg name="global-pricing"></clashcalc-assets-svg>
+                                    </span>
+                                    <span class="animated-btn-text" data-i18n="actions.view"></span>
+                                </button>
+                            </div>
+                            <hr class="inner-card-divider">
+                            <div class="input-group-flex">
                                 <label for="inc-shop-offers-select" data-i18n="views.income.shopOffers.monthEndLabel"></label>
                                 <select id="inc-shop-offers-select" class="dropdown-style updatable">
                                     <option value="newSet" data-i18n="views.income.shopOffers.newSet"></option>

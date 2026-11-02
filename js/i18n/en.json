@@ -41,7 +41,6 @@
         "refresh": "Refresh",
         "reload": "Reload",
         "remove": "Remove",
-        "report": "Report",
         "reset": "Reset",
         "restore": "Restore",
         "save": "Save",
@@ -64,8 +63,7 @@
         "validate": "Validate",
         "verify": "Verify",
         "view": "View",
-        "viewSuggestions": "View suggestions",
-        "visit": "Visit"
+        "viewSuggestions": "View suggestions"
     },
     "alerts": {
         "bugReportFailure": "Failed to submit bug report. Please try again later.",
@@ -156,7 +154,6 @@
             "timeIcon": "Time Icon"
         },
         "brandToolName": "OreCalc",
-        "comingSoon": "Coming Soon!",
         "description": "The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.",
         "domainNotice": {
             "cta": "Switch to ClashCalc",
@@ -629,9 +626,7 @@
         "saving": "Saving...",
         "success": "Success",
         "updateAvailable": "Update Available",
-        "updateAvailableMsg": "A new version of the application is available.",
         "updateForcedIn": "Recommended update will apply automatically in {time}.",
-        "updateForcedShort": "Auto-update in: {time}",
         "updatePrompt": "A new version of the application is available. Reload to get the latest features and fixes.",
         "warning": "Warning"
     },
@@ -1426,13 +1421,10 @@
             "about": {
                 "author": "Author",
                 "buyMeACoffee": "Buy Me A Coffee",
-                "buyMeACoffeeDesc": "Support my work.",
                 "changelog": "Changelog",
-                "changelogHelp": "View the history of updates, fixes, and new features added in each version of the app.",
                 "contact": "Contact",
                 "contactInfo": "For questions, feedback, or feature suggestions, you can contact us at <code>support@clashcalc.com</code>. Click the button below to open your mail client.",
                 "crowdin": "Help Us Translate",
-                "crowdinHelp": "Contribute translations to help us localize the app into your language.",
                 "errorLoadingLicense": "Error loading license text.",
                 "github": "GitHub",
                 "loadingLicense": "Loading license...",
@@ -1449,12 +1441,14 @@
                 "info": "Alternatively, you can report the issue directly on our {link} page.",
                 "privacyInfo": "By submitting this report, you agree that your user data and the provided email address will be processed in accordance with our {link}.",
                 "swDesc": "Clear local app caches to force fetch the latest version and fixes.",
-                "title": "Bug Report"
+                "title": "Bug Report",
+                "updateAvailableDesc": "A new version of the app is ready. Restart now to apply the latest updates and fixes.",
+                "updateAvailableTitle": "Update Ready to Install",
+                "updateNowLabel": "Update Now"
             },
             "cards": {
                 "accountAndSync": "Account & Cloud Sync",
                 "developmentSupport": "Development & Support",
-                "preferences": "Preferences",
                 "transparency": "Legal & Transparency"
             },
             "cloudSync": {
@@ -1529,7 +1523,6 @@
                 "globalPricing": "Global Pricing",
                 "language": "Language",
                 "layoutCompactLabel": "Compact",
-                "layoutCozyLabel": "Cozy",
                 "theme": "Light/Dark Mode",
                 "themeDark": "Dark Theme",
                 "themeLight": "Light Theme",
@@ -1613,10 +1606,8 @@
             "navIncomeDesc": "Here you can configure all your ore income sources. Each glowing card represents a different income stream like Star Bonus, Clan Wars, Shop Offers, and more.",
             "navPlannerDesc": "The Planner tab is where everything comes together. Set your upgrade goals, prioritize equipment, and track your progress on the calendar.",
             "navPlannerTitle": "Upgrade Planner",
-            "navSettingsDesc": "The Settings tab lets you personalize the app. Choose a theme, accent color, language, and manage your data.",
             "oresDesc": "Keep your current ore counts up to date here. This helps the planner calculate exactly how many more ores you need.",
             "oresTitle": "Stored Ores Tracker",
-            "preferencesDesc": "Change how the app looks here. Additionally, you can adjust the global pricing of in-game items and shop offers if they do not match your in-game prices.",
             "profileCardDesc": "This card provides a high-level overview of your active profile. It displays your profile, the number of maxed equipment, and detailed completion percentages for each ore upgrade.",
             "profileCardTitle": "Player Overview & Progress",
             "profileDesc": "Switch between different saved profiles, press the refresh button to update player data, or click '+ Add Player' to add more accounts.",

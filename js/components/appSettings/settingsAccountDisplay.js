@@ -44,6 +44,7 @@ function updateLocalizedHref(el, subPath) {
  * @property {boolean} [hasClickableAvatar=true] - Whether avatar links to /account/ or is non-clickable.
  * @property {boolean} [hasSettingsPanel=true] - Whether the built-in settings panel is present.
  * @property {string[]} [expandedPanels=[]] - Panel IDs explicitly requested to start expanded.
+ * @property {string[]} [settingsItems=[]] - Optional setting item keys to include (e.g. ['cardLayout']). Mandatory items (language, theme, accent-color) are always included when hasSettingsPanel is true.
  * @property {AccountPopoverCustomPanel[]} [customPanels=[]] - Extra panels provided by the page.
  */
 
@@ -53,6 +54,7 @@ let currentPopoverOptions = {
     hasClickableAvatar: true,
     hasSettingsPanel: true,
     expandedPanels: [],
+    settingsItems: [],
     customPanels: []
 };
 
@@ -84,6 +86,7 @@ export function configureAccountPopover(options = {}) {
         hasClickableAvatar: options.hasClickableAvatar !== false,
         hasSettingsPanel: options.hasSettingsPanel !== false,
         expandedPanels: Array.isArray(options.expandedPanels) ? [...options.expandedPanels] : [],
+        settingsItems: Array.isArray(options.settingsItems) ? [...options.settingsItems] : [],
         customPanels: Array.isArray(options.customPanels) ? [...options.customPanels] : []
     };
 
@@ -159,6 +162,29 @@ function applyPopoverConfiguration() {
                     configurable: true
                 });
             }
+
+            const MANDATORY_SETTINGS_ITEMS = new Set(['language', 'theme', 'accent-color']);
+            const requestedItems = new Set(
+                (currentPopoverOptions.settingsItems || []).map(item =>
+                    item.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+                )
+            );
+
+            const settingItemEls = popover.querySelectorAll('[data-setting-item]');
+            settingItemEls.forEach(el => {
+                const key = el.getAttribute('data-setting-item');
+                if (!key) return;
+                const isMandatory = MANDATORY_SETTINGS_ITEMS.has(key);
+                const isRequested = isMandatory || requestedItems.has(key);
+
+                if (isRequested) {
+                    el.classList.remove('is-hidden');
+                    el.removeAttribute('hidden');
+                } else {
+                    el.classList.add('is-hidden');
+                    el.setAttribute('hidden', '');
+                }
+            });
         } else {
             settingsPanel.classList.add('is-hidden');
             settingsPanel.setAttribute('hidden', '');

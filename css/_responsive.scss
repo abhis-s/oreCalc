@@ -83,10 +83,6 @@
         }
     }
 
-    #settings-tab .settings-cards-grid {
-        grid-template-columns: 1fr;
-    }
-
     #planner-tab .planner-cards-grid {
         grid-template-columns: minmax(0, 1fr);
     }

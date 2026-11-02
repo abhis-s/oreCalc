@@ -47,7 +47,6 @@ dialog.modal,
 
     .modal-content,
     .eq-details-modal-content,
-    .accent-picker-modal-content,
     [class*="modal-content"],
     [class*="-modal-content"] {
         transform: translate3d(0, 30px, 0) scale(0.96);
@@ -63,7 +62,6 @@ dialog.modal,
 
         .modal-content,
         .eq-details-modal-content,
-        .accent-picker-modal-content,
         [class*="modal-content"],
         [class*="-modal-content"] {
             transform: translate3d(0, 0, 0) scale(1);
@@ -74,7 +72,6 @@ dialog.modal,
 
             .modal-content,
             .eq-details-modal-content,
-            .accent-picker-modal-content,
             [class*="modal-content"],
             [class*="-modal-content"] {
                 transform: translate3d(0, 30px, 0) scale(0.96);
@@ -121,7 +118,6 @@ dialog.modal,
 
         .modal-content,
         .eq-details-modal-content,
-        .accent-picker-modal-content,
         [class*="modal-content"],
         [class*="-modal-content"] {
             transform: translate3d(0, 48px, 0) scale(0.95);
@@ -134,7 +130,6 @@ dialog.modal,
 
         .modal-content,
         .eq-details-modal-content,
-        .accent-picker-modal-content,
         [class*="modal-content"],
         [class*="-modal-content"] {
             transition: none !important;
@@ -156,7 +151,6 @@ dialog.modal,
 
     .modal-content,
     .eq-details-modal-content,
-    .accent-picker-modal-content,
     [class*="modal-content"],
     [class*="-modal-content"] {
         background-color: $bg-surface-secondary;
@@ -517,7 +511,6 @@ dialog.modal,
         .modal-content,
         .eq-details-modal-content,
         .guided-setup-modal-content,
-        .accent-picker-modal-content,
         [class*="modal-content"],
         [class*="-modal-content"] {
             max-width: calc(100vw - 24px);
@@ -581,7 +574,6 @@ dialog.modal,
             .modal-content,
             .eq-details-modal-content,
             .guided-setup-modal-content,
-            .accent-picker-modal-content,
             [class*="modal-content"],
             [class*="-modal-content"] {
                 width: 100% !important;
@@ -616,7 +608,6 @@ dialog.modal,
         .modal-content,
         .eq-details-modal-content,
         .guided-setup-modal-content,
-        .accent-picker-modal-content,
         [class*="modal-content"],
         [class*="-modal-content"] {
             width: 100% !important;
@@ -672,4 +663,35 @@ dialog.modal,
     margin: 0;
     color: $text-secondary;
     text-align: center;
+}
+
+#th-planning-section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    h4 {
+        margin: $spacing-xs 0 $spacing-md;
+    }
+}
+
+.settings-info-box {
+    background-color: $bg-surface-tertiary;
+    padding: 15px;
+    border-radius: $shape-corner-medium;
+    border-left: 4px solid $accent-primary;
+    margin-top: 10px;
+
+    h3 {
+        font-size: $font-size-lg;
+        margin-bottom: $spacing-sm;
+        color: $text-primary;
+    }
+
+    p {
+        font-size: 0.9rem;
+        color: $text-secondary;
+        margin: 0;
+        line-height: 1.4;
+    }
 }

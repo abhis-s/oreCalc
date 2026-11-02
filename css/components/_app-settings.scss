@@ -73,7 +73,13 @@
             gap: $spacing-sm;
         }
 
-            .preference-label {
+        &[data-setting-item="card-layout"] {
+            @media (max-width: #{$breakpoint-desktop - 1px}) {
+                display: none !important;
+            }
+        }
+
+        .preference-label {
                 display: inline-flex;
                 align-items: center;
                 gap: $spacing-sm;

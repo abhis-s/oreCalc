@@ -188,7 +188,7 @@ export function initMainAppCrossTabSync() {
                     }
                 }
 
-                const allSwatches = document.querySelectorAll('.accent-swatch, #welcome-accent-picker .accent-swatch, #mobile-accent-picker-modal .accent-swatch');
+                const allSwatches = document.querySelectorAll('.accent-swatch');
                 allSwatches.forEach(s => {
                     s.classList.toggle('is-active', /** @type {HTMLElement} */ (s).dataset.color === accentToApply);
                 });
@@ -202,7 +202,7 @@ export function initMainAppCrossTabSync() {
                     state.uiSettings.language = newLang;
                     syncLanguageUrl(newLang, false);
                 }, false, { skipSave: true });
-                const langSelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('settings-language-select'));
+                const langSelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('app-language-select') || document.getElementById('settings-language-select'));
                 if (langSelect) {
                     langSelect.value = newLang;
                 }

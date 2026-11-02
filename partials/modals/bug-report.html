@@ -47,13 +47,17 @@
             <div id="support-sw-troubleshoot-box" class="sw-troubleshoot-box">
                 <div class="sw-troubleshoot-content">
                     <div class="sw-troubleshoot-text">
-                        <span class="sw-troubleshoot-title" data-i18n="views.settings.bugReport.appNotUpdatingTitle"></span>
-                        <span class="sw-troubleshoot-desc" data-i18n="views.settings.bugReport.swDesc"></span>
+                        <span id="support-sw-troubleshoot-title" class="sw-troubleshoot-title" data-i18n="views.settings.bugReport.appNotUpdatingTitle"></span>
+                        <span id="support-sw-troubleshoot-desc" class="sw-troubleshoot-desc" data-i18n="views.settings.bugReport.swDesc"></span>
                     </div>
                     <button id="support-reset-sw-btn" type="button" class="support-sw-btn">
-                        <clashcalc-assets-svg name="sync" height="14" width="14"></clashcalc-assets-svg>
-                        <span data-i18n="views.settings.bugReport.forceUpdateLabel"></span>
+                        <clashcalc-assets-svg id="support-reset-sw-icon" name="sync" height="14" width="14"></clashcalc-assets-svg>
+                        <span id="support-reset-sw-label" data-i18n="views.settings.bugReport.forceUpdateLabel"></span>
                     </button>
+                </div>
+                <div class="sw-troubleshoot-footer">
+                    <span id="support-sw-version-text" class="sw-troubleshoot-version"></span>
+                    <span id="support-last-updated-text" class="sw-troubleshoot-updated" data-i18n="views.settings.bugReport.desc"></span>
                 </div>
             </div>
             <div class="privacy-notice">

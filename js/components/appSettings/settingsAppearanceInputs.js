@@ -4,21 +4,14 @@ import { syncLanguageUrl } from '../../core/languageRouter.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
-import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
-
 import { dom } from '../../dom/domElements.js';
 import { applyCardLayout } from '../../ui/cardLayoutManager.js';
 
 /**
- * Initializes appearance-related settings: theme, accent colors, language, and card layout.
+ * Initializes appearance-related settings: theme, language, and card layout.
  */
 export function initializeSettingsAppearance() {
     const languageSelect = dom.appSettings?.languageSelect;
-    const accentColorSwatches = dom.appSettings?.accentColorSwatches;
-    const mobileAccentPickerBtn = dom.appSettings?.mobileAccentPickerBtn;
-    const accentPickerModal = dom.appSettings?.accentPickerModal;
-    const mobileAccentSwatches = dom.appSettings?.mobileAccentSwatches;
-    const closeAccentPickerBtn = dom.appSettings?.closeAccentPickerBtn;
 
     if (languageSelect) {
         languageSelect.addEventListener('change', async (e) => {
@@ -69,21 +62,10 @@ export function initializeSettingsAppearance() {
         });
     }
 
-    const cozyQuiltToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('settings-cozy-quilt-switch'));
-    const layoutBtns = document.querySelectorAll('.layout-segmented-control .segmented-btn');
+    const cozyQuiltToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-card-layout-switch') || document.getElementById('settings-cozy-quilt-switch'));
 
     if (cozyQuiltToggle) {
-        const updateLayoutLabel = () => {
-            const isCompact = state.uiSettings.cardLayout === 'compact0' || state.uiSettings.cardLayout === 'compact1';
-            layoutBtns.forEach(btn => {
-                const isQuilt = /** @type {HTMLElement} */ (btn).dataset.layout === 'quilt';
-                const isActive = isQuilt === isCompact;
-                btn.classList.toggle('is-active', isActive);
-                btn.classList.toggle('active', isActive);
-            });
-            cozyQuiltToggle.checked = isCompact;
-        };
-        updateLayoutLabel();
+        cozyQuiltToggle.checked = state.uiSettings.cardLayout === 'compact0' || state.uiSettings.cardLayout === 'compact1' || state.uiSettings.cardLayout === 'quilt';
 
         cozyQuiltToggle.addEventListener('change', (e) => {
             const layout = /** @type {HTMLInputElement} */ (e.target).checked ? 'compact0' : 'cozy';
@@ -91,88 +73,6 @@ export function initializeSettingsAppearance() {
                 state.uiSettings.cardLayout = layout;
             }, true, { preferencesOnly: true });
             applyCardLayout(layout);
-            updateLayoutLabel();
-        });
-
-        layoutBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const layout = /** @type {HTMLElement} */ (btn).dataset.layout;
-                const targetLayout = layout === 'quilt' ? 'compact0' : 'cozy';
-                if (state.uiSettings.cardLayout !== targetLayout) {
-                    handleStateUpdate(() => {
-                        state.uiSettings.cardLayout = targetLayout;
-                    }, true, { preferencesOnly: true });
-                    applyCardLayout(targetLayout);
-                    updateLayoutLabel();
-                }
-            });
-        });
-    }
-
-    const handleAccentChange = (color, element) => {
-        const rect = element.getBoundingClientRect();
-        const origin = {
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2,
-            isSwatchClick: true
-        };
-
-        handleStateUpdate(() => {
-            state.uiSettings.accentColor = color;
-        }, true, { preferencesOnly: true });
-
-        if (accentColorSwatches) {
-            accentColorSwatches.forEach(s => {
-                const matches = s.dataset.color === color;
-                s.classList.toggle('is-active', matches);
-                s.classList.toggle('active', matches);
-            });
-        }
-        if (mobileAccentSwatches) {
-            mobileAccentSwatches.forEach(s => {
-                const matches = s.dataset.color === color;
-                s.classList.toggle('is-active', matches);
-                s.classList.toggle('active', matches);
-            });
-        }
-
-        document.dispatchEvent(new CustomEvent('app:theme-change', { detail: { theme: state.uiSettings.theme, origin } }));
-    };
-
-    if (mobileAccentPickerBtn && accentPickerModal) {
-        mobileAccentPickerBtn.addEventListener('click', () => {
-            openModal(accentPickerModal);
-        });
-
-        const closeMobilePicker = () => {
-            closeModalAnimated(accentPickerModal);
-        };
-
-        closeAccentPickerBtn?.addEventListener('click', closeMobilePicker);
-
-        if (mobileAccentSwatches) {
-            mobileAccentSwatches.forEach(swatch => {
-                swatch.addEventListener('click', (e) => {
-                    const target = /** @type {HTMLElement} */ (e.target);
-                    const color = target.dataset.color;
-                    if (color) {
-                        handleAccentChange(color, target);
-                    }
-                    closeMobilePicker();
-                });
-            });
-        }
-    }
-
-    if (accentColorSwatches) {
-        accentColorSwatches.forEach(swatch => {
-            swatch.addEventListener('click', (e) => {
-                const target = /** @type {HTMLElement} */ (e.target);
-                const color = target.dataset.color;
-                if (color) {
-                    handleAccentChange(color, target);
-                }
-            });
         });
     }
 }

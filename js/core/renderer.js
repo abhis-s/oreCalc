@@ -1,4 +1,3 @@
-import { renderAppSettings } from '../components/appSettings/appSettingsDisplay.js';
 import { renderHeroCards } from '../components/equipment/heroCardDisplay.js';
 import { renderRemainingTime } from '../components/equipment/remainingTimeDisplay.js';
 import { renderRequiredOres } from '../components/equipment/requiredOresDisplay.js';
@@ -110,7 +109,5 @@ export function renderApp(state) {
 
         const prospectorIncome = incomeSources.prospector || {};
         renderProspectorIncomeDisplay(prospectorIncome);
-    } else if (state.activeTab === 'settings-tab') {
-        renderAppSettings(state.uiSettings);
     }
 }

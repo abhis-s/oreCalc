@@ -616,14 +616,6 @@
         box-sizing: border-box;
     }
 
-    &.settings-card {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        min-width: 0;
-        flex: 1;
-    }
-
     .inner-card {
         background-color: $bg-surface-primary;
         border-radius: $card-radius-inner;
@@ -634,6 +626,12 @@
             .input-group-flex:not(:last-child) {
                 margin-bottom: 10px;
             }
+        }
+
+        .inner-card-divider {
+            border: none;
+            border-top: 1px solid $border-primary;
+            margin: $spacing-md 0;
         }
     }
 

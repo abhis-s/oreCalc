@@ -88,7 +88,7 @@ describe('Account Popover Modularity & Pre-Rendered Panels Domain Suite', () => 
         queryListeners = new Map();
 
         // Standard popover DOM elements
-        createMockElement('app-account-popover');
+        const popover = createMockElement('app-account-popover');
         createMockElement('account-popover-manage-link', 'a', { href: '/account/', 'data-popover-option': 'account-sync' });
         createMockElement('account-popover-avatar-link', 'a', { href: '/account/' });
         createMockElement('account-popover-install-btn', 'button', { 'data-popover-option': 'install' });
@@ -96,6 +96,22 @@ describe('Account Popover Modularity & Pre-Rendered Panels Domain Suite', () => 
         createMockElement('account-popover-logout-btn', 'button', { 'data-popover-option': 'logout' });
         createMockElement('account-popover-panel-divider', 'hr');
         createMockElement('account-popover-panels', 'div');
+
+        // Preference items inside settings panel
+        const langItem = createMockElement('pref-item-language', 'div', { 'data-setting-item': 'language' });
+        const themeItem = createMockElement('pref-item-theme', 'div', { 'data-setting-item': 'theme' });
+        const cardLayoutItem = createMockElement('pref-item-card-layout', 'div', { 'data-setting-item': 'card-layout' });
+        const accentItem = createMockElement('pref-item-accent', 'div', { 'data-setting-item': 'accent-color' });
+
+        popover.querySelectorAll = (sel) => {
+            if (sel === '[data-setting-item]') {
+                return [langItem, themeItem, cardLayoutItem, accentItem];
+            }
+            if (sel === '[data-popover-panel]') {
+                return Array.from(panelsMap.values());
+            }
+            return [];
+        };
 
         // Settings built-in panel
         const settingsPanel = createMockElement('account-popover-prefs-details', 'div', { 'data-popover-panel': 'settings' });
@@ -142,6 +158,7 @@ describe('Account Popover Modularity & Pre-Rendered Panels Domain Suite', () => 
         const popoverEl = elements.get('app-account-popover');
         popoverEl.querySelectorAll = (sel) => {
             if (sel === '[data-popover-panel]') return Array.from(panelsMap.values());
+            if (sel === '[data-setting-item]') return [langItem, themeItem, cardLayoutItem, accentItem];
             return [];
         };
 
@@ -331,5 +348,51 @@ describe('Account Popover Modularity & Pre-Rendered Panels Domain Suite', () => 
         assert.equal(installBtn.hasAttribute('hidden'), true);
         assert.ok(guestInstallBtn.classList.contains('is-hidden'));
         assert.equal(guestInstallBtn.hasAttribute('hidden'), true);
+    });
+
+    it('enforces mandatory baseline settings and selectively reveals optional items via settingsItems', () => {
+        const langItem = elements.get('pref-item-language');
+        const themeItem = elements.get('pref-item-theme');
+        const accentItem = elements.get('pref-item-accent');
+        const cardLayoutItem = elements.get('pref-item-card-layout');
+
+        // When initialized with default options (no settingsItems)
+        initializeSettingsAccount();
+
+        // Baseline items must be visible
+        assert.ok(!langItem.classList.contains('is-hidden'), 'Language must be visible by default');
+        assert.ok(!themeItem.classList.contains('is-hidden'), 'Theme must be visible by default');
+        assert.ok(!accentItem.classList.contains('is-hidden'), 'Accent color must be visible by default');
+
+        // Optional card layout must be hidden by default
+        assert.ok(cardLayoutItem.classList.contains('is-hidden'), 'Card layout must be hidden when not requested');
+        assert.ok(cardLayoutItem.hasAttribute('hidden'));
+
+        // When explicitly requested via camelCase
+        configureAccountPopover({
+            settingsItems: ['cardLayout']
+        });
+
+        assert.ok(!cardLayoutItem.classList.contains('is-hidden'), 'Card layout must be revealed when requested via cardLayout');
+        assert.equal(cardLayoutItem.hasAttribute('hidden'), false);
+
+        // When explicitly requested via kebab-case
+        configureAccountPopover({
+            settingsItems: ['card-layout']
+        });
+
+        assert.ok(!cardLayoutItem.classList.contains('is-hidden'), 'Card layout must be revealed when requested via card-layout');
+        assert.equal(cardLayoutItem.hasAttribute('hidden'), false);
+
+        // Reverting without settingsItems re-hides optional card layout while keeping baseline visible
+        configureAccountPopover({
+            settingsItems: []
+        });
+
+        assert.ok(!langItem.classList.contains('is-hidden'), 'Language remains visible');
+        assert.ok(!themeItem.classList.contains('is-hidden'), 'Theme remains visible');
+        assert.ok(!accentItem.classList.contains('is-hidden'), 'Accent color remains visible');
+        assert.ok(cardLayoutItem.classList.contains('is-hidden'), 'Card layout must be re-hidden');
+        assert.ok(cardLayoutItem.hasAttribute('hidden'));
     });
 });

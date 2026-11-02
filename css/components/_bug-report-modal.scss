@@ -210,6 +210,42 @@
             color: $text-secondary;
             line-height: 1.35;
         }
+
+        .sw-troubleshoot-footer {
+            margin-top: $spacing-sm;
+            padding-top: $spacing-xs;
+            border-top: 1px solid $border-primary;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: $text-secondary;
+            opacity: 0.85;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .sw-troubleshoot-version {
+            font-weight: $font-weight-medium;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .sw-troubleshoot-updated {
+            font-weight: $font-weight-medium;
+        }
+
+        &.has-update {
+            border-color: color-mix(in srgb, $accent-primary 45%, $border-primary);
+            background: color-mix(in srgb, $accent-primary 8%, $bg-surface-primary);
+
+            .sw-troubleshoot-title {
+                color: $accent-primary;
+            }
+
+            .sw-troubleshoot-footer {
+                border-top: 1px solid color-mix(in srgb, $accent-primary 25%, $border-primary);
+            }
+        }
     }
 
     .support-sw-btn {

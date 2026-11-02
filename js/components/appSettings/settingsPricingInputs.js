@@ -1,5 +1,4 @@
 import { currencyData } from '../../data/pricingData.js';
-import { developmentSupportData } from '../../data/supportData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
@@ -7,7 +6,7 @@ import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 
-import { renderGlobalPricingGrid, renderLabeledActions } from './appSettingsDisplay.js';
+import { renderGlobalPricingGrid } from './appSettingsDisplay.js';
 import { dom } from '../../dom/domElements.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 
@@ -15,8 +14,6 @@ import { showConfirm } from '../../ui/noticeModal.js';
  * Initializes pricing, cloud sync toggle, and support/transparency sections.
  */
 export function initializeSettingsPricing() {
-    renderLabeledActions('.development-list', developmentSupportData);
-
     const currencySelect = dom.appSettings?.currencySelect;
     const openGlobalPricingBtn = dom.appSettings?.openGlobalPricingBtn;
 

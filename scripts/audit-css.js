@@ -20,8 +20,7 @@ const HTML_ALLOWED_JS_HOOKS = [
     { name: 'custom-chip-section', rationale: 'Queried by createCustomChipsModalInputs.js to toggle section visibility' },
     { name: 'income-table-value', rationale: 'Queried by homeTableNumberAnimation.js to animate calculated ore income cells' },
     { name: 'income-table-resource', rationale: 'Queried by homeTableNumberAnimation.js to animate calculated ore income cells' },
-    { name: 'calendar-track', rationale: 'Queried by calendarInputs.js to coordinate calendar scroll and chip placements' },
-    { name: 'development-list', rationale: 'Queried by settingsPricingInputs.js to mount development support action buttons' }
+    { name: 'calendar-track', rationale: 'Queried by calendarInputs.js to coordinate calendar scroll and chip placements' }
 ];
 
 /**
