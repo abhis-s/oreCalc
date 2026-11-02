@@ -87,6 +87,7 @@ class MockDOMElement {
         this.value = '';
         this.checked = false;
         this.disabled = false;
+        this.hidden = false;
         this.type = tagName === 'input' ? 'text' : undefined;
         this.open = false;
         this.scrollLeft = 0;
@@ -122,6 +123,9 @@ class MockDOMElement {
         if (name === 'class') {
             this.className = String(val);
         }
+        if (name === 'hidden') {
+            this.hidden = true;
+        }
     }
 
     getAttribute(name) {
@@ -130,6 +134,9 @@ class MockDOMElement {
 
     removeAttribute(name) {
         this.attributes.delete(name);
+        if (name === 'hidden') {
+            this.hidden = false;
+        }
     }
 
     hasAttribute(name) {
@@ -643,24 +650,24 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         // Step 1: Default state (no profile loaded) -> Next button must be hidden
         resetGuidedSetupState();
         updateGuidedSetupStepView(1);
-        assert.equal(mockNextBtn.style.display, 'none', 'Next button must be hidden on Step 1 initially');
+        assert.equal(mockNextBtn.hidden, true, 'Next button must be hidden on Step 1 initially');
 
         // Step 1: Profile loaded with real tag -> Next button must be visible
         guidedSetupState.isProfileLoaded = true;
         guidedSetupState.activeTag = '#VALIDTAG';
         updateGuidedSetupStepView(1);
-        assert.equal(mockNextBtn.style.display, 'inline-flex', 'Next button must be visible when real profile is loaded');
+        assert.equal(mockNextBtn.hidden, false, 'Next button must be visible when real profile is loaded');
 
         // Step 1: Invalidated / changed tag -> Next button must hide
         guidedSetupState.isProfileLoaded = false;
         guidedSetupState.activeTag = null;
         updateGuidedSetupStepView(1);
-        assert.equal(mockNextBtn.style.display, 'none', 'Next button must hide when profile is invalidated');
+        assert.equal(mockNextBtn.hidden, true, 'Next button must hide when profile is invalidated');
 
         // Steps 2 through 6 -> Next button must always be visible
         for (let s = 2; s <= 6; s++) {
             updateGuidedSetupStepView(s);
-            assert.equal(mockNextBtn.style.display, 'inline-flex', `Next button must be visible on step ${s}`);
+            assert.equal(mockNextBtn.hidden, false, `Next button must be visible on step ${s}`);
         }
     });
 
@@ -807,7 +814,7 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         assert.equal(mockRaidSwitch.checked, true, 'Raid medals buy switch must reflect migrated enabled state');
     });
 
-    test('updateGuidedSetupStepView sets active step display to flex to preserve CSS flexbox gap', () => {
+    test('updateGuidedSetupStepView manages active and inactive step hidden attributes correctly', () => {
         const step1 = new MockDOMElement('div', 'guided-setup-step-1');
         const step2 = new MockDOMElement('div', 'guided-setup-step-2');
         const nextBtn = new MockDOMElement('button', 'guided-setup-next-btn');
@@ -816,11 +823,11 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         mockElements.set('guided-setup-next-btn', nextBtn);
 
         updateGuidedSetupStepView(2);
-        assert.equal(step2.style.display, 'flex', 'Active step must use display: flex to preserve gap');
-        assert.equal(step1.style.display, 'none', 'Inactive step must use display: none');
+        assert.equal(step2.hidden, false, 'Active step must not be hidden');
+        assert.equal(step1.hidden, true, 'Inactive step must be hidden');
     });
 
-    test('toggleSubpanels sets panel display to flex when switch is enabled', () => {
+    test('toggleSubpanels manages panel hidden state when switch is toggled', () => {
         const clanWarsSwitch = new MockDOMElement('input', 'guided-setup-pref-clan-wars-buy');
         clanWarsSwitch.type = 'checkbox';
         clanWarsSwitch.checked = true;
@@ -830,11 +837,11 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         mockElements.set('guided-setup-pref-clan-wars-panel', clanWarsPanel);
 
         toggleSubpanels();
-        assert.equal(clanWarsPanel.style.display, 'flex', 'Active subpanel must use display: flex');
+        assert.equal(clanWarsPanel.hidden, false, 'Active subpanel must not be hidden');
 
         clanWarsSwitch.checked = false;
         toggleSubpanels();
-        assert.equal(clanWarsPanel.style.display, 'none', 'Disabled subpanel must use display: none');
+        assert.equal(clanWarsPanel.hidden, true, 'Disabled subpanel must be hidden');
     });
 
     test('renderGuidedSetupShopOffers filters out townHallLevel metadata key and assigns semantic classes', () => {
@@ -851,7 +858,7 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         // Check that rows use semantic classes instead of inline styles
         container.children.forEach(row => {
             assert.ok(row.classList.contains('guided-setup-trader-row'), 'Row must have .guided-setup-trader-row class');
-            assert.equal(row.style.display, undefined, 'Row must not have JS inline display style');
+            assert.equal(row.hidden, false, 'Row must be visible');
         });
     });
 
@@ -977,7 +984,7 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         };
 
         const container = new MockDOMElement('div', 'guided-setup-saved-profiles-container');
-        container.style.display = 'none';
+        container.hidden = true;
         const list = new MockDOMElement('div', 'guided-setup-saved-profiles-list');
         const input = new MockDOMElement('input', 'guided-setup-player-tag-input');
         input.value = '';
@@ -988,7 +995,7 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
 
         renderSavedProfilesList();
 
-        assert.equal(container.style.display, 'block', 'Container must be visible when saved profiles exist');
+        assert.equal(container.hidden, false, 'Container must be visible when saved profiles exist');
         assert.equal(list.children.length, 2, 'Must render 2 profile cards');
 
         const card1 = list.children[0];
@@ -1030,9 +1037,9 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         const input = new MockDOMElement('input', 'guided-setup-player-tag-input');
         input.value = '';
         const previewContainer = new MockDOMElement('div', 'guided-setup-profile-preview-container');
-        previewContainer.style.display = 'none';
+        previewContainer.hidden = true;
         const nextBtn = new MockDOMElement('button', 'guided-setup-next-btn');
-        nextBtn.style.display = 'none';
+        nextBtn.hidden = true;
 
         mockElements.set('guided-setup-saved-profiles-container', container);
         mockElements.set('guided-setup-saved-profiles-list', list);
@@ -1052,11 +1059,11 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         card.click();
 
         assert.equal(input.value, 'TAG1', 'Input value must be populated with player tag');
-        assert.equal(container.style.display, 'none', 'Saved profiles container must be hidden after selection');
+        assert.equal(container.hidden, true, 'Saved profiles container must be hidden after selection');
         assert.equal(guidedSetupState.activeTag, 'TAG1', 'Guided setup active tag must be set');
         assert.equal(guidedSetupState.isProfileLoaded, true, 'Guided setup profile must be marked loaded');
-        assert.equal(previewContainer.style.display, 'block', 'Preview container must be displayed');
-        assert.equal(nextBtn.style.display, 'inline-flex', 'Next button must be visible');
+        assert.equal(previewContainer.hidden, false, 'Preview container must be displayed');
+        assert.equal(nextBtn.hidden, false, 'Next button must be visible');
         assert.equal(identityCompleted, true, 'Callback must be invoked on selection');
     });
 
@@ -1084,19 +1091,19 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
 
         initializeGuidedSetupIdentityInputs(modal);
         renderSavedProfilesList();
-        assert.equal(container.style.display, 'block', 'Initial render shows saved profiles');
+        assert.equal(container.hidden, false, 'Initial render shows saved profiles');
 
         // User starts entering tag
         input.value = '#P';
         input.dispatchEvent({ type: 'input' });
 
-        assert.equal(container.style.display, 'none', 'Typing into input must hide saved profiles container');
+        assert.equal(container.hidden, true, 'Typing into input must hide saved profiles container');
 
         // User clears input completely
         input.value = '';
         input.dispatchEvent({ type: 'input' });
 
-        assert.equal(container.style.display, 'block', 'Clearing input must restore saved profiles container');
+        assert.equal(container.hidden, false, 'Clearing input must restore saved profiles container');
         assert.equal(list.children.length, 1, 'Restored list must contain profile cards');
     });
 
@@ -1107,7 +1114,7 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         };
 
         const container = new MockDOMElement('div', 'guided-setup-saved-profiles-container');
-        container.style.display = 'block';
+        container.hidden = false;
         const list = new MockDOMElement('div', 'guided-setup-saved-profiles-list');
         const input = new MockDOMElement('input', 'guided-setup-player-tag-input');
         input.value = '';
@@ -1118,7 +1125,7 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
 
         renderSavedProfilesList();
 
-        assert.equal(container.style.display, 'none', 'Container must be hidden when only DEFAULT0 exists');
+        assert.equal(container.hidden, true, 'Container must be hidden when only DEFAULT0 exists');
         assert.equal(list.children.length, 0, 'No cards should be rendered for guest-only storage');
     });
 });

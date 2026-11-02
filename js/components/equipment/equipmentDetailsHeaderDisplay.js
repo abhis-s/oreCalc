@@ -22,12 +22,12 @@ import {
 export function renderModifierTabs(modifierTabsContainer, hasValidLevels, hasStatsMeta, activeModifierTab) {
     if (!modifierTabsContainer) return;
     if (!hasValidLevels || !hasStatsMeta) {
-        modifierTabsContainer.style.display = 'none';
+        modifierTabsContainer.hidden = true;
         modifierTabsContainer.innerHTML = '';
         return;
     }
 
-    modifierTabsContainer.style.display = 'inline-flex';
+    modifierTabsContainer.hidden = false;
     renderBattleModifierSwitcher(modifierTabsContainer, activeModifierTab, { includePercentages: false });
 }
 

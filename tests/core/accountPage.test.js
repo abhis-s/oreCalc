@@ -52,6 +52,7 @@ class MockElement {
         this.value = '';
         this.placeholder = '';
         this.disabled = false;
+        this.hidden = false;
         this.style = {};
         this.dataset = {};
         this.listeners = new Map();
@@ -471,7 +472,7 @@ describe('Account Page Presenter & Interaction Suite', () => {
         initializePlayerModal();
 
         // Guided setup button must be hidden when guided-setup-modal is absent
-        assert.strictEqual(guidedBtn.style.display, 'none');
+        assert.strictEqual(guidedBtn.hidden, true);
 
         // Initial open state: Load button disabled
         showAddPlayerModal();

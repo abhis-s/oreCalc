@@ -82,7 +82,7 @@ export function showChangelogModal(content, options = {}) {
             const rawCommits = window.__ENV__?.COMMITS_SINCE_TAG;
             const commits = Array.isArray(rawCommits) ? rawCommits : [];
             const isChangelogEmpty = !content || content.trim() === '' || content === '<div class="changelog-container"></div>';
-            commitsButton.style.display = (commits.length > 0 && !isChangelogEmpty) ? 'inline-flex' : 'none';
+            commitsButton.hidden = !(commits.length > 0 && !isChangelogEmpty);
         }
 
         initializeChangelogModal();

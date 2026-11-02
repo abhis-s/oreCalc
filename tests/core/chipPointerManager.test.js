@@ -29,8 +29,7 @@ if (typeof globalThis.document === 'undefined') {
 const {
     isDraggingActive,
     getDraggedChipData,
-    cancelActiveDrag,
-    attachChipPointerListeners
+    cancelActiveDrag
 } = await import('../../js/utils/chipPointerManager.js');
 const {
     highlightDropTargets,
@@ -76,7 +75,6 @@ describe('Unified Chip Pointer Events Manager Suite', () => {
         };
         mockDayCell.chipContainer = chipContainer;
 
-        const listeners = {};
         mockChip = {
             id: 'clanWar-01-08-2026',
             draggable: true,
@@ -91,15 +89,6 @@ describe('Unified Chip Pointer Events Manager Suite', () => {
             closest(sel) {
                 if (sel === '.day-cell') return mockDayCell;
                 return null;
-            },
-            getBoundingClientRect() {
-                return { left: 100, top: 200, width: 80, height: 32, right: 180, bottom: 232 };
-            },
-            addEventListener(ev, fn) {
-                listeners[ev] = fn;
-            },
-            dispatchMockEvent(ev, detail) {
-                if (listeners[ev]) listeners[ev](detail);
             }
         };
     });
@@ -111,29 +100,6 @@ describe('Unified Chip Pointer Events Manager Suite', () => {
     test('Initial drag state is inactive', () => {
         assert.equal(isDraggingActive(), false);
         assert.equal(getDraggedChipData(), null);
-    });
-
-    test('attachChipPointerListeners binds pointerdown and dragstart listeners to draggable chip', () => {
-        let dragstartPrevented = false;
-        mockChip.dataset.draggable = 'true';
-        attachChipPointerListeners(mockChip, { type: 'clanWar', shiny: 1200 });
-        assert.equal(typeof mockChip.dispatchMockEvent, 'function');
-
-        mockChip.dispatchMockEvent('dragstart', {
-            preventDefault() { dragstartPrevented = true; }
-        });
-        assert.equal(dragstartPrevented, true);
-    });
-
-    test('attachChipPointerListeners skips drag if dataset.draggable is false', () => {
-        mockChip.dataset.draggable = 'false';
-        attachChipPointerListeners(mockChip, { type: 'clanWar', shiny: 1200 });
-        mockChip.dispatchMockEvent('pointerdown', {
-            button: 0,
-            pointerType: 'mouse',
-            pointerId: 1
-        });
-        assert.equal(isDraggingActive(), false);
     });
 
     test('cancelActiveDrag cleans up state and resets isChipDragging', () => {

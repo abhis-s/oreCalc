@@ -43,17 +43,14 @@ export function updateHeroJourneyUpcomingBadges(state) {
         if (shinyBadge) {
             shinyBadge._currentNumericValue = 0;
             shinyBadge.hidden = true;
-            shinyBadge.style.display = 'none';
         }
         if (glowyBadge) {
             glowyBadge._currentNumericValue = 0;
             glowyBadge.hidden = true;
-            glowyBadge.style.display = 'none';
         }
         if (starryBadge) {
             starryBadge._currentNumericValue = 0;
             starryBadge.hidden = true;
-            starryBadge.style.display = 'none';
         }
         return;
     }
@@ -69,18 +66,16 @@ export function updateHeroJourneyUpcomingBadges(state) {
             const endVal = Math.round(value || 0);
             badge._currentNumericValue = endVal;
 
-            if (badge.textContent && badge.style.display !== 'none' && prevVal !== endVal) {
+            if (badge.textContent && !badge.hidden && prevVal !== endVal) {
                 animateValue(badge, prevVal, endVal, 500, (v) => `+${formatNumber(Math.round(v))}`);
             } else {
                 badge.textContent = `+${formatNumber(endVal)}`;
             }
             badge.hidden = false;
             badge.removeAttribute('hidden');
-            badge.style.display = 'inline-flex';
         } else {
             badge._currentNumericValue = 0;
             badge.hidden = true;
-            badge.style.display = 'none';
         }
     };
 
@@ -134,6 +129,7 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
     }
     const progressTracks = document.querySelectorAll('.hero-journey-progress-track');
     progressTracks.forEach(track => {
+        /** @type {HTMLElement} */ (track).hidden = isTrueMaxPlayer;
         /** @type {HTMLElement} */ (track).style.display = isTrueMaxPlayer ? 'none' : '';
     });
     if (collapsedNote) {

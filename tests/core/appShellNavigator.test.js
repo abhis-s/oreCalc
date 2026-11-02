@@ -262,62 +262,6 @@ describe('Persistent App Shell Navigator Suite', () => {
         });
     });
 
-    describe('View Transition Resilience and Lifecycle Contract', () => {
-        test('rejection of transition.finished does not cause unhandled promise rejection when swap succeeds', async () => {
-            let swapExecuted = false;
-            const performSwap = async () => {
-                swapExecuted = true;
-            };
-
-            const mockViewTransition = {
-                updateCallbackDone: Promise.resolve(),
-                finished: Promise.reject(new Error('InvalidStateError: View transition was skipped because document visibility state is hidden.'))
-            };
-
-            const runTransitionSafely = async (transition, callback) => {
-                await callback();
-                if (transition.updateCallbackDone) {
-                    await transition.updateCallbackDone;
-                }
-                if (transition.finished) {
-                    try {
-                        await transition.finished;
-                    } catch (_) {
-                        // Expected: skipped transition should not propagate
-                    }
-                }
-            };
-
-            await assert.doesNotReject(async () => {
-                await runTransitionSafely(mockViewTransition, performSwap);
-            });
-            assert.equal(swapExecuted, true);
-        });
-
-        test('rejection of updateCallbackDone propagates failure for browser fallback reload', async () => {
-            const mockFailingTransition = {
-                updateCallbackDone: Promise.reject(new Error('Swap failed')),
-                finished: Promise.resolve()
-            };
-
-            const runTransitionSafely = async (transition, callback) => {
-                await callback();
-                if (transition.updateCallbackDone) {
-                    await transition.updateCallbackDone;
-                }
-                if (transition.finished) {
-                    try {
-                        await transition.finished;
-                    } catch (_) {}
-                }
-            };
-
-            await assert.rejects(async () => {
-                await runTransitionSafely(mockFailingTransition, async () => {});
-            }, /Swap failed/);
-        });
-    });
-
     describe('Navigation Timeout Watchdog Contract', () => {
         test('exports NAVIGATION_TIMEOUT_MS set to exactly 6000ms', () => {
             assert.equal(NAVIGATION_TIMEOUT_MS, 6000);

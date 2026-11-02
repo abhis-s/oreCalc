@@ -146,12 +146,11 @@ class MockDOMElement {
 
     set innerHTML(val) {
         this._innerHTML = String(val || '');
-        this.children = [];
-        if (this._innerHTML) {
-            this._parseHTMLToChildren(this._innerHTML);
-            this._textContent = this._innerHTML.replace(/<[^>]+>/g, '');
-        } else {
+        if (!val) {
+            this.children = [];
             this._textContent = '';
+        } else {
+            this._textContent = this._innerHTML.replace(/<[^>]+>/g, '');
         }
     }
 
@@ -163,48 +162,6 @@ class MockDOMElement {
         this._textContent = String(val || '');
         this._innerHTML = this._textContent;
         this.children = [];
-    }
-
-    _parseHTMLToChildren(html) {
-        const tagRegex = /<([a-zA-Z0-9-]+)([^>]*)>([\s\S]*?)<\/\1>|<([a-zA-Z0-9-]+)([^>]*)\/?>/g;
-        let match;
-        while ((match = tagRegex.exec(html)) !== null) {
-            const tagName = match[1] || match[4];
-            const attrString = match[2] || match[5] || '';
-            const innerContent = match[3] || '';
-
-            const child = new MockDOMElement(tagName);
-
-            const classMatch = attrString.match(/class="([^"]+)"/);
-            if (classMatch) {
-                child.className = classMatch[1];
-            }
-
-            const idMatch = attrString.match(/id="([^"]+)"/);
-            if (idMatch) {
-                child.id = idMatch[1];
-            }
-
-            const dataRegex = /data-([a-zA-Z0-9_-]+)="([^"]+)"/g;
-            let dataMatch;
-            while ((dataMatch = dataRegex.exec(attrString)) !== null) {
-                const key = dataMatch[1].replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-                child.dataset[key] = dataMatch[2];
-                child.setAttribute(`data-${dataMatch[1]}`, dataMatch[2]);
-            }
-
-            const genericAttrRegex = /([a-zA-Z0-9_-]+)="([^"]+)"/g;
-            let genMatch;
-            while ((genMatch = genericAttrRegex.exec(attrString)) !== null) {
-                child.setAttribute(genMatch[1], genMatch[2]);
-            }
-
-            if (innerContent) {
-                child.innerHTML = innerContent;
-            }
-
-            this.appendChild(child);
-        }
     }
 
     setAttribute(name, value) {

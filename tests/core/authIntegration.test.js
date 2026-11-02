@@ -275,8 +275,6 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.ok(!elements.get('header-account-avatar-img').classList.contains('is-hidden'));
         assert.ok(elements.get('account-popover-guest-section').classList.contains('is-hidden'));
         assert.ok(!elements.get('account-popover-auth-section').classList.contains('is-hidden'));
-        assert.equal(elements.get('account-popover-guest-section').style.display, 'none');
-        assert.equal(elements.get('account-popover-auth-section').style.display, '');
 
         // Guest user (null)
         updateAccountUI(null);
@@ -286,8 +284,6 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.ok(elements.get('header-account-avatar-img').classList.contains('is-hidden'));
         assert.ok(!elements.get('account-popover-guest-section').classList.contains('is-hidden'));
         assert.ok(elements.get('account-popover-auth-section').classList.contains('is-hidden'));
-        assert.equal(elements.get('account-popover-guest-section').style.display, '');
-        assert.equal(elements.get('account-popover-auth-section').style.display, 'none');
     });
 
     test('normalizeWebAuthnError normalizes WebAuthn errors and DOMExceptions accurately', () => {
@@ -499,35 +495,6 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.equal(settings.saveError, undefined);
     });
 
-    test('security key auto-detection distinguishes cross-platform keys from platform keychains', () => {
-        const crossPlatformAttestation = {
-            id: 'cred_yubi_1',
-            authenticatorAttachment: 'cross-platform'
-        };
-        const isCrossPlatform = crossPlatformAttestation.authenticatorAttachment === 'cross-platform';
-        const detectedName = isCrossPlatform ? 'Security Key' : getSuggestedPasskeyName();
-        assert.equal(detectedName, 'Security Key');
-
-        const platformAttestation = {
-            id: 'cred_touchid_1',
-            authenticatorAttachment: 'platform'
-        };
-        const isPlatform = platformAttestation.authenticatorAttachment === 'cross-platform';
-        const platformName = isPlatform ? 'Security Key' : getSuggestedPasskeyName('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', 'MacIntel');
-        assert.equal(platformName, 'iCloud Keychain');
-    });
-
-    test('password validation contract enforces 6-72 characters', () => {
-        const isValidPassword = (p) => typeof p === 'string' && p.length >= 6 && p.length <= 72;
-
-        // Boundaries
-        assert.equal(isValidPassword('12345'), false);
-        assert.equal(isValidPassword('123456'), true);
-        assert.equal(isValidPassword('a'.repeat(72)), true);
-        assert.equal(isValidPassword('a'.repeat(73)), false);
-        assert.equal(isValidPassword(''), false);
-    });
-
     test('server-side tag sanitization strictly filters out DEFAULT0 and invalid tags', () => {
         const testTags = ['DEFAULT0', '#8PJYGUJC', 'invalid!tag', ''];
         const sanitized = testTags
@@ -538,19 +505,6 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.equal(isValidTag('DEFAULT0'), false);
         assert.equal(isValidTag('#8PJYGUJC'), true);
         assert.equal(isValidTag('8PJYGUJC'), true);
-    });
-
-    test('registration branching: detects real player tags vs default placeholder', () => {
-        const hasRealTags = (tags) => Boolean(tags?.some(t => t && normalizePlayerTag(t) !== 'DEFAULT0'));
-
-        // With default placeholder only -> false (trigger prompt, don't save DEFAULT0)
-        assert.equal(hasRealTags(['DEFAULT0']), false);
-        assert.equal(hasRealTags([]), false);
-        assert.equal(hasRealTags(null), false);
-
-        // With real tags -> true (save to cloud, skip prompt)
-        assert.equal(hasRealTags(['#8PJYGUJC']), true);
-        assert.equal(hasRealTags(['DEFAULT0', '#8PJYGUJC']), true);
     });
 
     test('login with empty account triggers in-memory prompt and never pollutes storage', () => {

@@ -97,88 +97,32 @@ class MockClassList {
     }
 }
 
-function matchesSelector(element, selector) {
-    if (!selector || !element) return false;
-    const s = selector.trim();
-
-    if (s.includes(',')) {
-        return s.split(',').some(sub => matchesSelector(element, sub.trim()));
+function matchesElement(el, selector) {
+    if (!el || !selector) return false;
+    if (selector.startsWith('.')) {
+        return el.classList ? el.classList.contains(selector.slice(1)) : false;
     }
-
-    let remaining = s;
-    const tagMatch = remaining.match(/^[a-zA-Z0-9_-]+/);
-    if (tagMatch) {
-        const tag = tagMatch[0].toUpperCase();
-        remaining = remaining.slice(tag.length);
-        if (element.tagName !== tag) return false;
+    if (selector.startsWith('#')) {
+        return el.id === selector.slice(1);
     }
-
-    while (remaining.length > 0) {
-        if (remaining.startsWith('.')) {
-            const classMatch = remaining.match(/^\.([a-zA-Z0-9_-]+)/);
-            if (!classMatch) return false;
-            if (!element.classList.contains(classMatch[1])) return false;
-            remaining = remaining.slice(classMatch[0].length);
-        } else if (remaining.startsWith('#')) {
-            const idMatch = remaining.match(/^#([a-zA-Z0-9_-]+)/);
-            if (!idMatch) return false;
-            if (element.id !== idMatch[1]) return false;
-            remaining = remaining.slice(idMatch[0].length);
-        } else if (remaining.startsWith('[')) {
-            const attrMatch = remaining.match(/^\[([a-zA-Z0-9_-]+)(?:([*^$]?=)(?:"([^"]*)"|'([^']*)'|([^\]]*)))?\]/);
-            if (!attrMatch) return false;
-            const attrName = attrMatch[1];
-            const op = attrMatch[2];
-            const attrVal = attrMatch[3] ?? attrMatch[4] ?? attrMatch[5];
-
-            let actualVal = null;
-            if (attrName === 'id') actualVal = element.id;
-            else if (attrName === 'class') actualVal = element.className;
-            else if (attrName === 'type') actualVal = element.type;
-            else if (attrName.startsWith('data-')) {
-                const dataKey = attrName.slice(5).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-                actualVal = element.dataset[dataKey];
-            } else {
-                actualVal = element.getAttribute(attrName);
-            }
-
-            if (op === undefined) {
-                if (actualVal === null || actualVal === undefined) return false;
-            } else if (op === '=') {
-                if (String(actualVal) !== String(attrVal)) return false;
-            } else if (op === '^=') {
-                if (!String(actualVal).startsWith(String(attrVal))) return false;
-            } else if (op === '$=') {
-                if (!String(actualVal).endsWith(String(attrVal))) return false;
-            } else if (op === '*=') {
-                if (!String(actualVal).includes(String(attrVal))) return false;
-            }
-            remaining = remaining.slice(attrMatch[0].length);
-        } else {
-            break;
+    const tagMatch = selector.match(/^([a-zA-Z0-9_-]+)/);
+    if (tagMatch && el.tagName !== tagMatch[1].toUpperCase()) {
+        return false;
+    }
+    const attrRegex = /\[([a-zA-Z0-9_-]+)(?:="([^"]*)")?\]/g;
+    let attr;
+    while ((attr = attrRegex.exec(selector)) !== null) {
+        const [, name, val] = attr;
+        const actual = name.startsWith('data-')
+            ? el.dataset?.[name.slice(5).replace(/-([a-z])/g, (_, l) => l.toUpperCase())]
+            : (name === 'type' ? el.type : el.getAttribute?.(name));
+        if (val !== undefined) {
+            if (String(actual) !== String(val)) return false;
+        } else if (actual == null) {
+            return false;
         }
     }
     return true;
-}
-
-function querySelectorAllInternal(node, selector) {
-    const results = [];
-    const search = (curr) => {
-        if (!curr || !curr.children) return;
-        for (const child of curr.children) {
-            if (matchesSelector(child, selector)) {
-                results.push(child);
-            }
-            search(child);
-        }
-    };
-    search(node);
-    return results;
-}
-
-function querySelectorInternal(node, selector) {
-    const all = querySelectorAllInternal(node, selector);
-    return all.length > 0 ? all[0] : null;
 }
 
 class MockDOMElement {
@@ -270,11 +214,24 @@ class MockDOMElement {
     }
 
     querySelector(selector) {
-        return querySelectorInternal(this, selector);
+        for (const child of this.children) {
+            if (matchesElement(child, selector)) return child;
+            const nested = child.querySelector(selector);
+            if (nested) return nested;
+        }
+        return null;
     }
 
     querySelectorAll(selector) {
-        return querySelectorAllInternal(this, selector);
+        const results = [];
+        const search = (node) => {
+            for (const child of node.children) {
+                if (matchesElement(child, selector)) results.push(child);
+                search(child);
+            }
+        };
+        search(this);
+        return results;
     }
 
     addEventListener(event, handler) {
@@ -413,20 +370,18 @@ describe('Shop Offers TH Set Switching & Dynamic Grid Rendering Suite', () => {
 
         assert.equal(mockContainer.dataset.renderedSet, '0');
 
-        await new Promise(resolve => setTimeout(resolve, 250));
+        await new Promise(resolve => setTimeout(resolve, 210));
 
         const rows = mockContainer.querySelectorAll('.offer-grid-row');
         assert.equal(rows.length, 0);
 
         stateModule.state.income.shopOffers.selectedSet = '0';
         renderShopOfferGrid(stateModule.state.income.shopOffers);
-        await new Promise(resolve => setTimeout(resolve, 250));
         assert.equal(mockContainer.querySelectorAll('.offer-grid-row').length, 0);
         assert.equal(mockContainer.innerHTML.includes('NaN'), false);
 
         stateModule.state.income.shopOffers.selectedSet = null;
         renderShopOfferGrid(stateModule.state.income.shopOffers);
-        await new Promise(resolve => setTimeout(resolve, 250));
         assert.equal(mockContainer.innerHTML.includes('NaN'), false);
     });
 

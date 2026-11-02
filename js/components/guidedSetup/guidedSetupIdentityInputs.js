@@ -34,12 +34,14 @@ export function renderSavedProfilesList(onSelectProfile) {
 
     const input = /** @type {HTMLInputElement|null} */ (document.getElementById('guided-setup-player-tag-input'));
     if (input && input.value.trim().length > 0) {
+        container.hidden = true;
         container.style.display = 'none';
         return;
     }
 
     const profiles = getSavedProfiles();
     if (!profiles || profiles.length === 0) {
+        container.hidden = true;
         container.style.display = 'none';
         list.innerHTML = '';
         return;
@@ -117,6 +119,7 @@ export function renderSavedProfilesList(onSelectProfile) {
                 input.value = cleanTag;
                 input.classList.remove('input-error');
             }
+            container.hidden = true;
             container.style.display = 'none';
 
             const existingPlayer = state.allPlayersData?.[cleanTag];
@@ -139,11 +142,13 @@ export function renderSavedProfilesList(onSelectProfile) {
             renderProfilePreviewCard(profileToRender);
 
             if (previewContainer) {
+                previewContainer.hidden = false;
                 previewContainer.style.display = 'block';
             }
 
             const nextBtn = document.getElementById('guided-setup-next-btn');
             if (nextBtn && guidedSetupState.currentStep === 1) {
+                nextBtn.hidden = false;
                 nextBtn.style.display = 'inline-flex';
                 safeRaf(() => {
                     if (typeof nextBtn.focus === 'function') nextBtn.focus();
@@ -170,6 +175,7 @@ export function renderSavedProfilesList(onSelectProfile) {
         list.appendChild(card);
     }
 
+    container.hidden = false;
     container.style.display = 'block';
 }
 
@@ -245,16 +251,19 @@ export function initializeGuidedSetupIdentityInputs(modal, onIdentityComplete) {
                     renderProfilePreviewCard(profileToRender);
 
                     if (previewContainer) {
+                        previewContainer.hidden = false;
                         previewContainer.style.display = 'block';
                     }
 
                     const savedProfilesContainer = document.getElementById('guided-setup-saved-profiles-container');
                     if (savedProfilesContainer) {
+                        savedProfilesContainer.hidden = true;
                         savedProfilesContainer.style.display = 'none';
                     }
 
                     const nextBtn = document.getElementById('guided-setup-next-btn');
                     if (nextBtn && guidedSetupState.currentStep === 1) {
+                        nextBtn.hidden = false;
                         nextBtn.style.display = 'inline-flex';
                         safeRaf(() => {
                             if (typeof nextBtn.focus === 'function') nextBtn.focus();
@@ -285,6 +294,7 @@ export function initializeGuidedSetupIdentityInputs(modal, onIdentityComplete) {
                 guidedSetupState.isProfileLoaded = false;
                 const nextBtn = document.getElementById('guided-setup-next-btn');
                 if (nextBtn && guidedSetupState.currentStep === 1) {
+                    nextBtn.hidden = true;
                     nextBtn.style.display = 'none';
                 }
             } finally {
@@ -309,10 +319,12 @@ export function initializeGuidedSetupIdentityInputs(modal, onIdentityComplete) {
             guidedSetupState.isProfileLoaded = false;
             guidedSetupState.activeTag = null;
             if (previewContainer) {
+                previewContainer.hidden = true;
                 previewContainer.style.display = 'none';
             }
             const nextBtn = document.getElementById('guided-setup-next-btn');
             if (nextBtn && guidedSetupState.currentStep === 1) {
+                nextBtn.hidden = true;
                 nextBtn.style.display = 'none';
             }
             if (errorMsg) {
@@ -324,7 +336,10 @@ export function initializeGuidedSetupIdentityInputs(modal, onIdentityComplete) {
             const val = input.value.trim();
             const savedContainer = document.getElementById('guided-setup-saved-profiles-container');
             if (val.length > 0) {
-                if (savedContainer) savedContainer.style.display = 'none';
+                if (savedContainer) {
+                    savedContainer.hidden = true;
+                    savedContainer.style.display = 'none';
+                }
             } else {
                 renderSavedProfilesList(onIdentityComplete);
             }

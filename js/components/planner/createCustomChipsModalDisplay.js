@@ -85,7 +85,7 @@ export function updatePerChipRewardsPreview() {
     const selectedType = typeSelect ? typeSelect.value : '';
 
     if (!['starBonus', 'clanWar', 'cwl', 'prospector'].includes(selectedType)) {
-        previewEl.style.display = 'none';
+        previewEl.hidden = true;
         return;
     }
 
@@ -173,20 +173,15 @@ export function updatePerChipRewardsPreview() {
             el.textContent = formatSigned(endVal);
         }
 
-        if (endVal < 0) {
-            el.style.color = 'var(--color-danger)';
-        } else if (endVal > 0) {
-            el.style.color = 'var(--color-success)';
-        } else {
-            el.style.color = '';
-        }
+        el.classList.toggle('is-negative', endVal < 0);
+        el.classList.toggle('is-positive', endVal > 0);
     };
 
     updateEl('custom-chip-preview-shiny', shiny);
     updateEl('custom-chip-preview-glowy', glowy);
     updateEl('custom-chip-preview-starry', starry);
 
-    previewEl.style.display = 'flex';
+    previewEl.hidden = false;
 }
 
 /**

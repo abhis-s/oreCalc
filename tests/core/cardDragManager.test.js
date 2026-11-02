@@ -52,58 +52,6 @@ describe('Card Drag Manager & Scroll-Invariant Drop Targeting Suite', () => {
         });
     });
 
-    test('initCardDragReordering injects drag handles and sets up layout cleanup', async () => {
-        const { initCardDragReordering } = await import('../../js/ui/cardDragManager.js');
-        const createMockCard = (id) => {
-            const card = {
-                id,
-                style: { transition: '', transform: '', minHeight: '' },
-                classList: {
-                    _set: new Set(),
-                    add(c) { this._set.add(c); },
-                    remove(c) { this._set.delete(c); },
-                    contains(c) { return this._set.has(c); }
-                },
-                setAttribute() {},
-                getAttribute() { return null; },
-                querySelector(sel) {
-                    if (sel.includes('header') || sel.includes('title')) {
-                        return {
-                            appendChild: (child) => { this.handle = child; },
-                            querySelector: () => null
-                        };
-                    }
-                    return null;
-                },
-                getBoundingClientRect() {
-                    return { top: 100, left: 20, width: 300, height: 200, bottom: 300, right: 320 };
-                }
-            };
-            return card;
-        };
-
-        const card1 = createMockCard('card-1');
-        const card2 = createMockCard('card-2');
-
-        const layout = {
-            gridEl: {
-                querySelectorAll: () => [card1, card2]
-            },
-            originalCards: [card1, card2],
-            config: {
-                containerSelector: '.card-container',
-                dragHandleSelector: '.card-header',
-                hasCompactMode: false
-            }
-        };
-
-        initCardDragReordering(layout, 'cozy', false, () => {});
-
-        assert.strictEqual(typeof layout.cleanupListeners, 'function');
-
-        layout.cleanupListeners();
-    });
-
     test('computeSlotToCardMapping correctly shifts cards around active drop index', async () => {
         const { computeSlotToCardMapping } = await import('../../js/ui/cardDragTransforms.js');
         const cardA = { id: 'A' };

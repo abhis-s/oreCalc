@@ -358,7 +358,6 @@ export function openTermsOfUseModal() {
     const acceptBtn = document.getElementById('accept-terms-modal-btn') || document.getElementById('terms-accept-btn');
     if (acceptBtn) {
         acceptBtn.hidden = true;
-        acceptBtn.style.display = 'none';
     }
 
     if (iframe) {

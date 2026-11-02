@@ -12,20 +12,51 @@ import { dom } from '../../dom/domElements.js';
 function ensureTableRows(tableBody) {
     const existingRows = tableBody.querySelectorAll ? tableBody.querySelectorAll('.income-table-row') : [];
     if (!existingRows || existingRows.length === 0) {
-        let initialHtml = '';
+        tableBody.innerHTML = '';
         for (const key in incomeData) {
             const sourceConfig = incomeData[key];
             if (!sourceConfig.showInHomeTable) continue;
-            initialHtml += `
-            <div class="income-table-row" data-source="${key}">
-                <div class="income-table-cell" data-i18n="${sourceConfig.nameI18nKey}">${translate(sourceConfig.nameI18nKey)}</div>
-                <div class="income-table-cell income-table-value calculated" data-ore="shiny">0</div>
-                <div class="income-table-cell income-table-value calculated" data-ore="glowy">0</div>
-                <div class="income-table-cell income-table-value calculated" data-ore="starry">0</div>
-                <div class="income-table-cell income-table-resource calculated"></div>
-            </div>`;
+
+            const row = document.createElement('div');
+            row.className = 'income-table-row';
+            row.dataset.source = key;
+            row.setAttribute('data-source', key);
+
+            const nameCell = document.createElement('div');
+            nameCell.className = 'income-table-cell';
+            nameCell.dataset.i18n = sourceConfig.nameI18nKey;
+            nameCell.setAttribute('data-i18n', sourceConfig.nameI18nKey);
+            nameCell.textContent = translate(sourceConfig.nameI18nKey);
+
+            const shinyCell = document.createElement('div');
+            shinyCell.className = 'income-table-cell income-table-value calculated';
+            shinyCell.dataset.ore = 'shiny';
+            shinyCell.setAttribute('data-ore', 'shiny');
+            shinyCell.textContent = '0';
+
+            const glowyCell = document.createElement('div');
+            glowyCell.className = 'income-table-cell income-table-value calculated';
+            glowyCell.dataset.ore = 'glowy';
+            glowyCell.setAttribute('data-ore', 'glowy');
+            glowyCell.textContent = '0';
+
+            const starryCell = document.createElement('div');
+            starryCell.className = 'income-table-cell income-table-value calculated';
+            starryCell.dataset.ore = 'starry';
+            starryCell.setAttribute('data-ore', 'starry');
+            starryCell.textContent = '0';
+
+            const resourceCell = document.createElement('div');
+            resourceCell.className = 'income-table-cell income-table-resource calculated';
+
+            row.appendChild(nameCell);
+            row.appendChild(shinyCell);
+            row.appendChild(glowyCell);
+            row.appendChild(starryCell);
+            row.appendChild(resourceCell);
+
+            tableBody.appendChild(row);
         }
-        tableBody.innerHTML = initialHtml;
     }
 }
 

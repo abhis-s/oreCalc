@@ -32,7 +32,6 @@ class MockElement {
     constructor(tagName = 'div', id = '') {
         this.tagName = tagName.toUpperCase();
         this.id = id;
-        this.className = '';
         this._classes = new Set();
         this.children = [];
         this.dataset = {};
@@ -48,6 +47,15 @@ class MockElement {
         };
     }
 
+    get className() {
+        return Array.from(this._classes).join(' ');
+    }
+
+    set className(val) {
+        this._classes.clear();
+        String(val || '').split(/\s+/).filter(Boolean).forEach(c => this._classes.add(c));
+    }
+
     get innerHTML() {
         return this._innerHTML;
     }
@@ -55,17 +63,6 @@ class MockElement {
     set innerHTML(val) {
         this._innerHTML = String(val || '');
         this.children = [];
-        const oresMatch = this._innerHTML.match(/<div class="priority-item-ores"([^>]*)>/);
-        if (oresMatch) {
-            const oresEl = new MockElement('div');
-            oresEl.classList.add('priority-item-ores');
-            const attrStr = oresMatch[1];
-            for (const attr of ['role', 'tabindex', 'aria-label']) {
-                const m = attrStr.match(new RegExp(`${attr}="([^"]*)"`));
-                if (m) oresEl.setAttribute(attr, m[1]);
-            }
-            this.appendChild(oresEl);
-        }
     }
 
     /**

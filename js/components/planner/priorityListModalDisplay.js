@@ -128,11 +128,9 @@ export function renderDraggableList(globalPriorityList, suggestions) {
     const infoButton = /** @type {HTMLElement|null} */ (document.getElementById('priority-list-modal-info-btn'));
     if (resetButton) {
         resetButton.hidden = globalPriorityList.length === 0;
-        resetButton.style.display = globalPriorityList.length === 0 ? 'none' : 'flex';
     }
     if (infoButton) {
         infoButton.hidden = globalPriorityList.length !== 0;
-        infoButton.style.display = globalPriorityList.length === 0 ? 'flex' : 'none';
     }
 
     if (globalPriorityList.length === 0) {
@@ -205,19 +203,23 @@ export function renderDraggableList(globalPriorityList, suggestions) {
         const key = `${heroName}-${equipName}-${item.step}`;
         const prev = prevValues[key];
 
-        let oresHtml = '';
+        let oresEl = null;
         if (!item.error && !hasOrderError && item.oresPreCompletion && item.requiredOres && item.bottleneckOre) {
             const initialShiny = prev ? prev.shiny : (item.oresPreCompletion.shiny || 0);
             const initialGlowy = prev ? prev.glowy : (item.oresPreCompletion.glowy || 0);
             const initialStarry = prev ? prev.starry : (item.oresPreCompletion.starry || 0);
 
-            oresHtml = `
-                <div class="priority-item-ores" role="button" tabindex="0" aria-label="${translate('views.income.ores.storedTitle')}">
-                    <span><span class="shiny-val">${formatNumber(initialShiny)}</span> <clashcalc-assets-image src="assets/shiny_ore.png" class="ore-icon-small"></clashcalc-assets-image></span>
-                    <span><span class="glowy-val">${formatNumber(initialGlowy)}</span> <clashcalc-assets-image src="assets/glowy_ore.png" class="ore-icon-small"></clashcalc-assets-image></span>
-                    <span><span class="starry-val">${formatNumber(initialStarry)}</span> <clashcalc-assets-image src="assets/starry_ore.png" class="ore-icon-small"></clashcalc-assets-image></span>
-                </div>
+            oresEl = document.createElement('div');
+            oresEl.className = 'priority-item-ores';
+            oresEl.setAttribute('role', 'button');
+            oresEl.setAttribute('tabindex', '0');
+            oresEl.setAttribute('aria-label', translate('views.income.ores.storedTitle'));
+            oresEl.innerHTML = `
+                <span><span class="shiny-val">${formatNumber(initialShiny)}</span> <clashcalc-assets-image src="assets/shiny_ore.png" class="ore-icon-small"></clashcalc-assets-image></span>
+                <span><span class="glowy-val">${formatNumber(initialGlowy)}</span> <clashcalc-assets-image src="assets/glowy_ore.png" class="ore-icon-small"></clashcalc-assets-image></span>
+                <span><span class="starry-val">${formatNumber(initialStarry)}</span> <clashcalc-assets-image src="assets/starry_ore.png" class="ore-icon-small"></clashcalc-assets-image></span>
             `;
+            attachPriorityOresPopover(oresEl, item, startLevel, heroName, equipName);
         }
 
         listItem.innerHTML = `
@@ -225,15 +227,23 @@ export function renderDraggableList(globalPriorityList, suggestions) {
             <clashcalc-assets-image src="${item.image}" alt="${translate('entities.equipment.' + toCamelCase(item.name))}" class="item-image" size="thumbnail"></clashcalc-assets-image>
             <div class="item-details">
                 <span class="item-name">${translate('views.planner.stepLevelRange', { n: item.step, x: startLevel, y: item.targetLevel })}</span>
-                ${oresHtml}
                 <div class="priority-item-date">${completionDateText}</div>
             </div>
             <button class="delete-item-btn">${getSVG('close', '', 24, 24, 'currentColor')}</button>
         `;
 
-        const oresEl = /** @type {HTMLElement|null} */ (listItem.querySelector('.priority-item-ores'));
-        if (oresEl && !item.error && !hasOrderError && item.oresPreCompletion && item.requiredOres && item.bottleneckOre) {
-            attachPriorityOresPopover(oresEl, item, startLevel, heroName, equipName);
+        if (oresEl) {
+            const details = listItem.querySelector ? listItem.querySelector('.item-details') : null;
+            if (details) {
+                const dateEl = details.querySelector ? details.querySelector('.priority-item-date') : null;
+                if (dateEl && typeof details.insertBefore === 'function') {
+                    details.insertBefore(oresEl, dateEl);
+                } else if (typeof details.appendChild === 'function') {
+                    details.appendChild(oresEl);
+                }
+            } else if (typeof listItem.appendChild === 'function') {
+                listItem.appendChild(oresEl);
+            }
         }
 
         editor.appendChild(listItem);

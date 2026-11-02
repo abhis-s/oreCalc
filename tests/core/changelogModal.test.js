@@ -83,7 +83,7 @@ describe('Changelog Modal & Commits Button Visibility Domain Suite', () => {
         const commitsBtn = mockElements['changelog-commits-btn'];
         const modal = mockElements['changelog-modal'];
 
-        assert.equal(commitsBtn.style.display, 'inline-flex');
+        assert.equal(commitsBtn.hidden, false);
         assert.equal(modal.classList.contains('show'), true);
         assert.equal(mockElements['changelog-modal-body'].innerHTML, sampleChangelog);
     });
@@ -94,14 +94,14 @@ describe('Changelog Modal & Commits Button Visibility Domain Suite', () => {
         showChangelogModal(sampleChangelog);
 
         const commitsBtn = mockElements['changelog-commits-btn'];
-        assert.equal(commitsBtn.style.display, 'none');
+        assert.equal(commitsBtn.hidden, true);
     });
 
     test('commits button is hidden when changelog content is empty', () => {
         showChangelogModal('');
 
         const commitsBtn = mockElements['changelog-commits-btn'];
-        assert.equal(commitsBtn.style.display, 'none');
+        assert.equal(commitsBtn.hidden, true);
     });
 
     test('commits button is hidden when COMMITS_SINCE_TAG is undefined or non-array', () => {
@@ -110,7 +110,7 @@ describe('Changelog Modal & Commits Button Visibility Domain Suite', () => {
         showChangelogModal(sampleChangelog);
 
         const commitsBtn = mockElements['changelog-commits-btn'];
-        assert.equal(commitsBtn.style.display, 'none');
+        assert.equal(commitsBtn.hidden, true);
     });
 
     test('getChangelogHtml formats release dates across English, German, and Simplified Chinese locales', async () => {

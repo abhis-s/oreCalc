@@ -92,7 +92,13 @@ function createMockElement(tagName = 'div', id = '', className = '') {
     const el = {
         tagName: tagName.toUpperCase(),
         id,
-        className,
+        get className() {
+            return Array.from(classListSet).join(' ');
+        },
+        set className(val) {
+            classListSet.clear();
+            if (val) String(val).split(/\s+/).filter(Boolean).forEach(t => classListSet.add(t));
+        },
         isConnected: true,
         classList: {
             add: (...tokens) => tokens.forEach(t => classListSet.add(t)),
@@ -127,51 +133,8 @@ function createMockElement(tagName = 'div', id = '', className = '') {
         },
         set innerHTML(val) {
             this._innerHTML = String(val || '');
-            this.children = [];
-            if (this._innerHTML) {
-                const rowMatches = this._innerHTML.match(/<div class="income-table-row"[^>]*>[\s\S]*?<\/div>\s*<\/div>/g)
-                    || this._innerHTML.match(/<div class="income-table-row"[^>]*>[\s\S]*?<\/div>/g);
-                if (rowMatches) {
-                    rowMatches.forEach(rowHtml => {
-                        const rowEl = createMockElement('div', '', 'income-table-row');
-                        const sourceMatch = rowHtml.match(/data-source="([^"]+)"/);
-                        if (sourceMatch) {
-                            rowEl.dataset.source = sourceMatch[1];
-                            rowEl.setAttribute('data-source', sourceMatch[1]);
-                        }
-                        const cellMatches = rowHtml.match(/<div class="income-table-cell[^"]*"[^>]*>[\s\S]*?<\/div>/g);
-                        if (cellMatches) {
-                            cellMatches.forEach(cellHtml => {
-                                const oreMatch = cellHtml.match(/data-ore="([^"]+)"/);
-                                const i18nMatch = cellHtml.match(/data-i18n="([^"]+)"/);
-                                const cellEl = createMockElement('div', '', 'income-table-cell');
-                                if (oreMatch) {
-                                    cellEl.dataset.ore = oreMatch[1];
-                                    cellEl.setAttribute('data-ore', oreMatch[1]);
-                                }
-                                if (i18nMatch) {
-                                    cellEl.dataset.i18n = i18nMatch[1];
-                                    cellEl.setAttribute('data-i18n', i18nMatch[1]);
-                                }
-                                const valMatch = cellHtml.match(/<span[^>]*class="[^"]*income-table-value[^"]*"[^>]*>([^<]*)<\/span>/);
-                                if (valMatch) {
-                                    const valSpan = createMockElement('span', '', 'income-table-value calculated');
-                                    valSpan.textContent = valMatch[1];
-                                    if (oreMatch) {
-                                        valSpan.dataset.ore = oreMatch[1];
-                                        valSpan.setAttribute('data-ore', oreMatch[1]);
-                                    }
-                                    cellEl.appendChild(valSpan);
-                                } else {
-                                    const textMatch = cellHtml.match(/>([^<]+)</);
-                                    if (textMatch) cellEl.textContent = textMatch[1].trim();
-                                }
-                                rowEl.appendChild(cellEl);
-                            });
-                        }
-                        this.appendChild(rowEl);
-                    });
-                }
+            if (!val) {
+                this.children = [];
             }
         },
         setAttribute: (k, v) => {
@@ -513,7 +476,7 @@ describe('Home Income Table & Number Animation Suite', () => {
             assert.equal(previewShiny.textContent, '+2,000');
             assert.equal(previewGlowy.textContent, '+108');
             assert.equal(previewStarry.textContent, '+12');
-            assert.equal(previewShiny.style.color, 'var(--color-success)');
+            assert.equal(previewShiny.classList.contains('is-positive'), true);
         });
 
         test('updateHeroJourneyUpcomingBadges animates and displays green badges when synced', () => {
@@ -536,7 +499,7 @@ describe('Home Income Table & Number Animation Suite', () => {
             updateHeroJourneyUpcomingBadges(state);
 
             assert.ok(shinyBadge.textContent.startsWith('+'), 'Shiny badge must start with +');
-            assert.equal(shinyBadge.style.display, 'inline-flex');
+            assert.equal(shinyBadge.hidden, false);
         });
     });
 

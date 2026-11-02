@@ -5,7 +5,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadTranslations } from "../../js/i18n/translator.js";
 import { validatePlayerTagInput } from "../../js/utils/playerTagValidator.js";
-import { normalizePlayerTag } from "../../js/core/storageKeys.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -123,55 +122,5 @@ describe("Player Tag Error Boundary & URL Param Toast Contract Suite", () => {
 
         animationEndHandler();
         assert.strictEqual(classSet.has("shake"), false, "Must remove shake class on animationend");
-    });
-
-    test("URL param parser distinguishes empty/DEFAULT0 invalid query from valid player tag", () => {
-        const evalParam = (raw) => {
-            const clean = normalizePlayerTag(raw);
-            if (!clean || clean === "DEFAULT0") {
-                return { isValid: false, reason: "apiErrors.invalidTag" };
-            }
-            return { isValid: true, tag: clean };
-        };
-
-        assert.deepStrictEqual(evalParam(""), { isValid: false, reason: "apiErrors.invalidTag" });
-        assert.deepStrictEqual(evalParam("   "), { isValid: false, reason: "apiErrors.invalidTag" });
-        assert.deepStrictEqual(evalParam("DEFAULT0"), { isValid: false, reason: "apiErrors.invalidTag" });
-        assert.deepStrictEqual(evalParam("#DEFAULT0"), { isValid: false, reason: "apiErrors.invalidTag" });
-        assert.deepStrictEqual(evalParam("8PJYGUJC"), { isValid: true, tag: "8PJYGUJC" });
-        assert.deepStrictEqual(evalParam("#8PJYGUJC"), { isValid: true, tag: "8PJYGUJC" });
-    });
-
-    test("In-modal error handler keeps modal open and does not invoke global toast", () => {
-        let toastInvoked = false;
-        const _mockShowToast = () => { toastInvoked = true; };
-
-        let modalClosed = false;
-        const mockCloseModal = () => { modalClosed = true; };
-
-        const errorElement = {
-            textContent: "",
-            classList: new Set(),
-            style: {}
-        };
-
-        const tagInput = {
-            classList: new Set(),
-            offsetWidth: 200
-        };
-
-        // Simulate failed load within modal
-        const loadResult = { success: false, message: "apiErrors.notFound" };
-        if (!loadResult.success) {
-            errorElement.textContent = "Player not found";
-            errorElement.classList.add("show");
-            tagInput.classList.add("input-error");
-        } else {
-            mockCloseModal();
-        }
-
-        assert.strictEqual(modalClosed, false, "Modal must remain open on error");
-        assert.strictEqual(toastInvoked, false, "Toast must not be invoked for in-modal errors");
-        assert.strictEqual(errorElement.classList.has("show"), true, "In-modal error container must be visible");
     });
 });

@@ -362,6 +362,14 @@ input[type="number"] {
             height: 20px;
             object-fit: contain;
         }
+
+        .is-positive {
+            color: $color-success;
+        }
+
+        .is-negative {
+            color: $color-danger;
+        }
     }
 }
 

@@ -259,9 +259,7 @@ export function updateAccountUI(authUser) {
             popoverAvatarImg.setAttribute('src', `assets/avatars/${avatar}.png`);
         }
         popoverGuestSection?.classList.add('is-hidden');
-        if (popoverGuestSection) popoverGuestSection.style.display = 'none';
         popoverAuthSection?.classList.remove('is-hidden');
-        if (popoverAuthSection) popoverAuthSection.style.display = '';
 
         headerBtn?.classList.add('is-authenticated');
         if (headerAvatarImg) {
@@ -274,9 +272,7 @@ export function updateAccountUI(authUser) {
             popoverUsername.textContent = '';
         }
         popoverAuthSection?.classList.add('is-hidden');
-        if (popoverAuthSection) popoverAuthSection.style.display = 'none';
         popoverGuestSection?.classList.remove('is-hidden');
-        if (popoverGuestSection) popoverGuestSection.style.display = '';
 
         headerBtn?.classList.remove('is-authenticated');
         headerAvatarImg?.classList.add('is-hidden');

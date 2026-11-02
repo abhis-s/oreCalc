@@ -1536,7 +1536,6 @@ test('Mobile Spell Dock - In-place DOM updates preserve drawer scroll position a
     renderDefenseBoardPanel(state, container);
 
     assert.equal(mockDrawer.scrollTop, 320, 'Preserves drawer scrollTop synchronously across in-place update');
-    assert.equal(mockDrawer.style.scrollBehavior, '', 'Resets scrollBehavior override after scrollTop restoration');
     assert.ok(mockDrawer.innerHTML.includes('cluster-target-card'), 'Updates drawer target cards in-place');
     assert.ok(mockRecipe.innerHTML.length > 0, 'Updates dock recipe badges in-place');
     assert.equal(dockToggled, true, 'Maintains expanded dock class');

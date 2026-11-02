@@ -243,27 +243,41 @@ export function updateNodeTitleAndSub(titleElem, subElem, node, resolvedNode, is
                     boostIcon = getSVG('chevron-up', 'ore-th-boost-icon', 13, 13);
                 }
 
-                const shinyImg = `<clashcalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" width="14" height="14" class="sub-ore-icon"></clashcalc-assets-image>`;
-                const glowyImg = `<clashcalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" width="14" height="14" class="sub-ore-icon"></clashcalc-assets-image>`;
-                const starryImg = `<clashcalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" width="14" height="14" class="sub-ore-icon"></clashcalc-assets-image>`;
-
                 subElem.className = 'node-sub node-sub-ores';
-                subElem.innerHTML =
-                    `<span class="node-sub-ore-item" data-ore="shiny">` +
-                        `<span class="ore-boost-icon-slot">${boostIcon}</span>` +
-                        `<span class="node-sub-ore-val" data-ore="shiny">${formatNumber(chest.shiny)}</span>` +
-                        `${shinyImg}` +
-                    `</span>` +
-                    `<span class="node-sub-ore-item" data-ore="glowy">` +
-                        `<span class="ore-boost-icon-slot">${boostIcon}</span>` +
-                        `<span class="node-sub-ore-val" data-ore="glowy">${formatNumber(chest.glowy)}</span>` +
-                        `${glowyImg}` +
-                    `</span>` +
-                    `<span class="node-sub-ore-item" data-ore="starry">` +
-                        `<span class="ore-boost-icon-slot">${boostIcon}</span>` +
-                        `<span class="node-sub-ore-val" data-ore="starry">${formatNumber(chest.starry)}</span>` +
-                        `${starryImg}` +
-                    `</span>`;
+                subElem.innerHTML = '';
+                const oreEntries = [
+                    { ore: 'shiny', count: chest.shiny, alt: translate('entities.ores.shiny'), src: 'assets/shiny_ore.png' },
+                    { ore: 'glowy', count: chest.glowy, alt: translate('entities.ores.glowy'), src: 'assets/glowy_ore.png' },
+                    { ore: 'starry', count: chest.starry, alt: translate('entities.ores.starry'), src: 'assets/starry_ore.png' }
+                ];
+                for (const entry of oreEntries) {
+                    const item = document.createElement('span');
+                    item.className = 'node-sub-ore-item';
+                    item.dataset.ore = entry.ore;
+                    item.setAttribute('data-ore', entry.ore);
+
+                    const boostSlot = document.createElement('span');
+                    boostSlot.className = 'ore-boost-icon-slot';
+                    if (boostIcon) boostSlot.innerHTML = boostIcon;
+
+                    const valSpan = document.createElement('span');
+                    valSpan.className = 'node-sub-ore-val';
+                    valSpan.dataset.ore = entry.ore;
+                    valSpan.setAttribute('data-ore', entry.ore);
+                    valSpan.textContent = formatNumber(entry.count);
+
+                    const img = document.createElement('clashcalc-assets-image');
+                    img.setAttribute('src', entry.src);
+                    img.setAttribute('alt', entry.alt);
+                    img.setAttribute('width', '14');
+                    img.setAttribute('height', '14');
+                    img.className = 'sub-ore-icon';
+
+                    item.appendChild(boostSlot);
+                    item.appendChild(valSpan);
+                    item.appendChild(img);
+                    subElem.appendChild(item);
+                }
             }
             hasSub = true;
         }

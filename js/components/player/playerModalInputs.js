@@ -83,7 +83,7 @@ export function initializePlayerModal() {
 
     if (modal && cancelButton && loadButton && playerTagInput) {
         if (guidedSetupButton && !document.getElementById('guided-setup-modal')) {
-            guidedSetupButton.style.display = 'none';
+            guidedSetupButton.hidden = true;
         }
 
         updateLoadButtonState(playerTagInput, loadButton);

@@ -29,7 +29,7 @@ export function initStandaloneAddPlayerModal({ onLoadPlayer }) {
     const guidedBtn = /** @type {HTMLElement | null} */ (document.getElementById('add-player-guided-setup-btn'));
 
     if (guidedBtn) {
-        guidedBtn.style.display = 'none';
+        guidedBtn.hidden = true;
     }
 
     const openAddPlayerModal = () => {

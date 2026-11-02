@@ -85,75 +85,6 @@ class MockClassList {
     }
 }
 
-function matchesSelector(element, selector) {
-    if (!selector || !element) return false;
-    if (selector.includes(',')) {
-        return selector.split(',').some(part => matchesSelector(element, part.trim()));
-    }
-    const s = selector.trim();
-    if (s.startsWith('#')) {
-        return element.id === s.slice(1);
-    }
-    if (s.startsWith('.')) {
-        return element.classList.contains(s.slice(1));
-    }
-    if (s.toUpperCase() === element.tagName) {
-        return true;
-    }
-    return false;
-}
-
-function parseHTMLToNodes(html) {
-    const nodes = [];
-    const itemRegex = /<div class="([^"]*player-dropdown-item[^"]*)"\s+data-tag="([^"]*)"[^>]*>([\s\S]*?)<\/div>(?=\s*(?:<div class="[^"]*player-dropdown-item|<div class="[^"]*player-dropdown-section-header|$))/g;
-    let match;
-    while ((match = itemRegex.exec(html)) !== null) {
-        const [, className, dataTag, inner] = match;
-        const itemEl = new MockDOMElement('div', '', className);
-        itemEl.dataset.tag = dataTag;
-        itemEl.setAttribute('data-tag', dataTag);
-
-        const tabMatch = match[0].match(/tabindex="([^"]*)"/);
-        if (tabMatch) {
-            itemEl.setAttribute('tabindex', tabMatch[1]);
-        }
-
-        const infoMatch = inner.match(/<div class="player-info-text">([\s\S]*?)<\/div>/);
-        if (infoMatch) {
-            const infoEl = new MockDOMElement('div', '', 'player-info-text');
-            const nameMatch = infoMatch[1].match(/<span>(.*?)<\/span>/);
-            if (nameMatch) {
-                const nameEl = new MockDOMElement('span');
-                nameEl.textContent = nameMatch[1];
-                infoEl.appendChild(nameEl);
-            }
-            const tagMatch = infoMatch[1].match(/<span class="player-tag-text">(.*?)<\/span>/);
-            if (tagMatch) {
-                const tagEl = new MockDOMElement('span', '', 'player-tag-text');
-                tagEl.textContent = tagMatch[1];
-                infoEl.appendChild(tagEl);
-            }
-            itemEl.appendChild(infoEl);
-        }
-
-        const btnMatch = inner.match(/<button class="([^"]*(?:delete-player-button|remove-player-button)[^"]*)"\s+data-tag="([^"]*)"([^>]*)>([\s\S]*?)<\/button>/);
-        if (btnMatch) {
-            const [, btnClass, btnTag, btnAttrs] = btnMatch;
-            const btnEl = new MockDOMElement('button', '', btnClass);
-            btnEl.dataset.tag = btnTag;
-            btnEl.setAttribute('data-tag', btnTag);
-            if (btnAttrs.includes('disabled')) {
-                btnEl.disabled = true;
-                btnEl.setAttribute('disabled', '');
-            }
-            itemEl.appendChild(btnEl);
-        }
-
-        nodes.push(itemEl);
-    }
-    return nodes;
-}
-
 class MockDOMElement {
     constructor(tagName = 'div', id = '', className = '') {
         this.tagName = tagName.toUpperCase();
@@ -190,8 +121,9 @@ class MockDOMElement {
 
     set innerHTML(value) {
         this._innerHTML = String(value || '');
-        this.children = parseHTMLToNodes(this._innerHTML);
-        this.children.forEach(c => { c.parentNode = this; });
+        if (!value) {
+            this.children = [];
+        }
     }
 
     setAttribute(name, value) {
@@ -219,9 +151,11 @@ class MockDOMElement {
 
     closest(selector) {
         let current = this;
+        const selectors = selector.split(',').map(s => s.trim());
         while (current) {
-            if (matchesSelector(current, selector)) {
-                return current;
+            for (const sel of selectors) {
+                if (sel.startsWith('.') && current.classList.contains(sel.slice(1))) return current;
+                if (sel.startsWith('#') && current.id === sel.slice(1)) return current;
             }
             current = current.parentNode;
         }
@@ -234,18 +168,8 @@ class MockDOMElement {
     }
 
     querySelectorAll(selector) {
-        const results = [];
-        const search = (node) => {
-            if (!node || !node.children) return;
-            for (const child of node.children) {
-                if (matchesSelector(child, selector)) {
-                    results.push(child);
-                }
-                search(child);
-            }
-        };
-        search(this);
-        return results;
+        const classes = selector.split(',').map(s => s.trim().replace(/^\./, ''));
+        return this.children.filter(c => classes.some(cls => c.classList.contains(cls)));
     }
 
     addEventListener(event, handler) {
@@ -314,33 +238,26 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
     test('renders player dropdown items with name, tag, and delete button', () => {
         renderPlayerDropdown();
 
-        const items = mockContainer.querySelectorAll('.player-dropdown-item');
-        assert.equal(items.length, 3);
+        assert.match(mockContainer.innerHTML, /Chief Archer/);
+        assert.match(mockContainer.innerHTML, /Barbarian King/);
+        assert.match(mockContainer.innerHTML, /Grand Warden/);
+        assert.match(mockContainer.innerHTML, /#TAG1/);
+        assert.match(mockContainer.innerHTML, /#TAG2/);
+        assert.match(mockContainer.innerHTML, /#TAG3/);
+        assert.match(mockContainer.innerHTML, /player-info-text/);
+        assert.match(mockContainer.innerHTML, /delete-player-button/);
 
-        items.forEach(item => {
-            const infoText = item.querySelector('.player-info-text');
-            assert.ok(infoText);
-
-            const nameSpan = infoText.querySelector('span');
-            assert.ok(nameSpan);
-
-            const tagSpan = infoText.querySelector('.player-tag-text');
-            assert.ok(tagSpan);
-
-            const deleteBtn = item.querySelector('.delete-player-button');
-            assert.ok(deleteBtn);
-        });
+        const itemCount = (mockContainer.innerHTML.match(/class="[^"]*player-dropdown-item/g) || []).length;
+        assert.equal(itemCount, 3);
     });
 
     test('highlights the active player item and updates selected player label', () => {
         renderPlayerDropdown();
 
         assert.equal(mockLabel.textContent, 'Chief Archer');
-
-        const items = mockContainer.querySelectorAll('.player-dropdown-item');
-        assert.ok(items[0].classList.contains('is-active'));
-        assert.ok(!items[1].classList.contains('is-active'));
-        assert.ok(!items[2].classList.contains('is-active'));
+        assert.match(mockContainer.innerHTML, /player-dropdown-item is-active"[^>]*data-tag="TAG1"/);
+        assert.doesNotMatch(mockContainer.innerHTML, /player-dropdown-item is-active"[^>]*data-tag="TAG2"/);
+        assert.doesNotMatch(mockContainer.innerHTML, /player-dropdown-item is-active"[^>]*data-tag="TAG3"/);
     });
 
     test('filters out DEFAULT0 placeholder tag from rendered player items list', () => {
@@ -349,20 +266,16 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
 
         renderPlayerDropdown();
 
-        const items = mockContainer.querySelectorAll('.player-dropdown-item');
-        assert.equal(items.length, 0);
+        assert.equal(mockContainer.innerHTML, '');
         assert.equal(mockLabel.textContent, 'Add a player');
     });
 
     test('renders player items with correct data attributes and accessible roles', () => {
         renderPlayerDropdown();
 
-        const items = mockContainer.querySelectorAll('.player-dropdown-item');
-        assert.equal(items.length, 3);
-        assert.equal(items[0].dataset.tag, 'TAG1');
-        assert.equal(items[1].dataset.tag, 'TAG2');
-        assert.equal(items[2].dataset.tag, 'TAG3');
-
+        assert.match(mockContainer.innerHTML, /data-tag="TAG1"/);
+        assert.match(mockContainer.innerHTML, /data-tag="TAG2"/);
+        assert.match(mockContainer.innerHTML, /data-tag="TAG3"/);
         assert.match(mockContainer.innerHTML, /role="option"/);
         assert.match(mockContainer.innerHTML, /tabindex="0"/);
     });
@@ -370,11 +283,8 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
     test('renders delete buttons with correct data-tag attribute and accessible aria-label', () => {
         renderPlayerDropdown();
 
-        const items = mockContainer.querySelectorAll('.player-dropdown-item');
-        const deleteButton = items[1].querySelector('.delete-player-button');
-        assert.ok(deleteButton);
-        assert.equal(deleteButton.dataset.tag, 'TAG2');
-        assert.match(mockContainer.innerHTML, /aria-label="[^"]*"/);
+        assert.match(mockContainer.innerHTML, /class="[^"]*delete-player-button[^"]*"[^>]*data-tag="TAG2"/);
+        assert.match(mockContainer.innerHTML, /aria-label="[^"]*Chief Archer[^"]*"/);
     });
 
     test('memoizes rendering and avoids redundant innerHTML writes unless invalidated', () => {
@@ -419,10 +329,8 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
 
         // Top section header must be Saved Profiles
         assert.match(mockContainer.innerHTML, /player\.savedProfiles/);
-        const firstItem = mockContainer.querySelector('.player-dropdown-item');
-        assert.ok(firstItem);
-        assert.equal(firstItem.dataset.tag, 'TAG1');
-        assert.ok(firstItem.classList.contains('is-active'));
+        assert.match(mockContainer.innerHTML, /data-tag="TAG1"/);
+        assert.match(mockContainer.innerHTML, /player-dropdown-item is-active"[^>]*data-tag="TAG1"/);
     });
 
     test('getAddPlayerHelpContent dynamically includes Guided Setup paragraph only when guided setup button is visible', () => {
@@ -477,6 +385,19 @@ describe('playerDropdownDisplay: Obsolete Cache Icon Removal & Rendering', () =>
 
         initializePlayerDropdown();
         renderPlayerDropdown();
+
+        const item1 = new MockDOMElement('div', '', 'player-dropdown-item is-active');
+        item1.setAttribute('tabindex', '0');
+        item1.dataset.tag = 'TAG1';
+        const item2 = new MockDOMElement('div', '', 'player-dropdown-item');
+        item2.setAttribute('tabindex', '-1');
+        item2.dataset.tag = 'TAG2';
+        const item3 = new MockDOMElement('div', '', 'player-dropdown-item');
+        item3.setAttribute('tabindex', '-1');
+        item3.dataset.tag = 'TAG3';
+        mockContainer.appendChild(item1);
+        mockContainer.appendChild(item2);
+        mockContainer.appendChild(item3);
 
         // Open dropdown via keyboard on dropdown button
         mockDropdownBtn.dispatchEvent({

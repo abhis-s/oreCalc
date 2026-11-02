@@ -507,6 +507,7 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         const { renderHeroJourneyDisplay } = await import('../../js/components/home/heroJourneyDisplay.js');
 
         const trackElement = {
+            hidden: false,
             style: { display: '' }
         };
         const cardElement = {
@@ -562,7 +563,7 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
             };
 
             renderHeroJourneyDisplay(trueMaxState);
-            assert.strictEqual(trackElement.style.display, 'none', 'Progress track must be hidden for true max player');
+            assert.strictEqual(trackElement.hidden, true, 'Progress track must be hidden for true max player');
             assert.strictEqual(cardElement.classList.contains('is-true-max'), true, 'Card must have is-true-max class');
 
             // State for Player 2: TH17 max player (not true max)
@@ -583,7 +584,7 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
             };
 
             renderHeroJourneyDisplay(nonMaxState);
-            assert.strictEqual(trackElement.style.display, '', 'Progress track must be restored when switching to non-max player');
+            assert.strictEqual(trackElement.hidden, false, 'Progress track must be restored when switching to non-max player');
             assert.strictEqual(cardElement.classList.contains('is-true-max'), false, 'Card must not have is-true-max class');
         } finally {
             globalThis.document = origDoc;

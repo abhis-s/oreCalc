@@ -24,25 +24,6 @@ test('Hero Journey Player Tag Routing & DEFAULT0 Isolation Suite', async (t) => 
         assert.equal(formatDisplayTag(null), '');
     });
 
-    await t.test('openUrl logic creates clean /hero-journey/ for guest and DEFAULT0 profiles', () => {
-        const createOpenUrl = (isGuest, playerProfileTag, savedPlayerTags) => {
-            const rawTag = (!isGuest && playerProfileTag) ? playerProfileTag : (savedPlayerTags?.[0] || '');
-            const cleanTag = normalizePlayerTag(rawTag);
-            const playerTag = (!isGuest && cleanTag && cleanTag !== 'DEFAULT0') ? cleanTag : '';
-            return playerTag ? `/hero-journey/?tag=${encodeURIComponent(playerTag)}` : '/hero-journey/';
-        };
-
-        // Guest profile
-        assert.equal(createOpenUrl(true, 'DEFAULT0', ['DEFAULT0']), '/hero-journey/');
-        assert.equal(createOpenUrl(true, '#DEFAULT0', ['#DEFAULT0']), '/hero-journey/');
-        assert.equal(createOpenUrl(true, null, ['DEFAULT0']), '/hero-journey/');
-        assert.equal(createOpenUrl(true, null, []), '/hero-journey/');
-
-        // Connected player
-        assert.equal(createOpenUrl(false, '#MOCKTAG1', ['MOCKTAG1']), '/hero-journey/?tag=MOCKTAG1');
-        assert.equal(createOpenUrl(false, 'TESTTAG99', ['TESTTAG99']), '/hero-journey/?tag=TESTTAG99');
-    });
-
     await t.test('getTagFromUrl sanitizes window search params and ignores DEFAULT0', () => {
         const originalWindow = globalThis.window;
 

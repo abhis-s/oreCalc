@@ -153,12 +153,33 @@ class MockDOMElement {
         return newChild;
     }
 
+    _matches(selector) {
+        if (!selector) return false;
+        const s = selector.trim();
+        if (s.startsWith('#')) return this.id === s.slice(1);
+        if (s.startsWith('.')) return this.classList.contains(s.slice(1));
+        return this.tagName === s.toUpperCase();
+    }
+
     querySelector(selector) {
-        return querySelectorInternal(this, selector);
+        for (const child of this.children) {
+            if (child._matches(selector)) return child;
+            const nested = child.querySelector(selector);
+            if (nested) return nested;
+        }
+        return null;
     }
 
     querySelectorAll(selector) {
-        return querySelectorAllInternal(this, selector);
+        const results = [];
+        const search = (node) => {
+            for (const child of node.children) {
+                if (child._matches(selector)) results.push(child);
+                search(child);
+            }
+        };
+        search(this);
+        return results;
     }
 
     addEventListener(event, handler) {
@@ -192,40 +213,6 @@ class MockDOMElement {
     }
 }
 
-function matchesSelector(element, selector) {
-    if (!selector || !element) return false;
-    const s = selector.trim();
-    if (s.startsWith('#')) {
-        return element.id === s.slice(1);
-    }
-    if (s.startsWith('.')) {
-        return element.classList.contains(s.slice(1));
-    }
-    if (s.toUpperCase() === element.tagName) {
-        return true;
-    }
-    return false;
-}
-
-function querySelectorInternal(root, selector) {
-    const all = querySelectorAllInternal(root, selector);
-    return all.length > 0 ? all[0] : null;
-}
-
-function querySelectorAllInternal(root, selector) {
-    const results = [];
-    const search = (node) => {
-        node.children.forEach(child => {
-            if (matchesSelector(child, selector)) {
-                results.push(child);
-            }
-            search(child);
-        });
-    };
-    search(root);
-    return results;
-}
-
 const mockDocumentBody = new MockDOMElement('body', 'body');
 const elementsById = new Map();
 
@@ -255,8 +242,8 @@ if (typeof globalThis.document === 'undefined') {
         body: mockDocumentBody,
         createElement: (tag) => new MockDOMElement(tag),
         getElementById: (id) => elementsById.get(id) || null,
-        querySelector: (sel) => querySelectorInternal(mockDocumentBody, sel),
-        querySelectorAll: (sel) => querySelectorAllInternal(mockDocumentBody, sel),
+        querySelector: (sel) => mockDocumentBody.querySelector(sel),
+        querySelectorAll: (sel) => mockDocumentBody.querySelectorAll(sel),
         addEventListener: (event, handler) => {
             if (!documentEventListeners.has(event)) documentEventListeners.set(event, []);
             documentEventListeners.get(event).push(handler);
@@ -277,8 +264,8 @@ if (typeof globalThis.document === 'undefined') {
     };
 } else {
     globalThis.document.getElementById = (id) => elementsById.get(id) || null;
-    globalThis.document.querySelector = (sel) => querySelectorInternal(mockDocumentBody, sel);
-    globalThis.document.querySelectorAll = (sel) => querySelectorAllInternal(mockDocumentBody, sel);
+    globalThis.document.querySelector = (sel) => mockDocumentBody.querySelector(sel);
+    globalThis.document.querySelectorAll = (sel) => mockDocumentBody.querySelectorAll(sel);
     globalThis.document.createElement = (tag) => new MockDOMElement(tag);
     globalThis.document.addEventListener = (event, handler) => {
         if (!documentEventListeners.has(event)) documentEventListeners.set(event, []);
@@ -351,7 +338,6 @@ describe('Settings Modals Legal Informational Suite', () => {
         closeHeaderBtn = new MockDOMElement('button', 'close-terms-modal-btn', 'modal__close-btn');
         closeTermsBtn = new MockDOMElement('button', 'close-terms-footer-btn', 'btn btn--secondary');
         acceptTermsBtn = new MockDOMElement('button', 'accept-terms-modal-btn', 'btn btn--primary');
-        acceptTermsBtn.style.display = 'none';
 
         termsModal.appendChild(closeHeaderBtn);
         termsModalActions.appendChild(closeTermsBtn);
@@ -378,7 +364,7 @@ describe('Settings Modals Legal Informational Suite', () => {
         assert.equal(closeTermsBtn.classList.contains('btn--secondary'), true);
         assert.equal(closeTermsBtn.getAttribute('data-i18n'), 'actions.close');
         assert.equal(closeTermsBtn.textContent, translate('actions.close'));
-        assert.equal(acceptTermsBtn.style.display, 'none');
+        assert.equal(acceptTermsBtn.hidden, true);
     });
 
     test('openTermsOfUseModal: Closing modal triggers terms:close custom event', () => {

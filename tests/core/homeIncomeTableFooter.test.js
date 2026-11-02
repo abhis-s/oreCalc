@@ -459,7 +459,7 @@ describe('Home Income Table Footer & Timeframe Reactivity Suite', () => {
 
         renderApp(state);
 
-        assert.ok(mockTableBody.innerHTML.length > 0);
+        assert.ok(mockTableBody.children.length > 0 || mockTableBody.innerHTML.length > 0);
 
         const initialShinyText = mockTotalShiny.textContent;
         const initialGlowyText = mockTotalGlowy.textContent;

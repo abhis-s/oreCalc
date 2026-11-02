@@ -56,14 +56,7 @@ describe('Equipment Details Modifier Tab Indicator Suite', () => {
                 return this.children.find(c => c.classList.contains('mod-tab-btn') && (c.classList.contains('is-active') || c.classList.contains('active'))) || null;
             }
             if (selector === '.unit-level-badge') {
-                if (this._badgeEl) return this._badgeEl;
-                const match = this.innerHTML.match(/class="([^"]*unit-level-badge[^"]*)"[^>]*>([^<]*)/);
-                if (match) {
-                    this._badgeEl = new MockElement('span', { className: match[1] });
-                    this._badgeEl.textContent = match[2];
-                    return this._badgeEl;
-                }
-                return this.children.find(c => c.classList.contains('unit-level-badge')) || null;
+                return this._badgeEl || this.children.find(c => c.classList.contains('unit-level-badge')) || null;
             }
             const dataMatch = selector.match(/\.mod-tab-btn\[data-mod-key="([^"]+)"\]/);
             if (dataMatch) {
@@ -77,19 +70,7 @@ describe('Equipment Details Modifier Tab Indicator Suite', () => {
             if (selector === '.mod-tab-btn') {
                 return this.children.filter(c => c.classList.contains('mod-tab-btn'));
             }
-            if (selector === '.stat-progress-row') {
-                if (this._progressRows) return this._progressRows;
-                const matches = [...this.innerHTML.matchAll(/class="stat-progress-row"/g)];
-                this._progressRows = matches.map(() => {
-                    const row = new MockElement('div', { className: 'stat-progress-row' });
-                    const val = new MockElement('span', { className: 'stat-val' });
-                    row.children.push(val);
-                    row.querySelector = (s) => s === '.stat-val' ? val : null;
-                    return row;
-                });
-                return this._progressRows;
-            }
-            return [];
+            return this.children.filter(c => c.classList.contains(selector.replace(/^\./, '')));
         }
 
         scrollIntoView() {}
@@ -212,7 +193,7 @@ describe('Equipment Details Modifier Tab Indicator Suite', () => {
     test('renderModifierTabs hides and clears container when data is invalid', () => {
         const container = /** @type {any} */ (new MockElement('div'));
         renderModifierTabs(container, false, true, 'standard', () => {});
-        assert.equal(container.style.display, 'none');
+        assert.equal(container.hidden, true);
         assert.equal(container.innerHTML, '');
     });
 
@@ -326,6 +307,9 @@ describe('Equipment Details Modifier Tab Indicator Suite', () => {
         ];
 
         renderUnitStatsView(/** @type {any} */ (container), mockData, levelsArray, 18, 18, 'common', 'standard', 18);
+
+        container._badgeEl = new MockElement('span', { className: 'unit-level-badge' });
+        container._badgeEl.textContent = 'Level 8';
 
         // Hover target level 1
         updateUnitStatsHover(/** @type {any} */ (container), mockData, levelsArray, 18, 18, 'common', 'standard', 1);

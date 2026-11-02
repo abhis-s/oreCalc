@@ -42,7 +42,6 @@ describe('Equipment Details Recommendations Display Suite', () => {
         renderRecommendationBadge(badge, { id: 'spiky_ball' }, 'Spiky Ball', mockRec, 'standard', 16, 27, false);
 
         assert.equal(badge.hidden, false, 'Badge element must have hidden=false');
-        assert.equal(badge.style.display, 'inline-flex');
         assert.ok(badge.className.includes('badge-must-have'), 'Class must include badge-must-have');
         assert.ok(badge.innerHTML.includes(translate('views.equipment.mustHave')), 'Markup must include Must-Have translation');
     });
@@ -54,7 +53,6 @@ describe('Equipment Details Recommendations Display Suite', () => {
         renderRecommendationBadge(badge, { id: 'giant_gauntlet' }, 'Giant Gauntlet', mockRec, 'standard', 16, 27, false);
 
         assert.equal(badge.hidden, false, 'Badge element must have hidden=false');
-        assert.equal(badge.style.display, 'inline-flex');
         assert.ok(badge.className.includes('badge-recommended'), 'Class must include badge-recommended');
     });
 
@@ -65,7 +63,6 @@ describe('Equipment Details Recommendations Display Suite', () => {
         renderRecommendationBadge(badge, { id: 'rage_vial' }, 'Rage Vial', mockRec, 'standard', 16, 18, false);
 
         assert.equal(badge.hidden, false, 'Badge element must have hidden=false');
-        assert.equal(badge.style.display, 'inline-flex');
         assert.ok(badge.className.includes('badge-niche'), 'Class must include badge-niche');
     });
 
@@ -76,19 +73,16 @@ describe('Equipment Details Recommendations Display Suite', () => {
         renderRecommendationBadge(badge, { id: 'barbarian_puppet' }, 'Barbarian Puppet', mockRec, 'standard', 16, 18, false);
 
         assert.equal(badge.hidden, false, 'Badge element must have hidden=false');
-        assert.equal(badge.style.display, 'inline-flex');
         assert.ok(badge.className.includes('badge-not-recommended'), 'Class must include badge-not-recommended');
     });
 
     test('renderRecommendationBadge conceals badge with hidden=true when no recommendation is available', () => {
         const badge = new MockElement();
         badge.hidden = false;
-        badge.style.display = 'inline-flex';
 
         renderRecommendationBadge(badge, { id: 'unknown_gear' }, 'Unknown Gear', null, 'standard', 16, 18, false);
 
         assert.equal(badge.hidden, true, 'Badge element must have hidden=true when recommendation is null');
-        assert.equal(badge.style.display, 'none');
     });
 
     test('renderStrategyBanner manages unhide button hidden state correctly when toggling dismiss', () => {
@@ -99,12 +93,10 @@ describe('Equipment Details Recommendations Display Suite', () => {
         renderStrategyBanner(container, unhideBtn, 'rage_vial', false, false, mockRec, 'standard', 16, 18, false);
         assert.ok(container.innerHTML.length > 0, 'Banner container should contain message markup');
         assert.equal(unhideBtn.hidden, true, 'Unhide button must have hidden=true when banner is active');
-        assert.equal(unhideBtn.style.display, 'none');
 
         renderStrategyBanner(container, unhideBtn, 'rage_vial', false, false, mockRec, 'standard', 16, 18, true);
         assert.equal(container.innerHTML, '', 'Banner container must be empty when dismissed');
         assert.equal(unhideBtn.hidden, false, 'Unhide button must have hidden=false when note is dismissed');
-        assert.equal(unhideBtn.style.display, 'inline-flex');
     });
 
     test('sessionRecommendationHidden initializes and resets to null', () => {

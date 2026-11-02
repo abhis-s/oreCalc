@@ -237,10 +237,10 @@ export function updateProgressBar() {
             card.classList.remove('is-true-max');
         }
         progressTracks.forEach(track => {
-            /** @type {HTMLElement} */ (track).style.display = 'none';
+            /** @type {HTMLElement} */ (track).hidden = true;
         });
         if (cumulativeBadge) {
-            cumulativeBadge.style.display = 'none';
+            cumulativeBadge.hidden = true;
         }
         return;
     }
@@ -252,10 +252,10 @@ export function updateProgressBar() {
         card.classList.toggle('is-true-max', isTrueMaxPlayer);
     }
     progressTracks.forEach(track => {
-        /** @type {HTMLElement} */ (track).style.display = isTrueMaxPlayer ? 'none' : '';
+        /** @type {HTMLElement} */ (track).hidden = isTrueMaxPlayer;
     });
     if (cumulativeBadge) {
-        cumulativeBadge.style.display = '';
+        cumulativeBadge.hidden = false;
         cumulativeBadge.textContent = overallMax > 0 ? `${hjState.cumulativeLevel}/${overallMax}` : `${hjState.cumulativeLevel}`;
         cumulativeBadge.classList.toggle('badge-true-max', isTrueMaxPlayer);
     }

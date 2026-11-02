@@ -157,7 +157,7 @@ export function renderPlayerDropdown(activeTagOrOptions = '', options = {}) {
     const profileKeys = savedProfiles.map(p => normalizePlayerTag(p.cleanTag || p.tag)).join(',');
     const currentKey = `${cleanActiveTag}|${profileKeys}|${currentLang}|${configOptions.idPrefix || ''}`;
 
-    if (currentKey === lastRenderStateKey && playerItemsContainer.children?.length > 0) {
+    if (currentKey === lastRenderStateKey && (playerItemsContainer.children?.length > 0 || playerItemsContainer.innerHTML)) {
         return;
     }
     lastRenderStateKey = currentKey;

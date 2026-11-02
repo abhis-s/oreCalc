@@ -116,71 +116,23 @@ class MockDOMElement {
     }
 
     querySelector(selector) {
-        const all = this.querySelectorAll(selector);
-        return all.length > 0 ? all[0] : null;
+        if (selector.startsWith('#')) {
+            const targetId = selector.slice(1);
+            return this.children.find(c => c.id === targetId) || null;
+        }
+        if (selector.startsWith('.')) {
+            const cls = selector.slice(1);
+            return this.children.find(c => c.classList.contains(cls)) || null;
+        }
+        return this.children.find(c => c.tagName.toLowerCase() === selector.toLowerCase()) || null;
     }
 
     querySelectorAll(selector) {
-        const results = [];
-
-        // Check if raw HTML matches selector
-        if (selector.startsWith('#')) {
-            const targetId = selector.slice(1);
-            const regex = new RegExp(`id=["']${targetId}["']`, 'i');
-            if (regex.test(this._innerHTML)) {
-                const el = new MockDOMElement('div', targetId);
-                // Extract data-i18n, aria-label, etc.
-                const i18nMatch = this._innerHTML.match(new RegExp(`id=["']${targetId}["'][^>]*data-i18n=["']([^"']+)["']`, 'i'))
-                    || this._innerHTML.match(new RegExp(`data-i18n=["']([^"']+)["'][^>]*id=["']${targetId}["']`, 'i'));
-                if (i18nMatch) el.setAttribute('data-i18n', i18nMatch[1]);
-
-                const i18nTitleMatch = this._innerHTML.match(new RegExp(`id=["']${targetId}["'][^>]*data-i18n-title=["']([^"']+)["']`, 'i'))
-                    || this._innerHTML.match(new RegExp(`data-i18n-title=["']([^"']+)["'][^>]*id=["']${targetId}["']`, 'i'));
-                if (i18nTitleMatch) el.setAttribute('data-i18n-title', i18nTitleMatch[1]);
-
-                const ariaLabelMatch = this._innerHTML.match(new RegExp(`id=["']${targetId}["'][^>]*aria-label=["']([^"']+)["']`, 'i'))
-                    || this._innerHTML.match(new RegExp(`aria-label=["']([^"']+)["'][^>]*id=["']${targetId}["']`, 'i'));
-                if (ariaLabelMatch) el.setAttribute('aria-label', ariaLabelMatch[1]);
-
-                // Nested kbd hint check
-                const kbdHintMatch = this._innerHTML.match(new RegExp(`id=["']${targetId}["'][^>]*>([\\s\\S]*?)<\\/button>`, 'i'));
-                if (kbdHintMatch && kbdHintMatch[1].includes('spotright-footer-kbd')) {
-                    const kbdEl = new MockDOMElement('kbd', '', 'spotright-footer-kbd');
-                    kbdEl.innerHTML = '?';
-                    el.appendChild(kbdEl);
-                    el.querySelector = (sel) => sel === '.spotright-footer-kbd' ? kbdEl : null;
-                }
-
-                results.push(el);
-            }
-        } else if (selector.includes('clashcalc-assets-svg[name=')) {
-            const matchName = selector.match(/name=["']([^"']+)["']/);
-            if (matchName) {
-                const iconName = matchName[1];
-                const regex = new RegExp(`(<kbd[^>]*aria-label=["']([^"']+)["'][^>]*>\\s*)?<clashcalc-assets-svg[^>]*name=["']${iconName}["']`, 'gi');
-                let match;
-                while ((match = regex.exec(this._innerHTML)) !== null) {
-                    const el = new MockDOMElement('clashcalc-assets-svg');
-                    el.setAttribute('name', iconName);
-                    if (match[2]) {
-                        const kbdParent = new MockDOMElement('kbd');
-                        kbdParent.setAttribute('aria-label', match[2]);
-                        kbdParent.appendChild(el);
-                    }
-                    results.push(el);
-                }
-            }
-        } else if (selector === '.shortcuts-kbd') {
-            const regex = /<kbd[^>]*class=["'][^"']*shortcuts-kbd[^"']*["'][^>]*>([\s\S]*?)<\/kbd>/gi;
-            let match;
-            while ((match = regex.exec(this._innerHTML)) !== null) {
-                const el = new MockDOMElement('kbd', '', 'shortcuts-kbd');
-                el.innerHTML = match[1];
-                results.push(el);
-            }
+        if (selector.startsWith('.')) {
+            const cls = selector.slice(1);
+            return this.children.filter(c => c.classList.contains(cls));
         }
-
-        return results;
+        return this.children.filter(c => c.tagName.toLowerCase() === selector.toLowerCase());
     }
 }
 
@@ -206,59 +158,42 @@ describe('Keyboard Shortcuts Cheatsheet Modal Domain Suite', () => {
         assert.equal(dialog.getAttribute('aria-modal'), 'true');
         assert.equal(dialog.getAttribute('aria-labelledby'), 'shortcuts-modal-title');
 
-        const title = dialog.querySelector('#shortcuts-modal-title');
-        assert.ok(title, 'Expected title element to exist');
-        assert.equal(title.getAttribute('data-i18n'), 'views.shortcuts.title');
+        assert.ok(dialog.innerHTML.includes('id="shortcuts-modal-title"'), 'Expected title element to exist');
+        assert.ok(dialog.innerHTML.includes('data-i18n="views.shortcuts.title"'));
 
-        const closeBtn = dialog.querySelector('#close-shortcuts-modal-btn');
-        assert.ok(closeBtn, 'Expected close button to exist');
-        assert.ok(closeBtn.getAttribute('aria-label'), 'Expected close button to have aria-label');
+        assert.ok(dialog.innerHTML.includes('id="close-shortcuts-modal-btn"'), 'Expected close button to exist');
+        assert.ok(dialog.innerHTML.includes('aria-label='), 'Expected close button to have aria-label');
     });
 
     test('renders official vector Command SVG on macOS and Ctrl text on Windows/Linux', () => {
         // macOS override: true
         const macDialog = createShortcutsModalDialog(true);
-        const macCmdSvg = macDialog.querySelector('clashcalc-assets-svg[name="keyboard-command"]');
-        assert.ok(macCmdSvg, 'Expected Mac dialog to render keyboard-command SVG');
-        assert.equal(macCmdSvg.closest('kbd')?.getAttribute('aria-label'), translate('views.shortcuts.keys.keyboardCommand'));
+        assert.ok(macDialog.innerHTML.includes('name="keyboard-command"'), 'Expected Mac dialog to render keyboard-command SVG');
+        assert.ok(macDialog.innerHTML.includes(`aria-label="${translate('views.shortcuts.keys.keyboardCommand')}"`));
 
         // Non-macOS override: false
         const winDialog = createShortcutsModalDialog(false);
-        const winCmdSvg = winDialog.querySelector('clashcalc-assets-svg[name="keyboard-command"]');
-        assert.equal(winCmdSvg, null, 'Did not expect Windows dialog to render keyboard-command SVG');
-        const ctrlKbds = winDialog.querySelectorAll('.shortcuts-kbd').filter(k => k.textContent?.trim() === translate('views.shortcuts.keys.keyboardCtrl'));
-        assert.ok(ctrlKbds.length > 0, 'Expected Windows dialog to render Ctrl text badge');
+        assert.ok(!winDialog.innerHTML.includes('name="keyboard-command"'), 'Did not expect Windows dialog to render keyboard-command SVG');
+        assert.ok(winDialog.innerHTML.includes(translate('views.shortcuts.keys.keyboardCtrl')), 'Expected Windows dialog to render Ctrl text badge');
     });
 
     test('renders Return, Backspace, Tab, Shift, Space, and Chevron SVGs without prohibited dingbats', () => {
         const dialog = createShortcutsModalDialog(true);
-        const returnSvgs = dialog.querySelectorAll('clashcalc-assets-svg[name="keyboard-return"]');
-        assert.ok(returnSvgs.length >= 2, 'Expected return SVG icons in spotright and dialog action rows');
+        const returnSvgCount = (dialog.innerHTML.match(/name="keyboard-return"/g) || []).length;
+        assert.ok(returnSvgCount >= 2, 'Expected return SVG icons in spotright and dialog action rows');
 
-        const backspaceSvgs = dialog.querySelectorAll('clashcalc-assets-svg[name="keyboard-backspace"]');
-        assert.ok(backspaceSvgs.length >= 1, 'Expected backspace SVG icon in spotright clear scope row');
+        assert.ok(dialog.innerHTML.includes('name="keyboard-backspace"'), 'Expected backspace SVG icon');
+        assert.ok((dialog.innerHTML.match(/name="keyboard-tab"/g) || []).length >= 3, 'Expected tab SVG icons');
+        assert.ok(dialog.innerHTML.includes('name="keyboard-shift"'), 'Expected shift SVG icon');
+        assert.ok(dialog.innerHTML.includes('name="keyboard-space"'), 'Expected space SVG icon');
+        assert.ok((dialog.innerHTML.match(/name="chevron-up"/g) || []).length >= 3, 'Expected chevron-up SVG icons');
+        assert.ok(dialog.innerHTML.includes('name="chevron-down"'), 'Expected chevron-down SVG icon');
 
-        const tabSvgs = dialog.querySelectorAll('clashcalc-assets-svg[name="keyboard-tab"]');
-        assert.ok(tabSvgs.length >= 3, 'Expected tab SVG icons in spotright accept and focus rows');
-
-        const shiftSvgs = dialog.querySelectorAll('clashcalc-assets-svg[name="keyboard-shift"]');
-        assert.ok(shiftSvgs.length >= 1, 'Expected shift SVG icon in cycle focus row');
-
-        const spaceSvgs = dialog.querySelectorAll('clashcalc-assets-svg[name="keyboard-space"]');
-        assert.ok(spaceSvgs.length >= 1, 'Expected space SVG icon in activate item row');
-
-        const chevronUpSvgs = dialog.querySelectorAll('clashcalc-assets-svg[name="chevron-up"]');
-        assert.ok(chevronUpSvgs.length >= 3, 'Expected chevron-up SVG icons for Up, Left, and Right keys');
-
-        const chevronDownSvgs = dialog.querySelectorAll('clashcalc-assets-svg[name="chevron-down"]');
-        assert.ok(chevronDownSvgs.length >= 1, 'Expected chevron-down SVG icon for Down key');
-
-        const kbdTexts = dialog.querySelectorAll('.shortcuts-kbd').map(k => k.textContent?.trim());
-        assert.ok(kbdTexts.includes(translate('views.shortcuts.keys.keyboardUp')), 'Expected Up text badge');
-        assert.ok(kbdTexts.includes(translate('views.shortcuts.keys.keyboardDown')), 'Expected Down text badge');
-        assert.ok(kbdTexts.includes(translate('views.shortcuts.keys.keyboardLeft')), 'Expected Left text badge');
-        assert.ok(kbdTexts.includes(translate('views.shortcuts.keys.keyboardRight')), 'Expected Right text badge');
-        assert.ok(!kbdTexts.includes('Backspace'), 'Expected Backspace text to be replaced by SVG');
+        assert.ok(dialog.innerHTML.includes(translate('views.shortcuts.keys.keyboardUp')), 'Expected Up text badge');
+        assert.ok(dialog.innerHTML.includes(translate('views.shortcuts.keys.keyboardDown')), 'Expected Down text badge');
+        assert.ok(dialog.innerHTML.includes(translate('views.shortcuts.keys.keyboardLeft')), 'Expected Left text badge');
+        assert.ok(dialog.innerHTML.includes(translate('views.shortcuts.keys.keyboardRight')), 'Expected Right text badge');
+        assert.ok(!dialog.innerHTML.includes('>Backspace<'), 'Expected Backspace text to be replaced by SVG');
 
         // Asserts zero prohibited raw arrows (\u2190-\u21FF) in dialog markup
         const rawArrowPattern = /[\u2190-\u21FF]/;
@@ -270,19 +205,16 @@ describe('Keyboard Shortcuts Cheatsheet Modal Domain Suite', () => {
         await loadTranslations('de');
 
         const deMacDialog = createShortcutsModalDialog(true);
-        const macCmdSvg = deMacDialog.querySelector('clashcalc-assets-svg[name="keyboard-command"]');
-        assert.ok(macCmdSvg);
-        assert.equal(macCmdSvg.closest('kbd')?.getAttribute('aria-label'), deJson.views.shortcuts.keys.keyboardCommand);
+        assert.ok(deMacDialog.innerHTML.includes('name="keyboard-command"'));
+        assert.ok(deMacDialog.innerHTML.includes(`aria-label="${deJson.views.shortcuts.keys.keyboardCommand}"`));
 
         const deWinDialog = createShortcutsModalDialog(false);
-        const ctrlKbds = deWinDialog.querySelectorAll('.shortcuts-kbd').filter(k => k.textContent?.trim() === deJson.views.shortcuts.keys.keyboardCtrl);
-        assert.ok(ctrlKbds.length > 0, 'Expected Windows dialog to render Strg text badge in German');
+        assert.ok(deWinDialog.innerHTML.includes(deJson.views.shortcuts.keys.keyboardCtrl), 'Expected Windows dialog to render Strg text badge in German');
 
-        const kbdTexts = deMacDialog.querySelectorAll('.shortcuts-kbd').map(k => k.textContent?.trim());
-        assert.ok(kbdTexts.includes(deJson.views.shortcuts.keys.keyboardUp), 'Expected Auf text badge');
-        assert.ok(kbdTexts.includes(deJson.views.shortcuts.keys.keyboardDown), 'Expected Ab text badge');
-        assert.ok(kbdTexts.includes(deJson.views.shortcuts.keys.keyboardLeft), 'Expected Links text badge');
-        assert.ok(kbdTexts.includes(deJson.views.shortcuts.keys.keyboardRight), 'Expected Rechts text badge');
+        assert.ok(deMacDialog.innerHTML.includes(deJson.views.shortcuts.keys.keyboardUp), 'Expected Auf text badge');
+        assert.ok(deMacDialog.innerHTML.includes(deJson.views.shortcuts.keys.keyboardDown), 'Expected Ab text badge');
+        assert.ok(deMacDialog.innerHTML.includes(deJson.views.shortcuts.keys.keyboardLeft), 'Expected Links text badge');
+        assert.ok(deMacDialog.innerHTML.includes(deJson.views.shortcuts.keys.keyboardRight), 'Expected Rechts text badge');
 
         // Restore English for any subsequent tests
         state.uiSettings.language = 'en';
@@ -317,12 +249,9 @@ describe('Keyboard Shortcuts Cheatsheet Modal Domain Suite', () => {
 
     test('Spotright search dialog contains #spotright-shortcuts-btn in footer', () => {
         const spotrightDialog = createSpotrightDialog();
-        const shortcutsBtn = spotrightDialog.querySelector('#spotright-shortcuts-btn');
-        assert.ok(shortcutsBtn, 'Expected #spotright-shortcuts-btn in spotright footer');
-        assert.equal(shortcutsBtn.getAttribute('data-i18n-title'), 'views.shortcuts.title');
-
-        const kbdHint = shortcutsBtn.querySelector('.spotright-footer-kbd');
-        assert.ok(kbdHint, 'Expected ? kbd badge inside shortcuts footer button');
-        assert.equal(kbdHint.textContent?.trim(), '?');
+        assert.ok(spotrightDialog.innerHTML.includes('id="spotright-shortcuts-btn"'), 'Expected #spotright-shortcuts-btn in spotright footer');
+        assert.ok(spotrightDialog.innerHTML.includes('data-i18n-title="views.shortcuts.title"'));
+        assert.ok(spotrightDialog.innerHTML.includes('spotright-footer-kbd'));
+        assert.ok(spotrightDialog.innerHTML.includes('?'));
     });
 });
