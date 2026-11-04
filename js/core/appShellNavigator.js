@@ -37,7 +37,7 @@ export function registerNavigatorUiHooks(hooks) {
 }
 
 /**
- * @typedef {'hub' | 'ore-calculator' | 'hero-journey' | 'damage-calculator' | 'account'} AppRouteId
+ * @typedef {'hub' | 'ore-calculator' | 'hero-journey' | 'damage-calculator' | 'account' | 'app-management'} AppRouteId
  */
 
 /**
@@ -79,7 +79,8 @@ export const ROUTE_SCRIPT_MAP = {
     'ore-calculator': '/js/app.js',
     'hero-journey': '/js/heroJourneyApp.js',
     'damage-calculator': '/js/damageApp.js',
-    'account': '/js/accountApp.js'
+    'account': '/js/accountApp.js',
+    'app-management': '/js/appManagementApp.js'
 };
 
 /**
@@ -101,6 +102,7 @@ export function resolveAppRoute(pathname) {
     if (clean === '/hero-journey' || clean.startsWith('/hero-journey/')) return 'hero-journey';
     if (clean === '/damage-calculator' || clean.startsWith('/damage-calculator/')) return 'damage-calculator';
     if (clean === '/account' || clean.startsWith('/account/')) return 'account';
+    if (clean === '/app-management' || clean.startsWith('/app-management/')) return 'app-management';
 
     return null;
 }

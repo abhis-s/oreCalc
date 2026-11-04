@@ -1,7 +1,7 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/mixins' as *;
 
-.account-page {
+.management-page {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -12,16 +12,16 @@
     }
 }
 
-.account-main {
+.management-main {
     flex: 1;
     @include app-layout-container;
 }
 
-.account-layout {
+.management-layout {
     width: 100%;
 }
 
-.account-view {
+.management-view {
     width: 100%;
 
     &[hidden] {
@@ -29,7 +29,7 @@
     }
 }
 
-.account-grid {
+.management-grid {
     display: flex;
     flex-direction: column;
     gap: $spacing-xl;

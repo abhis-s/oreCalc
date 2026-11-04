@@ -1,12 +1,12 @@
 @use '../abstracts/variables' as *;
 
-.account-item-row--block {
+.management-item-row--block {
     flex-direction: column;
     align-items: stretch;
     gap: $spacing-md;
 }
 
-.account-item-row__header {
+.management-item-row__header {
     display: flex;
     align-items: center;
     gap: $spacing-md;
@@ -14,11 +14,11 @@
     @media (max-width: $breakpoint-phone) {
         flex-wrap: wrap;
 
-        .account-item-info {
+        .management-item-info {
             flex: 1 1 calc(100% - 40px - #{$spacing-md});
         }
 
-        .account-item-actions {
+        .management-item-actions {
             width: 100%;
 
             button {

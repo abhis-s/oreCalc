@@ -1,0 +1,262 @@
+@use '../abstracts/variables' as *;
+
+.management-card {
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-card;
+    border-radius: $shape-corner-large;
+    box-shadow: $elevation-1;
+    padding: $spacing-xl;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    transition: $transition-card;
+
+    &:hover {
+        border-color: $border-card-hover;
+        box-shadow: $elevation-card-hover;
+    }
+
+    @media (max-width: $breakpoint-phone) {
+        padding: $spacing-lg;
+        gap: $spacing-md;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-md;
+        flex-wrap: wrap;
+
+        @media (max-width: $breakpoint-phone) {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: $spacing-sm;
+
+            .management-card__title-group {
+                flex: none;
+                width: 100%;
+            }
+
+            .management-card__actions {
+                width: 100%;
+
+                .btn {
+                    width: 100%;
+                }
+            }
+        }
+    }
+
+    &__title-group {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+        flex: 999 1 260px;
+        min-width: 0;
+    }
+
+    &__title {
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        margin: 0;
+    }
+
+    &__desc {
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        margin: 0;
+        line-height: 1.45;
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-md;
+        align-items: center;
+        flex-shrink: 0;
+
+        &:has(.btn + .btn) {
+            flex: 1 1 auto;
+
+            .btn {
+                flex: 1 1 0;
+                min-width: 0;
+
+                @media (max-width: $breakpoint-phone) {
+                    flex: 1 1 100%;
+                }
+            }
+        }
+    }
+
+    &--hero {
+        text-align: center;
+        align-items: center;
+        padding-block: $spacing-2xl;
+        background: linear-gradient(180deg, color-mix(in srgb, $accent-primary 8%, $bg-surface-primary), $bg-surface-primary);
+        border-color: color-mix(in srgb, $accent-primary 25%, $border-card);
+
+        &:hover {
+            border-color: color-mix(in srgb, $accent-primary 45%, $border-card);
+        }
+    }
+}
+
+.management-card__hero-badge {
+    width: 64px;
+    height: 64px;
+    border-radius: $shape-corner-full;
+    background-color: $accent-primary-soft;
+    color: $accent-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $spacing-sm;
+
+    .management-card__hero-icon,
+    .management-card__hero-icon svg {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+.management-card__hero-title {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0;
+}
+
+.management-card__hero-desc {
+    font-size: $font-size-md;
+    color: $text-secondary;
+    max-width: 480px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.management-card__hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-md;
+    justify-content: center;
+    margin-top: $spacing-sm;
+}
+
+.management-item-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+}
+
+.management-item-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    border-radius: $shape-corner-medium;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-secondary;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
+
+    &--update {
+        border-color: color-mix(in srgb, $accent-primary 45%, $border-secondary);
+        background-color: color-mix(in srgb, $accent-primary 6%, $bg-surface-secondary);
+
+        .management-item-title {
+            color: $accent-primary;
+        }
+    }
+
+    @media (max-width: $breakpoint-phone) {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.management-item-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: $shape-corner-medium;
+    background-color: $bg-surface-primary;
+    border: 1px solid $border-secondary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: $text-secondary;
+
+    clashcalc-assets-svg,
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.management-item-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xs;
+}
+
+.management-item-heading-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+}
+
+.management-item-title {
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+}
+
+.management-item-desc {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.management-item-actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-shrink: 0;
+
+    @media (max-width: $breakpoint-phone) {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+.management-item-value {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    user-select: text;
+}
+
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+
+    &--online {
+        color: $color-success;
+    }
+
+    &--offline {
+        color: $color-danger;
+    }
+}

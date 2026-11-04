@@ -3,7 +3,62 @@
  * Leverages short (4-12ms) LRA motor pulses for crisp, native-feeling tactile feedback.
  */
 
+import { state } from '../core/state.js';
+import { handleStateUpdate } from '../core/stateManager.js';
+import { loadStoredAppSettings, persistStoredAppSettings } from '../core/localStorageManager.js';
+
 let isGlobalHapticsInitialized = false;
+
+/**
+ * Checks whether the current device/browser supports the physical Vibration API.
+ * Desktop platforms (macOS, Windows, desktop Linux, ChromeOS) are explicitly filtered out
+ * because Chromium exposes a silent dummy navigator.vibrate stub without hardware support.
+ *
+ * @param {string} [customUa=null]
+ * @param {Object} [customNavigator=null]
+ * @returns {boolean}
+ */
+export function isHapticsSupported(customUa = null, customNavigator = null) {
+    const nav = customNavigator ?? (typeof navigator !== 'undefined' ? navigator : null);
+    if (!nav || !('vibrate' in nav) || typeof nav.vibrate !== 'function') {
+        return false;
+    }
+    const ua = customUa ?? nav.userAgent ?? '';
+    const isDesktop = /(macintosh|windows|x11|cros)/i.test(ua) && !/android|mobile/i.test(ua);
+    if (isDesktop) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Retrieves user preference for tactile haptics. Defaults to true on supported devices.
+ * @returns {boolean}
+ */
+export function getHapticsPreference() {
+    if (typeof state.uiSettings?.hapticsEnabled === 'boolean') {
+        return state.uiSettings.hapticsEnabled;
+    }
+    const stored = loadStoredAppSettings();
+    return stored.hapticsEnabled !== false;
+}
+
+/**
+ * Persists user preference for tactile haptics.
+ * @param {boolean} enabled
+ * @returns {boolean}
+ */
+export function setHapticsPreference(enabled) {
+    const isEnabled = Boolean(enabled);
+    handleStateUpdate(() => {
+        if (!state.uiSettings) {
+            state.uiSettings = {};
+        }
+        state.uiSettings.hapticsEnabled = isEnabled;
+    }, true, { preferencesOnly: true });
+    persistStoredAppSettings({ hapticsEnabled: isEnabled });
+    return true;
+}
 
 /**
  * Resets the initialization state (used exclusively for isolated test harnesses).
@@ -17,7 +72,7 @@ export function resetGlobalHapticsForTesting() {
  * @param {'click' | 'tap' | 'toggle' | 'select' | 'selection' | 'success' | 'warning' | 'error' | 'bump' | 'light' | 'medium'} [type='click'] - Haptic pattern type.
  */
 export function triggerHaptic(type = 'click') {
-    if (typeof navigator === 'undefined' || !('vibrate' in navigator)) return;
+    if (!isHapticsSupported() || !getHapticsPreference()) return;
 
     try {
         switch (type) {

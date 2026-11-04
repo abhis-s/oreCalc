@@ -4,11 +4,13 @@
         "actionsMenu": "Aktionsmenü",
         "back": "Zurück",
         "cancel": "Abbrechen",
+        "checkUpdates": "Nach Updates suchen",
         "clear": "Leeren",
         "clickToCopy": "Klicken zum Kopieren",
         "close": "Schließen",
         "compressTable": "Tabelle komprimieren",
         "confirm": "Bestätigen",
+        "copied": "Kopiert!",
         "copy": "Kopieren",
         "create": "Erstellen",
         "decrease": "Verringern",
@@ -165,7 +167,8 @@
         "metaTitle": "OreCalc — Clash of Clans Ausrüstungs- & Upgrade-Planer | ClashCalc",
         "none": "Keines",
         "supercellDisclaimer": "Dieses Material ist nicht offiziell und nicht von Supercell bewilligt. Weitere Informationen finden Sie in Supercells Richtlinien für Fan-Content unter <a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">{displayUrl}</a>.",
-        "title": "Erz-Rechner"
+        "title": "Erz-Rechner",
+        "version": "Version"
     },
     "auth": {
         "account": "Konto",
@@ -620,14 +623,21 @@
         "tag": "Spielerkürzel"
     },
     "status": {
+        "checking": "Wird überprüft...",
+        "downloading": "Wird heruntergeladen...",
         "error": "Fehler",
         "info": "Information",
+        "installing": "Wird installiert...",
         "notice": "Hinweis",
+        "offline": "Offline",
+        "online": "Online",
         "saving": "Speichern...",
         "success": "Erfolg",
+        "unsupported": "(Auf diesem Gerät nicht unterstützt)",
         "updateAvailable": "Update Verfügbar",
         "updateForcedIn": "Empfohlenes Update wird in {time} automatisch installiert.",
         "updatePrompt": "Eine neue Version der Anwendung ist verfügbar. Lade die Seite neu, um die neuesten Funktionen und Korrekturen zu erhalten.",
+        "upToDate": "App ist auf dem neuesten Stand",
         "warning": "Warnung"
     },
     "time": {
@@ -680,6 +690,57 @@
             "security": "Sicherheit & Authentifizierung",
             "sessions": "Aktive Sitzungen",
             "title": "Konto & Sicherheit"
+        },
+        "appManagement": {
+            "diagnostics": {
+                "desc": "Aktuelle Client-Laufzeitumgebung und aktive Geräteeigenschaften.",
+                "displayMode": "Anzeigemodus",
+                "engine": "Browser-Engine",
+                "modeBrowser": "Webbrowser (Tab)",
+                "modeStandalone": "Installierte App (Eigenständig)",
+                "network": "Netzwerkstatus",
+                "platform": "Betriebssystem",
+                "title": "System & Diagnose",
+                "viewport": "Fenster-Viewport"
+            },
+            "hero": {
+                "browserSubtitle": "Du verwendest ClashCalc derzeit im Webbrowser. Installiere die Anwendung für Vollbildmodus, Sofortstart und dauerhaften Offline-Zugriff."
+            },
+            "lifecycle": {
+                "browserDesc": "ClashCalc prüft beim Neuladen von Seiten automatisch auf Updates.",
+                "desc": "Halte deine Anwendung auf dem neuesten Stand.",
+                "standaloneDesc": "Deine installierte App aktualisiert sich im Hintergrund. Tippe zum manuellen Prüfen.",
+                "title": "Updates & Lebenszyklus"
+            },
+            "meta": {
+                "description": "Verwalte ClashCalc Offline-Speicher, Startoptionen und installierte App-Einstellungen.",
+                "title": "App-Verwaltung | Clash of Clans | ClashCalc"
+            },
+            "preferences": {
+                "desc": "Konfiguriere das Startziel und das aktive Anzeigeverhalten.",
+                "screenWakeLock": "Bildschirmsperre verhindern",
+                "screenWakeLockDesc": "Verhindert das Ausschalten des Bildschirms beim Planen von Angriffen oder Berechnen von Upgrades.",
+                "startupPage": "Standard-Startansicht",
+                "startupPageDesc": "Wähle das Werkzeug oder die Ansicht beim Starten der Anwendung.",
+                "tactileHaptics": "Taktiles haptisches Feedback",
+                "tactileHapticsDesc": "Dezentes Vibrations-Feedback beim Antippen von Steuerelementen und Anpassen von Stufen.",
+                "title": "Anzeige- & Startoptionen"
+            },
+            "startupViews": {
+                "compositeLabel": "{tool} · {subView}"
+            },
+            "storage": {
+                "appUsage": "{size} von ClashCalc belegt",
+                "clearCache": "Temporären Asset-Cache leeren",
+                "clearCacheDesc": "Lösche zwischengespeicherte Grafiken und Skripte zur Aktualisierung lokaler Inhalte.",
+                "cleared": "Cache geleert",
+                "title": "Speicher & Offline-Daten",
+                "unavailable": "Speicherbelegung kann nicht berechnet werden",
+                "webkitNotice": "WebKit-Browser können Offline-Daten nach längerer Inaktivität löschen. Zum Home-Bildschirm oder Dock hinzufügen, um Speicher dauerhaft zu behalten.",
+                "webkitNoticeTitle": "WebKit-Speicherrichtlinie"
+            },
+            "subtitle": "Verwalte Offline-Speicher, Anwendungsupdates und Startoptionen für deine installierte Anwendung.",
+            "title": "App-Verwaltung"
         },
         "changelog": {
             "title": "Änderungsprotokoll",

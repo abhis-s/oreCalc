@@ -10,11 +10,11 @@ import {
 } from '../../js/components/common/brandToolsDropdown.js';
 
 describe('Brand Tools Dropdown Architecture & Registry', () => {
-    test('contains exactly 5 canonical primary tool descriptors', () => {
-        assert.equal(BRAND_TOOLS_REGISTRY.length, 5);
+    test('contains exactly 6 canonical primary tool descriptors', () => {
+        assert.equal(BRAND_TOOLS_REGISTRY.length, 6);
 
         const ids = BRAND_TOOLS_REGISTRY.map(tool => tool.id);
-        assert.deepEqual(ids, ['hub', 'ore-calculator', 'hero-journey', 'damage-calculator', 'account']);
+        assert.deepEqual(ids, ['hub', 'ore-calculator', 'hero-journey', 'damage-calculator', 'account', 'app-management']);
     });
 
     test('every tool descriptor defines valid identifiers, paths, icons, and translation keys', () => {
@@ -32,6 +32,16 @@ describe('Brand Tools Dropdown Architecture & Registry', () => {
         assert.ok(damageTool);
         assert.equal(damageTool.labelKey, 'views.damageCalc.offense.equipmentDamageBadge');
         assert.equal(damageTool.defaultLabel, 'Equipment Damage');
+    });
+
+    test('app-management descriptor requires standalone mode and uses devices icon', () => {
+        const appTool = BRAND_TOOLS_REGISTRY.find(t => t.id === 'app-management');
+        assert.ok(appTool);
+        assert.equal(appTool.path, '/app-management/');
+        assert.equal(appTool.labelKey, 'views.appManagement.title');
+        assert.equal(appTool.defaultLabel, 'App Management');
+        assert.equal(appTool.icon, 'devices');
+        assert.equal(appTool.requiresStandalone, true);
     });
 
     test('uses filled vector icon variants across primary tools', () => {
@@ -73,6 +83,9 @@ describe('Brand Tools URL & Parameter Resolution', () => {
         assert.equal(buildBrandToolHref(account, 'en', '#8PJYGUJC'), '/account/');
         assert.equal(buildBrandToolHref(account, 'de', '8PJYGUJC'), '/de/account/');
         assert.equal(buildBrandToolHref(hub, 'en', '#8PJYGUJC'), '/');
+        const appManagement = BRAND_TOOLS_REGISTRY.find(t => t.id === 'app-management');
+        assert.equal(buildBrandToolHref(appManagement, 'en', '#8PJYGUJC'), '/app-management/');
+        assert.equal(buildBrandToolHref(appManagement, 'de', '8PJYGUJC'), '/de/app-management/');
     });
 });
 
@@ -87,13 +100,14 @@ describe('Dynamic Route Exclusion & DOM Rendering', () => {
         };
     });
 
-    test('dynamically excludes active route and renders exactly 4 tools', () => {
+    test('dynamically excludes active route and renders exactly 4 tools in browser mode', () => {
         const routes = ['hub', 'ore-calculator', 'hero-journey', 'damage-calculator', 'account'];
 
         for (const activeRoute of routes) {
-            renderBrandToolsDropdown(container, activeRoute, 'TAG123', 'en');
+            renderBrandToolsDropdown(container, activeRoute, '8PJYGUJC', 'en');
 
             assert.ok(!container.innerHTML.includes(`data-tool-id="${activeRoute}"`));
+            assert.ok(!container.innerHTML.includes('data-tool-id="app-management"'), 'app-management must be excluded when not in standalone mode');
 
             const otherRoutes = routes.filter(r => r !== activeRoute);
             assert.equal(otherRoutes.length, 4);
@@ -104,6 +118,37 @@ describe('Dynamic Route Exclusion & DOM Rendering', () => {
                     `Expected menu on ${activeRoute} to include ${other}`
                 );
             }
+        }
+    });
+
+    test('renders app-management when running standalone and excludes active route', () => {
+        const originalWindow = global.window;
+        try {
+            global.window = {
+                matchMedia: (query) => ({
+                    matches: query === '(display-mode: standalone)'
+                })
+            };
+
+            const allRoutes = ['hub', 'ore-calculator', 'hero-journey', 'damage-calculator', 'account', 'app-management'];
+
+            for (const activeRoute of allRoutes) {
+                renderBrandToolsDropdown(container, activeRoute, '8PJYGUJC', 'en');
+
+                assert.ok(!container.innerHTML.includes(`data-tool-id="${activeRoute}"`));
+
+                const otherRoutes = allRoutes.filter(r => r !== activeRoute);
+                assert.equal(otherRoutes.length, 5);
+
+                for (const other of otherRoutes) {
+                    assert.ok(
+                        container.innerHTML.includes(`data-tool-id="${other}"`),
+                        `Expected standalone menu on ${activeRoute} to include ${other}`
+                    );
+                }
+            }
+        } finally {
+            global.window = originalWindow;
         }
     });
 

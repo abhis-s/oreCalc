@@ -51,6 +51,40 @@ export function getResettingState() {
 }
 
 /**
+ * Reads application settings JSON from localStorage under canonical or legacy key.
+ * @returns {Record<string, any>}
+ */
+export function loadStoredAppSettings() {
+    try {
+        if (typeof localStorage === 'undefined') return {};
+        const raw = getStorageItem(CANONICAL_APP_SETTINGS_KEY, APP_SETTINGS_KEY);
+        return (raw ? safeJsonParse(raw, {}) : {}) || {};
+    } catch {
+        return {};
+    }
+}
+
+/**
+ * Persists updated settings patch into active app settings key in localStorage.
+ * @param {Record<string, any>} patch
+ */
+export function persistStoredAppSettings(patch) {
+    try {
+        if (typeof localStorage === 'undefined') return;
+        const targetKey = isClashCalcHost() ? CANONICAL_APP_SETTINGS_KEY : APP_SETTINGS_KEY;
+        const raw = localStorage.getItem(targetKey);
+        const settings = (raw ? safeJsonParse(raw, {}) : {}) || {};
+        delete settings.saveError;
+        Object.assign(settings, patch);
+        delete settings.saveError;
+        localStorage.setItem(targetKey, JSON.stringify(settings));
+        if (isClashCalcHost()) {
+            localStorage.removeItem(APP_SETTINGS_KEY);
+        }
+    } catch {}
+}
+
+/**
  * Persists the application state to localStorage using partitioned player keys,
  * with debouncing for non-immediate calls and saving status indicators.
  * @param {import('./types.js').AppState} state - Current global application state.

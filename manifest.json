@@ -2,7 +2,7 @@
     "name": "ClashCalc",
     "short_name": "ClashCalc",
     "description": "Stop guessing, start upgrading! ClashCalc (formerly OreCalc) helps you manage your equipment and ores with ease. Forecast your income, schedule your next big upgrade on the calendar, and optimize your path to victory. Whether you're a casual player or a maxxer, we've got your back.",
-    "start_url": "/",
+    "start_url": "/?source=pwa",
     "id": "/",
     "scope": "/",
     "orientation": "any",
@@ -66,25 +66,32 @@
     ],
     "shortcuts": [
         {
-            "name": "Equipment",
-            "short_name": "Equipment",
-            "description": "View and manage hero equipment",
-            "url": "/#equipment",
-            "icons": [{ "src": "assets/app_icon_large.png", "sizes": "512x512" }]
+            "name": "OreCalc",
+            "short_name": "OreCalc",
+            "description": "Equipment levels and upgrade planner",
+            "url": "/ore-calculator/",
+            "icons": [{ "src": "assets/app_icon_small.png", "sizes": "192x192" }]
         },
         {
-            "name": "Income",
-            "short_name": "Income",
-            "description": "Track your ore income",
-            "url": "/#income",
-            "icons": [{ "src": "assets/app_icon_large.png", "sizes": "512x512" }]
+            "name": "Damage Calculator",
+            "short_name": "Damage Calc",
+            "description": "ZapQuake combos and equipment combat damage",
+            "url": "/damage-calculator/",
+            "icons": [{ "src": "assets/app_icon_small.png", "sizes": "192x192" }]
         },
         {
-            "name": "Planner",
-            "short_name": "Planner",
-            "description": "Plan your equipment upgrades",
-            "url": "/#planner",
-            "icons": [{ "src": "assets/app_icon_large.png", "sizes": "512x512" }]
+            "name": "Hero's Journey",
+            "short_name": "Journey",
+            "description": "Progression roadmaps and hero milestones",
+            "url": "/hero-journey/",
+            "icons": [{ "src": "assets/hero_journey_icon.png", "sizes": "512x512" }]
+        },
+        {
+            "name": "ClashCalc Hub",
+            "short_name": "Hub",
+            "description": "Village overview and tool hub",
+            "url": "/",
+            "icons": [{ "src": "assets/app_icon_small.png", "sizes": "192x192" }]
         }
     ]
 }

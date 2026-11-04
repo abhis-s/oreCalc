@@ -1,5 +1,12 @@
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, '../../');
 
 // Mock localStorage if in Node.js test environment
 const store = new Map();
@@ -483,6 +490,49 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
         assert.equal(ALLOWED_STATIC_STORAGE_KEYS.has('oreCalc_damageCalcState'), false);
         assert.equal(ALLOWED_STATIC_STORAGE_KEYS.has('orecalc_ui_settings'), false);
         assert.equal(ALLOWED_STATIC_STORAGE_KEYS.has('welcomeModalDismissed'), false);
+
+        for (const key of ALLOWED_STATIC_STORAGE_KEYS) {
+            assert.equal(
+                key.startsWith('clashcalc_'),
+                false,
+                `Static storage key "${key}" violates casing convention: must not start with lowercase "clashcalc_"`
+            );
+        }
+    });
+
+    test('strictly prohibits naming storage keys with "clashcalc_" prefix across codebase', () => {
+        function findFiles(dir, exts = ['.js']) {
+            const results = [];
+            const entries = fs.readdirSync(dir, { withFileTypes: true });
+            for (const entry of entries) {
+                const fullPath = path.join(dir, entry.name);
+                if (entry.isDirectory()) {
+                    results.push(...findFiles(fullPath, exts));
+                } else if (exts.some(ext => entry.name.endsWith(ext))) {
+                    results.push(fullPath);
+                }
+            }
+            return results;
+        }
+
+        const jsFiles = findFiles(path.join(projectRoot, 'js'));
+        const violations = [];
+        const prohibitedKeyPattern = /['"`]clashcalc_[a-zA-Z0-9_-]+['"`]/g;
+
+        for (const file of jsFiles) {
+            const relPath = path.relative(projectRoot, file).replace(/\\/g, '/');
+            const content = fs.readFileSync(file, 'utf8');
+            let match;
+            while ((match = prohibitedKeyPattern.exec(content)) !== null) {
+                violations.push({ file: relPath, key: match[0] });
+            }
+        }
+
+        assert.deepEqual(
+            violations,
+            [],
+            `Found prohibited "clashcalc_" storage keys in codebase (use canonical "clashCalc_" or appSettings): ${JSON.stringify(violations)}`
+        );
     });
 
     test('sweepObsoleteStorageKeys preserves allowlisted static keys and valid player partitions', () => {
@@ -523,6 +573,10 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
         localStorage.setItem('welcomeModalDismissed', 'true');
         localStorage.setItem('clashCalc_player_OLDTAG', '{"orphaned": true}');
         localStorage.setItem('oreCalc_player_DEADTAG', '{"orphaned": true}');
+        localStorage.setItem('clashcalc_state', '{"old": true}');
+        localStorage.setItem('clashcalc_screen_wake_lock', 'true');
+        localStorage.setItem('clashcalc_startup_route', '/ore-calculator/');
+        localStorage.setItem('clashcalc_tactile_haptics', 'true');
 
         localStorage.setItem('clashCalc_player_ACTIVETAG', JSON.stringify({ heroes: {} }));
 
@@ -535,6 +589,10 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
         assert.ok(deleted.includes('welcomeModalDismissed'));
         assert.ok(deleted.includes('clashCalc_player_OLDTAG'));
         assert.ok(deleted.includes('oreCalc_player_DEADTAG'));
+        assert.ok(deleted.includes('clashcalc_state'));
+        assert.ok(deleted.includes('clashcalc_screen_wake_lock'));
+        assert.ok(deleted.includes('clashcalc_startup_route'));
+        assert.ok(deleted.includes('clashcalc_tactile_haptics'));
 
         assert.equal(localStorage.getItem('oreCalculatorState'), null);
         assert.equal(localStorage.getItem('oreCalc_damageCalcState'), null);
@@ -543,6 +601,10 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
         assert.equal(localStorage.getItem('welcomeModalDismissed'), null);
         assert.equal(localStorage.getItem('clashCalc_player_OLDTAG'), null);
         assert.equal(localStorage.getItem('oreCalc_player_DEADTAG'), null);
+        assert.equal(localStorage.getItem('clashcalc_state'), null);
+        assert.equal(localStorage.getItem('clashcalc_screen_wake_lock'), null);
+        assert.equal(localStorage.getItem('clashcalc_startup_route'), null);
+        assert.equal(localStorage.getItem('clashcalc_tactile_haptics'), null);
 
         assert.ok(localStorage.getItem('clashCalc_player_ACTIVETAG') !== null);
     });

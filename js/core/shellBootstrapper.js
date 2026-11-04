@@ -1,4 +1,4 @@
-import { loadTranslations } from '../i18n/translator.js';
+import { loadTranslations, translate } from '../i18n/translator.js';
 import { updateUIWithTranslations } from '../i18n/uiTranslator.js';
 
 import { registerGlobalErrorBoundaries } from './appEventInterceptors.js';
@@ -26,6 +26,7 @@ import { initializePlayerModal } from '../components/player/playerModal.js';
 import { initShortcutsModalListener } from '../components/shortcuts/shortcutsModal.js';
 import { initSpotright } from '../components/spotright/spotrightController.js';
 import { initializePwaService } from '../services/pwaService.js';
+import { initScreenWakeLock } from '../services/appManagementService.js';
 
 /**
  * Bootstraps global error boundaries, storage key migrations, language routing,
@@ -38,6 +39,16 @@ import { initializePwaService } from '../services/pwaService.js';
 export async function bootstrapShellLanguageAndStorage(options = {}) {
     registerGlobalErrorBoundaries();
     consolidateLocalStorageKeys();
+
+    if (typeof navigator !== 'undefined' && typeof navigator.storage?.persisted === 'function' && typeof navigator.storage?.persist === 'function') {
+        navigator.storage.persisted().then(persisted => {
+            if (!persisted) {
+                navigator.storage.persist().catch(() => {});
+            }
+        }).catch(() => {});
+    }
+
+    initScreenWakeLock().catch(() => {});
 
     const pathLang = getLanguageFromPath();
     const appSettings = getAppSettings();
@@ -90,6 +101,20 @@ export async function bootstrapShellLanguageAndStorage(options = {}) {
     return { targetLang, appSettings };
 }
 
+let hasAttachedPwaInstallGuideListener = false;
+
+function initPwaUiListeners() {
+    if (typeof document === 'undefined' || hasAttachedPwaInstallGuideListener) return;
+    hasAttachedPwaInstallGuideListener = true;
+
+    document.addEventListener('app:pwa-install-guide', async (e) => {
+        const platform = /** @type {CustomEvent} */ (e).detail?.platform;
+        const msgKey = platform === 'mac-safari' ? 'auth.installPromptMacSafari' : 'auth.installPromptIos';
+        const { showAlert } = await import('../ui/noticeModal.js');
+        await showAlert(translate(msgKey), 'actions.installApp');
+    });
+}
+
 /**
  * Initializes shared shell chrome, header, footer, and global modals across standalone routes.
  * @param {Object} [options={}]
@@ -109,6 +134,7 @@ export function initSharedShellChrome(options = {}) {
     }
 
     initAppSettings();
+    initPwaUiListeners();
     initializePwaService();
     initializeModalHistoryManager();
     initializeCommitsModal();

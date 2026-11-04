@@ -96,6 +96,7 @@ function getProductionHtmlFiles() {
         path.join(projectRoot, 'damage-calculator/index.html'),
         path.join(projectRoot, 'ore-calculator/index.html'),
         path.join(projectRoot, 'account/index.html'),
+        path.join(projectRoot, 'app-management/index.html'),
         ...findFiles('partials', ['.html']),
         ...findFiles('legal', ['.html'])
     ];
@@ -112,6 +113,7 @@ function getCompiledCssClasses() {
         path.join(projectRoot, 'css/damage-calculator.scss'),
         path.join(projectRoot, 'css/landing.scss'),
         path.join(projectRoot, 'css/account.scss'),
+        path.join(projectRoot, 'css/management.scss'),
         path.join(projectRoot, 'legal/legal.scss')
     ];
 

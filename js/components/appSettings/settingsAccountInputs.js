@@ -187,6 +187,16 @@ export function initializeSettingsAccount(options = {}) {
         toggleAccountPopover(false);
     });
 
+    const popoverAppManageBtn = document.getElementById('account-popover-app-manage-link');
+    popoverAppManageBtn?.addEventListener('click', () => {
+        toggleAccountPopover(false);
+    });
+
+    const popoverGuestAppManageBtn = document.getElementById('account-popover-guest-app-manage-link');
+    popoverGuestAppManageBtn?.addEventListener('click', () => {
+        toggleAccountPopover(false);
+    });
+
     const handleInstallClick = async () => {
         toggleAccountPopover(false);
         await promptPwaInstall();

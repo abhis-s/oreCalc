@@ -114,25 +114,31 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
             ? 'views.damageCalc.meta.title'
             : (resolvedRoutePath === 'account'
                 ? 'views.account.meta.title'
-                : (resolvedRoutePath === '' ? 'views.landing.metaTitle' : 'app.title')));
+                : (resolvedRoutePath === 'app-management'
+                    ? 'views.appManagement.meta.title'
+                    : (resolvedRoutePath === '' ? 'views.landing.metaTitle' : 'app.title'))));
     const title = (resolvedRoutePath === 'hero-journey' && (translations.views?.heroJourney?.page?.metaTitle || enTranslations?.views?.heroJourney?.page?.metaTitle))
         ? (translations.views?.heroJourney?.page?.metaTitle || enTranslations?.views?.heroJourney?.page?.metaTitle)
         : (resolvedRoutePath === 'damage-calculator' && (translations.views?.damageCalc?.meta?.title || enTranslations?.views?.damageCalc?.meta?.title))
             ? (translations.views?.damageCalc?.meta?.title || enTranslations?.views?.damageCalc?.meta?.title)
             : (resolvedRoutePath === 'account' && (translations.views?.account?.meta?.title || enTranslations?.views?.account?.meta?.title))
                 ? (translations.views?.account?.meta?.title || enTranslations?.views?.account?.meta?.title)
-                : (resolvedRoutePath === '' && (translations.views?.landing?.metaTitle || enTranslations?.views?.landing?.metaTitle)
-                    ? (translations.views?.landing?.metaTitle || enTranslations?.views?.landing?.metaTitle)
-                    : (translations.app?.title || enTranslations?.app?.title || 'Clash of Clans Ore Calculator & Equipment Planner | ClashCalc'));
+                : (resolvedRoutePath === 'app-management' && (translations.views?.appManagement?.meta?.title || enTranslations?.views?.appManagement?.meta?.title))
+                    ? (translations.views?.appManagement?.meta?.title || enTranslations?.views?.appManagement?.meta?.title)
+                    : (resolvedRoutePath === '' && (translations.views?.landing?.metaTitle || enTranslations?.views?.landing?.metaTitle)
+                        ? (translations.views?.landing?.metaTitle || enTranslations?.views?.landing?.metaTitle)
+                        : (translations.app?.title || enTranslations?.app?.title || 'Clash of Clans Ore Calculator & Equipment Planner | ClashCalc'));
     const description = (resolvedRoutePath === 'hero-journey' && (translations.views?.heroJourney?.page?.metaDescription || enTranslations?.views?.heroJourney?.page?.metaDescription))
         ? (translations.views?.heroJourney?.page?.metaDescription || enTranslations?.views?.heroJourney?.page?.metaDescription)
         : (resolvedRoutePath === 'damage-calculator' && (translations.views?.damageCalc?.meta?.description || enTranslations?.views?.damageCalc?.meta?.description))
             ? (translations.views?.damageCalc?.meta?.description || enTranslations?.views?.damageCalc?.meta?.description)
             : (resolvedRoutePath === 'account' && (translations.views?.account?.meta?.description || enTranslations?.views?.account?.meta?.description))
                 ? (translations.views?.account?.meta?.description || enTranslations?.views?.account?.meta?.description)
-                : (resolvedRoutePath === '' && (translations.views?.landing?.metaDescription || enTranslations?.views?.landing?.metaDescription)
-                    ? (translations.views?.landing?.metaDescription || enTranslations?.views?.landing?.metaDescription)
-                    : (translations.app?.description || enTranslations?.app?.description || ''));
+                : (resolvedRoutePath === 'app-management' && (translations.views?.appManagement?.meta?.description || enTranslations?.views?.appManagement?.meta?.description))
+                    ? (translations.views?.appManagement?.meta?.description || enTranslations?.views?.appManagement?.meta?.description)
+                    : (resolvedRoutePath === '' && (translations.views?.landing?.metaDescription || enTranslations?.views?.landing?.metaDescription)
+                        ? (translations.views?.landing?.metaDescription || enTranslations?.views?.landing?.metaDescription)
+                        : (translations.app?.description || enTranslations?.app?.description || ''));
     const locale = localesMap[lang] || `${lang}_${lang.toUpperCase()}`;
     const url = isRoot
         ? (resolvedRoutePath ? `https://clashcalc.com/${resolvedRoutePath}/` : 'https://clashcalc.com/')
@@ -141,7 +147,7 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
     let html = baseHtml;
     html = html.replace(/<html lang="[^"]*">/, `<html lang="${lang}">`);
     html = html.replace(/<title[^>]*>.*?<\/title>/s, `<title data-i18n="${titleKey}">${title}</title>`);
-    html = html.replace(/<meta name="description"\s+content="[^"]*">/s, `<meta name="description" content="${description}">`);
+    html = html.replace(/<meta name="description"\s+content="[^"]*"[^>]*>/s, `<meta name="description" content="${description}">`);
     html = html.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">`);
 
     const hreflangTags = supportedLanguages.map(l => {

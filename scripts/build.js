@@ -239,14 +239,23 @@ async function build() {
         accountHtml = processHtmlIncludes(accountHtml);
         accountHtml = accountHtml.replace('<meta charset="UTF-8">', envScript);
         accountHtml = accountHtml.replace(/src="\/?js\/accountApp\.js(\?v=[^"]+)?"/g, `src="/js/accountApp.js?v=${encodeURIComponent(appVersion)}"`);
+        accountHtml = accountHtml.replace(/href="\/?css\/management(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/management.min.css?v=${encodeURIComponent(appVersion)}"`);
         accountHtml = accountHtml.replace(/href="\/?css\/account(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/account.min.css?v=${encodeURIComponent(appVersion)}"`);
         accountHtml = accountHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+
+        let appManagementHtml = fs.readFileSync(path.join(projectRoot, 'app-management/index.html'), 'utf8');
+        appManagementHtml = processHtmlIncludes(appManagementHtml);
+        appManagementHtml = appManagementHtml.replace('<meta charset="UTF-8">', envScript);
+        appManagementHtml = appManagementHtml.replace(/src="\/?js\/appManagementApp\.js(\?v=[^"]+)?"/g, `src="/js/appManagementApp.js?v=${encodeURIComponent(appVersion)}"`);
+        appManagementHtml = appManagementHtml.replace(/href="\/?css\/management(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/management.min.css?v=${encodeURIComponent(appVersion)}"`);
+        appManagementHtml = appManagementHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
 
         landingHtml = landingHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
         oreCalcHtml = oreCalcHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
         hjHtml = hjHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
         damageCalcHtml = damageCalcHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
         accountHtml = accountHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
+        appManagementHtml = appManagementHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
 
         console.log(`[OK] Injected build parameters (v${appVersion}, commits: ${commitsSinceTag.length}) into HTML heads.`);
 
@@ -299,7 +308,8 @@ async function build() {
                 path.join(projectRoot, 'js/heroJourneyApp.js'),
                 path.join(projectRoot, 'js/damageApp.js'),
                 path.join(projectRoot, 'js/landingApp.js'),
-                path.join(projectRoot, 'js/accountApp.js')
+                path.join(projectRoot, 'js/accountApp.js'),
+                path.join(projectRoot, 'js/appManagementApp.js')
             ],
             bundle: true,
             outdir: jsDestDir,
@@ -404,6 +414,21 @@ async function build() {
             console.log(`Generated localized tool route: dist/${lang}/account/index.html`);
         }
 
+        const appManagementDestDir = path.join(distDir, 'app-management');
+        fs.mkdirSync(appManagementDestDir, { recursive: true });
+        const defaultAppManagementHtml = generateLocalizedHtml(appManagementHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'app-management');
+        fs.writeFileSync(path.join(appManagementDestDir, 'index.html'), defaultAppManagementHtml, 'utf8');
+        console.log('Generated root tool route: dist/app-management/index.html');
+
+        for (const lang of supportedLanguages) {
+            if (lang === 'en') continue;
+            const langAppManagementDir = path.join(distDir, lang, 'app-management');
+            fs.mkdirSync(langAppManagementDir, { recursive: true });
+            const localizedAppManagementHtml = generateLocalizedHtml(appManagementHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'app-management');
+            fs.writeFileSync(path.join(langAppManagementDir, 'index.html'), localizedAppManagementHtml, 'utf8');
+            console.log(`Generated localized tool route: dist/${lang}/app-management/index.html`);
+        }
+
         const legalPages = [
             { name: 'privacy', srcEn: 'legal/privacy-en.html', srcDe: 'legal/privacy-de.html' },
             { name: 'terms', srcEn: 'legal/terms-en.html', srcDe: 'legal/terms-de.html' },
@@ -487,6 +512,16 @@ async function build() {
             files: [path.join(distDir, 'index.html'), path.join(distDir, '**/index.html')],
             from: /css\/damage-calculator\.css/g,
             to: 'css/damage-calculator.min.css',
+        });
+        await replaceInFile({
+            files: [path.join(distDir, 'index.html'), path.join(distDir, '**/index.html')],
+            from: /css\/management\.css/g,
+            to: 'css/management.min.css',
+        });
+        await replaceInFile({
+            files: [path.join(distDir, 'index.html'), path.join(distDir, '**/index.html')],
+            from: /css\/account\.css/g,
+            to: 'css/account.min.css',
         });
         console.log('[OK] Production stylesheet references updated.');
 

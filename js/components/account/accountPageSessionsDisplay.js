@@ -282,7 +282,7 @@ export function renderActiveSessionsList(sessions, newlyPairedSessionId = null) 
         }
     }
 
-    const titleEl = document.getElementById('account-sessions-title') || document.querySelector('#account-sessions-card .account-card__title');
+    const titleEl = document.getElementById('account-sessions-title') || document.querySelector('#account-sessions-card .management-card__title');
     if (titleEl) {
         const baseTitle = translate('views.account.sessions') || 'Active Sessions';
         titleEl.textContent = safeSessions.length >= 2 ? `${baseTitle} (${safeSessions.length})` : baseTitle;

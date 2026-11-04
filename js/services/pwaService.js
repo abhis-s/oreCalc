@@ -1,7 +1,4 @@
 import { logger } from '../utils/logger.js';
-import { translate } from '../i18n/translator.js';
-import { showAlert } from '../ui/noticeModal.js';
-import { showUpdateModal, updateNavigationBadges } from '../components/modals/updateModal.js';
 
 /** @type {any} */
 let deferredInstallPrompt = null;
@@ -27,7 +24,7 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
  * Returns true if the application is running in a standalone PWA display mode.
  * @returns {boolean}
  */
-function isRunningStandalone() {
+export function isRunningStandalone() {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
 
     const isStandalone = Boolean(window.matchMedia('(display-mode: standalone)')?.matches);
@@ -119,16 +116,22 @@ export async function promptPwaInstall() {
     }
 
     if (isSupportedMacSafari()) {
-        await showAlert(translate('auth.installPromptMacSafari'), 'actions.installApp');
+        if (typeof document !== 'undefined') {
+            document.dispatchEvent(new CustomEvent('app:pwa-install-guide', { detail: { platform: 'mac-safari' } }));
+        }
         return 'macos-safari-guidance';
     }
 
     if (isSupportedIosOrIpadBrowser()) {
-        await showAlert(translate('auth.installPromptIos'), 'actions.installApp');
+        if (typeof document !== 'undefined') {
+            document.dispatchEvent(new CustomEvent('app:pwa-install-guide', { detail: { platform: 'ios' } }));
+        }
         return 'ios-guidance';
     }
 
-    await showAlert(translate('auth.installPromptIos'), 'actions.installApp');
+    if (typeof document !== 'undefined') {
+        document.dispatchEvent(new CustomEvent('app:pwa-install-guide', { detail: { platform: 'ios' } }));
+    }
     return 'unsupported';
 }
 
@@ -165,12 +168,8 @@ export function initializePwaService() {
         if (!sessionStorage.getItem('oreCalcUpdateDetectedAt')) {
             sessionStorage.setItem('oreCalcUpdateDetectedAt', Date.now().toString());
         }
-        updateNavigationBadges();
-
-        try {
-            showUpdateModal(wb);
-        } catch (e) {
-            logger.warn('Could not open update modal:', e);
+        if (typeof document !== 'undefined') {
+            document.dispatchEvent(new CustomEvent('app:pwa-update-waiting', { detail: { wb, registration: reg } }));
         }
 
         const onVisibilityChange = () => {
@@ -234,7 +233,9 @@ export function initializePwaService() {
                 handleSWWaiting(reg.waiting);
             } else {
                 sessionStorage.removeItem('oreCalcUpdateDetectedAt');
-                updateNavigationBadges();
+                if (typeof document !== 'undefined') {
+                    document.dispatchEvent(new CustomEvent('app:pwa-update-cleared'));
+                }
             }
 
             reg.addEventListener('updatefound', () => {

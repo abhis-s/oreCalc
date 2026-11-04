@@ -44,7 +44,8 @@ describe('Layout & Viewport Hardening Contracts', () => {
             'partials/header.html',
             'damage-calculator/index.html',
             'hero-journey/index.html',
-            'account/index.html'
+            'account/index.html',
+            'app-management/index.html'
         ];
 
         test('All application headers declare accessible hamburger navigation trigger for drawer', () => {

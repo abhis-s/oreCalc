@@ -3,55 +3,47 @@ import { getLanguageFromPath, syncLanguageUrl } from '../../core/languageRouter.
 import { loadTranslations, translate } from '../../i18n/translator.js';
 import { updateUIWithTranslations } from '../../i18n/uiTranslator.js';
 import { safeJsonParse } from '../../utils/jsonUtils.js';
-import { isClashCalcHost } from '../../core/storageKeys.js';
 import { STORAGE_KEY_MAP } from '../../core/constants.js';
 import { applyThemeSettings } from '../../core/themeManager.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 import { setDefaultDateLocale } from '../../utils/dateUtils.js';
+import { loadStoredAppSettings, persistStoredAppSettings } from '../../core/localStorageManager.js';
 
 let isGlobalListenersInitialized = false;
 
 /**
  * Reads settings from localStorage with defensive fallbacks.
- * @returns {{ theme: 'dark' | 'light', accentColor: string, language: string, hideProfileStats: boolean }}
+ * @returns {{ theme: 'dark' | 'light', accentColor: string, language: string, hideProfileStats: boolean, startupRoute: string, screenWakeLock: boolean, hapticsEnabled: boolean }}
  */
 export function getAppSettings() {
     try {
-        const raw = localStorage.getItem(STORAGE_KEY_MAP.appSettings.canonical) || localStorage.getItem(STORAGE_KEY_MAP.appSettings.legacy);
-        const settings = safeJsonParse(raw, {}) || {};
+        const settings = loadStoredAppSettings();
         const pathLang = getLanguageFromPath();
         const savedLang = pathLang || settings.language || 'en';
         return {
             theme: settings.theme === 'light' ? 'light' : 'dark',
             accentColor: settings.accentColor || 'blue',
             language: savedLang,
-            hideProfileStats: Boolean(settings.hideProfileStats)
+            hideProfileStats: Boolean(settings.hideProfileStats),
+            startupRoute: settings.startupRoute || '/',
+            screenWakeLock: Boolean(settings.screenWakeLock),
+            hapticsEnabled: settings.hapticsEnabled !== false
         };
     } catch {
-        return { theme: 'dark', accentColor: 'blue', language: 'en', hideProfileStats: false };
+        return { theme: 'dark', accentColor: 'blue', language: 'en', hideProfileStats: false, startupRoute: '/', screenWakeLock: false, hapticsEnabled: true };
     }
 }
 
 /**
  * Persists updated settings to localStorage under the active target key.
- * @param {Partial<{ theme: string, accentColor: string, language: string, hideProfileStats: boolean }>} patch
+ * @param {Partial<{ theme: string, accentColor: string, language: string, hideProfileStats: boolean, startupRoute: string, screenWakeLock: boolean, hapticsEnabled: boolean }>} patch
  */
 export function persistAppSettings(patch) {
     try {
-        const targetSettingsKey = isClashCalcHost()
-            ? STORAGE_KEY_MAP.appSettings.canonical
-            : STORAGE_KEY_MAP.appSettings.legacy;
-        const raw = localStorage.getItem(targetSettingsKey);
-        const settings = safeJsonParse(raw, {}) || {};
-        delete settings.saveError;
-        Object.assign(settings, patch);
-        delete settings.saveError;
-        localStorage.setItem(targetSettingsKey, JSON.stringify(settings));
-        localStorage.removeItem('oreCalc_language');
-
-        if (isClashCalcHost()) {
-            localStorage.removeItem(STORAGE_KEY_MAP.appSettings.legacy);
+        persistStoredAppSettings(patch);
+        if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem('oreCalc_language');
         }
     } catch {}
 }

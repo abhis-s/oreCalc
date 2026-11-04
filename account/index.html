@@ -38,15 +38,16 @@
     <link rel="alternate" hreflang="x-default" href="https://clashcalc.com/account/" />
 
     <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/management.css">
     <link rel="stylesheet" href="/css/account.css">
     <!-- include: partials/head-theme-bootstrap.html -->
     <!-- include: partials/head/importmap.html -->
 </head>
 
-<body class="dark-mode account-page">
+<body class="dark-mode management-page">
     <!-- include: partials/shell-top.html -->
 
-    <header class="app-header account-page__header">
+    <header class="app-header management-page__header">
         <div class="app-header__inner">
             <div class="app-header__brand">
                 <button type="button" id="hamburger-btn" class="app-header__hamburger"
@@ -76,32 +77,32 @@
     </header>
     <div class="app-header-placeholder"></div>
 
-    <main class="account-main" id="main-content">
+    <main class="management-main" id="main-content">
         <h2 class="sr-only" data-i18n="views.account.title">Account &amp; Security</h2>
 
         <!-- DYNAMIC INSERTION: Account Page View Containers -->
-        <div class="account-layout">
-            <section id="account-guest-view" class="account-view" hidden>
-                <div class="account-grid">
-                    <div class="account-card account-card--hero">
-                        <div class="account-card__hero-badge">
-                            <clashcalc-assets-svg name="user-filled" class="account-card__hero-icon" width="32" height="32"></clashcalc-assets-svg>
+        <div class="management-layout">
+            <section id="account-guest-view" class="management-view" hidden>
+                <div class="management-grid">
+                    <div class="management-card management-card--hero" id="account-hero-card">
+                        <div class="management-card__hero-badge">
+                            <clashcalc-assets-svg name="user-filled" class="management-card__hero-icon" width="32" height="32"></clashcalc-assets-svg>
                         </div>
-                        <h3 class="account-card__hero-title" data-i18n="auth.accountAndDataManagement">Account &amp; Data Management</h3>
-                        <p class="account-card__hero-desc" data-i18n="views.account.guestSubtitle">Sign in or create an account to synchronize your progression and settings across devices.</p>
-                        <div class="account-card__hero-actions">
+                        <h3 class="management-card__hero-title" data-i18n="auth.accountAndDataManagement">Account &amp; Data Management</h3>
+                        <p class="management-card__hero-desc" data-i18n="views.account.guestSubtitle">Sign in or create an account to synchronize your progression and settings across devices.</p>
+                        <div class="management-card__hero-actions">
                             <button type="button" class="btn btn--primary" id="account-guest-signin-btn" data-i18n="auth.signIn">Sign In</button>
                             <button type="button" class="btn btn--secondary" id="account-guest-create-btn" data-i18n="auth.createAccount">Create Account</button>
                         </div>
                     </div>
 
-                    <div class="account-card" id="account-guest-sync-card">
-                        <div class="account-card__header">
-                            <div class="account-card__title-group">
-                                <h3 class="account-card__title" data-i18n="auth.pairDevice">Link Another Device</h3>
-                                <p class="account-card__desc" data-i18n="views.settings.cloudSync.deviceInfo">Link and sync your progress across multiple devices.</p>
+                    <div class="management-card" id="account-guest-sync-card">
+                        <div class="management-card__header">
+                            <div class="management-card__title-group">
+                                <h3 class="management-card__title" data-i18n="auth.pairDevice">Link Another Device</h3>
+                                <p class="management-card__desc" data-i18n="views.settings.cloudSync.deviceInfo">Link and sync your progress across multiple devices.</p>
                             </div>
-                            <div class="account-card__actions">
+                            <div class="management-card__actions">
                                 <button type="button" class="btn btn--secondary" id="account-guest-btn-toggle-pairing" data-i18n="actions.link">Link</button>
                             </div>
                         </div>
@@ -130,7 +131,7 @@
                                             <span class="qr-user-id" id="account-guest-user-id" data-i18n-title="actions.clickToCopy"></span>
                                             <button type="button" class="btn btn--secondary btn--sm" id="account-guest-copy-btn" data-i18n="actions.copy">Copy</button>
                                         </div>
-                                        <p class="account-item-desc" id="account-guest-sync-instruction" data-i18n="player.qrDisplayInstruction" hidden>Click the Sync Code below to copy it to your clipboard, or scan the QR code with another device's camera to link them instantly.</p>
+                                        <p class="management-item-desc" id="account-guest-sync-instruction" data-i18n="player.qrDisplayInstruction" hidden>Click the Sync Code below to copy it to your clipboard, or scan the QR code with another device's camera to link them instantly.</p>
 
                                         <div id="account-guest-hint-subcard" class="account-guest-hint-subcard">
                                             <div class="account-guest-hint-subcard__header">
@@ -167,13 +168,13 @@
                         </div>
                     </div>
 
-                    <div class="account-card" id="account-guest-data-card">
-                        <div class="account-card__header">
-                            <div class="account-card__title-group">
-                                <h3 class="account-card__title" data-i18n="auth.dataBackupAndRestore">Data Backup &amp; Restore</h3>
-                                <p class="account-card__desc" data-i18n="auth.dataBackupAndRestoreDesc">Export a local JSON archive or restore your data from a backup file.</p>
+                    <div class="management-card" id="account-guest-data-card">
+                        <div class="management-card__header">
+                            <div class="management-card__title-group">
+                                <h3 class="management-card__title" data-i18n="auth.dataBackupAndRestore">Data Backup &amp; Restore</h3>
+                                <p class="management-card__desc" data-i18n="auth.dataBackupAndRestoreDesc">Export a local JSON archive or restore your data from a backup file.</p>
                             </div>
-                            <div class="account-card__actions">
+                            <div class="management-card__actions">
                                 <button type="button" class="btn btn--primary" id="account-guest-export-backup" data-i18n="actions.download">Download</button>
                                 <button type="button" class="btn btn--secondary" id="account-guest-restore-backup" data-i18n="actions.restore">Restore</button>
                                 <input type="file" id="account-guest-restore-file-input" accept=".json" class="is-hidden" aria-hidden="true">
@@ -181,10 +182,10 @@
                         </div>
                     </div>
 
-                    <div class="account-card account-card--erasure" id="account-guest-erasure-card">
-                        <div class="account-card__header">
-                            <div class="account-card__title-group">
-                                <h3 class="account-card__title account-card__title--erasure" id="account-guest-erasure-title" data-i18n="views.account.guestDataErasure">Data Erasure</h3>
+                    <div class="management-card management-card--erasure" id="account-guest-erasure-card">
+                        <div class="management-card__header">
+                            <div class="management-card__title-group">
+                                <h3 class="management-card__title management-card__title--erasure" id="account-guest-erasure-title" data-i18n="views.account.guestDataErasure">Data Erasure</h3>
                             </div>
                         </div>
                         <div class="account-erasure-list">
@@ -200,9 +201,9 @@
                 </div>
             </section>
 
-            <section id="account-auth-view" class="account-view" hidden>
-                <div class="account-grid">
-                    <div class="account-card" id="account-profile-card">
+            <section id="account-auth-view" class="management-view" hidden>
+                <div class="management-grid">
+                    <div class="management-card" id="account-profile-card">
                         <div class="account-profile-header">
                             <button type="button" id="account-profile-avatar-btn" class="account-profile-avatar-btn" aria-label="Change Avatar" data-i18n-aria-label="auth.changeAvatar" title="Change Avatar">
                                 <clashcalc-assets-image id="account-profile-avatar-img" class="account-profile-avatar" src="assets/avatars/archer.png" alt="Avatar" data-i18n-alt="auth.avatarAlt" size="standard"></clashcalc-assets-image>
@@ -259,23 +260,23 @@
                         </div>
                     </div>
 
-                    <div class="account-card" id="account-security-card">
-                        <div class="account-card__header">
-                            <div class="account-card__title-group">
-                                <h3 class="account-card__title" data-i18n="views.account.security">Security &amp; Authentication</h3>
+                    <div class="management-card" id="account-security-card">
+                        <div class="management-card__header">
+                            <div class="management-card__title-group">
+                                <h3 class="management-card__title" data-i18n="views.account.security">Security &amp; Authentication</h3>
                             </div>
                         </div>
-                        <div class="account-item-list">
-                            <div class="account-item-row account-item-row--block">
-                                <div class="account-item-row__header">
-                                    <div class="account-item-icon-box">
+                        <div class="management-item-list">
+                            <div class="management-item-row management-item-row--block">
+                                <div class="management-item-row__header">
+                                    <div class="management-item-icon-box">
                                         <clashcalc-assets-svg name="passkey" width="20" height="20"></clashcalc-assets-svg>
                                     </div>
-                                    <div class="account-item-info">
-                                        <div class="account-item-heading-row">
-                                            <span class="account-item-title" data-i18n="auth.passkeys">Passkeys</span>
+                                    <div class="management-item-info">
+                                        <div class="management-item-heading-row">
+                                            <span class="management-item-title" data-i18n="auth.passkeys">Passkeys</span>
                                         </div>
-                                        <p class="account-item-desc" data-i18n="auth.passkeysDesc">Sign in securely without a password.</p>
+                                        <p class="management-item-desc" data-i18n="auth.passkeysDesc">Sign in securely without a password.</p>
                                     </div>
                                 </div>
 
@@ -296,18 +297,18 @@
                                 </div>
                             </div>
 
-                            <div class="account-item-row account-item-row--block">
-                                <div class="account-item-row__header">
-                                    <div class="account-item-icon-box">
+                            <div class="management-item-row management-item-row--block">
+                                <div class="management-item-row__header">
+                                    <div class="management-item-icon-box">
                                         <clashcalc-assets-svg name="password" width="20" height="20"></clashcalc-assets-svg>
                                     </div>
-                                    <div class="account-item-info">
-                                        <div class="account-item-heading-row">
-                                            <span class="account-item-title" data-i18n="auth.password">Password</span>
+                                    <div class="management-item-info">
+                                        <div class="management-item-heading-row">
+                                            <span class="management-item-title" data-i18n="auth.password">Password</span>
                                         </div>
-                                        <p id="account-password-desc" class="account-item-desc" data-i18n="views.account.passwordConfiguredDesc">Your account has a password configured. You can use it to sign in on any device.</p>
+                                        <p id="account-password-desc" class="management-item-desc" data-i18n="views.account.passwordConfiguredDesc">Your account has a password configured. You can use it to sign in on any device.</p>
                                     </div>
-                                    <div class="account-item-actions">
+                                    <div class="management-item-actions">
                                         <button type="button" id="account-btn-toggle-password-drawer" class="btn btn--secondary" data-i18n="auth.changePassword">Change Password</button>
                                     </div>
                                 </div>
@@ -383,39 +384,39 @@
                         </div>
                     </div>
 
-                    <div class="account-card" id="account-sessions-card">
-                        <div class="account-card__header">
-                            <div class="account-card__title-group">
-                                <h3 class="account-card__title" id="account-sessions-title" data-i18n="views.account.sessions">Active Sessions</h3>
+                    <div class="management-card" id="account-sessions-card">
+                        <div class="management-card__header">
+                            <div class="management-card__title-group">
+                                <h3 class="management-card__title" id="account-sessions-title" data-i18n="views.account.sessions">Active Sessions</h3>
                             </div>
-                            <div class="account-card__actions" id="account-sessions-header-actions">
+                            <div class="management-card__actions" id="account-sessions-header-actions">
                                 <button type="button" class="btn btn--secondary is-hidden" id="account-btn-revoke-other-sessions" data-i18n="auth.signOutOthers" hidden>Sign Out Other Sessions</button>
                             </div>
                         </div>
                         <div class="account-sessions-hub">
                             <div id="account-sessions-list" class="account-sessions-list">
-                                <div class="account-item-row" id="account-session-current-row">
-                                    <div class="account-item-icon-box">
+                                <div class="management-item-row" id="account-session-current-row">
+                                    <div class="management-item-icon-box">
                                         <clashcalc-assets-svg name="laptop" width="20" height="20"></clashcalc-assets-svg>
                                     </div>
-                                    <div class="account-item-info">
-                                        <div class="account-item-heading-row">
-                                            <span class="account-item-title" data-i18n="views.account.currentDevice">Current Device</span>
+                                    <div class="management-item-info">
+                                        <div class="management-item-heading-row">
+                                            <span class="management-item-title" data-i18n="views.account.currentDevice">Current Device</span>
                                         </div>
-                                        <p class="account-item-desc" data-i18n="views.account.currentDevice">This Device</p>
+                                        <p class="management-item-desc" data-i18n="views.account.currentDevice">This Device</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="account-card" id="account-pairing-card">
-                        <div class="account-card__header">
-                            <div class="account-card__title-group">
-                                <h3 class="account-card__title" data-i18n="auth.pairDevice">Link Another Device</h3>
-                                <p class="account-card__desc" data-i18n="auth.pairDeviceDesc">Scan this QR code from your phone or tablet camera to instantly sign in without typing your credentials.</p>
+                    <div class="management-card" id="account-pairing-card">
+                        <div class="management-card__header">
+                            <div class="management-card__title-group">
+                                <h3 class="management-card__title" data-i18n="auth.pairDevice">Link Another Device</h3>
+                                <p class="management-card__desc" data-i18n="auth.pairDeviceDesc">Scan this QR code from your phone or tablet camera to instantly sign in without typing your credentials.</p>
                             </div>
-                            <div class="account-card__actions">
+                            <div class="management-card__actions">
                                 <button type="button" class="btn btn--secondary" id="account-btn-toggle-pairing" data-i18n="actions.link">Link</button>
                             </div>
                         </div>
@@ -445,13 +446,13 @@
                         </div>
                     </div>
 
-                    <div class="account-card" id="account-data-card">
-                        <div class="account-card__header">
-                            <div class="account-card__title-group">
-                                <h3 class="account-card__title" data-i18n="auth.dataBackupAndRestore">Data Backup &amp; Restore</h3>
-                                <p class="account-card__desc" data-i18n="auth.dataBackupAndRestoreDesc">Export a local JSON archive or restore your data from a backup file.</p>
+                    <div class="management-card" id="account-data-card">
+                        <div class="management-card__header">
+                            <div class="management-card__title-group">
+                                <h3 class="management-card__title" data-i18n="auth.dataBackupAndRestore">Data Backup &amp; Restore</h3>
+                                <p class="management-card__desc" data-i18n="auth.dataBackupAndRestoreDesc">Export a local JSON archive or restore your data from a backup file.</p>
                             </div>
-                            <div class="account-card__actions">
+                            <div class="management-card__actions">
                                 <button type="button" class="btn btn--primary" id="account-btn-export-backup" data-i18n="actions.download">Download</button>
                                 <button type="button" class="btn btn--secondary" id="account-btn-restore-backup" data-i18n="actions.restore">Restore</button>
                                 <input type="file" id="account-restore-file-input" accept=".json" class="is-hidden" aria-hidden="true">
@@ -459,10 +460,10 @@
                         </div>
                     </div>
 
-                    <div class="account-card account-card--erasure" id="account-erasure-card">
-                        <div class="account-card__header">
-                            <div class="account-card__title-group">
-                                <h3 class="account-card__title account-card__title--erasure" data-i18n="views.account.dataErasure">Data &amp; Account Erasure</h3>
+                    <div class="management-card management-card--erasure" id="account-erasure-card">
+                        <div class="management-card__header">
+                            <div class="management-card__title-group">
+                                <h3 class="management-card__title management-card__title--erasure" data-i18n="views.account.dataErasure">Data &amp; Account Erasure</h3>
                             </div>
                         </div>
                         <div class="account-erasure-list">

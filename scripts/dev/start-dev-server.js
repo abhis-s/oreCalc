@@ -217,6 +217,18 @@ function getCompiledAccountHtml(lang = 'en') {
     return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'account');
 }
 
+function getCompiledAppManagementHtml(lang = 'en') {
+    const appManagementPath = path.join(process.cwd(), 'app-management/index.html');
+    if (!fs.existsSync(appManagementPath)) return '';
+    let content = fs.readFileSync(appManagementPath, 'utf8');
+    content = processHtmlIncludes(content, process.cwd());
+
+    const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
+    content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
+
+    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'app-management');
+}
+
 /**
  * Constructs the configuration parameters for live-server.
  *
@@ -345,6 +357,23 @@ function createDevServerParams(overrides = {}) {
             const accountLangMatch = pathname.match(/^\/([a-z-]+)\/account\/$/);
             if (accountLangMatch && supportedLanguages.includes(accountLangMatch[1])) {
                 const html = getCompiledAccountHtml(accountLangMatch[1]);
+                res.setHeader('Content-Type', 'text/html');
+                return res.end(html);
+            }
+
+            if (['/app-management', '/de/app-management', '/tr/app-management', '/zh/app-management'].includes(pathname)) {
+                res.writeHead(301, { Location: `${pathname}/${query}` });
+                return res.end();
+            }
+
+            if (pathname === '/app-management/') {
+                const html = getCompiledAppManagementHtml('en');
+                res.setHeader('Content-Type', 'text/html');
+                return res.end(html);
+            }
+            const appManagementLangMatch = pathname.match(/^\/([a-z-]+)\/app-management\/$/);
+            if (appManagementLangMatch && supportedLanguages.includes(appManagementLangMatch[1])) {
+                const html = getCompiledAppManagementHtml(appManagementLangMatch[1]);
                 res.setHeader('Content-Type', 'text/html');
                 return res.end(html);
             }

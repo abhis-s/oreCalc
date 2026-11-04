@@ -151,7 +151,8 @@ describe('Native HTMLDialogElement Overlay Architecture', () => {
                 'ore-calculator/index.html',
                 'hero-journey/index.html',
                 'damage-calculator/index.html',
-                'account/index.html'
+                'account/index.html',
+                'app-management/index.html'
             ];
 
             for (const relPath of toolTemplates) {
@@ -174,6 +175,7 @@ describe('Native HTMLDialogElement Overlay Architecture', () => {
                 'hero-journey/index.html',
                 'damage-calculator/index.html',
                 'account/index.html',
+                'app-management/index.html',
                 '404.html',
                 'legal/privacy-en.html',
                 'legal/privacy-de.html',

@@ -92,7 +92,9 @@ describe('Account Popover Modularity & Pre-Rendered Panels Domain Suite', () => 
         createMockElement('account-popover-manage-link', 'a', { href: '/account/', 'data-popover-option': 'account-sync' });
         createMockElement('account-popover-avatar-link', 'a', { href: '/account/' });
         createMockElement('account-popover-install-btn', 'button', { 'data-popover-option': 'install' });
+        createMockElement('account-popover-app-manage-link', 'a', { 'data-popover-option': 'app-management' });
         createMockElement('account-popover-guest-install-btn', 'button', { 'data-popover-option': 'install' });
+        createMockElement('account-popover-guest-app-manage-link', 'a', { 'data-popover-option': 'app-management' });
         createMockElement('account-popover-logout-btn', 'button', { 'data-popover-option': 'logout' });
         createMockElement('account-popover-panel-divider', 'hr');
         createMockElement('account-popover-panels', 'div');
@@ -355,6 +357,22 @@ describe('Account Popover Modularity & Pre-Rendered Panels Domain Suite', () => 
         assert.equal(installBtn.hasAttribute('hidden'), true);
         assert.ok(guestInstallBtn.classList.contains('is-hidden'));
         assert.equal(guestInstallBtn.hasAttribute('hidden'), true);
+
+        const appManageLink = elements.get('account-popover-app-manage-link');
+        const guestAppManageLink = elements.get('account-popover-guest-app-manage-link');
+        assert.ok(!appManageLink.classList.contains('is-hidden'), 'App Management link must be visible when in standalone mode');
+        assert.equal(appManageLink.hasAttribute('hidden'), false);
+        assert.ok(!guestAppManageLink.classList.contains('is-hidden'));
+        assert.equal(guestAppManageLink.hasAttribute('hidden'), false);
+
+        // When already on /app-management/ route, App Management links must be hidden even in standalone mode
+        globalThis.window.location.pathname = '/app-management/';
+        configureAccountPopover();
+        assert.ok(appManageLink.classList.contains('is-hidden'), 'App Management link must be hidden when already on /app-management/');
+        assert.equal(appManageLink.hasAttribute('hidden'), true);
+        assert.ok(guestAppManageLink.classList.contains('is-hidden'));
+        assert.equal(guestAppManageLink.hasAttribute('hidden'), true);
+        globalThis.window.location.pathname = '/ore-calculator/';
     });
 
     it('enforces mandatory baseline settings and selectively reveals optional items via settingsItems', () => {

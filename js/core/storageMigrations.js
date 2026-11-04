@@ -360,6 +360,7 @@ export function sweepObsoleteStorageKeys(validPlayerTags = []) {
         // Purge if it is an oreCalc/clashCalc/orecalc entity or known historical artifact
         if (
             key.startsWith('clashCalc_') ||
+            key.startsWith('clashcalc_') ||
             key.startsWith('oreCalc_') ||
             key.startsWith('orecalc_') ||
             key.startsWith('OreCalculator') ||

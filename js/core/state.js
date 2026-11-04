@@ -56,7 +56,10 @@ export function getDefaultState() {
             },
             summaryTimeframe: 'monthly',
             cardLayout: 'cozy',
-            leagueModifier: 'standard'
+            leagueModifier: 'standard',
+            startupRoute: '/',
+            screenWakeLock: false,
+            hapticsEnabled: true
         },
 
         ...getDefaultPlayerStateProperties(),

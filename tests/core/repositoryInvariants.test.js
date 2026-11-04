@@ -453,4 +453,30 @@ describe('Repository Invariants & Code Hygiene Compliance', () => {
             `Found target="_blank" links missing secure rel="noopener noreferrer" attribute:\n${violations.join('\n')}`
         );
     });
+
+    test('zero unauthorized package runner invocations (npx) across codebase scripts and configurations', () => {
+        const targetFiles = candidateFiles.filter(f => {
+            const rel = path.relative(projectRoot, f).replace(/\\/g, '/');
+            if (rel === 'scripts/ensure-pnpm.js' || rel === 'tests/core/repositoryInvariants.test.js') return false;
+            if (rel.startsWith('scratch/')) return false;
+            return /\.(js|mjs|cjs|ts|json|sh|yaml|yml)$/.test(f);
+        });
+
+        const violations = [];
+        const npxRegex = /\bnpx\b/;
+
+        for (const file of targetFiles) {
+            const relPath = path.relative(projectRoot, file).replace(/\\/g, '/');
+            const content = fs.readFileSync(file, 'utf8');
+            if (npxRegex.test(content)) {
+                violations.push(relPath);
+            }
+        }
+
+        assert.equal(
+            violations.length,
+            0,
+            `Prohibited 'npx' runner detected in files (must use 'pnpm exec' or 'pnpm run'):\n${violations.join('\n')}`
+        );
+    });
 });

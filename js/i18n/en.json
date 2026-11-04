@@ -4,11 +4,13 @@
         "actionsMenu": "Actions Menu",
         "back": "Back",
         "cancel": "Cancel",
+        "checkUpdates": "Check for Updates",
         "clear": "Clear",
         "clickToCopy": "Click to copy",
         "close": "Close",
         "compressTable": "Compress Table",
         "confirm": "Confirm",
+        "copied": "Copied!",
         "copy": "Copy",
         "create": "Create",
         "decrease": "Decrease",
@@ -165,7 +167,8 @@
         "metaTitle": "OreCalc — Clash of Clans Equipment & Upgrade Planner | ClashCalc",
         "none": "None",
         "supercellDisclaimer": "This material is unofficial and is not endorsed by Supercell. For more information see Supercell's Fan Content Policy: <a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">{displayUrl}</a>.",
-        "title": "Ore Calculator"
+        "title": "Ore Calculator",
+        "version": "Version"
     },
     "auth": {
         "account": "Account",
@@ -620,14 +623,21 @@
         "tag": "Player Tag"
     },
     "status": {
+        "checking": "Checking...",
+        "downloading": "Downloading...",
         "error": "Error",
         "info": "Information",
+        "installing": "Installing...",
         "notice": "Notice",
+        "offline": "Offline",
+        "online": "Online",
         "saving": "Saving...",
         "success": "Success",
+        "unsupported": "(Unsupported on this device)",
         "updateAvailable": "Update Available",
         "updateForcedIn": "Recommended update will apply automatically in {time}.",
         "updatePrompt": "A new version of the application is available. Reload to get the latest features and fixes.",
+        "upToDate": "App is up to date",
         "warning": "Warning"
     },
     "time": {
@@ -680,6 +690,57 @@
             "security": "Security & Authentication",
             "sessions": "Active Sessions",
             "title": "Account & Security"
+        },
+        "appManagement": {
+            "diagnostics": {
+                "desc": "Current client runtime environment and active device characteristics.",
+                "displayMode": "Display Mode",
+                "engine": "Browser Engine",
+                "modeBrowser": "Web Browser (Tab)",
+                "modeStandalone": "Installed App (Standalone)",
+                "network": "Network Status",
+                "platform": "Operating System",
+                "title": "System & Diagnostics",
+                "viewport": "Window Viewport"
+            },
+            "hero": {
+                "browserSubtitle": "You are currently running ClashCalc in a web browser. Install the application for full-screen mode, instant launch, and permanent offline access."
+            },
+            "lifecycle": {
+                "browserDesc": "ClashCalc checks for updates automatically when reloading pages.",
+                "desc": "Keep your application running on the latest patch.",
+                "standaloneDesc": "Your installed app updates in the background. Tap to check manually.",
+                "title": "Updates & Lifecycle"
+            },
+            "meta": {
+                "description": "Manage ClashCalc offline storage, launch preferences, and installed application settings.",
+                "title": "App Management | Clash of Clans | ClashCalc"
+            },
+            "preferences": {
+                "desc": "Configure startup destination and active display behavior.",
+                "screenWakeLock": "Screen Wake Lock",
+                "screenWakeLockDesc": "Keep screen awake while planning attacks or calculating upgrades.",
+                "startupPage": "Default Startup View",
+                "startupPageDesc": "Choose which tool or view opens when launching the application.",
+                "tactileHaptics": "Tactile Haptic Feedback",
+                "tactileHapticsDesc": "Provide subtle vibration feedback when tapping controls and adjusting levels.",
+                "title": "Display & Launch Preferences"
+            },
+            "startupViews": {
+                "compositeLabel": "{tool} · {subView}"
+            },
+            "storage": {
+                "appUsage": "{size} used by ClashCalc",
+                "clearCache": "Clear Temporary Asset Cache",
+                "clearCacheDesc": "Purge cached sprites and scripts to refresh local assets.",
+                "cleared": "Cache cleared",
+                "title": "Storage & Offline Data",
+                "unavailable": "Unable to calculate storage footprint",
+                "webkitNotice": "WebKit browsers may purge offline data after periods of inactivity. Install to Home Screen or Dock to keep storage permanently.",
+                "webkitNoticeTitle": "WebKit Storage Policy"
+            },
+            "subtitle": "Manage offline storage, application updates, and launch preferences for your installed application.",
+            "title": "App Management"
         },
         "changelog": {
             "title": "Changelog",

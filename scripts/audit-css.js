@@ -63,6 +63,7 @@ function getProductionHtmlFiles() {
         path.join(projectRoot, 'damage-calculator/index.html'),
         path.join(projectRoot, 'ore-calculator/index.html'),
         path.join(projectRoot, 'account/index.html'),
+        path.join(projectRoot, 'app-management/index.html'),
         path.join(projectRoot, '404.html')
     ].filter(f => fs.existsSync(f));
 
@@ -76,6 +77,7 @@ function getProductionHtmlFiles() {
 function compileAndExtractCssClasses() {
     const entryPoints = [
         path.join(projectRoot, 'css/main.scss'),
+        path.join(projectRoot, 'css/management.scss'),
         path.join(projectRoot, 'css/hero-journey.scss'),
         path.join(projectRoot, 'css/landing.scss'),
         path.join(projectRoot, 'css/damage-calculator.scss'),

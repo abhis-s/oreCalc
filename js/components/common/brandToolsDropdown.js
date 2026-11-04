@@ -8,17 +8,19 @@ import { resolveAppRoute } from '../../core/appShellNavigator.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { getPlayerTagFromUrl } from '../../core/playerUrlRouter.js';
 import { getSavedProfiles } from '../../core/playerStorage.js';
+import { isRunningStandalone } from '../../services/pwaService.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 
 /**
  * @typedef {Object} BrandToolDescriptor
- * @property {'hub' | 'ore-calculator' | 'hero-journey' | 'damage-calculator' | 'account'} id
+ * @property {'hub' | 'ore-calculator' | 'hero-journey' | 'damage-calculator' | 'account' | 'app-management'} id
  * @property {string} path
  * @property {string} labelKey
  * @property {string} defaultLabel
  * @property {string} icon
  * @property {boolean} [supportsTag]
+ * @property {boolean} [requiresStandalone]
  */
 
 /**
@@ -63,6 +65,14 @@ export const BRAND_TOOLS_REGISTRY = [
         labelKey: 'auth.account',
         defaultLabel: 'Account',
         icon: 'user-filled'
+    },
+    {
+        id: 'app-management',
+        path: '/app-management/',
+        labelKey: 'views.appManagement.title',
+        defaultLabel: 'App Management',
+        icon: 'devices',
+        requiresStandalone: true
     }
 ];
 
@@ -97,7 +107,12 @@ export function buildBrandToolHref(tool, currentLang = 'en', playerTag = '') {
 export function renderBrandToolsDropdown(menuEl, currentRouteId = null, playerTag = '', lang = 'en') {
     if (!menuEl) return;
 
-    const availableTools = BRAND_TOOLS_REGISTRY.filter(tool => tool.id !== currentRouteId);
+    const isStandalone = isRunningStandalone();
+    const availableTools = BRAND_TOOLS_REGISTRY.filter(tool => {
+        if (tool.id === currentRouteId) return false;
+        if (tool.requiresStandalone && !isStandalone) return false;
+        return true;
+    });
 
     menuEl.innerHTML = availableTools.map(tool => {
         const href = buildBrandToolHref(tool, lang, playerTag);

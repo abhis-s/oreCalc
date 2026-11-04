@@ -231,4 +231,18 @@ if (typeof document !== 'undefined') {
     document.addEventListener('app:translate', () => {
         updateNavigationBadges();
     });
+
+    document.addEventListener('app:pwa-update-waiting', (e) => {
+        const wb = /** @type {CustomEvent} */ (e).detail?.wb;
+        updateNavigationBadges();
+        try {
+            if (wb) {
+                showUpdateModal(wb);
+            }
+        } catch (_) {}
+    });
+
+    document.addEventListener('app:pwa-update-cleared', () => {
+        updateNavigationBadges();
+    });
 }

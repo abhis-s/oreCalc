@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title data-i18n="views.appManagement.meta.title">App Management | Clash of Clans | ClashCalc</title>
+    <meta name="description" content="Manage ClashCalc offline storage, launch preferences, and installed application settings." data-i18n="views.appManagement.meta.description">
+    <meta name="author" content="ClashCalc">
+    <meta name="theme-color" content="#121212">
+    <meta name="color-scheme" content="dark light">
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/icon-512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/assets/icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="/assets/icon-512.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ClashCalc">
+
+    <meta property="og:title" content="App Management | Clash of Clans | ClashCalc">
+    <meta property="og:description" content="Manage ClashCalc offline storage, launch preferences, and installed application settings.">
+    <meta property="og:image" content="https://clashcalc.com/assets/og-image.png">
+    <meta property="og:url" content="https://clashcalc.com/app-management/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="canonical" href="https://clashcalc.com/app-management/" />
+    <link rel="alternate" hreflang="en" href="https://clashcalc.com/app-management/" />
+    <link rel="alternate" hreflang="de" href="https://clashcalc.com/de/app-management/" />
+    <link rel="alternate" hreflang="tr" href="https://clashcalc.com/tr/app-management/" />
+    <link rel="alternate" hreflang="zh" href="https://clashcalc.com/zh/app-management/" />
+    <link rel="alternate" hreflang="x-default" href="https://clashcalc.com/app-management/" />
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/management.css">
+    <!-- include: partials/head-theme-bootstrap.html -->
+    <!-- include: partials/head/importmap.html -->
+</head>
+
+<body class="dark-mode management-page">
+    <!-- include: partials/shell-top.html -->
+
+    <header class="app-header management-page__header">
+        <div class="app-header__inner">
+            <div class="app-header__brand">
+                <button type="button" id="hamburger-btn" class="app-header__hamburger"
+                    aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
+                    <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
+                </button>
+                <a href="/" class="brand-title-link" tabindex="0" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
+                    <h1 class="brand-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h1>
+                </a>
+                <span class="brand-separator" aria-hidden="true">&middot;</span>
+                <div class="brand-page-pill-wrapper">
+                    <button type="button" class="brand-page-pill" id="brand-page-pill-btn" aria-haspopup="menu" aria-expanded="false">
+                        <span class="brand-page-pill__label" data-i18n="views.appManagement.title">App Management</span>
+                        <clashcalc-assets-svg name="chevron-down" class="brand-page-pill__chevron" width="10" height="10" aria-hidden="true"></clashcalc-assets-svg>
+                    </button>
+                    <div id="brand-tools-dropdown" class="brand-tools-dropdown" role="menu" aria-labelledby="brand-page-pill-btn" hidden>
+                        <!-- DYNAMIC INSERTION: Brand tool dropdown items -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-header__actions">
+                <!-- include: partials/header-spotright.html -->
+                <!-- include: partials/header-account.html -->
+            </div>
+        </div>
+    </header>
+    <div class="app-header-placeholder"></div>
+
+    <main class="management-main" id="main-content">
+        <h2 class="sr-only" data-i18n="views.appManagement.title">App Management</h2>
+
+        <div class="management-layout">
+            <div class="management-grid">
+                <!-- Hero Card -->
+                <div class="management-card management-card--hero" id="app-hero-card">
+                    <div class="management-card__hero-badge">
+                        <clashcalc-assets-svg name="devices" class="management-card__hero-icon" width="32" height="32"></clashcalc-assets-svg>
+                    </div>
+                    <h3 class="management-card__hero-title" data-i18n="views.appManagement.title">App Management</h3>
+                    <p class="management-card__hero-desc" id="app-hero-desc" data-i18n="views.appManagement.subtitle">Manage offline storage, application updates, and launch preferences for your installed application.</p>
+                    <div class="management-card__hero-actions" id="app-hero-install-container" hidden>
+                        <button type="button" class="btn btn--primary" id="app-hero-install-btn">
+                            <clashcalc-assets-svg name="install-app" width="16" height="16" aria-hidden="true"></clashcalc-assets-svg>
+                            <span data-i18n="actions.installApp">Install App</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 1. Display & Launch Preferences (Moved to Top) -->
+                <section class="management-card" id="app-launch-card">
+                    <div class="management-card__header">
+                        <div class="management-card__title-group">
+                            <h3 class="management-card__title" data-i18n="views.appManagement.preferences.title">Display &amp; Launch Preferences</h3>
+                            <p class="management-card__desc" data-i18n="views.appManagement.preferences.desc">Configure startup destination and active display behavior.</p>
+                        </div>
+                    </div>
+                    <div class="management-item-list">
+                        <div class="management-item-row" id="app-setting-startup">
+                            <div class="management-item-info">
+                                <label for="app-startup-select" class="management-item-title" data-i18n="views.appManagement.preferences.startupPage">Default Startup View</label>
+                                <p class="management-item-desc" data-i18n="views.appManagement.preferences.startupPageDesc">Choose which tool or view opens when launching the application.</p>
+                            </div>
+                            <div class="management-item-actions">
+                                <select class="dropdown-style" id="app-startup-select" aria-label="Default Startup View" data-i18n-aria-label="views.appManagement.preferences.startupPage">
+                                    <!-- DYNAMIC INSERTION: Startup view options -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="management-item-row" id="app-setting-wakelock">
+                            <div class="management-item-info">
+                                <label for="app-wake-lock-switch" class="management-item-title" data-i18n="views.appManagement.preferences.screenWakeLock">Screen Wake Lock</label>
+                                <p class="management-item-desc" data-i18n="views.appManagement.preferences.screenWakeLockDesc">Keep screen awake while planning attacks or calculating upgrades.</p>
+                            </div>
+                            <div class="management-item-actions">
+                                <label class="switch" for="app-wake-lock-switch">
+                                    <input type="checkbox" id="app-wake-lock-switch" aria-label="Screen Wake Lock" data-i18n-aria-label="views.appManagement.preferences.screenWakeLock">
+                                    <span class="slider" aria-hidden="true"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="management-item-row" id="app-setting-haptics">
+                            <div class="management-item-info">
+                                <label for="app-haptic-switch" class="management-item-title" data-i18n="views.appManagement.preferences.tactileHaptics">Tactile Haptic Feedback</label>
+                                <p class="management-item-desc" id="app-haptic-desc" data-i18n="views.appManagement.preferences.tactileHapticsDesc">Provide subtle vibration feedback when tapping controls and adjusting levels.</p>
+                            </div>
+                            <div class="management-item-actions">
+                                <label class="switch" for="app-haptic-switch">
+                                    <input type="checkbox" id="app-haptic-switch" aria-label="Tactile Haptic Feedback" data-i18n-aria-label="views.appManagement.preferences.tactileHaptics">
+                                    <span class="slider" aria-hidden="true"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Updates & Lifecycle -->
+                <section class="management-card" id="app-lifecycle-card">
+                    <div class="management-card__header">
+                        <div class="management-card__title-group">
+                            <h3 class="management-card__title" data-i18n="views.appManagement.lifecycle.title">Updates &amp; Lifecycle</h3>
+                            <p class="management-card__desc" data-i18n="views.appManagement.lifecycle.desc">Keep your application running on the latest patch.</p>
+                        </div>
+                    </div>
+                    <div class="management-item-list">
+                        <div class="management-item-row" id="app-lifecycle-row">
+                            <div class="management-item-info">
+                                <span class="management-item-title" id="app-lifecycle-title">ClashCalc</span>
+                                <p class="management-item-desc" id="app-lifecycle-desc" data-i18n="status.upToDate">App is up to date</p>
+                            </div>
+                            <div class="management-item-actions" id="app-lifecycle-actions">
+                                <button type="button" class="btn btn--secondary" id="app-check-update-btn">
+                                    <span id="app-check-update-btn-text" data-i18n="actions.checkUpdates">Check for Updates</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. Storage & Offline Data -->
+                <section class="management-card" id="app-storage-card">
+                    <div class="management-card__header">
+                        <div class="management-card__title-group">
+                            <h3 class="management-card__title" data-i18n="views.appManagement.storage.title">Storage &amp; Offline Data</h3>
+                            <p class="management-card__desc" id="app-storage-usage-text">Calculating storage footprint...</p>
+                        </div>
+                    </div>
+                    <div class="management-item-list">
+                        <div class="management-item-row">
+                            <div class="management-item-info">
+                                <span class="management-item-title" data-i18n="views.appManagement.storage.clearCache">Clear Temporary Asset Cache</span>
+                                <p class="management-item-desc" data-i18n="views.appManagement.storage.clearCacheDesc">Purge cached sprites and scripts to refresh local assets.</p>
+                            </div>
+                            <div class="management-item-actions">
+                                <button type="button" class="btn btn--secondary" id="app-clear-cache-btn" data-i18n="actions.clear">Clear</button>
+                            </div>
+                        </div>
+                        <div class="management-item-row" id="app-storage-webkit-notice" hidden>
+                            <div class="management-item-info">
+                                <span class="management-item-title" data-i18n="views.appManagement.storage.webkitNoticeTitle">WebKit Storage Policy</span>
+                                <p class="management-item-desc" data-i18n="views.appManagement.storage.webkitNotice">WebKit browsers may purge offline data after periods of inactivity. Install to Home Screen or Dock to keep storage permanently.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. System & Diagnostics -->
+                <section class="management-card" id="app-diagnostics-card">
+                    <div class="management-card__header">
+                        <div class="management-card__title-group">
+                            <h3 class="management-card__title" data-i18n="views.appManagement.diagnostics.title">System &amp; Diagnostics</h3>
+                            <p class="management-card__desc" data-i18n="views.appManagement.diagnostics.desc">Current client runtime environment and active device characteristics.</p>
+                        </div>
+                        <div class="management-card__actions">
+                            <button type="button" class="btn btn--secondary btn--sm" id="app-copy-diagnostics-btn">
+                                <clashcalc-assets-svg name="copy" width="14" height="14" aria-hidden="true"></clashcalc-assets-svg>
+                                <span id="app-copy-diagnostics-btn-text" data-i18n="actions.copy">Copy</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="management-item-list" id="app-diagnostics-container">
+                        <!-- DYNAMIC INSERTION: Diagnostics metadata -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- include: partials/footer.html -->
+    <!-- include: partials/shell-modals.html -->
+    <script src="/js/workbox-window.js" defer></script>
+    <script type="module" src="/js/appManagementApp.js"></script>
+</body>
+</html>

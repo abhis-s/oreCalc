@@ -6,7 +6,7 @@
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { state } from '../../core/state.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
-import { isPwaInstallSupported } from '../../services/pwaService.js';
+import { isRunningStandalone, isPwaInstallSupported } from '../../services/pwaService.js';
 
 /**
  * Returns localized route prefix based on active URL path or uiSettings.
@@ -111,7 +111,10 @@ function applyPopoverConfiguration() {
         }
     }
 
-    const canInstall = isPwaInstallSupported();
+    const isStandalone = isRunningStandalone();
+    const canInstall = !isStandalone && isPwaInstallSupported();
+    const isAppManagementPage = typeof window !== 'undefined' && Boolean(window.location?.pathname?.includes('/app-management'));
+
     const installBtn = document.getElementById('account-popover-install-btn');
     if (installBtn) {
         if (canInstall) {
@@ -122,6 +125,19 @@ function applyPopoverConfiguration() {
             installBtn.setAttribute('hidden', '');
         }
     }
+
+    const appManageLink = document.getElementById('account-popover-app-manage-link');
+    if (appManageLink) {
+        if (isStandalone && !isAppManagementPage) {
+            updateLocalizedHref(appManageLink, '/app-management/');
+            appManageLink.classList.remove('is-hidden');
+            appManageLink.removeAttribute('hidden');
+        } else {
+            appManageLink.classList.add('is-hidden');
+            appManageLink.setAttribute('hidden', '');
+        }
+    }
+
     const guestInstallBtn = document.getElementById('account-popover-guest-install-btn');
     if (guestInstallBtn) {
         if (canInstall) {
@@ -130,6 +146,18 @@ function applyPopoverConfiguration() {
         } else {
             guestInstallBtn.classList.add('is-hidden');
             guestInstallBtn.setAttribute('hidden', '');
+        }
+    }
+
+    const guestAppManageLink = document.getElementById('account-popover-guest-app-manage-link');
+    if (guestAppManageLink) {
+        if (isStandalone && !isAppManagementPage) {
+            updateLocalizedHref(guestAppManageLink, '/app-management/');
+            guestAppManageLink.classList.remove('is-hidden');
+            guestAppManageLink.removeAttribute('hidden');
+        } else {
+            guestAppManageLink.classList.add('is-hidden');
+            guestAppManageLink.setAttribute('hidden', '');
         }
     }
 
