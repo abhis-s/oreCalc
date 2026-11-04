@@ -381,7 +381,9 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
         if (modifierTabsContainer) {
             modifierTabsContainer.dataset.activeKey = activeModifierTab;
             modifierTabsContainer.querySelectorAll('.mod-tab-btn').forEach(btn => {
-                btn.classList.toggle('active', /** @type {HTMLElement} */ (btn).dataset.modKey === activeModifierTab);
+                const isActive = /** @type {HTMLElement} */ (btn).dataset.modKey === activeModifierTab;
+                btn.classList.toggle('is-active', isActive);
+                btn.classList.remove('active');
             });
             updateTabIndicator(modifierTabsContainer, activeModifierTab, false);
         }

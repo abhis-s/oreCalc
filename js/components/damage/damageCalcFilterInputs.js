@@ -224,6 +224,8 @@ export function attachDamageCalcFilterListeners(state, rootContainer, onStateCha
     // ZapQuake view mode switch (Compact vs Detailed)
     const zqViewModeBtns = rootContainer.querySelectorAll('[data-zq-view-mode]');
     zqViewModeBtns.forEach(btn => {
+        if (/** @type {HTMLElement} */ (btn).dataset.hasListener) return;
+        /** @type {HTMLElement} */ (btn).dataset.hasListener = 'true';
         btn.addEventListener('click', (e) => {
             const mode = /** @type {HTMLElement} */ (e.currentTarget).getAttribute('data-zq-view-mode');
             if (mode && (mode === 'compact' || mode === 'detailed') && state.zapQuake.viewMode !== mode) {

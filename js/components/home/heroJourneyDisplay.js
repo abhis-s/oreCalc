@@ -186,7 +186,8 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
     claimSwitchBtns.forEach(btn => {
         const btnValue = btn.dataset.unclaimedOnly === 'true';
         const isMatch = btnValue === unclaimedOnly;
-        btn.classList.toggle('active', isMatch);
+        btn.classList.toggle('is-active', isMatch);
+        btn.classList.remove('active');
         if (isMatch && claimSwitchPill) {
             requestAnimationFrame(() => {
                 claimSwitchPill.style.width = `${btn.offsetWidth}px`;
@@ -199,7 +200,8 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
     const typeFilterBtns = document.querySelectorAll('#home-hj-type-filters .hj-type-btn');
     typeFilterBtns.forEach(btn => {
         const isMatch = btn.dataset.typeFilter === typeFilter;
-        btn.classList.toggle('active', isMatch);
+        btn.classList.toggle('is-active', isMatch);
+        btn.classList.remove('active');
     });
 
     const typeSelect = document.getElementById('home-hj-type-select');

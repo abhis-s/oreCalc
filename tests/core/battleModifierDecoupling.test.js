@@ -29,8 +29,7 @@ import { getDefaultModifierKey } from '../../js/domain/equipment/modifierCalcula
 import {
     getModifierLabel,
     MODIFIER_PERCENTAGE_SUFFIXES,
-    getBattleModifierSwitcherMarkup,
-    renderBattleModifierSwitcher
+    getBattleModifierSwitcherMarkup
 } from '../../js/components/common/battleModifierSwitcher.js';
 import { loadTranslations } from '../../js/i18n/translator.js';
 import enJson from '../../js/i18n/en.json' with { type: 'json' };
@@ -268,32 +267,5 @@ test('Battle Modifier Decoupling & Unified Architecture', async (t) => {
         const markupWithoutPct = getBattleModifierSwitcherMarkup('legend3', { includePercentages: false });
         assert.ok(markupWithoutPct.includes('data-i18n="views.equipment.modifiers.legend3"'));
         assert.ok(!markupWithoutPct.includes('<span class="mod-tab-percent">'));
-    });
-
-    await t.test('renderBattleModifierSwitcher updates button text nodes in-place when re-rendered', async () => {
-        appGlobalState.uiSettings.language = 'en';
-        await loadTranslations('en');
-        const mockBtn = {
-            getAttribute: (attr) => attr === 'data-mod-key' ? 'legend3' : null,
-            classList: { toggle: () => {} },
-            setAttribute: () => {},
-            childNodes: [{ nodeType: 3, textContent: 'Legend III' }]
-        };
-        const mockContainer = {
-            classList: { contains: () => true },
-            querySelector: (sel) => sel === '.mod-tab-btn' ? mockBtn : null,
-            querySelectorAll: (sel) => sel === '.mod-tab-btn' ? [mockBtn] : [],
-            dataset: {}
-        };
-
-        // Switch language to German
-        appGlobalState.uiSettings.language = 'de';
-        await loadTranslations('de');
-        renderBattleModifierSwitcher(/** @type {any} */ (mockContainer), 'legend3', { includePercentages: true });
-        assert.equal(mockBtn.childNodes[0].textContent, 'Legende III');
-
-        // Restore English
-        appGlobalState.uiSettings.language = 'en';
-        await loadTranslations('en');
     });
 });

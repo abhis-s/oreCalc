@@ -510,7 +510,8 @@ export function renderZapQuakePanel(state, container) {
         viewModeBtns.forEach(btn => {
             const modeVal = btn.getAttribute('data-zq-view-mode');
             const isActive = modeVal === viewMode;
-            btn.classList?.toggle('active', isActive);
+            btn.classList?.toggle('is-active', isActive);
+            btn.classList?.remove('active');
             btn.setAttribute?.('aria-checked', String(isActive));
         });
         return;

@@ -305,7 +305,8 @@ export function syncClaimSwitchPill() {
         btns.forEach(btn => {
             const isUnclaimed = btn.getAttribute('data-unclaimed-only') === 'true';
             const isMatch = isUnclaimed === effectiveUnclaimed;
-            btn.classList.toggle('active', isMatch);
+            btn.classList.toggle('is-active', isMatch);
+            btn.classList.remove('active');
             if (isMatch && claimPill) {
                 const btnEl = /** @type {HTMLElement} */ (btn);
                 const pillEl = /** @type {HTMLElement} */ (claimPill);

@@ -229,7 +229,8 @@ export function renderBattleModifierSwitcher(container, activeKey, options = {})
             const btnKey = btn.getAttribute('data-mod-key');
             if (!btnKey) return;
             const isActive = btnKey === activeKey;
-            btn.classList.toggle('active', isActive);
+            btn.classList.toggle('is-active', isActive);
+            btn.classList.remove?.('active');
             btn.setAttribute('aria-selected', String(isActive));
 
             const baseName = resolveModifierBaseName(btnKey);

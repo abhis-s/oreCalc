@@ -395,7 +395,7 @@ export function initPlayerDropdown(options = {}) {
                 e.preventDefault();
                 const list = dom.player?.dropdownList || document.getElementById('player-dropdown-list');
                 if (list?.classList.contains('show')) {
-                    const activeItem = playerItemsContainer?.querySelector('.player-dropdown-item.active')
+                    const activeItem = playerItemsContainer?.querySelector('.player-dropdown-item.is-active, .player-dropdown-item.active')
                         || playerItemsContainer?.querySelector('.player-dropdown-item');
                     if (activeItem) /** @type {HTMLElement} */ (activeItem).focus();
                 } else {
