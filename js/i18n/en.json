@@ -757,6 +757,7 @@
             "title": "Minor Updates"
         },
         "damageCalc": {
+            "brandToolName": "DamageCalc",
             "clusterPlanner": {
                 "clearSelectionBtn": "Clear Selection",
                 "clusterEmptyToolbarPrompt": "Select defenses below to add to cluster (min. 2, max. 5)",

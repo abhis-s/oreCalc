@@ -40,7 +40,7 @@ import {
     initSharedShellChrome,
     mountWhenReady
 } from './core/shellBootstrapper.js';
-import { initHeaderLayoutObserver, renderHeroJourneyPlayerDropdown } from './components/heroJourney/heroJourneyHeaderDisplay.js';
+import { renderHeroJourneyPlayerDropdown } from './components/heroJourney/heroJourneyHeaderDisplay.js';
 import { initHeroJourneyPlayerDropdown, initHeroJourneyAddPlayerModal } from './components/heroJourney/heroJourneyHeaderInputs.js';
 import { renderPlayerSummary, resetHjRenderState } from './components/heroJourney/heroJourneyPlayerDisplay.js';
 import { renderTableView, updateTableFilterRowLayout, syncTableTheadHeight } from './components/heroJourney/heroJourneyTableDisplay.js';
@@ -361,7 +361,6 @@ function initControls() {
     initHeroJourneyTooltips(() => buildStateFromPlayerData(hjState.playerData, hjState));
     initHeroJourneyTableTooltips(() => buildStateFromPlayerData(hjState.playerData, hjState));
     setupMountainClusterTouchInteractions();
-    initHeaderLayoutObserver();
 
     if (!hasAttachedHjListeners) {
         hasAttachedHjListeners = true;
@@ -414,6 +413,13 @@ async function init() {
     await bootstrapShellLanguageAndStorage();
     initSharedShellChrome({
         domainNotice: false,
+        headerOptions: {
+            headerElement: '.app-header',
+            hasTabs: false,
+            hasPlayerDropdown: true,
+            hasPill: true,
+            bindDrawer: true
+        },
         footerOptions: { version: state.appVersion }
     });
 

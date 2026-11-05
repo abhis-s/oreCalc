@@ -54,8 +54,8 @@ export const BRAND_TOOLS_REGISTRY = [
     {
         id: 'damage-calculator',
         path: '/damage-calculator/',
-        labelKey: 'views.damageCalc.offense.equipmentDamageBadge',
-        defaultLabel: 'Equipment Damage',
+        labelKey: 'views.damageCalc.brandToolName',
+        defaultLabel: 'DamageCalc',
         icon: 'swords-filled',
         supportsTag: true
     },

@@ -126,6 +126,7 @@
         }
 
         &.is-minimal {
+            .brand-title-link,
             .brand-title {
                 display: none;
             }

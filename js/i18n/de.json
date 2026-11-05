@@ -757,6 +757,7 @@
             "title": "Kleinere Updates"
         },
         "damageCalc": {
+            "brandToolName": "DamageCalc",
             "clusterPlanner": {
                 "clearSelectionBtn": "Auswahl löschen",
                 "clusterEmptyToolbarPrompt": "Verteidigungen unten auswählen, um Cluster zu bilden (min. 2, max. 5)",

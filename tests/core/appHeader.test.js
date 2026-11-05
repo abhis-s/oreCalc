@@ -255,5 +255,28 @@ describe('Modular Application Header (appHeader.js)', () => {
                 appHeaderInstance.destroy();
             });
         });
+
+        test('gracefully falls back to .app-header when provided non-matching string selector', () => {
+            const header = new MockElement('header', 'app-header');
+            const inner = new MockElement('div', 'app-header__inner');
+            inner.clientWidth = 800;
+            header._children.push(inner);
+
+            mockDocument.querySelector = (sel) => {
+                if (sel === '.non-existent-header') return null;
+                if (sel.includes('.app-header')) return header;
+                return null;
+            };
+
+            const appHeaderInstance = initAppHeader({ headerElement: '.non-existent-header' });
+
+            assert.strictEqual(typeof appHeaderInstance.updateLayout, 'function');
+            assert.strictEqual(typeof appHeaderInstance.destroy, 'function');
+
+            assert.doesNotThrow(() => {
+                appHeaderInstance.updateLayout();
+                appHeaderInstance.destroy();
+            });
+        });
     });
 });

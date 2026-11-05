@@ -241,10 +241,18 @@ function observeAppHeaderLayout(header, options = {}) {
         const brandTitle = brand.querySelector('.brand-title-link');
         const separator = brand.querySelector('.brand-separator');
         const pill = brand.querySelector('.brand-page-pill');
+        const isMinimalActive = brand.classList.contains('is-minimal');
+        const isCompactActive = brand.classList.contains('is-compact');
 
-        if (brandTitle && brandTitle.offsetWidth > 0) cachedBrandTitleWidth = brandTitle.offsetWidth;
-        if (separator && separator.offsetWidth > 0) cachedSeparatorWidth = separator.offsetWidth;
-        if (pill && pill.offsetWidth > 0) cachedPillWidth = pill.offsetWidth;
+        if (!isMinimalActive && brandTitle && brandTitle.offsetWidth > 20) {
+            cachedBrandTitleWidth = brandTitle.offsetWidth;
+        }
+        if (!isCompactActive && separator && separator.offsetWidth > 0) {
+            cachedSeparatorWidth = separator.offsetWidth;
+        }
+        if (!isCompactActive && pill && pill.offsetWidth > 20) {
+            cachedPillWidth = pill.offsetWidth;
+        }
         if (actions && actions.offsetWidth > 0) cachedActionsWidth = actions.offsetWidth;
 
         const isCompactTabsActive = tabBar?.classList.contains('is-compact') || false;
@@ -310,8 +318,11 @@ function observeAppHeaderLayout(header, options = {}) {
             const singleRowFullWidth = fullBrandWidth + dropdownComfortable + actionsWidth + (numGaps * gap);
             const singleRowCompactWidth = compactBrandWidth + dropdownMin + actionsWidth + (numGaps * gap);
 
-            const nextCompact = containerWidth < singleRowFullWidth;
-            const nextMinimal = containerWidth < singleRowCompactWidth;
+            const compactThreshold = isCompactActive ? (singleRowFullWidth + 6) : singleRowFullWidth;
+            const minimalThreshold = isMinimalActive ? (singleRowCompactWidth + 6) : singleRowCompactWidth;
+
+            const nextCompact = containerWidth < compactThreshold;
+            const nextMinimal = containerWidth < minimalThreshold;
 
             brand.classList.toggle('is-compact', nextCompact);
             brand.classList.toggle('is-minimal', nextMinimal);
@@ -365,9 +376,10 @@ export function initAppHeader(options = {}) {
         return { destroy: () => {}, updateLayout: () => {}, resetCache: () => {} };
     }
 
-    const header = (typeof options.headerElement === 'string')
+    const header = (typeof options.headerElement === 'string'
         ? document.querySelector(options.headerElement)
-        : (options.headerElement || queryFirst(document, ['.app-header', '.header-container', '.hero-journey-page__header', '.landing-header']));
+        : options.headerElement)
+        || queryFirst(document, ['.app-header', '.header-container', '.landing-header']);
 
     if (!header) {
         return { destroy: () => {}, updateLayout: () => {}, resetCache: () => {} };

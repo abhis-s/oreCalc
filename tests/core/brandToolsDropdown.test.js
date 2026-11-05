@@ -27,11 +27,11 @@ describe('Brand Tools Dropdown Architecture & Registry', () => {
         }
     });
 
-    test('damage calculator reuses existing equipment damage badge translation key', () => {
+    test('damage calculator defines canonical brand tool name translation key', () => {
         const damageTool = BRAND_TOOLS_REGISTRY.find(t => t.id === 'damage-calculator');
         assert.ok(damageTool);
-        assert.equal(damageTool.labelKey, 'views.damageCalc.offense.equipmentDamageBadge');
-        assert.equal(damageTool.defaultLabel, 'Equipment Damage');
+        assert.equal(damageTool.labelKey, 'views.damageCalc.brandToolName');
+        assert.equal(damageTool.defaultLabel, 'DamageCalc');
     });
 
     test('app-management descriptor requires standalone mode and uses devices icon', () => {

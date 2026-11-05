@@ -592,7 +592,7 @@ export function renderNavigationDrawerContent(options = {}) {
         } else if (activeTool === 'hero-journey') {
             subtitleEl.textContent = translate('views.heroJourney.widget.title') || "Hero's Journey";
         } else if (activeTool === 'damage-calculator') {
-            subtitleEl.textContent = translate('views.damageCalc.offense.equipmentDamageBadge') || 'Equipment Damage';
+            subtitleEl.textContent = translate('views.damageCalc.brandToolName') || 'DamageCalc';
         } else if (activeTool === 'account') {
             subtitleEl.textContent = translate('views.account.title') || 'Account & Security';
         } else {
