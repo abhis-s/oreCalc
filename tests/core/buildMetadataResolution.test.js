@@ -20,7 +20,7 @@ describe('Build Metadata Resolution Feature Suite', () => {
         assert.ok(Array.isArray(result.commitsSinceTag), 'commitsSinceTag should be an array');
     });
 
-    test('resolveBuildMetadata queries clashcalc branch when local git is unavailable', async () => {
+    test('resolveBuildMetadata queries main branch when local git is unavailable', async () => {
         const originalFetch = globalThis.fetch;
         const previousEnv = process.env.SIMULATE_NO_GIT;
         process.env.SIMULATE_NO_GIT = 'true';
@@ -32,7 +32,7 @@ describe('Build Metadata Resolution Feature Suite', () => {
                 const urlStr = String(url);
                 requestedUrls.push(urlStr);
 
-                if (urlStr.includes('sha=clashcalc')) {
+                if (urlStr.includes('sha=main')) {
                     return {
                         ok: true,
                         status: 200,
@@ -65,8 +65,8 @@ describe('Build Metadata Resolution Feature Suite', () => {
             assert.equal(result.appVersion, '3.0.0+a178054');
             assert.equal(result.commitsSinceTag.length, 1);
             assert.equal(result.commitsSinceTag[0].hash, 'a178054');
-            assert.ok(requestedUrls.some(u => u.includes('sha=clashcalc')));
-            assert.ok(!requestedUrls.some(u => u.includes('sha=main')));
+            assert.ok(requestedUrls.some(u => u.includes('sha=main')));
+            assert.ok(!requestedUrls.some(u => u.includes('sha=orecalc-legacy')));
         } finally {
             globalThis.fetch = originalFetch;
             if (previousEnv === undefined) {
@@ -77,7 +77,7 @@ describe('Build Metadata Resolution Feature Suite', () => {
         }
     });
 
-    test('resolveBuildMetadata falls back to main branch when clashcalc branch returns 404', async () => {
+    test('resolveBuildMetadata falls back to orecalc-legacy branch when main branch returns 404', async () => {
         const originalFetch = globalThis.fetch;
         const previousEnv = process.env.SIMULATE_NO_GIT;
         process.env.SIMULATE_NO_GIT = 'true';
@@ -89,7 +89,7 @@ describe('Build Metadata Resolution Feature Suite', () => {
                 const urlStr = String(url);
                 requestedUrls.push(urlStr);
 
-                if (urlStr.includes('sha=clashcalc')) {
+                if (urlStr.includes('sha=main')) {
                     return {
                         ok: false,
                         status: 404,
@@ -97,7 +97,7 @@ describe('Build Metadata Resolution Feature Suite', () => {
                     };
                 }
 
-                if (urlStr.includes('sha=main')) {
+                if (urlStr.includes('sha=orecalc-legacy')) {
                     return {
                         ok: true,
                         status: 200,
@@ -130,8 +130,8 @@ describe('Build Metadata Resolution Feature Suite', () => {
             assert.equal(result.appVersion, '3.0.0+8d8e7de');
             assert.equal(result.commitsSinceTag.length, 1);
             assert.equal(result.commitsSinceTag[0].hash, '8d8e7de');
-            assert.ok(requestedUrls.some(u => u.includes('sha=clashcalc')));
             assert.ok(requestedUrls.some(u => u.includes('sha=main')));
+            assert.ok(requestedUrls.some(u => u.includes('sha=orecalc-legacy')));
         } finally {
             globalThis.fetch = originalFetch;
             if (previousEnv === undefined) {

@@ -10,3 +10,14 @@ allowBuilds:
   'fsevents': true
   'protobufjs': true
   'sharp': true
+
+minimumReleaseAgeExclude:
+  - '@crowdin/cli-darwin-arm64@5.6.0'
+  - '@crowdin/cli-darwin-x64@5.6.0'
+  - '@crowdin/cli-linux-arm64-musl@5.6.0'
+  - '@crowdin/cli-linux-arm64@5.6.0'
+  - '@crowdin/cli-linux-x64-musl@5.6.0'
+  - '@crowdin/cli-linux-x64@5.6.0'
+  - '@crowdin/cli-win32-arm64@5.6.0'
+  - '@crowdin/cli-win32-x64@5.6.0'
+  - '@crowdin/cli@5.6.0'

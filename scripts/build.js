@@ -106,7 +106,7 @@ async function resolveBuildMetadata(packageJson) {
             const headers = { 'User-Agent': 'oreCalc-build-script' };
 
             let ghCommits = null;
-            const primaryResponse = await fetch(`${commitsEndpoint}?sha=clashcalc&per_page=10`, { headers });
+            const primaryResponse = await fetch(`${commitsEndpoint}?sha=main&per_page=10`, { headers });
             if (primaryResponse.ok) {
                 const data = await primaryResponse.json().catch(() => null);
                 if (Array.isArray(data) && data.length > 0) {
@@ -115,15 +115,15 @@ async function resolveBuildMetadata(packageJson) {
             }
 
             if (!ghCommits) {
-                console.log(`[INFO] Branch 'clashcalc' not found on remote (status: ${primaryResponse.status}), falling back to 'main'...`);
-                const fallbackResponse = await fetch(`${commitsEndpoint}?sha=main&per_page=10`, { headers });
+                console.log(`[INFO] Branch 'main' not found on remote (status: ${primaryResponse.status}), falling back to 'orecalc-legacy'...`);
+                const fallbackResponse = await fetch(`${commitsEndpoint}?sha=orecalc-legacy&per_page=10`, { headers });
                 if (fallbackResponse.ok) {
                     const data = await fallbackResponse.json().catch(() => null);
                     if (Array.isArray(data) && data.length > 0) {
                         ghCommits = data;
                     }
                 } else {
-                    console.warn(`[WARN] GitHub API fallback request for 'main' failed with status: ${fallbackResponse.status}`);
+                    console.warn(`[WARN] GitHub API fallback request for 'orecalc-legacy' failed with status: ${fallbackResponse.status}`);
                 }
             }
 

@@ -57,7 +57,7 @@
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
-    "@crowdin/cli": "^5.5.0",
+    "@crowdin/cli": "^5.6.0",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",
     "concurrently": "^10.0.6",
