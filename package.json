@@ -7,7 +7,7 @@
   },
   "packageManager": "pnpm@11.3.0",
   "name": "clashcalc-frontend",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "",
   "main": "service-worker.js",
   "scripts": {

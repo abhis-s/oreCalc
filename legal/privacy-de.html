@@ -9,7 +9,7 @@
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f9f9">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
     <meta name="robots" content="noindex, follow">
-    <meta name="effective-date-timestamp" content="1790985600000">
+    <meta name="effective-date-timestamp" content="1793836800000">
     <title>Datenschutzerklärung - ClashCalc</title>
     <link rel="canonical" href="https://clashcalc.com/de/privacy/">
     <link rel="alternate" hreflang="en" href="https://clashcalc.com/privacy/" />
@@ -54,15 +54,16 @@
         </div>
 
         <h1>Datenschutzerklärung</h1>
-        <p><strong>Inkrafttreten:</strong> 3. Oktober 2026 (Ursprünglich veröffentlicht: 5. Juni 2026)</p>
+        <p><strong>Inkrafttreten:</strong> 5. November 2026 (Ursprünglich veröffentlicht: 5. Juni 2026)</p>
 
         <div class="update-summary-box">
-            <h2 class="update-summary-box__title">Zusammenfassung der letzten Aktualisierungen (3. Oktober 2026)</h2>
+            <h2 class="update-summary-box__title">Zusammenfassung der letzten Aktualisierungen (5. November 2026 &ndash; v3.1.0)</h2>
             <ul class="update-summary-box__list">
-                <li><strong>Benutzerkonten &amp; Passkeys:</strong> Offenlegung der Datenverarbeitung für registrierte Konten (pseudonyme Benutzernamen, mit bcrypt gehashte Passwörter und öffentliche WebAuthn/Passkey-Zugangsdaten).</li>
+                <li><strong>Dedizierte Portale &amp; Lokale Diagnostik:</strong> Dokumentation des eigenst&auml;ndigen Kontozentrums (<code>/account/</code>) und der App-Verwaltung (<code>/app-management/</code>); Klarstellung, dass Cache-Audits, Speicherplatzpr&uuml;fungen und Offlinestatus-Messungen zu 100&nbsp;% lokal im Browser ausgef&uuml;hrt werden &ndash; v&ouml;llig ohne Daten&uuml;bertragung an unsere Server.</li>
+                <li><strong>Benutzerkonten &amp; Passkeys:</strong> Offenlegung der Datenverarbeitung f&uuml;r registrierte Konten (pseudonyme Benutzernamen, mit bcrypt gehashte Passw&ouml;rter und &ouml;ffentliche WebAuthn/Passkey-Zugangsdaten).</li>
                 <li><strong>Missbrauchsschutz &amp; Bot-Sicherheit:</strong> Offenlegung der Cloudflare Turnstile-Verifizierung an Authentifizierungs-Endpunkten.</li>
-                <li><strong>Einheitliche Daten-Selbstverwaltung:</strong> Ersatz früherer manueller Ausschlussanträge durch einheitliche Selbstbedienungsfunktionen: lokaler JSON-Export/-Import, Cache-Löschung, Dorfdaten-Reset und sofortige dauerhafte Kontolöschung.</li>
-                <li><strong>Aufbewahrungsfrist für Diagnosedaten:</strong> Festlegung einer automatisierten 15-tägigen Time-to-Live (TTL)-Löschfrist für Fehlerdiagnosen.</li>
+                <li><strong>Einheitliche Daten-Selbstverwaltung:</strong> Einheitliche Selbstbedienungsfunktionen: lokaler JSON-Export/-Import, Cache-L&ouml;schung, Dorfdaten-Reset und sofortige dauerhafte Kontol&ouml;schung.</li>
+                <li><strong>Aufbewahrungsfrist f&uuml;r Diagnosedaten:</strong> Festlegung einer automatisierten 15-t&auml;gigen Time-to-Live (TTL)-L&ouml;schfrist f&uuml;r server-seitige Fehlerdiagnosen.</li>
             </ul>
         </div>
 
@@ -143,14 +144,14 @@
 
         <h2>5. Ihre Datenrechte &amp; Löschwerkzeuge</h2>
         <p>
-            Wir orientieren uns an den globalen Datenschutzstandards wie der EU-DSGVO und dem CCPA, indem wir direkt in den Einstellungen unter <strong>Konto- &amp; Datenverwaltung</strong> umfassende Tools zur Selbstverwaltung Ihrer Daten bereitstellen:
+            Wir orientieren uns an den globalen Datenschutzstandards wie der EU-DSGVO und dem CCPA, indem wir direkt in den Einstellungen unter <strong>Konto- &amp; Datenverwaltung</strong> sowie &uuml;ber die dedizierten Portale <a href="/de/account/">Kontozentrum</a> und <a href="/de/app-management/">App-Verwaltung</a> umfassende Tools zur Selbstverwaltung Ihrer Daten bereitstellen:
         </p>
         <ul>
             <li>
                 <strong>Daten sichern &amp; wiederherstellen:</strong> Exportieren und laden Sie Ihren gesamten Anwendungsstatus jederzeit als JSON-Datei herunter oder stellen Sie Ihre Konfiguration aus einer früheren Sicherungsdatei wieder her.
             </li>
             <li>
-                <strong>Geräte-Cache leeren:</strong> Löscht temporäre zwischengespeicherte Antworten und Asset-Indizes, ohne Ihre dauerhaften Spielerkonfigurationen oder Einstellungen zu verändern.
+                <strong>Geräte-Cache leeren &amp; Speicherprüfung:</strong> Das Portal App-Verwaltung (<code>/app-management/</code>) ermöglicht Ihnen die Inspektion lokaler Cache-Partitionen, die Prüfung des Offline-Asset-Speichers und die Bereinigung temporärer zwischengespeicherter Antworten, ohne Ihre dauerhaften Spielerkonfigurationen zu beeinträchtigen.
             </li>
             <li>
                 <strong>Dorfdaten zurücksetzen:</strong> Setzt den lokalen Spielfortschritt, Ausrüstungsstufen und nicht synchronisierte Berechnungen, die im <code>localStorage</code> Ihres Browsers gespeichert sind, dauerhaft zurück.
@@ -159,7 +160,7 @@
                 <strong>Alle Daten löschen (Anonyme Cloud-Synchronisation):</strong> Löscht dauerhaft alle lokalen Browserdaten und entfernt Ihr synchronisiertes Sicherungsprofil sowie Ihre Einstellungen von unseren Cloud-Servern.
             </li>
             <li>
-                <strong>Konto löschen (Registrierte Benutzerkonten):</strong> Bietet eine sofortige Selbstbedienungs-Löschoption, die Ihr registriertes Konto dauerhaft bereinigt, Ihren Passwort-Hash und registrierte Passkeys entfernt, alle in der Cloud synchronisierten Dörfer und Planer-Konfigurationen aus unserer Datenbank löscht, aktive Sitzungs-Token entwertet und Ihre Benutzer-ID in einem Löschregister sperrt, um verwaiste Datenbestände auszuschließen.
+                <strong>Konto löschen (Registrierte Benutzerkonten):</strong> Bietet eine sofortige Selbstbedienungs-Löschoption (über die Einstellungen oder direkt im Kontozentrum unter <code>/account/</code>), die Ihr registriertes Konto dauerhaft bereinigt, Ihren Passwort-Hash und registrierte Passkeys entfernt, alle in der Cloud synchronisierten Dörfer und Planer-Konfigurationen aus unserer Datenbank löscht, aktive Sitzungs-Token entwertet und Ihre Benutzer-ID in einem Löschregister sperrt, um verwaiste Datenbestände auszuschließen.
             </li>
         </ul>
 

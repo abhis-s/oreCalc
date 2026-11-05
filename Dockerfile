@@ -2,7 +2,7 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 # Copy server's package.json since pnpm workspace requires it to build dependency graph

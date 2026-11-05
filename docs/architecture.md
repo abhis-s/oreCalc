@@ -15,6 +15,8 @@ flowchart TD
         OreCalc["Ore Calculator (/ore-calculator/)\napp.js"]
         HeroJourney["Hero's Journey (/hero-journey/)\nheroJourneyApp.js"]
         DamageCalc["Damage Calculator (/damage-calculator/)\ndamageApp.js"]
+        Account["Account Center (/account/)\naccountApp.js"]
+        AppManagement["App Management (/app-management/)\nappManagementApp.js"]
 
         StateEngine["Transactional State Engine\n(js/core/state.js)"]
         PartitionManager["Tag-Partitioned Storage\n(js/core/playerStorageManager.js)"]
@@ -23,6 +25,8 @@ flowchart TD
         OreCalc --> StateEngine
         HeroJourney --> StateEngine
         DamageCalc --> StateEngine
+        Account --> StateEngine
+        AppManagement --> StateEngine
 
         StateEngine <--> PartitionManager
     end

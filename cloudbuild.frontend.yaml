@@ -1,37 +1,38 @@
 steps:
-- name: 'node:22-slim'
-  entrypoint: 'bash'
+- name: 'gcr.io/cloud-builders/docker'
   args:
-  - '-c'
-  - |
-    corepack enable && corepack prepare pnpm@11.3.0 --activate
-    pnpm install --frozen-lockfile
-
-- name: 'node:22-slim'
-  entrypoint: 'bash'
-  args:
-  - '-c'
-  - |
-    corepack enable && corepack prepare pnpm@11.3.0 --activate
-    pnpm run build
-  env:
-  - 'VERBOSE=true'
-  - 'TAG_NAME=$TAG_NAME'
+  - 'build'
+  - '--no-cache'
+  - '-t'
+  - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/orecalc/clashcalc-webapp:$COMMIT_SHA'
+  - '.'
+  - '-f'
+  - 'Dockerfile'
+  id: Build
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '--build-arg', 'TAG_NAME=$TAG_NAME', '-t', 'gcr.io/$PROJECT_ID/clashcalc-webapp:$COMMIT_SHA', '.']
+  args:
+  - 'push'
+  - 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/orecalc/clashcalc-webapp:$COMMIT_SHA'
+  id: Push
 
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/$PROJECT_ID/clashcalc-webapp:$COMMIT_SHA']
-
-- name: 'gcr.io/cloud-builders/gcloud'
-  args: ['run', 'deploy', 'clashcalc-webapp',
-         '--image', 'gcr.io/$PROJECT_ID/clashcalc-webapp:$COMMIT_SHA',
-         '--region', 'europe-west1',
-         '--allow-unauthenticated',
-         '--platform', 'managed',
-         '--port', '80']
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
   entrypoint: gcloud
+  args:
+  - 'run'
+  - 'services'
+  - 'update'
+  - 'clashcalc-webapp'
+  - '--platform=managed'
+  - '--image=europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/orecalc/clashcalc-webapp:$COMMIT_SHA'
+  - '--region=europe-west1'
+  - '--quiet'
+  id: Deploy
 
 images:
-- 'gcr.io/$PROJECT_ID/clashcalc-webapp:$COMMIT_SHA'
+- 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/orecalc/clashcalc-webapp:$COMMIT_SHA'
+
+options:
+  machineType: 'E2_STANDARD_2'
+  logging: CLOUD_LOGGING_ONLY
+  substitutionOption: ALLOW_LOOSE

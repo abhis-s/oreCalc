@@ -28,6 +28,7 @@ test('ALLOWED_ORIGINS is deeply frozen and contains production and local develop
     assert.ok(ALLOWED_ORIGINS.includes('https://clashcalc.com'));
     assert.ok(ALLOWED_ORIGINS.includes('https://www.clashcalc.com'));
     assert.ok(ALLOWED_ORIGINS.includes('https://beta.clashcalc.com'));
+    assert.ok(ALLOWED_ORIGINS.includes('https://clashcalc-beta.pages.dev'));
     assert.ok(ALLOWED_ORIGINS.includes('https://orecalc-beta.pages.dev'));
     assert.ok(ALLOWED_ORIGINS.includes('http://localhost:8080'));
 });

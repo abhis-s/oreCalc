@@ -21,6 +21,8 @@ A high-performance, privacy-first web application suite engineered for Clash of 
 | **Damage Calculator** | ZapQuake & hero ability destruction solver | Minimal spell and active ability combinations required to destroy target structures, Pareto-optimal superset pruning, damage profiles for active abilities, building HP & supercharge tier modeling. |
 | **Cluster Planner** | Multi-target area tactical planning | Select 2 to 5 target defenses to calculate combined burst damage solutions and spell thresholds across defense clusters. |
 | **Hero's Journey** | Milestone progression & reward resolver | Milestone track visualization, quest chest yield models across Town Hall levels, and deterministic equipment unlock and Starry Ore fallback resolution. |
+| **Account Center** | Credential management & security | Profile avatar customization, dual-mode authentication (passwords & biometric WebAuthn passkeys), active session tracking with remote revocation, and self-service account deletion. |
+| **App Management** | Device diagnostics & PWA controls | Real-time network telemetry, offline service worker cache inspector, local storage partition inspector, and PWA installation management. |
 
 ---
 
@@ -127,11 +129,19 @@ A high-performance, privacy-first web application suite engineered for Clash of 
 
 ### Continuous Deployment (Google Cloud Run)
 
-ClashCalc is deployed to Google Cloud Run using automated commit-based triggers via Google Cloud Build.
+ClashCalc is deployed to Google Cloud Run using automated commit-based triggers via Google Cloud Build:
 
-- **Frontend Service (`clashcalc-webapp`)**: Triggered on repository commits, executes `cloudbuild.frontend.yaml` to build static assets, package the container, and deploy to Cloud Run. Mapped to `clashcalc.com`.
-- **Backend Service (`clashcalc-api`)**: Triggered on changes in `server/`, executes `server/cloudbuild.backend.yaml` to containerize the Express API, inject secrets from Google Cloud Secret Manager, and deploy to Cloud Run. Mapped to `api.clashcalc.com`.
+- **Frontend Service (`clashcalc-webapp`)**: Triggered on commits affecting frontend code (ignoring `server/`, tests, and docs), executes `cloudbuild.frontend.yaml` on `E2_STANDARD_2` compute instances, and deploys to Cloud Run. Mapped to `clashcalc.com`.
+- **Backend Service (`clashcalc-api`)**: Triggered strictly on changes in `server/`, executes `server/cloudbuild.backend.yaml` to containerize the Express API, inject secrets from Google Cloud Secret Manager, and deploy to Cloud Run. Mapped to `api.clashcalc.com`.
 - **Secret Manager Bindings**: Production deployments bind secrets dynamically (`CLASH_OF_CLANS_API_TOKEN`, `FIRESTORE_SA_KEY`, `JWT_SECRET`, `TURNSTILE_SECRET_KEY`, `SMTP_PASS`).
+
+### Staging Deployment (Cloudflare Pages)
+
+The beta staging portal (`beta.clashcalc.com`) is deployed directly via Cloudflare Wrangler:
+
+```bash
+pnpm exec wrangler pages deploy dist --project-name=clashcalc-beta --branch=main
+```
 
 ### Manual CLI Deployment (Self-Hosting)
 
@@ -183,6 +193,8 @@ OreCalc/
 │   ├── app.js           # Ore Calculator single-page application
 │   ├── heroJourneyApp.js# Hero's Journey tracker
 │   ├── damageApp.js     # ZapQuake & damage solver
+│   ├── accountApp.js    # User account center & credential management
+│   ├── appManagementApp.js # Device diagnostics, PWA controls & storage inspect
 │   ├── components/      # UI components (Display renderers & Input controllers)
 │   ├── core/            # State management, storage partitioning, migrations
 │   ├── domain/          # Pure calculation algorithms and combinatorial solvers

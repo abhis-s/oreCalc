@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [3.1.0] - 2026-11-05
+
+### Added
+
+- **Dedicated Account Management Center**: Introduced a standalone Account Center (`/account/`) featuring hero avatar customization, dual-mode credential management (passwords and biometric WebAuthn passkeys), active session tracking with remote device revocation, full profile data export, and self-service account deletion.
+- **App Management & Device Diagnostics**: Added a dedicated diagnostics portal (`/app-management/`) providing live network telemetry, PWA installation status and platform guidance, service worker cache control, storage partition inspection, and client-side update controls.
+- **Persistent App Shell & Brand Switcher**: Built a persistent client-side application shell across all tools (Hub, Ore Calculator, Hero's Journey, Damage Calculator, Account, App Management) with seamless view transitions, stationary header and drawer chrome, an accessible brand tool switcher dropdown, and responsive brand pill compaction.
+- **Cloudflare Pages Staging Deployment**: Configured direct automated staging deployments to `beta.clashcalc.com` via Cloudflare Wrangler with zero-downtime edge caching.
+
+### Changed
+
+- **Default Branch Migration**: Transitioned repository default branch to `main`, establishing `orecalc-legacy` for legacy OreCalc maintenance.
+- **Google Cloud CI/CD Optimization**: Configured path-isolated Cloud Build triggers (`server/**` for API vs frontend ignore rules), upgraded build compute to `E2_STANDARD_2` (2 vCPUs, 8 GB RAM) within Google Cloud's free tier, and modernized pipeline definitions to Google Artifact Registry.
+- **UI State Standardization**: Standardized `.is-active` state classes across component switches and navigation elements, retired legacy settings tab in favor of reactive troubleshooting, and unified Town Hall badges.
+- **Package Manager Pinning**: Pinned `pnpm@11.3.0` across workspace packages and container Dockerfiles to ensure deterministic reproducibility.
+- **Crowdin Localization**: Upgraded `@crowdin/cli` to `v5.6.0` and aligned multi-branch translation synchronization across English, German, Turkish, and Chinese.
+
+### Fixed
+
+- **Mobile Brand Compaction**: Eliminated viewport boundary oscillation with a hysteresis buffer and preserved header element dimensions on small screens down to 350px.
+- **Service Worker Lifecycle**: Enforced root-absolute favicon and asset paths to prevent subroute 404 errors during progressive web app updates.
+- **Test Suite Contracts**: Pruned brittle regex tests, replaced synthetic DOM mocks with strict business logic and accessibility contract assertions, expanding test suite to 1,640 passing unit tests.
+
+---
+
 ## [3.0.0] - 2026-10-07
 
 ### Added

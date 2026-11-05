@@ -1,5 +1,18 @@
 export const changelogData = [
     {
+        version: "v3.1.0",
+        date: "2026-11-05",
+        changes: [
+            { type: "feature", text: "<strong>Dedicated Account Management Center</strong>: Introduced a centralized Account Center (<code>/account/</code>) featuring hero avatar selection, dual-mode credential management (passwords and biometric WebAuthn passkeys), active session tracking with remote device revocation, profile data export, and self-service account deletion." },
+            { type: "feature", text: "<strong>Standalone App Management Portal</strong>: Added a dedicated diagnostics portal (<code>/app-management/</code>) providing live network telemetry, PWA installation status and platform guidance, service worker cache diagnostics, storage partition inspections, and client-side update controls." },
+            { type: "feature", text: "<strong>Universal App Shell & Brand Navigation</strong>: Implemented persistent client-side application chrome across all tools with seamless view transitions, stationary chrome, an accessible brand tool switcher dropdown, and hysteresis-buffered mobile brand pill compaction." },
+            { type: "fix", text: "<strong>UI State Standardization & Lifecycle Hardening</strong>: Standardized <code>.is-active</code> state classes across navigation tabs, retired the legacy settings tab in favor of reactive troubleshooting, hardened modal history lifecycles, and unified Town Hall badges." },
+            { type: "chore", text: "<strong>Google Cloud CI/CD Optimization & Free-Tier Maximization</strong>: Configured path-isolated Cloud Build triggers (<code>server/**</code> for API vs frontend ignore rules), upgraded compute to <code>E2_STANDARD_2</code> within Google Cloud's free tier, and modernized pipelines to Google Artifact Registry." },
+            { type: "chore", text: "<strong>Cloudflare Pages Staging Deployment</strong>: Added automated direct staging deployments to <code>beta.clashcalc.com</code> via Cloudflare Wrangler with zero-downtime edge caching." },
+            { type: "chore", text: "<strong>Repository Branch Migration & Localization Sync</strong>: Transitioned primary branch to <code>main</code> with an isolated <code>orecalc-legacy</code> branch, upgraded Crowdin CLI to v5.6.0, and expanded automated test coverage to 1,640 passing unit tests." }
+        ]
+    },
+    {
         version: "v3.0.0",
         date: "2026-10-05",
         changes: [

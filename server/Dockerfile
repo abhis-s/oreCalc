@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package.json ./
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
 
 RUN pnpm install --prod --ignore-scripts
 

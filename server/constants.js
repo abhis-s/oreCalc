@@ -11,6 +11,7 @@ const ALLOWED_ORIGINS = deepFreeze([
     'https://clashcalc.com',
     'https://www.clashcalc.com',
     'https://beta.clashcalc.com',
+    'https://clashcalc-beta.pages.dev',
     'https://orecalc-beta.pages.dev',
     'http://localhost:8080',
     'http://127.0.0.1:8080',

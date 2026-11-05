@@ -9,7 +9,7 @@
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f9f9">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
     <meta name="robots" content="noindex, follow">
-    <meta name="effective-date-timestamp" content="1790985600000">
+    <meta name="effective-date-timestamp" content="1793836800000">
     <title>Privacy Policy - ClashCalc</title>
     <link rel="canonical" href="https://clashcalc.com/privacy/">
     <link rel="alternate" hreflang="en" href="https://clashcalc.com/privacy/" />
@@ -54,15 +54,16 @@
         </div>
 
         <h1>Privacy Policy</h1>
-        <p><strong>Effective Date:</strong> October 3, 2026 (Originally Published: June 5, 2026)</p>
+        <p><strong>Effective Date:</strong> November 5, 2026 (Originally Published: June 5, 2026)</p>
 
         <div class="update-summary-box">
-            <h2 class="update-summary-box__title">Summary of Recent Updates (October 3, 2026)</h2>
+            <h2 class="update-summary-box__title">Summary of Recent Updates (November 5, 2026 &ndash; v3.1.0)</h2>
             <ul class="update-summary-box__list">
+                <li><strong>Dedicated Portals &amp; Local Diagnostics:</strong> Documented the standalone Account Center (<code>/account/</code>) and App Management (<code>/app-management/</code>) portals; clarified that local cache auditing, device telemetry inspection, and offline storage quota checks operate 100% locally on-device with zero diagnostic tracking.</li>
                 <li><strong>User Accounts &amp; Passkeys:</strong> Disclosed data handling for registered accounts (pseudonymous usernames, bcrypt-hashed passwords, and WebAuthn/Passkey public credentials).</li>
                 <li><strong>Anti-Abuse &amp; Bot Security:</strong> Disclosed Cloudflare Turnstile verification on authentication endpoints.</li>
-                <li><strong>Unified Self-Service Data Management:</strong> Replaced legacy manual exclusion requests with unified self-service controls: local JSON export/import, cache clearing, village data reset, and instant permanent account deletion.</li>
-                <li><strong>Diagnostic Data Retention:</strong> Specified an automated 15-day time-to-live (TTL) retention schedule for error diagnostics.</li>
+                <li><strong>Unified Self-Service Data Management:</strong> Self-service controls for local JSON export/import, cache clearing, village data reset, and instant permanent account deletion.</li>
+                <li><strong>Diagnostic Data Retention:</strong> Specified an automated 15-day time-to-live (TTL) retention schedule for server-side error diagnostics.</li>
             </ul>
         </div>
 
@@ -143,14 +144,14 @@
 
         <h2>5. Your Data Rights &amp; Deletion Tools</h2>
         <p>
-            We align with EU GDPR, CCPA, and global privacy standards by providing comprehensive self-service data management tools directly inside the Settings tab under <strong>Account &amp; Data Management</strong>:
+            We align with EU GDPR, CCPA, and global privacy standards by providing comprehensive self-service data management tools directly inside the Settings tab under <strong>Account &amp; Data Management</strong>, as well as through dedicated portals at <a href="/account/">Account Center</a> and <a href="/app-management/">App Management</a>:
         </p>
         <ul>
             <li>
                 <strong>Data Backup &amp; Restore:</strong> Export and download your entire application state as a JSON file at any time, or restore your configuration from a previous backup file.
             </li>
             <li>
-                <strong>Clear Device Cache:</strong> Wipes temporary cached responses and asset indexes without altering your persistent player configurations or settings.
+                <strong>Clear Device Cache &amp; Storage Audit:</strong> The App Management portal (<code>/app-management/</code>) allows you to inspect local cache partitions, audit offline asset storage, and wipe temporary cached responses without altering your persistent player configurations.
             </li>
             <li>
                 <strong>Reset Village Data:</strong> Permanently resets local village progression, equipment levels, and unsynced calculations stored in your browser's <code>localStorage</code>.
@@ -159,7 +160,7 @@
                 <strong>Delete All Data (Anonymous Cloud Sync):</strong> Permanently wipes all local browser data and deletes your synced backup profile and settings from our cloud servers.
             </li>
             <li>
-                <strong>Delete Account (Registered Accounts):</strong> Provides an immediate, self-service deletion option that permanently purges your registered account, removes your password hash and registered Passkeys, deletes all cloud-synced villages and configurations from our database, invalidates active session tokens, and places your identifier in a deletion ledger to ensure no orphaned data remains.
+                <strong>Delete Account (Registered Accounts):</strong> Provides an immediate, self-service deletion option (accessible via Settings or the Account Center at <code>/account/</code>) that permanently purges your registered account, removes your password hash and registered Passkeys, deletes all cloud-synced villages and configurations from our database, invalidates active session tokens, and places your identifier in a deletion ledger to ensure no orphaned data remains.
             </li>
         </ul>
 

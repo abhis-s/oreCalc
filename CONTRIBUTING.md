@@ -44,7 +44,7 @@ We welcome contributions to ClashCalc (formerly OreCalc)! To maintain code quali
 
 ## Git & Branching Workflow
 
-1. Create a descriptive branch from `clashcalc` / `main`:
+1. Create a descriptive branch from `main`:
    - `feat/your-feature-name` for new features or capabilities.
    - `fix/bug-description` for bug fixes.
    - `chore/task-name` for build, dependencies, or maintenance.
@@ -71,7 +71,7 @@ $$\text{Data} \longrightarrow \text{Domain} \longrightarrow \text{Core} \longrig
   - `*Display.js`: Pure DOM construction and visual output. Never attach event listeners in display modules.
   - `*Inputs.js`: User input listeners, click handlers, validation, and state dispatchers.
 - **Strict Suffixing**: Component filenames must end with either `Display.js` or `Inputs.js`.
-- **HTML Templates**: Entry templates (`index.html`, `ore-calculator/index.html`, `hero-journey/index.html`, `damage-calculator/index.html`) are minimal shells using compile-time includes under `partials/` (injected via `<!-- include: partials/... -->`).
+- **HTML Templates**: Entry templates (`index.html`, `ore-calculator/index.html`, `hero-journey/index.html`, `damage-calculator/index.html`, `account/index.html`, `app-management/index.html`) are minimal shells using compile-time includes under `partials/` (injected via `<!-- include: partials/... -->`).
 
 ### 3. State & Data Management
 
