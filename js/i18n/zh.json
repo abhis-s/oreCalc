@@ -9,11 +9,13 @@
         "close": "关闭",
         "compressTable": "收起表格",
         "confirm": "确认",
+        "copied": "已复制！",
         "copy": "复制",
         "create": "创建",
         "decrease": "减少",
         "delete": "删除",
         "disable": "停用",
+        "dismiss": "Dismiss",
         "done": "完成",
         "download": "下载",
         "enable": "启用",
@@ -22,6 +24,7 @@
         "fix": "修复",
         "hide": "隐藏",
         "increase": "增加",
+        "installApp": "Install App",
         "later": "稍后",
         "link": "链接",
         "linkDevice": "关联设备",
@@ -39,10 +42,10 @@
         "refresh": "刷新",
         "reload": "重新加载",
         "remove": "移除",
-        "report": "反馈",
         "reset": "重置",
         "restore": "恢复",
         "save": "保存",
+        "search": "Search",
         "showInfo": "显示信息",
         "showLess": "收起",
         "showMore": "显示更多",
@@ -61,8 +64,7 @@
         "validate": "验证",
         "verify": "验证",
         "view": "查看",
-        "viewSuggestions": "查看建议",
-        "visit": "前往"
+        "viewSuggestions": "查看建议"
     },
     "alerts": {
         "bugReportFailure": "提交问题反馈失败，请稍后再试。",
@@ -145,7 +147,6 @@
             "timeIcon": "时间图标"
         },
         "brandToolName": "OreCalc",
-        "comingSoon": "敬请期待！",
         "description": "专业的《部落冲突》矿石计算与升级规划工具。预测矿石收入量，通过拖放日历规划英雄装备升级，并管理多个账号。支持完整的矿石收益追踪、升级优先级列表、离线使用（PWA）以及云端同步。",
         "domainNotice": {
             "cta": "切换到 ClashCalc",
@@ -157,7 +158,8 @@
         "metaTitle": "OreCalc — 《部落冲突》英雄装备与升级规划器 | ClashCalc",
         "none": "无",
         "supercellDisclaimer": "本内容为非官方粉丝作品，未经 Supercell 认可或授权。详情请参阅 Supercell 粉丝内容政策：<a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">{displayUrl}</a>。",
-        "title": "矿石计算器"
+        "title": "矿石计算器",
+        "version": "版本"
     },
     "auth": {
         "account": "账号",
@@ -177,6 +179,7 @@
         },
         "changeAvatar": "更换头像",
         "chooseAvatar": "选择头像",
+        "codeExpired": "Code Expired",
         "confirmDeletePasskey": "确定要移除此通行密钥吗？",
         "createAccount": "创建账号",
         "createWithPasskey": "使用通行密钥创建",
@@ -186,11 +189,14 @@
         "defaultPasskeyName": "通行密钥",
         "deleteAccount": "删除账号",
         "deletePasskey": "删除通行密钥",
+        "deviceLinked": "Device Linked",
         "disclaimer": "创建账号即表示你同意我们的<a href=\"#\" id=\"auth-terms-link\" class=\"theme-link\">使用条款</a>，并确认已阅读并同意<a href=\"#\" id=\"auth-privacy-link\" class=\"theme-link\">隐私政策</a>。",
         "dividerOr": "或",
         "explanations": {
             "deleteAccount": "永久删除你的账号、用户名、通行密钥以及所有关联的云端数据。"
         },
+        "newBadge": "New",
+        "newPassword": "New Password",
         "noPasskeysRegistered": "尚未注册通行密钥。",
         "passkeyDesc": "使用 Touch ID、Face ID 或 Windows Hello，无需密码即可安全登录。",
         "passkeyName": "通行密钥名称",
@@ -204,6 +210,7 @@
         "providerWindows": "Windows Hello",
         "resetVillageData": "重置村庄数据",
         "securityKey": "安全密钥",
+        "setPassword": "Set Password",
         "signIn": "登录",
         "signInToAccount": "登录账号",
         "signInWithPasskey": "使用通行密钥登录",
@@ -572,15 +579,18 @@
         "tag": "玩家标签"
     },
     "status": {
+        "checking": "Checking...",
+        "downloading": "Downloading...",
         "error": "错误",
         "info": "信息",
+        "installing": "Installing...",
         "notice": "提示",
+        "offline": "Offline",
+        "online": "Online",
         "saving": "正在保存……",
         "success": "成功",
         "updateAvailable": "发现新版本",
-        "updateAvailableMsg": "发现新版本。",
         "updateForcedIn": "建议更新将在 {time} 后自动应用。",
-        "updateForcedShort": "将在 {time} 后自动更新",
         "updatePrompt": "发现新版本，重新加载即可体验最新功能并获取问题修复。",
         "warning": "警告"
     },
@@ -619,7 +629,22 @@
     },
     "views": {
         "account": {
+            "currentDevice": "This Device",
             "guestDataErasure": "数据删除"
+        },
+        "appManagement": {
+            "diagnostics": {
+                "displayMode": "Display Mode",
+                "engine": "Browser Engine",
+                "network": "Network Status"
+            },
+            "startupViews": {
+                "compositeLabel": "{tool} · {subView}"
+            },
+            "storage": {
+                "cleared": "Cache cleared"
+            },
+            "title": "App Management"
         },
         "changelog": {
             "title": "更新日志",
@@ -636,6 +661,7 @@
             "title": "其他优化"
         },
         "damageCalc": {
+            "brandToolName": "DamageCalc",
             "clusterPlanner": {
                 "clearSelectionBtn": "清除选择",
                 "clusterEmptyToolbarPrompt": "从下方选择防御建筑加入集群（2～5 个）",
@@ -1356,13 +1382,10 @@
             "about": {
                 "author": "作者",
                 "buyMeACoffee": "赞助开发者",
-                "buyMeACoffeeDesc": "支持项目开发。",
                 "changelog": "更新日志",
-                "changelogHelp": "查看每个版本的更新内容、问题修复和新增功能。",
                 "contact": "联系我们",
                 "contactInfo": "如果你有任何问题、反馈或功能建议，可发送邮件至 <code>support@clashcalc.com</code> 与我们联系。点击下方按钮即可打开邮件客户端。",
                 "crowdin": "帮助我们完善翻译",
-                "crowdinHelp": "贡献翻译，帮助我们将应用本地化为你的语言。",
                 "errorLoadingLicense": "许可证内容加载失败。",
                 "github": "GitHub",
                 "loadingLicense": "正在加载许可证……",
@@ -1379,22 +1402,26 @@
                 "info": "你也可以通过我们的 {link} 页面直接提交问题。",
                 "privacyInfo": "提交此报告即表示你同意我们根据 {link} 处理你的用户数据及所提供的电子邮箱地址。",
                 "swDesc": "清除应用本地缓存，以强制获取最新版本和修复内容。",
-                "title": "问题反馈"
+                "title": "问题反馈",
+                "updateNowLabel": "Update Now"
             },
             "cards": {
                 "accountAndSync": "账号与云端同步",
                 "developmentSupport": "开发与支持",
-                "preferences": "个性化设置",
                 "transparency": "法律与透明度"
             },
             "cloudSync": {
                 "deviceInfo": "连接多台设备，并同步你的数据。",
                 "placeholderSyncCode": "粘贴同步码（例如：f81d4fae-...）",
+                "syncDisabledTitle": "Sync Disabled",
                 "yourSyncCode": "你的同步码"
             },
             "dataErasure": {
                 "completeDeleteInfo": "系统将通过《部落冲突》官方 API 验证你对该账号的所有权。验证成功后，我们会从整个数据库中永久移除该玩家标签与所有关联的 ClashCalc 用户 ID。此后，任何人都必须重新完成验证才能再次添加该账号。",
                 "requestExclusionFromService": "申请注销服务"
+            },
+            "feedback": {
+                "title": "Feedback"
             },
             "globalPricing": {
                 "desc": "Supercell 采用地区定价和个性化定价机制，礼包价格会因国家或地区、货币购买力以及账号消费情况而有所不同。你可以在此设置自定义价格，使其与商店中的实际价格一致，从而准确统计你的花费。",
@@ -1446,7 +1473,6 @@
                 "globalPricing": "全球定价",
                 "language": "语言",
                 "layoutCompactLabel": "紧凑",
-                "layoutCozyLabel": "舒适",
                 "theme": "浅色/深色模式",
                 "themeDark": "深色主题",
                 "themeLight": "浅色主题",
@@ -1467,12 +1493,29 @@
             }
         },
         "shortcuts": {
+            "categories": {
+                "global": "Global"
+            },
             "keys": {
-                "keyboardSpace": "空间"
+                "keyboardBackspace": "Backspace",
+                "keyboardCommand": "Command",
+                "keyboardCtrl": "Ctrl",
+                "keyboardDown": "Down",
+                "keyboardEnter": "Enter",
+                "keyboardEsc": "ESC",
+                "keyboardLeft": "Left",
+                "keyboardRight": "Right",
+                "keyboardShift": "Shift",
+                "keyboardSpace": "空间",
+                "keyboardTab": "Tab",
+                "keyboardUp": "Up"
             }
         },
         "spotright": {
-            "activeVillage": "主动"
+            "activeVillage": "主动",
+            "beta": "Beta",
+            "recent": "Recent",
+            "scopesHeading": "Filter Scopes"
         },
         "tour": {
             "backupSyncDesc": "启用云同步，自动备份数据，并在多个设备之间保持同步。",
@@ -1491,10 +1534,8 @@
             "navIncomeDesc": "你可以在这里配置所有矿石收入来源。每张发光卡片代表一种收入来源，例如胜利之星奖励、部落战、商店礼包等。",
             "navPlannerDesc": "规划页面汇总所有功能。设置升级目标、排列装备优先级，并在日历中追踪升级进度。",
             "navPlannerTitle": "升级规划",
-            "navSettingsDesc": "设置页面可帮助你个性化应用。选择主题、主题颜色、语言，并管理你的数据。",
             "oresDesc": "在这里更新当前矿石数量，帮助规划器精准计算你还需要多少矿石。",
             "oresTitle": "矿石库存追踪",
-            "preferencesDesc": "在这里调整应用外观。如果游戏内物品和商店礼包价格与你所在地区不一致，也可以调整全球价格设置。",
             "profileCardDesc": "此卡片展示当前资料的总体概览，包括玩家资料、已满级装备数量，以及各类矿石升级的详细完成百分比。",
             "profileCardTitle": "玩家概览与进度",
             "profileDesc": "切换不同的已保存村庄资料，点击刷新按钮更新玩家数据，或点击“+ 添加玩家”添加更多账号。",
