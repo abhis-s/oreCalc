@@ -25,3 +25,7 @@ server/orecalc-firestore-sa-key.json
 .agents/
 scratch/
 tests/temp/
+
+# Backup & Temporary Files
+*.bak
+*.bk
