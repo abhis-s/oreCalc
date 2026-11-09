@@ -94,6 +94,9 @@ $border-subtle: color-mix(in srgb, $border-primary 50%, transparent);
         gap: $spacing-xs;
         height: 32px;
         flex-shrink: 0;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
 
         &--overlap {
             gap: 0;
@@ -112,7 +115,13 @@ $border-subtle: color-mix(in srgb, $border-primary 50%, transparent);
                 &--rc { z-index: 5; }
                 &--dd { z-index: 6; }
 
-                &:hover {
+                @media (hover: hover) {
+                    &:hover {
+                        z-index: $z-index-overlay;
+                    }
+                }
+
+                &.active-pop {
                     z-index: $z-index-overlay;
                 }
             }
@@ -505,7 +514,13 @@ $border-subtle: color-mix(in srgb, $border-primary 50%, transparent);
     position: relative;
     transition: transform $duration-fast $ease-standard;
 
-    &:hover {
+    @media (hover: hover) {
+        &:hover {
+            transform: translateY(-2px) scale(1.15);
+        }
+    }
+
+    &.active-pop {
         transform: translateY(-2px) scale(1.15);
     }
 }

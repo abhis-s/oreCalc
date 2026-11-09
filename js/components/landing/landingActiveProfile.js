@@ -5,7 +5,7 @@ import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 import { getCumulativeHeroLevel, getMaxCumulativeLevelsByTH } from '../../domain/income/heroJourneyLevels.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
-import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
+import { animateValue, cancelAnimation, formatNumber } from '../../utils/numberFormatter.js';
 import { renderProfileHeaderHtml, getLeagueI18nKey, formatClanRole } from '../common/profileHeaderDisplay.js';
 
 /**
@@ -278,6 +278,7 @@ export function renderActiveProfile(summary, playerData, maxedCount, totalCount)
             if (prevTrophies !== targetTrophies) {
                 animateValue(trophiesSpan, prevTrophies, targetTrophies, 1800, val => formatNumber(Math.round(val)));
             } else {
+                cancelAnimation(trophiesSpan);
                 trophiesSpan.textContent = trophies != null ? formatNumber(targetTrophies) : '--';
             }
         }
@@ -288,6 +289,7 @@ export function renderActiveProfile(summary, playerData, maxedCount, totalCount)
             if (prevMaxed !== maxedCount) {
                 animateValue(maxedCountSpan, prevMaxed, maxedCount, 1800, val => `${Math.round(val)}/${totalCount}`);
             } else {
+                cancelAnimation(maxedCountSpan);
                 maxedCountSpan.textContent = `${maxedCount}/${totalCount}`;
             }
         }

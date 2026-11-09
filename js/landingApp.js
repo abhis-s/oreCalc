@@ -29,6 +29,10 @@ import {
     initLandingAccountsManager
 } from './components/landing/landingAccountsController.js';
 import { initLandingSearchForm } from './components/landing/landingSearchController.js';
+import {
+    initLandingToolsInputs,
+    destroyLandingToolsInputs
+} from './components/landing/landingToolsInputs.js';
 import { renderTownHallBadge } from './components/common/townHallBadge.js';
 import { isRunningStandalone } from './services/pwaService.js';
 import { getStartupRoutePreference } from './services/appManagementService.js';
@@ -402,6 +406,7 @@ export async function mount(options = {}) {
 
     updateToolLinks();
     await initCommandCenter();
+    initLandingToolsInputs();
     landingDrawerInstance = bindStandaloneNavigationDrawer(updateLandingDrawer);
     if (!hasAttachedLandingListeners) {
         hasAttachedLandingListeners = true;
@@ -418,6 +423,7 @@ export function destroy() {
     if (!isMounted) return;
     isMounted = false;
 
+    destroyLandingToolsInputs();
     landingAccountsManager?.destroy?.();
     landingDrawerInstance?.destroy?.();
     landingAccountsManager = null;

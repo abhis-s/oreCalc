@@ -46,12 +46,46 @@
     row-gap: $spacing-xs;
     column-gap: $spacing-sm;
     padding: 0 $spacing-2xs;
+
+    &.has-compact-refresh #landing-refresh-accounts-btn {
+        padding: $spacing-xs;
+        width: 32px;
+        min-width: 32px;
+        justify-content: center;
+
+        span {
+            display: none;
+        }
+    }
+
+    &.has-compact-manage #landing-manage-accounts-btn {
+        padding: $spacing-xs;
+        width: 32px;
+        min-width: 32px;
+        justify-content: center;
+
+        span {
+            display: none;
+        }
+    }
+
+    &.has-compact-add #landing-toggle-add-btn {
+        padding: $spacing-xs;
+        width: 32px;
+        min-width: 32px;
+        justify-content: center;
+
+        span {
+            display: none;
+        }
+    }
 }
 
 .landing-accounts-title-group {
     display: flex;
     align-items: center;
     gap: $spacing-sm;
+    flex-shrink: 0;
 
     .landing-accounts-title {
         margin: 0;
@@ -75,6 +109,7 @@
     align-items: center;
     gap: $spacing-xs;
     margin-left: auto;
+    flex-shrink: 0;
 }
 
 .landing-refresh-toggle-btn,

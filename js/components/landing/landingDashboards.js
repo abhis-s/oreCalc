@@ -2,7 +2,7 @@ import { getOverallGradient } from '../../domain/equipment/equipmentProgressDoma
 import { heroData } from '../../data/heroData.js';
 import { heroJourneyNodes } from '../../data/heroJourneyData.js';
 import { translate } from '../../i18n/translator.js';
-import { animateValue } from '../../utils/numberFormatter.js';
+import { animateValue, cancelAnimation } from '../../utils/numberFormatter.js';
 
 /** @type {ResizeObserver | null} */
 let toolCardsResizeObserver = null;
@@ -185,8 +185,10 @@ export function renderLiveDashboards(oreProgress, hjProgress, thLevel = 18) {
             if (hjBadge) {
                 hjBadge.hidden = false;
                 if (hjProgress.isTrackMaxed) {
+                    cancelAnimation(hjBadge);
                     hjBadge.textContent = translate('views.planner.completed');
                 } else if (hjProgress.isThMaxed) {
+                    cancelAnimation(hjBadge);
                     hjBadge.textContent = translate('views.landing.thMaxed', { th: thLevel });
                 } else {
                     animateValue(hjBadge, prevHj.progressPercent, hjProgress.progressPercent, 2000, val => translate('views.landing.pctMaxed', { pct: Math.round(val) }));
@@ -211,6 +213,7 @@ export function renderLiveDashboards(oreProgress, hjProgress, thLevel = 18) {
             if (milestoneEl) {
                 milestoneEl.setAttribute('title', milestoneText);
                 if (isMaxed) {
+                    cancelAnimation(milestoneEl);
                     milestoneEl.textContent = compactMilestoneText;
                 } else {
                     const prevRemaining = Math.max(0, (prevHj.thCap || hjProgress.thCap) - (prevHj.cumulativeLevel || 0));
@@ -432,12 +435,14 @@ export function renderGuestTeasers() {
     if (damageDesc) damageDesc.style.display = '';
 
     if (oreBadge) {
+        cancelAnimation(oreBadge);
         oreBadge.hidden = false;
         oreBadge.setAttribute('data-i18n', 'views.landing.badgeCalculator');
         oreBadge.textContent = translate('views.landing.badgeCalculator');
         oreBadge.style.display = 'inline-flex';
     }
     if (hjBadge) {
+        cancelAnimation(hjBadge);
         hjBadge.hidden = false;
         hjBadge.setAttribute('data-i18n', 'views.landing.badgeTracker');
         hjBadge.textContent = translate('views.landing.badgeTracker');

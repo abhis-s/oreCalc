@@ -106,15 +106,15 @@
                     <span id="landing-accounts-count" class="landing-accounts-count badge">0</span>
                 </div>
                 <div class="landing-accounts-actions">
-                    <button type="button" id="landing-refresh-accounts-btn" class="landing-refresh-toggle-btn" aria-label="Refresh Villages" data-i18n-aria-label="actions.refresh">
+                    <button type="button" id="landing-refresh-accounts-btn" class="landing-refresh-toggle-btn" aria-label="Refresh Villages" data-i18n-aria-label="actions.refresh" title="Refresh Villages" data-i18n-title="actions.refresh">
                         <clashcalc-assets-svg name="refresh" width="14" height="14" class="landing-refresh-icon"></clashcalc-assets-svg>
                         <span data-i18n="actions.refresh">Refresh</span>
                     </button>
-                    <button type="button" id="landing-manage-accounts-btn" class="landing-manage-toggle-btn" aria-label="Manage Villages" data-i18n-aria-label="views.landing.manageVillages">
+                    <button type="button" id="landing-manage-accounts-btn" class="landing-manage-toggle-btn" aria-label="Manage Villages" data-i18n-aria-label="views.landing.manageVillages" title="Manage Villages" data-i18n-title="views.landing.manageVillages">
                         <clashcalc-assets-svg name="edit" width="14" height="14"></clashcalc-assets-svg>
                         <span data-i18n="actions.manage">Manage</span>
                     </button>
-                    <button type="button" id="landing-toggle-add-btn" class="landing-add-toggle-btn" aria-label="Add Village" data-i18n-aria-label="views.landing.addVillage">
+                    <button type="button" id="landing-toggle-add-btn" class="landing-add-toggle-btn" aria-label="Add Village" data-i18n-aria-label="views.landing.addVillage" title="Add Village" data-i18n-title="views.landing.addVillage">
                         <clashcalc-assets-svg name="plus" width="14" height="14"></clashcalc-assets-svg>
                         <span data-i18n="views.landing.addVillage">Add Village</span>
                     </button>
@@ -238,6 +238,7 @@
                         <h3 class="landing-tool-card__title">
                             <a href="/damage-calculator/" id="landing-title-link-damage" class="landing-tool-card__title-link" data-i18n="views.landing.toolDamageCalcTitle" data-i18n-title="views.landing.toolDamageCalcTitle" title="Equipment Damage &amp; ZapQuake">Equipment Damage &amp; ZapQuake</a>
                         </h3>
+                        <span id="landing-damage-badge" class="landing-tool-card__badge badge" data-i18n="views.landing.jumpZapQuake">ZapQuake</span>
                     </div>
                     <p class="landing-tool-card__desc" data-i18n="views.landing.toolDamageCalcDesc">Simulate exact hero equipment and spell damage thresholds, calculate optimal ZapQuake combinations to snipe key defenses, and test attack sequences against Town Hall defenses.</p>
                     <div id="landing-damage-progress" class="landing-tool-card__live-progress" hidden aria-live="polite"></div>

@@ -25,6 +25,7 @@ import {
     renderLiveDashboards
 } from './landingDashboards.js';
 import { renderAccountsGrid } from './landingAccounts.js';
+import { initAccountsHeaderLayoutObserver } from './landingAccountsHeaderObserver.js';
 
 /**
  * Loads full partitioned player data from localStorage.
@@ -143,11 +144,16 @@ export function initLandingAccountsManager({
     /**
      * Activates a player account, updating showcase, cards highlight, tool links, and live progress.
      * @param {string} cleanTag
+     * @param {{ force?: boolean }} [options]
      */
-    const selectVillage = (cleanTag) => {
+    const selectVillage = (cleanTag, options = {}) => {
         const currentProfiles = getSavedProfiles();
         const summary = currentProfiles.find(p => p.cleanTag === cleanTag);
         if (!summary) return;
+
+        if (cleanTag === activeTag && !options.force && activeProfile) {
+            return;
+        }
 
         activeTag = cleanTag;
         setActivePlayerTag(cleanTag);
@@ -300,7 +306,7 @@ export function initLandingAccountsManager({
                         cardsContainer?.classList.add('is-managing');
                     }
                     if (updatedTag === activeTag) {
-                        selectVillage(activeTag);
+                        selectVillage(activeTag, { force: true });
                     }
                     const updatedCard = document.querySelector(`.landing-account-card[data-tag="${updatedTag}"]`);
                     if (updatedCard) {
@@ -349,30 +355,11 @@ export function initLandingAccountsManager({
                 ? `<clashcalc-assets-svg name="check" width="14" height="14"></clashcalc-assets-svg><span data-i18n="actions.done">${translate('actions.done')}</span>`
                 : `<clashcalc-assets-svg name="edit" width="14" height="14"></clashcalc-assets-svg><span data-i18n="actions.manage">${translate('actions.manage')}</span>`;
 
+            manageBtn.setAttribute('aria-label', isManagingAccounts ? translate('actions.done') : translate('views.landing.manageVillages'));
+            manageBtn.setAttribute('title', isManagingAccounts ? translate('actions.done') : translate('views.landing.manageVillages'));
+
             const cardsContainer = document.getElementById('landing-accounts-list');
             cardsContainer?.classList.toggle('is-managing', isManagingAccounts);
-        });
-    }
-
-    const accountsListContainer = document.getElementById('landing-accounts-list');
-    if (accountsListContainer) {
-        accountsListContainer.addEventListener('click', (e) => {
-            const target = /** @type {HTMLElement} */ (e.target);
-
-            const deleteBtn = target.closest('.landing-account-delete-btn');
-            if (deleteBtn) {
-                e.stopPropagation();
-                const card = deleteBtn.closest('.landing-account-card');
-                const tag = (/** @type {HTMLElement | null} */ (card))?.dataset.tag;
-                if (tag) handleDeleteVillage(tag);
-                return;
-            }
-
-            const card = target.closest('.landing-account-card');
-            if (card) {
-                const tag = (/** @type {HTMLElement} */ (card)).dataset.tag;
-                if (tag) selectVillage(tag);
-            }
         });
     }
 
@@ -380,7 +367,7 @@ export function initLandingAccountsManager({
     if (savedProfiles.length > 0) {
         renderAccountsGrid(savedProfiles, activeTag, selectVillage, handleDeleteVillage);
         if (activeTag) {
-            selectVillage(activeTag);
+            selectVillage(activeTag, { force: true });
         }
     } else {
         if (typeof onAllVillagesDeleted === 'function') {
@@ -444,6 +431,11 @@ export function initLandingAccountsManager({
         }
     }
 
+    const accountsHeaderEl = document.querySelector('.landing-accounts-header');
+    const cleanupHeaderObserver = accountsHeaderEl
+        ? initAccountsHeaderLayoutObserver(/** @type {HTMLElement} */ (accountsHeaderEl))
+        : () => {};
+
     return {
         selectVillage,
         handleDeleteVillage,
@@ -451,6 +443,7 @@ export function initLandingAccountsManager({
         getActiveProfile: () => activeProfile,
         destroy: () => {
             isDestroyed = true;
+            cleanupHeaderObserver();
         }
     };
 }

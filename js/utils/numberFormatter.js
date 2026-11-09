@@ -45,7 +45,22 @@ export function formatCurrency(number) {
 }
 
 /**
+ * Cancels any active requestAnimationFrame animation on a DOM element.
+ * @param {HTMLElement | any} element
+ */
+export function cancelAnimation(element) {
+    if (element?.__animationFrameId) {
+        cancelAnimationFrame(element.__animationFrameId);
+        element.__animationFrameId = null;
+    }
+    if (element) {
+        element.__currentAnimatedValue = undefined;
+    }
+}
+
+/**
  * Animates a numeric transition in a DOM text element using requestAnimationFrame and quartic-out easing.
+ * If an animation is already in flight on the element, it smoothly continues from the current interpolated value.
  * @param {HTMLElement | any} element - DOM element to animate.
  * @param {number} start - Starting numeric value.
  * @param {number} end - Target numeric value.
@@ -55,8 +70,19 @@ export function formatCurrency(number) {
 export function animateValue(element, start, end, duration = 750, formatFn = val => String(val)) {
     if (!element) return;
 
+    const effectiveStart = (element.__animationFrameId && typeof element.__currentAnimatedValue === 'number')
+        ? element.__currentAnimatedValue
+        : start;
+
     if (element.__animationFrameId) {
         cancelAnimationFrame(element.__animationFrameId);
+        element.__animationFrameId = null;
+    }
+
+    if (effectiveStart === end) {
+        element.__currentAnimatedValue = end;
+        element.textContent = formatFn(end);
+        return;
     }
 
     const startTime = performance.now();
@@ -65,6 +91,7 @@ export function animateValue(element, start, end, duration = 750, formatFn = val
         if (!element.isConnected) {
             cancelAnimationFrame(element.__animationFrameId);
             element.__animationFrameId = null;
+            element.__currentAnimatedValue = undefined;
             return;
         }
 
@@ -74,16 +101,19 @@ export function animateValue(element, start, end, duration = 750, formatFn = val
         // Quartic Out easing (matches cubic-bezier(0.25, 1, 0.5, 1)):
         const easeProgress = 1 - Math.pow(1 - progress, 4);
 
-        const currentVal = start + (end - start) * easeProgress;
+        const currentVal = effectiveStart + (end - effectiveStart) * easeProgress;
+        element.__currentAnimatedValue = currentVal;
         element.textContent = formatFn(currentVal);
 
         if (progress < 1) {
             element.__animationFrameId = requestAnimationFrame(update);
         } else {
             element.__animationFrameId = null;
+            element.__currentAnimatedValue = end;
         }
     }
 
+    element.__currentAnimatedValue = effectiveStart;
     element.__animationFrameId = requestAnimationFrame(update);
 }
 
