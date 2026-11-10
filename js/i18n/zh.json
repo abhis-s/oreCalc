@@ -1360,7 +1360,7 @@
                 "changelog": "更新日志",
                 "changelogHelp": "查看每个版本的更新内容、问题修复和新增功能。",
                 "contact": "联系我们",
-                "contactInfo": "如果你有任何问题、反馈或功能建议，可发送邮件至 <code>support@clashcalc.com</code> 与我们联系。点击下方按钮即可打开邮件客户端。",
+                "contactInfo": "如果你有任何问题、反馈或功能建议，点击下方按钮即可打开邮件客户端。",
                 "crowdin": "帮助我们完善翻译",
                 "crowdinHelp": "贡献翻译，帮助我们将应用本地化为你的语言。",
                 "errorLoadingLicense": "许可证内容加载失败。",

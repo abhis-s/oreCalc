@@ -1044,7 +1044,7 @@
                 "changelog": "Değişiklik Günlüğü",
                 "changelogHelp": "Uygulamanın her sürümünde yapılan güncellemelerin, düzeltmelerin ve eklenen yeni özelliklerin geçmişini görüntüleyin.",
                 "contact": "Bağlantı",
-                "contactInfo": "Sorularınız, geri bildirimleriniz veya özellik önerileriniz için <code>support@clashcalc.com</code> adresinden bizimle iletişime geçebilirsiniz. E-posta istemcinizi açmak için aşağıdaki düğmeye tıklayın.",
+                "contactInfo": "Sorularınız, geri bildirimleriniz veya özellik önerileriniz için aşağıdaki düğmeye tıklayarak e-posta istemcinizi açabilirsiniz.",
                 "crowdin": "Çeviriye Yardım Edin",
                 "crowdinHelp": "Uygulamayı kendi dilinize yerelleştirmemize yardımcı olmak için çeviriler gönderin.",
                 "errorLoadingLicense": "Lisans metni yüklenirken hata oluştu.",

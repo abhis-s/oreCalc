@@ -1488,7 +1488,7 @@
                 "buyMeACoffee": "Buy Me A Coffee",
                 "changelog": "Changelog",
                 "contact": "Contact",
-                "contactInfo": "For questions, feedback, or feature suggestions, you can contact us at <code>support@clashcalc.com</code>. Click the button below to open your mail client.",
+                "contactInfo": "For questions, feedback, or feature suggestions, click the button below to open your mail client.",
                 "crowdin": "Help Us Translate",
                 "errorLoadingLicense": "Error loading license text.",
                 "github": "GitHub",
