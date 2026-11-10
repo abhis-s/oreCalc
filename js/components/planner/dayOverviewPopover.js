@@ -36,6 +36,19 @@ function bindOutsideDismiss() {
 
     document.addEventListener('pointerdown', handleOutsideInteraction, { capture: true, passive: true });
 
+    const handleScrollOrResize = (e) => {
+        if (!dayPopoverElem || !dayPopoverElem.classList.contains('show')) return;
+        if (e && e.target && typeof dayPopoverElem.contains === 'function') {
+            try {
+                if (dayPopoverElem.contains(e.target)) return;
+            } catch (_) {}
+        }
+        hideDayOverviewPopover();
+    };
+
+    window.addEventListener('scroll', handleScrollOrResize, { capture: true, passive: true });
+    window.addEventListener('resize', handleScrollOrResize, { passive: true });
+
     if (dayPopoverElem && typeof dayPopoverElem.addEventListener === 'function') {
         dayPopoverElem.addEventListener('toggle', (event) => {
             if (event.newState === 'closed') {

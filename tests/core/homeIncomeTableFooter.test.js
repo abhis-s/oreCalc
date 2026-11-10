@@ -385,7 +385,7 @@ describe('Home Income Table Footer & Timeframe Reactivity Suite', () => {
     });
 
     test('recalculateAll updates totalIncome and totalMoneyCost across daily, weekly, monthly, and bimonthly timeframes', () => {
-        state.income.starBonus = { league: 105000022 };
+        state.playerProfile = { townHallLevel: 16 };
         state.income.eventPass = { eventPass: true };
 
         state.uiSettings.summaryTimeframe = 'monthly';
@@ -453,7 +453,7 @@ describe('Home Income Table Footer & Timeframe Reactivity Suite', () => {
 
     test('renderApp updates table body rows AND footer totals when activeTab is home-tab', () => {
         state.activeTab = 'home-tab';
-        state.income.starBonus = { league: 105000022 };
+        state.playerProfile = { townHallLevel: 16 };
         state.uiSettings.summaryTimeframe = 'monthly';
         recalculateAll(state);
 

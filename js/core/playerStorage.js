@@ -218,6 +218,10 @@ export function loadPlayerData(playerTag) {
             normalizeHeroesState(playerState.heroes);
         }
 
+        if (playerState.income?.starBonus?.league) {
+            delete playerState.income.starBonus.league;
+        }
+
         return {
             heroes: playerState.heroes || (isGuest ? defaultState.heroes : undefined),
             storedOres: playerState.storedOres || (isGuest ? defaultState.storedOres : undefined),

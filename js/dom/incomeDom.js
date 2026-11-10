@@ -62,7 +62,7 @@ export function getIncomeDOMElements() {
             }
         },
         starBonus: {
-            league: document.getElementById('inc-star-bonus-league-select'),
+            thIcon: document.getElementById('inc-star-bonus-th-icon'),
             openMultiplierBtn: document.getElementById('open-star-bonus-multiplier-btn'),
             multiplierModal: document.getElementById('star-bonus-multiplier-modal'),
             closeMultiplierHeaderBtn: document.getElementById('close-star-bonus-multiplier-modal-btn'),

@@ -1,44 +1,45 @@
-import { leagueTiers } from '../leagueTiers.js';
 import { deepFreeze } from '../../utils/objectUtils.js';
 
-const leagueNameToId = leagueTiers.items.reduce((acc, league) => {
-    acc[league.name] = league.id;
-    return acc;
-}, {});
-
-export const starBonusData = deepFreeze([
-    { league: leagueNameToId["Unranked"], shiny: 0, glowy: 0, starry: 0 },
-    { league: leagueNameToId["Skeleton 1"], shiny: 790, glowy: 39, starry: 1 }, { league: leagueNameToId["Skeleton 2"], shiny: 795, glowy: 39, starry: 1 }, { league: leagueNameToId["Skeleton 3"], shiny: 800, glowy: 39, starry: 1 },
-    { league: leagueNameToId["Barbarian 4"], shiny: 850, glowy: 44, starry: 1 }, { league: leagueNameToId["Barbarian 5"], shiny: 855, glowy: 44, starry: 1 }, { league: leagueNameToId["Barbarian 6"], shiny: 860, glowy: 44, starry: 1 },
-    { league: leagueNameToId["Archer 7"], shiny: 910, glowy: 49, starry: 1 }, { league: leagueNameToId["Archer 8"], shiny: 915, glowy: 49, starry: 1 }, { league: leagueNameToId["Archer 9"], shiny: 920, glowy: 49, starry: 1 },
-    { league: leagueNameToId["Wizard 10"], shiny: 970, glowy: 52, starry: 1 }, { league: leagueNameToId["Wizard 11"], shiny: 975, glowy: 52, starry: 1 }, { league: leagueNameToId["Wizard 12"], shiny: 980, glowy: 52, starry: 1 },
-    { league: leagueNameToId["Valkyrie 13"], shiny: 1030, glowy: 57, starry: 1 }, { league: leagueNameToId["Valkyrie 14"], shiny: 1035, glowy: 57, starry: 1 }, { league: leagueNameToId["Valkyrie 15"], shiny: 1040, glowy: 57, starry: 1 },
-    { league: leagueNameToId["Witch 16"], shiny: 1090, glowy: 60, starry: 1 }, { league: leagueNameToId["Witch 17"], shiny: 1095, glowy: 60, starry: 1 }, { league: leagueNameToId["Witch 18"], shiny: 1100, glowy: 60, starry: 1 },
-    { league: leagueNameToId["Golem 19"], shiny: 1150, glowy: 63, starry: 1 }, { league: leagueNameToId["Golem 20"], shiny: 1155, glowy: 63, starry: 1 }, { league: leagueNameToId["Golem 21"], shiny: 1160, glowy: 63, starry: 1 },
-    { league: leagueNameToId["P.E.K.K.A. 22"], shiny: 1170, glowy: 66, starry: 1 }, { league: leagueNameToId["P.E.K.K.A. 23"], shiny: 1175, glowy: 66, starry: 1 }, { league: leagueNameToId["P.E.K.K.A. 24"], shiny: 1180, glowy: 66, starry: 1 },
-    { league: leagueNameToId["Titan 25"], shiny: 1190, glowy: 69, starry: 1 }, { league: leagueNameToId["Titan 26"], shiny: 1195, glowy: 69, starry: 1 }, { league: leagueNameToId["Titan 27"], shiny: 1200, glowy: 69, starry: 1 },
-    { league: leagueNameToId["Dragon 28"], shiny: 1210, glowy: 70, starry: 1 }, { league: leagueNameToId["Dragon 29"], shiny: 1215, glowy: 70, starry: 1 }, { league: leagueNameToId["Dragon 30"], shiny: 1220, glowy: 70, starry: 1 },
-    { league: leagueNameToId["Electro 31"], shiny: 1230, glowy: 71, starry: 2 }, { league: leagueNameToId["Electro 32"], shiny: 1235, glowy: 71, starry: 2 }, { league: leagueNameToId["Electro 33"], shiny: 1240, glowy: 71, starry: 2 },
-    { league: leagueNameToId["Legend III"], shiny: 1250, glowy: 72, starry: 2 }, { league: leagueNameToId["Legend II"], shiny: 1250, glowy: 72, starry: 2 }, { league: leagueNameToId["Legend I"], shiny: 1250, glowy: 72, starry: 2 },
-]);
-
-export const townHallLeagueFloors = deepFreeze({
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0,
-    6: 0,
-    7: 105000001,
-    8: 105000002,
-    9: 105000003,
-    10: 105000004,
-    11: 105000006,
-    12: 105000008,
-    13: 105000011,
-    14: 105000014,
-    15: 105000017,
-    16: 105000020,
-    17: 105000023,
-    18: 105000026,
+/**
+ * Town Hall based daily Star Bonus ore reward specifications.
+ * TH1-7 provide zero ores (ores unlock at Town Hall 8 in Clash of Clans).
+ * Values for TH8 through TH18 represent canonical Supercell daily star bonus rewards.
+ * @type {Readonly<Record<number, Readonly<{ shiny: number, glowy: number, starry: number }>>>}
+ */
+export const townHallStarBonusData = deepFreeze({
+    1: { shiny: 0, glowy: 0, starry: 0 },
+    2: { shiny: 0, glowy: 0, starry: 0 },
+    3: { shiny: 0, glowy: 0, starry: 0 },
+    4: { shiny: 0, glowy: 0, starry: 0 },
+    5: { shiny: 0, glowy: 0, starry: 0 },
+    6: { shiny: 0, glowy: 0, starry: 0 },
+    7: { shiny: 0, glowy: 0, starry: 0 },
+    8: { shiny: 480, glowy: 33, starry: 1 },
+    9: { shiny: 630, glowy: 42, starry: 1 },
+    10: { shiny: 760, glowy: 43, starry: 1 },
+    11: { shiny: 860, glowy: 47, starry: 1 },
+    12: { shiny: 950, glowy: 51, starry: 1 },
+    13: { shiny: 1100, glowy: 56, starry: 1 },
+    14: { shiny: 1100, glowy: 60, starry: 1 },
+    15: { shiny: 1200, glowy: 66, starry: 2 },
+    16: { shiny: 1300, glowy: 69, starry: 2 },
+    17: { shiny: 1400, glowy: 78, starry: 2 },
+    18: { shiny: 1500, glowy: 81, starry: 2 }
 });
+
+const MAX_SUPPORTED_TH = 18;
+
+/**
+ * Retrieves the base Star Bonus ore rewards for a given Town Hall level.
+ * Falls back to maximum supported Town Hall (TH18) rewards for future unreleased Town Halls.
+ *
+ * @param {number | string} townHallLevel - Town Hall level.
+ * @returns {Readonly<{ shiny: number, glowy: number, starry: number }>}
+ */
+export function getStarBonusForTownHall(townHallLevel) {
+    const numericTH = Math.max(1, Number(townHallLevel) || 1);
+    if (numericTH > MAX_SUPPORTED_TH) {
+        return townHallStarBonusData[MAX_SUPPORTED_TH];
+    }
+    return townHallStarBonusData[numericTH] || townHallStarBonusData[1];
+}

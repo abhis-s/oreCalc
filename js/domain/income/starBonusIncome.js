@@ -1,22 +1,18 @@
-import { starBonusData } from '../../data/incomeSources/starBonus.js';
-import { leagueTiers } from '../../data/leagueTiers.js';
+import { getStarBonusForTownHall } from '../../data/incomeSources/starBonus.js';
 import { DAYS_IN_MONTH, DAYS_IN_WEEK, MONTHS_IN_BIMONTH } from '../../data/timeConstants.js';
 
-import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
-
 /**
- * Calculates daily, weekly, monthly, and bimonthly ore income from Star Bonus, incorporating
- * 2x Star Bonus event averaging and 4x Town Hall boost projections.
+ * Calculates daily, weekly, monthly, and bimonthly ore income from Star Bonus based on
+ * player Town Hall level, incorporating 2x Star Bonus event averaging and 4x Town Hall boost projections.
  *
- * @param {number | string} selectedLeague - League tier identifier.
+ * @param {number | string} townHallLevel - Active Town Hall level.
  * @param {import('../../core/types.js').StarBonusIncomeState | any} [starBonusState={}] - Star bonus configuration object.
  * @returns {import('../../core/types.js').IncomeResult} Composite star bonus ore income rates and badge icon URL.
  */
-export function calculateStarBonusIncome(selectedLeague, starBonusState = {}) {
-    const numericLeagueId = Number(selectedLeague) || UNRANKED_LEAGUE_ID;
-    const leagueData = starBonusData.find(data => data.league === numericLeagueId) || starBonusData[0];
-    const tierData = leagueTiers.items.find(l => l.id === numericLeagueId) || leagueTiers.items.find(l => l.id === UNRANKED_LEAGUE_ID);
-    const iconUrl = tierData?.iconUrls?.small || '';
+export function calculateStarBonusIncome(townHallLevel, starBonusState = {}) {
+    const thLevel = Math.max(1, Number(townHallLevel) || 18);
+    const baseOres = getStarBonusForTownHall(thLevel);
+    const iconUrl = `assets/th/th${Math.min(thLevel, 18)}.png`;
 
     const stateObj = (starBonusState && typeof starBonusState === 'object') ? /** @type {any} */ (starBonusState) : {};
     const config2x = stateObj["2x"] || {};
@@ -29,7 +25,6 @@ export function calculateStarBonusIncome(selectedLeague, starBonusState = {}) {
 
     // 2x Star Bonus Averaging
     if (eventDuration > 0) {
-        // Monthly average extra instances is duration / frequency
         extraInstancesPerMonth += eventDuration / Math.max(1, eventFrequency);
     }
 
@@ -43,17 +38,18 @@ export function calculateStarBonusIncome(selectedLeague, starBonusState = {}) {
     }
 
     const daysInMonth = DAYS_IN_MONTH;
-    const multiplier = (extraInstancesPerMonth + daysInMonth) / daysInMonth;
+    const starBonusSnacksPerMonth = 2;
+    const totalMonthlyInstances = daysInMonth + starBonusSnacksPerMonth + extraInstancesPerMonth;
 
-    const daily = {
-        shiny: (leagueData.shiny || 0) * multiplier,
-        glowy: (leagueData.glowy || 0) * multiplier,
-        starry: (leagueData.starry || 0) * multiplier,
-    };
     const baseDaily = {
-        shiny: (leagueData.shiny || 0),
-        glowy: (leagueData.glowy || 0),
-        starry: (leagueData.starry || 0),
+        shiny: (baseOres.shiny || 0),
+        glowy: (baseOres.glowy || 0),
+        starry: (baseOres.starry || 0),
+    };
+    const daily = {
+        shiny: baseDaily.shiny,
+        glowy: baseDaily.glowy,
+        starry: baseDaily.starry,
     };
     const weekly = {
         shiny: daily.shiny * DAYS_IN_WEEK,
@@ -61,9 +57,9 @@ export function calculateStarBonusIncome(selectedLeague, starBonusState = {}) {
         starry: daily.starry * DAYS_IN_WEEK,
     };
     const monthly = {
-        shiny: daily.shiny * DAYS_IN_MONTH,
-        glowy: daily.glowy * DAYS_IN_MONTH,
-        starry: daily.starry * DAYS_IN_MONTH,
+        shiny: baseDaily.shiny * totalMonthlyInstances,
+        glowy: baseDaily.glowy * totalMonthlyInstances,
+        starry: baseDaily.starry * totalMonthlyInstances,
     };
     const bimonthly = {
         shiny: monthly.shiny * MONTHS_IN_BIMONTH,
@@ -72,4 +68,31 @@ export function calculateStarBonusIncome(selectedLeague, starBonusState = {}) {
     };
 
     return { daily, baseDaily, weekly, monthly, bimonthly, iconUrl };
+}
+
+/**
+ * Resolves the effective Town Hall level for a specific date, factoring in planned Town Hall upgrades.
+ *
+ * @param {Date} date - Calendar date being evaluated.
+ * @param {import('../../core/types.js').AppState | any} state - Application state.
+ * @returns {number} Effective Town Hall level for that date.
+ */
+export function getEffectiveTownHallForDate(date, state) {
+    let effectiveTH = Math.max(1, Number(state?.playerProfile?.townHallLevel) || 18);
+    const upgrades = state?.income?.starBonus?.thUpgrades;
+    if (upgrades && typeof upgrades === 'object') {
+        const year = date.getUTCFullYear();
+        const month = date.getUTCMonth() + 1;
+        const dateKey = `${year}-${String(month).padStart(2, '0')}`;
+        for (const thStr in upgrades) {
+            const targetKey = upgrades[thStr];
+            if (targetKey && targetKey <= dateKey) {
+                const thNum = Number(thStr);
+                if (thNum > effectiveTH) {
+                    effectiveTH = thNum;
+                }
+            }
+        }
+    }
+    return effectiveTH;
 }

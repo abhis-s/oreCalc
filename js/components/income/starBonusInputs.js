@@ -11,7 +11,6 @@ import { bindNumericInput, bindSelectInput } from '../common/formBindingUtils.js
 import { dom } from '../../dom/domElements.js';
 import {
     renderLastEventOptions as renderLastEventOptionsDisplay,
-    renderStarBonusSelectorContent as renderSelectorContentDisplay,
     renderTHPlanningSection as renderTHPlanningSectionDisplay
 } from './starBonusDisplay.js';
 
@@ -131,10 +130,6 @@ function renderTHPlanningSection() {
     renderTHPlanningSectionDisplay(state);
 }
 
-function renderStarBonusSelectorContent() {
-    renderSelectorContentDisplay(state);
-}
-
 function ensureStarBonus2xState() {
     if (!state.income.starBonus) state.income.starBonus = {};
     if (!state.income.starBonus["2x"]) state.income.starBonus["2x"] = {};
@@ -142,10 +137,9 @@ function ensureStarBonus2xState() {
 }
 
 /**
- * Initializes Star Bonus league selector, 2x event multiplier modal, and input bindings.
+ * Initializes Star Bonus 2x event multiplier modal and input bindings.
  */
 export function initializeStarBonusSelector() {
-    const selectElement = dom.income?.starBonus?.league;
     const frequencyInput = dom.income?.starBonus?.frequencyInput;
     const durationInput = dom.income?.starBonus?.durationInput;
     const lastEventSelect = dom.income?.starBonus?.lastEventSelect;
@@ -153,14 +147,6 @@ export function initializeStarBonusSelector() {
     const multiplierModal = dom.income?.starBonus?.multiplierModal;
     const closeMultiplierHeaderBtn = dom.income?.starBonus?.closeMultiplierHeaderBtn;
     const closeMultiplierFooterBtn = dom.income?.starBonus?.closeMultiplierFooterBtn;
-
-    bindSelectInput(selectElement, {
-        numeric: true,
-        onUpdate: (value) => {
-            if (!state.income.starBonus) state.income.starBonus = {};
-            state.income.starBonus.league = value;
-        }
-    });
 
     if (openMultiplierBtn && multiplierModal) {
         openMultiplierBtn.addEventListener('click', () => {
@@ -256,31 +242,23 @@ export function initializeStarBonusSelector() {
     if (!hasAttachedStarBonusLangListener) {
         hasAttachedStarBonusLangListener = true;
         document.addEventListener('languageChanged', () => {
-            renderStarBonusSelectorContent();
             renderTHPlanningSection();
             renderLastEventOptions();
         });
     }
-    renderStarBonusSelectorContent();
     renderTHPlanningSection();
     renderLastEventOptions();
 }
 
 /**
- * Populates and synchronizes Star Bonus league selection and 2x event control values.
+ * Populates and synchronizes Star Bonus 2x event control values.
  * @param {import('../../core/types.js').IncomeSourcesState} incomeState - Global income state object containing starBonus settings.
  */
 export function renderStarBonusControls(incomeState) {
-    renderStarBonusSelectorContent();
     renderTHPlanningSection();
     renderLastEventOptions();
 
-    const selectElement = dom.income?.starBonus?.league;
     const safeState = incomeState.starBonus || {};
-    if (selectElement) {
-        selectElement.value = safeState.league || 105000000;
-    }
-
     const frequencyInput = dom.income?.starBonus?.frequencyInput;
     const durationInput = dom.income?.starBonus?.durationInput;
 

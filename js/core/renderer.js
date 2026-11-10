@@ -81,7 +81,7 @@ export function renderApp(state) {
         renderProspector(state.income.prospector);
 
         const starBonusIncome = incomeSources.starBonus || {};
-        renderStarBonusDisplay(starBonusIncome, state.income.starBonus?.league || 105000000, state.playerProfile, timeframe);
+        renderStarBonusDisplay(starBonusIncome, 0, state.playerProfile, timeframe);
 
         const clanWarIncome = incomeSources.clanWar || {};
         renderClanWarIncomeTabDisplay(clanWarIncome, state.income.clanWar);

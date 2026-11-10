@@ -1,6 +1,5 @@
 import { currencyData } from '../data/pricingData.js';
 
-import { UNRANKED_LEAGUE_ID } from './constants.js';
 import { getDefaultPlayerState, getDefaultState } from './state.js';
 import { calculateRequiredOres } from './oreCalculator.js';
 import { calculateRemainingTime } from './timeCalculator.js';
@@ -45,7 +44,7 @@ export function recalculateAll(state) {
     // for the assisted-conversion context when calculating prospector income.
     const baseIncomeSources = {
         starBonus: calculateStarBonusIncome(
-            state.income?.starBonus?.league || UNRANKED_LEAGUE_ID,
+            Number(state.playerProfile?.townHallLevel) || 18,
             state.income?.starBonus || {}
         ),
         supercellEvents: calculateSupercellEventsIncome(

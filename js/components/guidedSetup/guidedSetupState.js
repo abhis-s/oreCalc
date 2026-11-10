@@ -345,13 +345,8 @@ export function applyPreferencesToProfile(playerObj) {
         }
     }
 
-    // Star Bonus League
-    const targetLeague = playerObj.playerProfile?.leagueTier?.id || playerObj.playerProfile?.league?.id || guidedSetupState.selectedLeague || 105000000;
-
     if (!playerObj.income.starBonus) {
-        playerObj.income.starBonus = { league: targetLeague };
-    } else {
-        playerObj.income.starBonus.league = targetLeague;
+        playerObj.income.starBonus = {};
     }
 }
 

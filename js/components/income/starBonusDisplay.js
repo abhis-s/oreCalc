@@ -1,5 +1,3 @@
-import { leagueTiers } from '../../data/leagueTiers.js';
-import { townHallLeagueFloors } from '../../data/incomeSources/starBonus.js';
 import { translate } from '../../i18n/translator.js';
 
 import { getMaxTownHall, getTHReleaseDate } from '../../domain/townHall/townHallSchedule.js';
@@ -11,11 +9,11 @@ import { dom } from '../../dom/domElements.js';
 /**
  * Renders calculated Star Bonus daily and monthly ore income values to DOM elements.
  * @param {import('../../core/types.js').IncomeResult} starBonusIncome - Calculated Star Bonus income results.
- * @param {number|string} [league] - Active league ID or tier.
- * @param {import('../../core/types.js').PlayerData|import('../../core/types.js').PlayerProfile|null} [playerData] - Active player profile data.
- * @param {string} [timeframe] - Active timeframe context.
+ * @param {number|string} [league=0] - Deprecated league parameter.
+ * @param {import('../../core/types.js').PlayerData|import('../../core/types.js').PlayerProfile|null} [playerData=null] - Active player profile data.
+ * @param {string} [timeframe=''] - Active timeframe context.
  */
-export function renderStarBonusDisplay(starBonusIncome, league, playerData, timeframe) {
+export function renderStarBonusDisplay(starBonusIncome, league = 0, playerData = null, timeframe = '') {
     const incomeTabElements = dom.income.starBonus.display;
 
     if (!incomeTabElements) return;
@@ -27,72 +25,21 @@ export function renderStarBonusDisplay(starBonusIncome, league, playerData, time
     updateCalculatedValue(incomeTabElements.daily?.shiny, starBonusIncome.daily?.shiny || 0);
     updateCalculatedValue(incomeTabElements.daily?.glowy, starBonusIncome.daily?.glowy || 0);
     updateCalculatedValue(incomeTabElements.daily?.starry, starBonusIncome.daily?.starry || 0);
-}
 
-/**
- * Renders the league dropdown selector options for Star Bonus based on current TH floor.
- * @param {import('../../core/types.js').AppState} state - Current global application state.
- */
-export function renderStarBonusSelectorContent(state) {
-    const selectElement = dom.income?.starBonus?.league;
-    if (!selectElement) return;
-
-    const selectedValue = selectElement.value;
-    let townHallLevel = Number(state.playerProfile?.townHallLevel) || 1;
-
-    if (!Object.hasOwn(townHallLeagueFloors, townHallLevel)) {
-        const thKeys = Object.keys(townHallLeagueFloors).map(Number);
-        const maxTh = Math.max(...thKeys);
-        const minTh = Math.min(...thKeys);
-        townHallLevel = Math.min(Math.max(townHallLevel, minTh), maxTh);
-    }
-
-    const floorLeagueId = townHallLeagueFloors[townHallLevel] || 0;
-    const currentLang = state.uiSettings.language || 'en';
-    const needsRebuild = selectElement.dataset.renderedThLevel !== String(townHallLevel) || selectElement.dataset.renderedLang !== currentLang || selectElement.options.length === 0;
-
-    if (needsRebuild) {
-        selectElement.innerHTML = '';
-
-        // Always add Unranked
-        const unrankedLeague = leagueTiers.items.find(l => l.id === 105000000);
-        if (unrankedLeague) {
-            const option = document.createElement('option');
-            option.value = String(unrankedLeague.id);
-            const translationKey = 'entities.leagues.' + unrankedLeague.name.toLowerCase()
-                .replace(/\./g, '')
-                .replace(/\s(i+)$/i, (match, p1) => p1.toUpperCase())
-                .replace(/\s/g, '_');
-            option.dataset.i18n = translationKey;
-            option.textContent = translate(translationKey);
-            selectElement.appendChild(option);
+    const thIcon = dom.income.starBonus.thIcon || document.getElementById('inc-star-bonus-th-icon');
+    if (thIcon) {
+        const rawTH = (/** @type {any} */ (playerData))?.townHallLevel || (/** @type {any} */ (playerData))?.playerProfile?.townHallLevel;
+        const thLevel = Math.max(1, Number(rawTH) || 18);
+        const iconSrc = `assets/th/th${Math.min(thLevel, 18)}.png`;
+        if (thIcon.getAttribute('src') !== iconSrc) {
+            thIcon.setAttribute('src', iconSrc);
         }
-
-        leagueTiers.items.forEach(league => {
-            if (league.id !== 105000000) {
-                if (floorLeagueId === 0 || league.id >= floorLeagueId) {
-                    const option = document.createElement('option');
-                    option.value = String(league.id);
-                    const translationKey = 'entities.leagues.' + league.name.toLowerCase()
-                        .replace(/\./g, '')
-                        .replace(/\s(i+)$/i, (match, p1) => p1.toUpperCase())
-                        .replace(/\s/g, '_');
-                    option.dataset.i18n = translationKey;
-                    option.textContent = translate(translationKey);
-                    selectElement.appendChild(option);
-                }
-            }
-        });
-
-        selectElement.dataset.renderedThLevel = String(townHallLevel);
-        selectElement.dataset.renderedLang = currentLang;
-
-        if (selectedValue) {
-            selectElement.value = selectedValue;
-            if (selectElement.selectedIndex === -1) {
-                selectElement.selectedIndex = 0;
-            }
+        const thText = translate('views.equipment.thShort', { level: thLevel });
+        if (thIcon.getAttribute('alt') !== thText) {
+            thIcon.setAttribute('alt', thText);
         }
+        thIcon.setAttribute('data-i18n-alt', 'views.equipment.thShort');
+        thIcon.setAttribute('data-i18n-alt-args', JSON.stringify({ level: thLevel }));
     }
 }
 
@@ -154,14 +101,14 @@ export function renderTHPlanningSection(state) {
     const outerBox = dom.income?.starBonus?.multiplierModal?.querySelector('#star-bonus-4x-section');
     const separator = dom.income?.starBonus?.multiplierModal?.querySelector('.separator');
 
-    let currentTH = 1;
+    let currentTH = 18;
     if (state.playerProfile && state.playerProfile.townHallLevel) {
-        currentTH = Number(state.playerProfile.townHallLevel) || 1;
+        currentTH = Number(state.playerProfile.townHallLevel) || 18;
     } else {
         const activeTag = state.savedPlayerTags?.[0];
         const activePlayer = state.allPlayersData?.[activeTag];
         if (activePlayer && activePlayer.playerProfile && activePlayer.playerProfile.townHallLevel) {
-            currentTH = Number(activePlayer.playerProfile.townHallLevel) || 1;
+            currentTH = Number(activePlayer.playerProfile.townHallLevel) || 18;
         }
     }
 

@@ -139,7 +139,6 @@ function getDefaultPlayerStateProperties() {
                 assistedConversion: true
             },
             starBonus: {
-                league: 105000000,
                 "2x": {
                     frequency: 2,
                     duration: 0,
@@ -478,7 +477,6 @@ function ensureStateDefaults(s) {
 
                 if (!ps.income.starBonus) {
                     ps.income.starBonus = {
-                        league: 105000000,
                         "2x": { frequency: 2, duration: 0, lastEvent: '2026-05' },
                         thUpgrades: {}
                     };

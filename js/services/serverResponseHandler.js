@@ -1,10 +1,8 @@
 import { heroData } from '../data/heroData.js';
 import { resolveBestMatchShopOfferSet } from '../data/incomeSources/shopOffers.js';
 import { getWarOreValue } from '../data/incomeSources/warOres.js';
-import { leagueTiers } from '../data/leagueTiers.js';
 import { translate } from '../i18n/translator.js';
 
-import { UNRANKED_LEAGUE_ID } from '../core/constants.js';
 import { normalizePlayerTag } from '../core/storageKeys.js';
 import { updateAllPlayersData, updateSavedPlayerTags } from '../core/playerStorage.js';
 import { sanitizePlayerProfile } from '../core/playerStorageSanitizer.js';
@@ -271,17 +269,6 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
     }
 
     attachHeroStateAliases(newPlayerState.heroes);
-
-    const targetLeagueId = playerData.leagueTier?.id;
-    if (targetLeagueId) {
-        if (!newPlayerState.income.starBonus) newPlayerState.income.starBonus = {};
-        const leagueExists = leagueTiers.items.some(l => l.id === targetLeagueId);
-        if (leagueExists) {
-            newPlayerState.income.starBonus.league = targetLeagueId;
-        } else {
-            newPlayerState.income.starBonus.league = UNRANKED_LEAGUE_ID;
-        }
-    }
 
     const selected = newPlayerState.income.shopOffers?.selectedSet;
     if (selected !== 0 && selected !== '0' && playerData.townHallLevel) {

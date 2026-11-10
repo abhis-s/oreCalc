@@ -54,6 +54,7 @@ describe('Recurring Engine and Anchor Shift Domain Suite', () => {
     });
 
     test('calculateCumulativeOres aggregates baseline star bonus and custom chip data overrides', () => {
+        state.playerProfile = { townHallLevel: 1 };
         const today = new Date();
         const nextMonth = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 20));
         const nextMonthYearKey = `${nextMonth.getUTCFullYear()}-${String(nextMonth.getUTCMonth() + 1).padStart(2, '0')}`;

@@ -733,7 +733,7 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         assert.deepEqual(playerObj.income.shopOffers.purchases, { starry: 2, glowy: 1 }, 'Must also mirror in purchases key');
     });
 
-    test('Player profile star bonus league is synced to income.starBonus.league', () => {
+    test('applyPreferencesToProfile initializes income.starBonus', () => {
         const playerObj = {
             ...getDefaultPlayerState(),
             playerProfile: { townHallLevel: 16, leagueTier: { id: 40000005 } },
@@ -741,10 +741,9 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         };
         stateModule.state.allPlayersData['#TESTLEAGUE'] = playerObj;
         guidedSetupState.activeTag = '#TESTLEAGUE';
-        guidedSetupState.selectedLeague = 40000005;
 
         applyPreferencesToProfile(playerObj);
-        assert.equal(playerObj.income.starBonus.league, 40000005, 'applyPreferencesToProfile must persist starBonus.league');
+        assert.ok(playerObj.income.starBonus, 'applyPreferencesToProfile must initialize starBonus');
     });
 
     test('Skip setup applies recommended defaults to profile', () => {

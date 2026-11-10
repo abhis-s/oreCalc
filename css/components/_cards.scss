@@ -628,6 +628,39 @@
             }
         }
 
+        .card-info-row {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            margin-bottom: $spacing-sm;
+
+            &:last-of-type {
+                margin-bottom: $spacing-md;
+            }
+
+            .card-info-icon {
+                width: $spacing-xl;
+                height: $spacing-xl;
+                flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                img,
+                svg {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                }
+            }
+
+            .card-info-text {
+                font-size: $font-size-xs;
+                color: $text-secondary;
+                line-height: 1.4;
+            }
+        }
+
         .inner-card-divider {
             border: none;
             border-top: 1px solid $border-primary;

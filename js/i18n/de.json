@@ -428,7 +428,8 @@
             "mightyMorsel": "Heldenhappen",
             "petPotion": "Begleitertrank",
             "runeOfDarkElixir": "Rune des Dunklen Elixiers",
-            "runeOfElixir": "Rune des Elixiers"
+            "runeOfElixir": "Rune des Elixiers",
+            "starBonusSnack": "Sternebonus-Snack"
         },
         "ores": {
             "glowy": "Glimmerz",
@@ -983,6 +984,7 @@
             "epicEquip": "Epische Ausrüstung",
             "guest": "Mit Gastprofil erkunden",
             "guestProfileTag": "Gastprofil",
+            "league": "Liga",
             "loadProfile": "Profil laden",
             "noClan": "Kein Clan",
             "profileTab": "Profil",
@@ -1287,13 +1289,14 @@
                 "eventFrequency": "Häufigkeit (Monate)",
                 "eventFrequencyInfo": "Wie oft das Event stattfindet (z. B. 1 = monatlich, 2 = alle 2 Monate).",
                 "eventManage": "2x/4x Sternebonus",
-                "help": "Die täglichen Erz-Belohnungen des Sternenbonus werden durch deine aktive Liga bestimmt. Gelegentlich werden 2x-Sternenbonus-Events im Spiel veranstaltet und können etwas zufällig sein, finden aber normalerweise alle 3 bis 4 Monate statt. Den 4x-Sternenbonus erhältst du für 5 Tage, wenn du dein Rathaus verbesserst.",
+                "help": "Zusätzlich zu den regulären täglichen Belohnungen finden im Spiel typischerweise alle 3 bis 4 Monate spezielle 2x-Sternenbonus-Events statt. Bei einem Rathaus-Upgrade erhältst du außerdem 5 Tage lang einen 4x-Sternenbonus-Boost.",
                 "lastEvent": "Letztes Event",
                 "lastEventInfo": "Wähle den Monat, in dem das Event zuletzt stattfand.",
-                "league": "Liga",
                 "planningStartInfo": "Die Planung ist erst ab Rathaus {th} verfügbar.",
                 "section2x": "2x Sternebonus Event",
+                "snackInfo": "Enthält ca. 2 Sternebonus-Snacks pro Monat aus täglichen Snack-Packs.",
                 "thPlanningTitle": "Plane deine Rathaus-Upgrades",
+                "thRewardInfo": "Tägliche Belohnungen richten sich nach deinem Rathaus-Level.",
                 "title": "Sternebonus",
                 "unreleasedTH": "RH {th} (unveröffentlicht, voraussichtliche Veröffentlichung Nov. {year})",
                 "upgradeToTH": "Upgrade auf RH {th} in:"

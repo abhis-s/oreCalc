@@ -23,7 +23,7 @@ import { WAR_ORE_MAX_LIMITS, warOreTownHallValues, getWarOreValue } from '../../
 import { raidMedalTraderData, gemTraderData, eventTraderData } from '../../js/data/incomeSources/traders.js';
 import { shopOfferData } from '../../js/data/incomeSources/shopOffers.js';
 import { eventPassData } from '../../js/data/incomeSources/eventPass.js';
-import { starBonusData, townHallLeagueFloors } from '../../js/data/incomeSources/starBonus.js';
+import { townHallStarBonusData } from '../../js/data/incomeSources/starBonus.js';
 import { supercellEventsData } from '../../js/data/incomeSources/supercellEvents.js';
 import { conversionRates, oreMaxValues, storageCapacities } from '../../js/data/oreConversionData.js';
 import { EQUIPMENT_MAX_LEVELS, getEquipmentMaxLevel } from '../../js/data/equipmentCommonData.js';
@@ -591,21 +591,20 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             }, TypeError);
         });
 
-        test('Star bonus datasets (starBonus.js) are deeply frozen across rewards and TH floors', () => {
-            assert.ok(Object.isFrozen(starBonusData), 'starBonusData array must be frozen');
-            for (const entry of starBonusData) {
-                assert.ok(Object.isFrozen(entry), 'starBonusData league entry must be frozen');
+        test('Star bonus dataset (starBonus.js) is deeply frozen across Town Hall tiers', () => {
+            assert.ok(Object.isFrozen(townHallStarBonusData), 'townHallStarBonusData object must be frozen');
+            for (const th of Object.keys(townHallStarBonusData)) {
+                assert.ok(Object.isFrozen(townHallStarBonusData[th]), `TH${th} entry must be frozen`);
             }
 
-            assert.ok(Object.isFrozen(townHallLeagueFloors), 'townHallLeagueFloors must be frozen');
-
             assert.throws(() => {
-                starBonusData[0].shiny = 100000;
+                // @ts-ignore
+                townHallStarBonusData[18].shiny = 100000;
             }, TypeError);
 
             assert.throws(() => {
                 // @ts-ignore
-                townHallLeagueFloors[18] = 0;
+                townHallStarBonusData[19] = { shiny: 999, glowy: 99, starry: 9 };
             }, TypeError);
         });
 

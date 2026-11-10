@@ -329,7 +329,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     const calculatedMaxLevel = getEquipmentMaxLevel(data.rarity || equipmentRarity);
     const isEquipmentMaxed = currentLevel >= calculatedMaxLevel;
 
-    const currentLeagueId = state.income?.starBonus?.league || state.playerProfile?.leagueTier?.id || 0;
+    const currentLeagueId = state.playerProfile?.leagueTier?.id || 0;
     const currentLeagueName = state.playerProfile?.leagueTier?.name || '';
     const session = getModalSessionState();
     let activeModifierTab = session.activeModifierTab || state.uiSettings?.leagueModifier || getDefaultModifierKey(currentLeagueId, currentLeagueName) || 'standard';

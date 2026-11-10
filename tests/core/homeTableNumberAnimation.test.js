@@ -331,7 +331,7 @@ describe('Home Income Table & Number Animation Suite', () => {
 
     describe('1. Home Income Table Granular Cell Animation & DOM Row Persistence', () => {
         test('creates persistent DOM rows on initial render with data-source and data-ore attributes', () => {
-            state.income.starBonus = { league: 105000022 };
+            state.playerProfile = { townHallLevel: 16 };
             recalculateAll(state);
 
             renderHomeIncomeTable(state);
@@ -352,7 +352,7 @@ describe('Home Income Table & Number Animation Suite', () => {
         });
 
         test('retains persistent DOM row nodes without recreation on subsequent renders and timeframe switches', () => {
-            state.income.starBonus = { league: 105000022 };
+            state.playerProfile = { townHallLevel: 16 };
             recalculateAll(state);
 
             renderHomeIncomeTable(state);
@@ -370,7 +370,7 @@ describe('Home Income Table & Number Animation Suite', () => {
         });
 
         test('animates numeric ore cells smoothly when timeframe changes from monthly to daily', () => {
-            state.income.starBonus = { league: 105000022 };
+            state.playerProfile = { townHallLevel: 16 };
             state.uiSettings.summaryTimeframe = 'monthly';
             recalculateAll(state);
             renderHomeIncomeTable(state);

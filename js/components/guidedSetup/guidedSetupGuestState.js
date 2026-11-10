@@ -123,9 +123,7 @@ export function ensureGuestPlayerState(thLevel, leagueId) {
         };
         if (!guestPlayerState.income) guestPlayerState.income = {};
         if (!guestPlayerState.income.starBonus) {
-            guestPlayerState.income.starBonus = { league: targetLeague };
-        } else {
-            guestPlayerState.income.starBonus.league = targetLeague;
+            guestPlayerState.income.starBonus = {};
         }
         initializeGuestHeroesState(guestPlayerState);
         handleStateUpdate(() => {
@@ -136,9 +134,6 @@ export function ensureGuestPlayerState(thLevel, leagueId) {
         if (guestObj.playerProfile) {
             guestObj.playerProfile.townHallLevel = targetTH;
             guestObj.playerProfile.leagueTier = { id: targetLeague };
-        }
-        if (guestObj.income?.starBonus) {
-            guestObj.income.starBonus.league = targetLeague;
         }
         initializeGuestHeroesState(guestObj);
     }

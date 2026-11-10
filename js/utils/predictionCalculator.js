@@ -1,12 +1,14 @@
 import { upgradeCosts } from '../data/equipmentCommonData.js';
 import { heroData } from '../data/heroData.js';
-import { getSourceById, incomeData } from '../data/incomeSourceRegistry.js';
+import { getSourceById } from '../data/incomeSourceRegistry.js';
+import { getStarBonusForTownHall } from '../data/incomeSources/starBonus.js';
 import { supercellEventsData } from '../data/incomeSources/supercellEvents.js';
 import { translate } from '../i18n/translator.js';
 
 import { state } from '../core/state.js';
 
 import { getProspectorIncomeForDate } from '../domain/income/prospectorManager.js';
+import { getEffectiveTownHallForDate } from '../domain/income/starBonusIncome.js';
 import { getSupercellEventsForYear } from '../domain/income/supercellEventsSchedule.js';
 import { toCamelCase } from './stringUtils.js';
 
@@ -30,9 +32,10 @@ function getDailyIncomeFromCalendar(date) {
     });
     const hasCustomStarBonus = chipsForThisDay.some(id => id.startsWith('custom-starBonus'));
 
+    const effectiveTH = getEffectiveTownHallForDate(date, state);
+    const starBonusIncome = getStarBonusForTownHall(effectiveTH);
+
     if (!hasMultiplierChip && !hasCustomStarBonus) {
-        const starBonusSource = incomeData.starBonus;
-        const starBonusIncome = starBonusSource.getBaseIncome(state);
         dailyIncome.shiny += Math.round(starBonusIncome.shiny || 0);
         dailyIncome.glowy += Math.round(starBonusIncome.glowy || 0);
         dailyIncome.starry += Math.round(starBonusIncome.starry || 0);
@@ -116,6 +119,13 @@ function getDailyIncomeFromCalendar(date) {
         }
 
         if (type === 'starBonus' || type === 'prospector' || type === 'supercellEvents') {
+            return;
+        }
+        if (type.startsWith('starBonus') && type.includes('x')) {
+            const mult = parseInt(type.replace('starBonus', '').replace('x', ''), 10) || 1;
+            dailyIncome.shiny += Math.round(starBonusIncome.shiny * mult);
+            dailyIncome.glowy += Math.round(starBonusIncome.glowy * mult);
+            dailyIncome.starry += Math.round(starBonusIncome.starry * mult);
             return;
         }
         const incomeSource = getSourceById(type);

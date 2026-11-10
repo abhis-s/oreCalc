@@ -696,9 +696,13 @@
 
 .day-overview-popover {
     position: fixed;
+    inset: unset;
+    margin: 0;
     z-index: $z-index-popover;
     width: 90vw;
     max-width: min(300px, 90vw);
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
     background-color: $bg-surface-primary;
     border: 1px solid $border-primary;
     border-radius: $shape-corner-medium;

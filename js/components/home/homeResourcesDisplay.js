@@ -1,4 +1,3 @@
-import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
 
 import { updateCalculatedValue } from '../../utils/numberFormatter.js';
@@ -14,31 +13,21 @@ export function renderHomeResourcesFooter(state) {
     const homeResourceElements = dom.income?.home?.incomeCard?.resources;
     if (!homeResourceElements) return;
 
-    // League Requirement
-    const leagueId = Number(state.income?.starBonus?.league) || 105000000;
-    const leagueData = leagueTiers.items.find(l => l.id === leagueId);
-    const unrankedLeague = leagueTiers.items.find(l => l.id === 105000000);
-    const unrankedIcon = unrankedLeague?.iconUrls?.small || '';
-    const targetIconSrc = leagueData?.iconUrls?.small || unrankedIcon;
+    // Star Bonus Town Hall Requirement
+    const thLevel = Math.max(1, Number(state.playerProfile?.townHallLevel) || 1);
+    const targetIconSrc = `assets/th/th${Math.min(thLevel, 18)}.png`;
 
     if (homeResourceElements.leagueIcon && homeResourceElements.leagueIcon.src !== targetIconSrc) {
         homeResourceElements.leagueIcon.src = targetIconSrc;
     }
 
     if (homeResourceElements.leagueRequirement) {
-        const leagueName = leagueData ? leagueData.name : 'Unranked';
-        const leagueKey = 'entities.leagues.' + leagueName.toLowerCase()
-            .replace(/\./g, '')
-            .replace(/\s(i+)$/i, (_, p1) => p1.toUpperCase())
-            .replace(/\s/g, '_');
-        const translatedName = translate(leagueKey);
-
+        const translatedName = translate('views.equipment.thShort', { level: thLevel });
         if (homeResourceElements.leagueRequirement.textContent !== translatedName) {
             homeResourceElements.leagueRequirement.textContent = translatedName;
         }
-        if (homeResourceElements.leagueRequirement.dataset.i18n !== leagueKey) {
-            homeResourceElements.leagueRequirement.dataset.i18n = leagueKey;
-        }
+        homeResourceElements.leagueRequirement.dataset.i18n = 'views.equipment.thShort';
+        homeResourceElements.leagueRequirement.dataset.i18nArgs = JSON.stringify({ level: thLevel });
     }
 
     // CWL Participations

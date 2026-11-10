@@ -897,7 +897,7 @@
                 "eventFrequency": "Sıklık (Ay)",
                 "eventFrequencyInfo": "Olayın ne sıklıkla gerçekleştiği (örn; 1 = aylık, 2 = 2 ayda bir).",
                 "eventManage": "2x/4x Yıldız Bonusu",
-                "help": "Günlük Yıldız Bonusu cevher ödülleri, aktif Lig seviyenize göre belirlenir. Ara sıra, oyunda 2x Yıldız Bonusu etkinlikleri düzenlenir ve bunlar biraz rastgele olabilir, ancak genellikle 3 ila 4 ay arayla gerçekleşir. 4x Yıldız Bonusu için, Belediye Binasınızı yükselttiğinizde 5 gün boyunca bu bonusu alırsınız.",
+                "help": "Düzenli günlük ödüllere ek olarak, oyunda genellikle 3 ila 4 ayda bir özel 2x Yıldız Bonusu etkinlikleri düzenlenir. Belediye Binasınızı yükseltmek de 5 gün boyunca 4x Yıldız Bonusu desteği sağlar.",
                 "lastEvent": "Son Etkinlik",
                 "lastEventInfo": "Bu olayın gerçekleştiği son ayı seçin.",
                 "league": "Lig",

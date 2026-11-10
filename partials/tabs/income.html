@@ -9,11 +9,13 @@
                             </button>
                         </h2>
                         <div class="inner-card">
-                            <div class="input-group-flex">
-                                <label for="inc-star-bonus-league-select" data-i18n="views.income.starBonus.league"></label>
-                                <select id="inc-star-bonus-league-select" class="dropdown-style updatable">
-                                    <!-- DYNAMIC INSERTION: Star bonus league select options -->
-                                </select>
+                            <div class="card-info-row">
+                                <clashcalc-assets-image class="card-info-icon" id="inc-star-bonus-th-icon" src="assets/th/th18.png" alt="Town Hall 18" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":18}' width="24" height="24"></clashcalc-assets-image>
+                                <span class="card-info-text" data-i18n="views.income.starBonus.thRewardInfo">Daily rewards are determined by your Town Hall level.</span>
+                            </div>
+                            <div class="card-info-row">
+                                <clashcalc-assets-image class="card-info-icon" src="assets/magicItems/starBonusSnack.png" alt="Star Bonus Snack" data-i18n-alt="entities.magicItems.starBonusSnack" width="24" height="24"></clashcalc-assets-image>
+                                <span class="card-info-text" data-i18n="views.income.starBonus.snackInfo">Includes ~2 Star Bonus Snacks per month from daily snack packs.</span>
                             </div>
                             <div class="input-group-flex">
                                 <label for="open-star-bonus-multiplier-btn" data-i18n="views.income.starBonus.eventManage"></label>
@@ -23,7 +25,9 @@
                                     </span>
                                     <span class="animated-btn-text" data-i18n="actions.manage"></span>
                                 </button>
-                            </div>                        </div>
+                            </div>
+                        </div>
+                        <div class="timeframe-income"></div>
 
                     </div>
                 </div>

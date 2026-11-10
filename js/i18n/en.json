@@ -428,7 +428,8 @@
             "mightyMorsel": "Mighty Morsel",
             "petPotion": "Pet Potion",
             "runeOfDarkElixir": "Rune of Dark Elixir",
-            "runeOfElixir": "Rune of Elixir"
+            "runeOfElixir": "Rune of Elixir",
+            "starBonusSnack": "Star Bonus Snack"
         },
         "ores": {
             "glowy": "Glowy Ore",
@@ -983,6 +984,7 @@
             "epicEquip": "Epic Equipment",
             "guest": "Explore with Guest Profile",
             "guestProfileTag": "Guest Profile",
+            "league": "League",
             "loadProfile": "Load Profile",
             "noClan": "No Clan",
             "profileTab": "Profile",
@@ -1287,13 +1289,14 @@
                 "eventFrequency": "Frequency (Months)",
                 "eventFrequencyInfo": "How often the event occurs (e.g., 1 = monthly, 2 = every 2 months).",
                 "eventManage": "2x/4x Star Bonus",
-                "help": "Daily Star Bonus ore rewards are determined by your active League tier. Occasionally, 2x Star Bonus events are run in-game and can be a bit random, but usually occur 3 to 4 months apart. For the 4x Star Bonus, you receive it for 5 days when you upgrade your Town Hall.",
+                "help": "In addition to regular daily rewards, special 2x Star Bonus events typically run every 3 to 4 months. Upgrading your Town Hall also grants a 4x Star Bonus boost for 5 days.",
                 "lastEvent": "Last Event",
                 "lastEventInfo": "Select the last month this event occurred.",
-                "league": "League",
                 "planningStartInfo": "Planning is only available starting from Town Hall {th}.",
                 "section2x": "2x Star Bonus Event",
+                "snackInfo": "Includes ~2 Star Bonus Snacks per month from daily snack packs.",
                 "thPlanningTitle": "Plan your Town Hall Upgrades",
+                "thRewardInfo": "Daily rewards are determined by your Town Hall level.",
                 "title": "Star Bonus",
                 "unreleasedTH": "TH {th} (unreleased, likely Nov {year})",
                 "upgradeToTH": "Upgrade to TH {th} in:"

@@ -1,5 +1,4 @@
 import { supercellEventsData } from './incomeSources/supercellEvents.js';
-import { leagueTiers } from './leagueTiers.js';
 import { currencyData } from './pricingData.js';
 import { translate } from '../i18n/translator.js';
 
@@ -91,16 +90,13 @@ export const incomeData = {
         },
         getIncome: (state) => selectDerivedSourceIncome(state, 'starBonus', 'daily'),
         getBaseIncome: (state) => selectDerivedSourceIncome(state, 'starBonus', 'baseDaily'),
-        getSVGUrl: (state) => state.derived.incomeSources.starBonus?.iconUrl || '',
+        getSVGUrl: (state) => {
+            const thLevel = Math.max(1, Number(state.playerProfile?.townHallLevel) || 18);
+            return `assets/th/th${Math.min(thLevel, 18)}.png`;
+        },
         getResourceString: (state) => {
-            const leagueId = Number(state.income.starBonus?.league) || 105000000;
-            const leagueData = leagueTiers.items.find(l => l.id === leagueId);
-            const leagueName = leagueData ? leagueData.name : 'Unranked';
-            const leagueKey = 'entities.leagues.' + leagueName.toLowerCase()
-                .replace(/\./g, '')
-                .replace(/\s(i+)$/i, (match, p1) => p1.toUpperCase())
-                .replace(/\s/g, '_');
-            return translate(leagueKey);
+            const thLevel = Math.max(1, Number(state.playerProfile?.townHallLevel) || 18);
+            return translate('views.equipment.thShort', { level: thLevel });
         },
         subCategories: [
             {
