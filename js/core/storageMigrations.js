@@ -357,6 +357,28 @@ export function sweepObsoleteStorageKeys(validPlayerTags = []) {
             }
         }
 
+        let isCachedSnapshot = false;
+        let cachedTag = '';
+        if (key.startsWith('clashCalc_cachedHomeProfile_')) {
+            isCachedSnapshot = true;
+            cachedTag = normalizePlayerTag(key.slice('clashCalc_cachedHomeProfile_'.length));
+        } else if (key.startsWith('clashCalc_cachedPlayerName_')) {
+            isCachedSnapshot = true;
+            cachedTag = normalizePlayerTag(key.slice('clashCalc_cachedPlayerName_'.length));
+        } else if (key.startsWith('clashCalc_cachedHomeOres_')) {
+            isCachedSnapshot = true;
+            cachedTag = normalizePlayerTag(key.slice('clashCalc_cachedHomeOres_'.length));
+        }
+
+        if (isCachedSnapshot) {
+            if (!hasExplicitTags) {
+                continue;
+            }
+            if (cachedTag && (validTagSet.has(cachedTag) || (cachedTag === 'DEFAULT0' && isGuestAllowed))) {
+                continue;
+            }
+        }
+
         // Purge if it is an oreCalc/clashCalc/orecalc entity or known historical artifact
         if (
             key.startsWith('clashCalc_') ||

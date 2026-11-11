@@ -107,26 +107,31 @@ self.addEventListener('message', event => {
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // Bypass Service Worker completely for standalone pages (Hero Journey, Damage Calculator, Legal/Policy, and Error pages)
+    // Bypass Service Worker completely for decoupled legal/policy and 404 pages
     if (
-        url.pathname.includes('/hero-journey') ||
-        url.pathname.includes('heroJourneyApp') ||
-        url.pathname.includes('/damage-calculator') ||
-        url.pathname.includes('damageApp') ||
         url.pathname.includes('/privacy') ||
         url.pathname.includes('/terms') ||
         url.pathname.includes('/licenses') ||
         url.pathname.includes('/legal') ||
-        url.pathname.includes('/assets/spells/') ||
         url.pathname.includes('/404')
     ) {
         return;
     }
 
-    const cacheKey = precacheController.getCacheKeyForURL(event.request.url);
+    let cacheKey = precacheController.getCacheKeyForURL(event.request.url);
+    if (!cacheKey && url.search) {
+        const cleanUrl = new URL(event.request.url);
+        cleanUrl.search = '';
+        cacheKey = precacheController.getCacheKeyForURL(cleanUrl.href);
+    }
+
     if (cacheKey) {
         event.respondWith(
-            precacheController.strategy.handle({ event, request: event.request })
+            precacheController.strategy.handle({
+                event,
+                request: event.request,
+                params: { cacheKey }
+            })
         );
         return;
     }
@@ -151,12 +156,10 @@ const navigationStrategy = new NetworkFirst({
 registerRoute(
     ({ request, url }) => request.mode === 'navigate' &&
         !url.pathname.includes('/api/') &&
-        !url.pathname.includes('/hero-journey') &&
-        !url.pathname.includes('/damage-calculator') &&
-        !url.pathname.includes('/account') &&
         !url.pathname.includes('/privacy') &&
         !url.pathname.includes('/terms') &&
         !url.pathname.includes('/licenses') &&
+        !url.pathname.includes('/legal') &&
         !url.pathname.includes('/404'),
     async (options) => {
         try {
@@ -173,25 +176,34 @@ registerRoute(
             lang = segments[0].toLowerCase();
         }
 
-        const isOreCalcTool = pathname.includes('/ore-calculator');
+        let toolSubpath = '';
+        if (pathname.includes('/ore-calculator')) {
+            toolSubpath = 'ore-calculator/';
+        } else if (pathname.includes('/hero-journey')) {
+            toolSubpath = 'hero-journey/';
+        } else if (pathname.includes('/damage-calculator')) {
+            toolSubpath = 'damage-calculator/';
+        } else if (pathname.includes('/account')) {
+            toolSubpath = 'account/';
+        }
+
         const candidateUrls = [];
         if (lang !== 'en') {
-            if (isOreCalcTool) candidateUrls.push(`/${lang}/ore-calculator/index.html`);
-            candidateUrls.push(`/${lang}/index.html`);
+            if (toolSubpath) candidateUrls.push(`${lang}/${toolSubpath}index.html`);
+            candidateUrls.push(`${lang}/index.html`);
         }
-        if (isOreCalcTool) candidateUrls.push('/ore-calculator/index.html');
-        candidateUrls.push('/index.html');
+        if (toolSubpath) candidateUrls.push(`${toolSubpath}index.html`);
+        candidateUrls.push('index.html');
 
-        let localizedKey = null;
         for (const candidate of candidateUrls) {
-            localizedKey = precacheController.getCacheKeyForURL(candidate);
-            if (localizedKey) break;
-        }
-
-        if (localizedKey) {
-            const cache = await caches.open(workbox.core.cacheNames.precache);
-            const cachedResponse = await cache.match(localizedKey);
-            if (cachedResponse) return cachedResponse;
+            try {
+                const match = await precacheController.matchPrecache(candidate);
+                if (match) return match;
+            } catch (_) {}
+            try {
+                const matchSlash = await precacheController.matchPrecache('/' + candidate);
+                if (matchSlash) return matchSlash;
+            } catch (_) {}
         }
 
         return Response.error();
@@ -216,14 +228,13 @@ registerRoute(
 // Runtime cache for dynamic game assets (equipment, town halls, heroes, buildings, resources)
 registerRoute(
     ({ request, url }) => (request.destination === 'image' ||
-        (url.origin === self.location.origin && url.pathname.startsWith('/assets/'))) &&
-        !url.pathname.includes('/assets/spells/'),
+        (url.origin === self.location.origin && url.pathname.startsWith('/assets/'))),
     new CacheFirst({
         cacheName: 'orecalc-assets-cache',
         plugins: [
             new CacheableResponsePlugin({ statuses: [0, 200] }),
             new ExpirationPlugin({
-                maxEntries: 250,
+                maxEntries: 400,
                 maxAgeSeconds: 60 * 24 * 60 * 60, // 60 Days
                 purgeOnQuotaError: true
             })

@@ -127,6 +127,92 @@
         <!-- include: partials/tabs/planner.html -->
     </main>
 
+    <script>
+        (function() {
+            try {
+                var tagParam = (window.location.search.match(/[?&](?:tag|p|player)=([^&]+)/) || [])[1];
+                var rawTags = localStorage.getItem('clashCalc_playerTags') || localStorage.getItem('oreCalc_playerTags');
+                var activeTag = null;
+                if (tagParam) {
+                    activeTag = decodeURIComponent(tagParam).replace(/^#/, '').toUpperCase();
+                } else if (rawTags) {
+                    var parsedTags = JSON.parse(rawTags);
+                    if (Array.isArray(parsedTags) && parsedTags.length > 0 && parsedTags[0] !== 'DEFAULT0') {
+                        activeTag = parsedTags[0].replace(/^#/, '').toUpperCase();
+                    }
+                }
+
+                if (activeTag) {
+                    var cachedName = localStorage.getItem('clashCalc_cachedPlayerName_' + activeTag);
+                    if (cachedName) {
+                        var nameEl = document.getElementById('selected-player-name');
+                        if (nameEl) nameEl.textContent = cachedName;
+                    }
+
+                    var cachedCard = localStorage.getItem('clashCalc_cachedHomeProfile_' + activeTag);
+                    if (cachedCard) {
+                        var cardEl = document.getElementById('orecalc-home-player-card');
+                        if (cardEl) {
+                            cardEl.innerHTML = cachedCard;
+                            cardEl.removeAttribute('hidden');
+                            cardEl.hidden = false;
+                        }
+                    }
+
+                    var cachedOresRaw = localStorage.getItem('clashCalc_cachedHomeOres_' + activeTag);
+                    if (cachedOresRaw) {
+                        var ores = JSON.parse(cachedOresRaw);
+                        var s = document.getElementById('home-result-quantity-shiny');
+                        if (s && ores.shiny !== undefined) s.textContent = Number(ores.shiny).toLocaleString();
+                        var g = document.getElementById('home-result-quantity-glowy');
+                        if (g && ores.glowy !== undefined) g.textContent = Number(ores.glowy).toLocaleString();
+                        var st = document.getElementById('home-result-quantity-starry');
+                        if (st && ores.starry !== undefined) st.textContent = Number(ores.starry).toLocaleString();
+
+                        var setTime = function(prefix, data) {
+                            var y = document.getElementById('home-result-time-' + prefix + '-years');
+                            if (y && data.years !== undefined) y.textContent = data.years;
+                            var m = document.getElementById('home-result-time-' + prefix + '-months');
+                            if (m && data.months !== undefined) m.textContent = data.months;
+                            var d = document.getElementById('home-result-time-' + prefix + '-days');
+                            if (d && data.days !== undefined) d.textContent = data.days;
+                            var dt = document.getElementById('home-result-date-' + prefix);
+                            if (dt && data.date !== undefined) dt.textContent = data.date;
+                        };
+                        setTime('shiny', { years: ores.timeShinyYears, months: ores.timeShinyMonths, days: ores.timeShinyDays, date: ores.dateShiny });
+                        setTime('glowy', { years: ores.timeGlowyYears, months: ores.timeGlowyMonths, days: ores.timeGlowyDays, date: ores.dateGlowy });
+                        setTime('starry', { years: ores.timeStarryYears, months: ores.timeStarryMonths, days: ores.timeStarryDays, date: ores.dateStarry });
+                    }
+                }
+
+                var hash = window.location.hash;
+                if (hash && hash.length > 1) {
+                    var tabName = hash.substring(1).replace(/-tab$/, '');
+                    var validTabs = ['home', 'equipment', 'income', 'planner'];
+                    if (validTabs.indexOf(tabName) !== -1 && tabName !== 'home') {
+                        var homeTab = document.getElementById('home-tab');
+                        var targetTab = document.getElementById(tabName + '-tab');
+                        if (homeTab && targetTab) {
+                            homeTab.classList.remove('is-active');
+                            targetTab.classList.add('is-active');
+                            var navTabs = document.querySelectorAll('.app-header__tab');
+                            for (var i = 0; i < navTabs.length; i++) {
+                                var t = navTabs[i];
+                                if (t.getAttribute('data-tab') === tabName) {
+                                    t.classList.add('is-active');
+                                    t.setAttribute('aria-selected', 'true');
+                                } else {
+                                    t.classList.remove('is-active');
+                                    t.setAttribute('aria-selected', 'false');
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (_) {}
+        })();
+    </script>
+
     <div id="tool-extras">
         <!-- include: partials/floating-save-button.html -->
         <!-- include: partials/fab.html -->

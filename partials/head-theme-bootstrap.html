@@ -11,6 +11,27 @@
                         document.documentElement.setAttribute('data-accent', accent);
                     }
                 }
+
+                // Immediate synchronous PWA startup route resolution (eliminates hub flash on cold launch)
+                var isStandalone = Boolean(
+                    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+                    (window.navigator && window.navigator.standalone) ||
+                    /[?&]source=pwa\b/.test(window.location.search)
+                );
+                var isColdLaunch = !sessionStorage.getItem('clashCalc_sessionLaunched');
+                var path = window.location.pathname;
+                var isHubRoute = /^\/(?:(?:de|tr|zh)\/)?(?:index\.html)?$/.test(path);
+
+                if (isStandalone && isColdLaunch && isHubRoute) {
+                    var startup = parsed && (parsed.startupRoute || (parsed.settings && parsed.settings.startupRoute));
+                    if (startup && startup !== '/') {
+                        sessionStorage.setItem('clashCalc_sessionLaunched', 'true');
+                        var langMatch = path.match(/^\/(de|tr|zh)(?:\/|$)/);
+                        var langPrefix = langMatch ? '/' + langMatch[1] : '';
+                        window.location.replace(langPrefix + startup);
+                        return;
+                    }
+                }
                 var bg = isLight ? '#f8f9fa' : '#121212';
                 var m = document.querySelector('meta[name="theme-color"]:not([media])');
                 if (m) m.setAttribute('content', bg);

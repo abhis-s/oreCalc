@@ -67,6 +67,9 @@ export function removePlayerTag(playerTagToDelete) {
         localStorage.removeItem(`oreCalc_planner_${cleanTag}`);
         localStorage.removeItem(`clashCalc_history_${cleanTag}`);
         localStorage.removeItem(`oreCalc_history_${cleanTag}`);
+        localStorage.removeItem(`clashCalc_cachedHomeProfile_${cleanTag}`);
+        localStorage.removeItem(`clashCalc_cachedPlayerName_${cleanTag}`);
+        localStorage.removeItem(`clashCalc_cachedHomeOres_${cleanTag}`);
 
         try {
             const dmgRaw = localStorage.getItem('clashCalc_damageCalcState');

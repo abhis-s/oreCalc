@@ -17,6 +17,7 @@ import {
     calculateEquipmentProgress,
     getOverallGradient
 } from '../../domain/equipment/equipmentProgressDomain.js';
+import { normalizePlayerTag } from '../../core/storageKeys.js';
 
 /**
  * Main function to render the Home tab profile card.
@@ -147,6 +148,7 @@ export function renderHomeProfile(state) {
         );
         if (ok) {
             renderState.lastProgress = progress;
+            cacheHomeUiSnapshot(state);
             return;
         }
     }
@@ -253,16 +255,20 @@ export function renderHomeProfile(state) {
     cardContainer.hidden = false;
     cardContainer.style.display = 'flex';
 
+    cacheHomeUiSnapshot(state);
+
     const preloader = typeof document !== 'undefined' ? document.getElementById('preloader') : null;
     const isPreloaderActive = Boolean(preloader && !preloader.classList.contains('is-hidden') && preloader.style.display !== 'none');
 
     if (isPreloaderActive) {
         renderState.initialProgress = progress;
         renderState.lastProgress = progress;
+        cacheHomeUiSnapshot(state);
     } else {
         triggerFillAnimation(cardContainer, progress, () => {
             renderState.isAnimating = false;
             renderState.lastProgress = progress;
+            cacheHomeUiSnapshot(state);
 
             // Apply any update that arrived while the animation was running
             if (renderState.pendingSnapshot) {
@@ -281,10 +287,55 @@ export function renderHomeProfile(state) {
                 );
                 if (ok) {
                     renderState.lastProgress = pProg;
+                    cacheHomeUiSnapshot(state);
                 } else {
                     renderHomeProfile(state);
                 }
             }
         });
     }
+}
+
+/**
+ * Persists a lightweight HTML and metric snapshot of the Home tab to localStorage.
+ * Enables instant zero-skeleton synchronous pre-hydration on cold startup.
+ * @param {import('../../core/types.js').AppState} state
+ */
+export function cacheHomeUiSnapshot(state) {
+    const profile = state?.playerProfile;
+    if (!profile?.tag || profile.tag === 'DEFAULT0') return;
+
+    try {
+        const cleanTag = normalizePlayerTag(profile.tag);
+        const cardContainer = document.getElementById('orecalc-home-player-card');
+        if (cardContainer && cardContainer.innerHTML) {
+            localStorage.setItem(`clashCalc_cachedHomeProfile_${cleanTag}`, cardContainer.innerHTML);
+        }
+        if (profile.name) {
+            localStorage.setItem(`clashCalc_cachedPlayerName_${cleanTag}`, profile.name);
+        }
+
+        const ores = state.derived?.requiredOres;
+        const time = state.derived?.remainingTime;
+        if (ores && time) {
+            const oresSnapshot = {
+                shiny: Math.round(ores.shiny || 0),
+                glowy: Math.round(ores.glowy || 0),
+                starry: Math.round(ores.starry || 0),
+                timeShinyYears: String(time.shiny?.years ?? 0),
+                timeShinyMonths: String(time.shiny?.months ?? 0),
+                timeShinyDays: String(time.shiny?.days ?? 0),
+                dateShiny: document.getElementById('home-result-date-shiny')?.textContent || '',
+                timeGlowyYears: String(time.glowy?.years ?? 0),
+                timeGlowyMonths: String(time.glowy?.months ?? 0),
+                timeGlowyDays: String(time.glowy?.days ?? 0),
+                dateGlowy: document.getElementById('home-result-date-glowy')?.textContent || '',
+                timeStarryYears: String(time.starry?.years ?? 0),
+                timeStarryMonths: String(time.starry?.months ?? 0),
+                timeStarryDays: String(time.starry?.days ?? 0),
+                dateStarry: document.getElementById('home-result-date-starry')?.textContent || ''
+            };
+            localStorage.setItem(`clashCalc_cachedHomeOres_${cleanTag}`, JSON.stringify(oresSnapshot));
+        }
+    } catch (_) {}
 }

@@ -5,22 +5,38 @@ import path from 'node:path';
 
 describe('Standalone Pages & Legal Decoupling Invariants', () => {
     const projectRoot = process.cwd();
-    const standaloneRoutes = ['privacy', 'terms', 'licenses', 'legal', 'hero-journey', 'damage-calculator'];
+    const decoupledLegalRoutes = ['privacy', 'terms', 'licenses', 'legal'];
 
-    test('workbox-config.js explicitly excludes all standalone legal pages and assets', () => {
+    test('workbox-config.js explicitly excludes decoupled legal pages and heavy runtime sprites', () => {
         const wbContent = fs.readFileSync(path.join(projectRoot, 'workbox-config.js'), 'utf8');
-        for (const route of standaloneRoutes) {
+        for (const route of decoupledLegalRoutes) {
             assert.match(wbContent, new RegExp(`['"]\\*\\*/${route}/\\*\\*['"]`), `workbox-config.js must exclude **/${route}/**`);
         }
-        assert.match(wbContent, /['"]\*\*\/js\/heroJourneyApp\.js['"]/, 'workbox-config.js must exclude **/js/heroJourneyApp.js');
-        assert.match(wbContent, /['"]\*\*\/js\/damageApp\.js['"]/, 'workbox-config.js must exclude **/js/damageApp.js');
+        assert.match(wbContent, /['"]\*\*\/assets\/buildings\/\*\*['"]/, 'workbox-config.js must exclude **/assets/buildings/**');
+        assert.match(wbContent, /['"]\*\*\/assets\/guardians\/\*\*['"]/, 'workbox-config.js must exclude **/assets/guardians/**');
     });
 
-    test('service-worker-src.js explicitly bypasses fetch listener for standalone pages', () => {
+    test('workbox-config.js includes core app shells for all tool suites', () => {
+        const wbContent = fs.readFileSync(path.join(projectRoot, 'workbox-config.js'), 'utf8');
+        assert.match(wbContent, /hero-journey\/index/, 'workbox-config.js must precache hero-journey/index');
+        assert.match(wbContent, /damage-calculator\/index/, 'workbox-config.js must precache damage-calculator/index');
+        assert.match(wbContent, /account\/index/, 'workbox-config.js must precache account/index');
+        assert.match(wbContent, /heroJourneyApp/, 'workbox-config.js must precache heroJourneyApp');
+        assert.match(wbContent, /damageApp/, 'workbox-config.js must precache damageApp');
+        assert.match(wbContent, /accountApp/, 'workbox-config.js must precache accountApp');
+        assert.match(wbContent, /qr-code-styling/, 'workbox-config.js must precache qr-code-styling');
+    });
+
+    test('service-worker-src.js explicitly bypasses fetch listener for decoupled legal routes', () => {
         const swContent = fs.readFileSync(path.join(projectRoot, 'service-worker-src.js'), 'utf8');
-        for (const route of standaloneRoutes) {
+        for (const route of decoupledLegalRoutes) {
             assert.match(swContent, new RegExp(`url\\.pathname\\.includes\\('/${route}'\\)`), `service-worker-src.js must bypass /${route}`);
         }
+    });
+
+    test('service-worker-src.js strips URL search query params during precache key lookup', () => {
+        const swContent = fs.readFileSync(path.join(projectRoot, 'service-worker-src.js'), 'utf8');
+        assert.match(swContent, /cleanUrl\.search\s*=\s*['"]['"]/, 'service-worker-src.js must strip search query parameters');
     });
 
     test('_headers enforces strict zero-caching directives for all legal routes', () => {

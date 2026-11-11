@@ -34,8 +34,6 @@ import {
     destroyLandingToolsInputs
 } from './components/landing/landingToolsInputs.js';
 import { renderTownHallBadge } from './components/common/townHallBadge.js';
-import { isRunningStandalone } from './services/pwaService.js';
-import { getStartupRoutePreference } from './services/appManagementService.js';
 
 /**
  * Updates tool CTA, title link, and quick-jump shortcut hrefs to include the active player tag and language prefix.
@@ -380,18 +378,9 @@ export async function mount(options = {}) {
     if (isMounted && !options.force) return;
     isMounted = true;
 
-    if (typeof window !== 'undefined' && window.location) {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('source') === 'pwa' && isRunningStandalone()) {
-            const preferredStartupRoute = getStartupRoutePreference();
-            if (preferredStartupRoute && preferredStartupRoute !== '/') {
-                const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
-                const langPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
-                window.location.replace(`${langPrefix}${preferredStartupRoute}`);
-                return;
-            }
-        }
-    }
+    try {
+        sessionStorage.setItem('clashCalc_sessionLaunched', 'true');
+    } catch (_) {}
 
     await bootstrapShellLanguageAndStorage({ hydrateState: true });
     initSharedShellChrome({
