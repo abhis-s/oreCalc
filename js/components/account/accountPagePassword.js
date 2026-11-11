@@ -49,6 +49,12 @@ function handlePasswordInputValidation() {
  * Resets all password input fields, rule indicators, and status messages.
  */
 function resetPasswordForm() {
+    const user = getAuthenticatedUser();
+    const usernameInput = /** @type {HTMLInputElement | null} */ (document.getElementById('account-password-username'));
+    if (usernameInput) {
+        usernameInput.value = user?.username || '';
+    }
+
     const currentInput = /** @type {HTMLInputElement | null} */ (document.getElementById('account-input-current-password'));
     const newInput = /** @type {HTMLInputElement | null} */ (document.getElementById('account-input-new-password'));
     const confirmInput = /** @type {HTMLInputElement | null} */ (document.getElementById('account-input-confirm-password'));
@@ -175,6 +181,12 @@ async function handleRemovePassword() {
  * Initializes all event bindings for the in-page password management module.
  */
 export function initAccountPasswordModule() {
+    const user = getAuthenticatedUser();
+    const usernameInput = /** @type {HTMLInputElement | null} */ (document.getElementById('account-password-username'));
+    if (usernameInput && user?.username) {
+        usernameInput.value = user.username;
+    }
+
     const removeBtn = document.getElementById('account-btn-remove-password');
     removeBtn?.addEventListener('click', handleRemovePassword);
 

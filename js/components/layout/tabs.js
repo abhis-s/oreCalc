@@ -6,6 +6,7 @@ import { handleStateUpdate } from '../../core/stateManager.js';
 import { closeFabMenu } from '../fab/fab.js';
 import { setAnimateNextRender } from '../planner/calendar.js';
 import { openStoredOresModal } from '../planner/priorityListModal.js';
+import { renderTabs } from './tabDisplay.js';
 
 function checkPlannerTabStoredOres() {
     const storedOres = state.storedOres || {};
@@ -165,6 +166,7 @@ export function initializeTabs() {
                     checkPlannerTabStoredOres();
                 }, 100);
             }
+            renderTabs(tabId);
             handleStateUpdate(() => {
                 state.activeTab = tabId;
             }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });
@@ -205,7 +207,12 @@ export function initializeTabs() {
             }
 
             const targetUrl = constructTabUrl(button.dataset.tab);
-            history.pushState(null, '', targetUrl);
+            if (typeof navigator !== 'undefined' && navigator.userActivation?.hasBeenActive === false) {
+                history.replaceState(null, '', targetUrl);
+            } else {
+                history.pushState(null, '', targetUrl);
+            }
+            renderTabs(tabId);
             handleStateUpdate(() => {
                 state.activeTab = tabId;
             }, false, { skipSave: true, skipRecalculate: true, isTabSwitch: true });

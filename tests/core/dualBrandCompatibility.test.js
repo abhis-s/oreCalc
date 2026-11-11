@@ -212,6 +212,8 @@ describe('Dual-Brand & Multi-Domain Compatibility Test Suite', () => {
         const ImgClass1 = globalThis.customElements.get('orecalc-assets-image');
         const ImgClass2 = globalThis.customElements.get('clashcalc-assets-image');
         assert.ok(ImgClass2.prototype instanceof ImgClass1 || ImgClass1 === ImgClass2);
+        assert.ok(ImgClass1.observedAttributes.includes('loading'));
+        assert.ok(ImgClass1.observedAttributes.includes('fetchpriority'));
     });
 
     test('Host detection accurately resolves localhost, 127.0.0.1, clashcalc.com, and orecalc.tech', () => {

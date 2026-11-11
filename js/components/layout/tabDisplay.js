@@ -16,7 +16,11 @@ export function renderTabs(activeTabId) {
 
     tabButtons.forEach(button => {
         const tabDataValue = activeTabId.replace('-tab', '');
-        button.classList.toggle('is-active', button.dataset.tab === tabDataValue);
+        const isActive = button.dataset.tab === tabDataValue;
+        button.classList.toggle('is-active', isActive);
+        if (button.getAttribute('role') === 'tab') {
+            button.setAttribute('aria-selected', String(isActive));
+        }
     });
 
     requestResponsiveTextUpdate();

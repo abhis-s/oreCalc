@@ -1651,7 +1651,7 @@
             "placeholder": "Tools, Ausrüstung, Helden durchsuchen...",
             "recent": "Zuletzt verwendet",
             "scopesHeading": "Suchbereiche",
-            "searchTrigger": "Suche & Befehlspalette",
+            "searchTrigger": "Suchen & Befehlspalette",
             "villageSubtitle": "Dorf · #{tag} · RH{th}"
         },
         "tour": {

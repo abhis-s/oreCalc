@@ -432,6 +432,13 @@ export function initializeAuthModal() {
     // Tab buttons
     const tabSignin = document.getElementById('auth-tab-signin');
     const tabRegister = document.getElementById('auth-tab-register');
+    const registerUsernameInput = /** @type {HTMLInputElement|null} */ (document.getElementById('auth-register-username'));
+    const registerFormUsername = /** @type {HTMLInputElement|null} */ (document.getElementById('auth-register-form-username'));
+    registerUsernameInput?.addEventListener('input', () => {
+        if (registerFormUsername) {
+            registerFormUsername.value = registerUsernameInput.value;
+        }
+    });
     tabSignin?.addEventListener('click', () => {
         setAuthMode('signin');
         ensureTurnstileWidget('signin');
@@ -440,6 +447,9 @@ export function initializeAuthModal() {
     tabRegister?.addEventListener('click', () => {
         cancelWebAuthnCeremony();
         setAuthMode('register');
+        if (registerUsernameInput && registerFormUsername) {
+            registerFormUsername.value = registerUsernameInput.value;
+        }
         ensureTurnstileWidget('register');
     });
 

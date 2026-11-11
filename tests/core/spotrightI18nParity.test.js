@@ -368,11 +368,11 @@ describe('Spotright Canonical i18n Parity & String Minimization Suite', () => {
         await loadTranslations('de');
 
         initSpotrightHeaderTrigger(true);
-        assert.equal(elements['header-spotright-btn'].title, 'Suche & Befehlspalette (⌘K)');
+        assert.equal(elements['header-spotright-btn'].title, 'Suchen & Befehlspalette (⌘K)');
 
         initSpotrightHeaderTrigger(false);
         assert.equal(elements['header-spotright-mod-key'].textContent, 'Strg', 'German non-Mac must render Strg');
-        assert.equal(elements['header-spotright-btn'].title, 'Suche & Befehlspalette (Strg+K)');
+        assert.equal(elements['header-spotright-btn'].title, 'Suchen & Befehlspalette (Strg+K)');
 
         // 3. Safe degradation when DOM elements are absent
         // @ts-ignore

@@ -225,6 +225,42 @@ describe('Language Router Domain Suite', () => {
             assert.equal(mockCanonical.href, 'https://clashcalc.com/de/');
         });
 
+        test('falls back to replaceState when userActivation hasBeenActive is false even if replace is false', () => {
+            let pushedUrl = null;
+            let replacedUrl = null;
+            const mockCanonical = { href: '' };
+
+            cleanups.push(mockGlobal('window', {
+                location: { pathname: '/', hash: '#planner' }
+            }));
+            cleanups.push(mockGlobal('document', {
+                documentElement: { lang: 'en' },
+                querySelector: (sel) => sel === 'link[rel="canonical"]' ? mockCanonical : null
+            }));
+            cleanups.push(mockGlobal('history', {
+                replaceState: (_state, _title, url) => { replacedUrl = url; },
+                pushState: (_state, _title, url) => { pushedUrl = url; }
+            }));
+
+            const prevActivation = Object.getOwnPropertyDescriptor(globalThis.navigator, 'userActivation');
+            Object.defineProperty(globalThis.navigator, 'userActivation', {
+                configurable: true,
+                get: () => ({ hasBeenActive: false, isActive: false })
+            });
+            cleanups.push(() => {
+                if (prevActivation) {
+                    Object.defineProperty(globalThis.navigator, 'userActivation', prevActivation);
+                } else {
+                    delete (/** @type {any} */ (globalThis.navigator)).userActivation;
+                }
+            });
+
+            syncLanguageUrl('de', false);
+
+            assert.equal(pushedUrl, null, 'Must NOT pushState without user activation');
+            assert.equal(replacedUrl, '/de/#planner', 'Must replaceState when user activation is absent');
+        });
+
         test('ignores unsupported language codes safely', () => {
             let pushedUrl = null;
             cleanups.push(mockGlobal('history', {

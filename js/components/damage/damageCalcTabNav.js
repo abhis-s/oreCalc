@@ -98,7 +98,11 @@ export function switchDamageTab(tabKey, state, onStateChange) {
 
     const targetUrl = constructDamageTabUrl(cleanTab);
     if (typeof window !== 'undefined' && window.history) {
-        window.history.pushState(null, '', targetUrl);
+        if (typeof navigator !== 'undefined' && navigator.userActivation?.hasBeenActive === false) {
+            window.history.replaceState(null, '', targetUrl);
+        } else {
+            window.history.pushState(null, '', targetUrl);
+        }
     }
 
     state.activeTab = cleanTab;

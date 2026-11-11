@@ -121,7 +121,8 @@ export function syncLanguageUrl(lang, replace = false) {
         : (formattedPath ? `${baseOrigin}/${lang}/${formattedPath}` : `${baseOrigin}/${lang}/`);
 
     if (window.location.pathname + window.location.search + window.location.hash !== newUrl) {
-        if (replace) {
+        const shouldReplace = replace || (typeof navigator !== 'undefined' && navigator.userActivation?.hasBeenActive === false);
+        if (shouldReplace) {
             history.replaceState(null, '', newUrl);
         } else {
             history.pushState(null, '', newUrl);

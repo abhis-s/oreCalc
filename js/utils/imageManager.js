@@ -12,18 +12,25 @@
  * @param {string} className - Optional CSS class name to apply.
  * @param {string} size - The size tier: 'standard' or 'thumbnail'.
  * @param {string} alt - The alt text description.
+ * @param {string|number|null} width - Optional width attribute.
+ * @param {string|number|null} height - Optional height attribute.
+ * @param {string} loading - The loading attribute ('lazy' or 'eager').
+ * @param {string|null} fetchpriority - Optional fetchpriority attribute ('high', 'low', 'auto').
  * @returns {string} The HTML <picture> markup.
  */
-function getImage(src, className = '', size = 'standard', alt = '', width = null, height = null) {
+function getImage(src, className = '', size = 'standard', alt = '', width = null, height = null, loading = 'lazy', fetchpriority = null) {
     if (!src) return '';
 
     const defaultDimension = size === 'thumbnail' ? '100' : '200';
     const imgWidth = width || defaultDimension;
     const imgHeight = height || defaultDimension;
 
+    const loadingAttr = loading === 'eager' ? 'loading="eager"' : 'loading="lazy"';
+    const priorityAttr = fetchpriority ? ` fetchpriority="${fetchpriority}"` : '';
+
     // Handle external URLs or data URIs directly without optimization
     if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
-        return `<img src="${src}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" loading="lazy" decoding="async" draggable="false">`;
+        return `<img src="${src}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" ${loadingAttr}${priorityAttr} decoding="async" draggable="false">`;
     }
 
     let base = src;
@@ -40,7 +47,7 @@ function getImage(src, className = '', size = 'standard', alt = '', width = null
     const isDev = typeof location !== 'undefined' && location.port === '8080';
     if (isDev) {
         const pngUrl = `${base}.png`;
-        return `<img src="${pngUrl}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" loading="lazy" decoding="async" draggable="false">`;
+        return `<img src="${pngUrl}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" ${loadingAttr}${priorityAttr} decoding="async" draggable="false">`;
     }
 
     // Sub-folder assets (equipment, heroes, guardians, supercharge, etc.) are resized and get suffixes.
@@ -55,14 +62,14 @@ function getImage(src, className = '', size = 'standard', alt = '', width = null
     return `<picture class="${className}">
         <source srcset="${avifUrl}" type="image/avif">
         <source srcset="${webpUrl}" type="image/webp">
-        <img src="${webpUrl}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" loading="lazy" decoding="async" draggable="false">
+        <img src="${webpUrl}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" ${loadingAttr}${priorityAttr} decoding="async" draggable="false">
     </picture>`;
 }
 
 if (typeof HTMLElement !== 'undefined') {
     class OrecalcAssetsImage extends HTMLElement {
         static get observedAttributes() {
-            return ['src', 'class', 'size', 'alt', 'width', 'height'];
+            return ['src', 'class', 'size', 'alt', 'width', 'height', 'loading', 'fetchpriority'];
         }
 
         get src() {
@@ -88,9 +95,11 @@ if (typeof HTMLElement !== 'undefined') {
             const alt = this.getAttribute('alt') || '';
             const width = this.getAttribute('width');
             const height = this.getAttribute('height');
+            const loading = this.getAttribute('loading') || 'lazy';
+            const fetchpriority = this.getAttribute('fetchpriority');
 
             if (src) {
-                this.innerHTML = getImage(src, className, size, alt, width, height);
+                this.innerHTML = getImage(src, className, size, alt, width, height, loading, fetchpriority);
             }
         }
     }

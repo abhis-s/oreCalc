@@ -298,7 +298,9 @@ async function navigateTo(targetUrl, options = {}) {
             }
 
             if (!options.isPopState) {
-                const shouldReplace = Boolean(options.replaceHistory) || Boolean(typeof window !== 'undefined' && window.history?.state?.modalStateId);
+                const shouldReplace = Boolean(options.replaceHistory) ||
+                    Boolean(typeof window !== 'undefined' && window.history?.state?.modalStateId) ||
+                    (typeof navigator !== 'undefined' && navigator.userActivation?.hasBeenActive === false);
                 if (shouldReplace && typeof window !== 'undefined' && window.history && typeof window.history.replaceState === 'function') {
                     window.history.replaceState({}, document.title, url.href);
                 } else if (typeof window !== 'undefined' && window.history && typeof window.history.pushState === 'function') {

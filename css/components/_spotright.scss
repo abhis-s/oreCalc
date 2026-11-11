@@ -1039,6 +1039,10 @@ mark.spotright-match-highlight {
             font-size: $font-size-2xs;
         }
 
+        &--k::after {
+            content: 'K';
+        }
+
         .header-spotright-key-svg,
         clashcalc-assets-svg {
             display: inline-flex;

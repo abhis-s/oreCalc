@@ -99,30 +99,31 @@ export function renderCalendar(plannerState) {
         const currentYear = parseInt(yearStr, 10);
         const currentMonth = parseInt(monthStr, 10) - 1;
 
-        if (currentYear > getMinDate().year || (currentYear === getMinDate().year && currentMonth > getMinDate().month - 1)) {
-            const prevDate = new Date(Date.UTC(currentYear, currentMonth - 1, 1));
-            const prevMonthGrid = generateMonthGrid(prevDate, plannerState, activeEquipmentSchedule);
-            calendarTrack.appendChild(prevMonthGrid);
-        }
-
         const currentDate = new Date(Date.UTC(currentYear, currentMonth, 1));
-        const nextDate = new Date(Date.UTC(currentYear, currentMonth + 1, 1));
-
         const currentMonthGrid = generateMonthGrid(currentDate, plannerState, activeEquipmentSchedule);
-        const nextMonthGrid = generateMonthGrid(nextDate, plannerState, activeEquipmentSchedule);
-
         calendarTrack.appendChild(currentMonthGrid);
-        calendarTrack.appendChild(nextMonthGrid);
-
-        if (currentYear > getMinDate().year || (currentYear === getMinDate().year && currentMonth > getMinDate().month - 1)) {
-            positionTrackAtIndex(1);
-        } else {
-            positionTrackAtIndex(0);
-        }
+        positionTrackAtIndex(0);
 
         const currentLang = state.uiSettings?.language || 'en';
         updateHeader(formatDate(currentDate, { month: 'long', year: 'numeric' }, currentLang));
         renderIncomeChips(currentYear, currentMonth);
+
+        // Mount adjacent swipe buffer months progressively in next frame to minimize main-thread work
+        const hasPrev = currentYear > getMinDate().year || (currentYear === getMinDate().year && currentMonth > getMinDate().month - 1);
+        requestAnimationFrame(() => {
+            if (calendarTrack.children.length === 1 && calendarTrack.contains(currentMonthGrid)) {
+                if (hasPrev) {
+                    const prevDate = new Date(Date.UTC(currentYear, currentMonth - 1, 1));
+                    const prevMonthGrid = generateMonthGrid(prevDate, plannerState, activeEquipmentSchedule);
+                    calendarTrack.insertBefore(prevMonthGrid, currentMonthGrid);
+                }
+                const nextDate = new Date(Date.UTC(currentYear, currentMonth + 1, 1));
+                const nextMonthGrid = generateMonthGrid(nextDate, plannerState, activeEquipmentSchedule);
+                calendarTrack.appendChild(nextMonthGrid);
+
+                positionTrackAtIndex(hasPrev ? 1 : 0);
+            }
+        });
     } else if (currentView === 'weekly') {
         calendarTrack.classList.add('weekly-view-grid');
         const [yearStr, weekStr] = plannerState.calendar.view.week.split('-');
@@ -130,35 +131,34 @@ export function renderCalendar(plannerState) {
         const currentWeek = parseInt(weekStr, 10);
 
         const currentWeekStartDate = getDateOfWeek(currentWeek, currentYear);
+        const currentWeekGrid = generateWeekGrid(currentWeekStartDate, plannerState, activeEquipmentSchedule);
+        calendarTrack.appendChild(currentWeekGrid);
+        positionTrackAtIndex(0);
 
         const minDate = new Date(Date.UTC(getMinDate().year, getMinDate().month - 1, 1));
         const [minYearWeek, minWeekNumber] = getISOWeekNumber(minDate);
+        const hasPrevWeek = currentYear > minYearWeek || (currentYear === minYearWeek && currentWeek > minWeekNumber);
 
-        if (currentYear > minYearWeek || (currentYear === minYearWeek && currentWeek > minWeekNumber)) {
-            const prevWeekDate = new Date(currentWeekStartDate);
-            prevWeekDate.setUTCDate(prevWeekDate.getUTCDate() - 7);
-            const [prevWeekYear, prevWeekNumber] = getISOWeekNumber(prevWeekDate);
-            const prevWeekStartDate = getDateOfWeek(prevWeekNumber, prevWeekYear);
-            const prevWeekGrid = generateWeekGrid(prevWeekStartDate, plannerState, activeEquipmentSchedule);
-            calendarTrack.appendChild(prevWeekGrid);
-        }
+        requestAnimationFrame(() => {
+            if (calendarTrack.children.length === 1 && calendarTrack.contains(currentWeekGrid)) {
+                if (hasPrevWeek) {
+                    const prevWeekDate = new Date(currentWeekStartDate);
+                    prevWeekDate.setUTCDate(prevWeekDate.getUTCDate() - 7);
+                    const [prevWeekYear, prevWeekNumber] = getISOWeekNumber(prevWeekDate);
+                    const prevWeekStartDate = getDateOfWeek(prevWeekNumber, prevWeekYear);
+                    const prevWeekGrid = generateWeekGrid(prevWeekStartDate, plannerState, activeEquipmentSchedule);
+                    calendarTrack.insertBefore(prevWeekGrid, currentWeekGrid);
+                }
+                const nextWeekDate = new Date(currentWeekStartDate);
+                nextWeekDate.setUTCDate(nextWeekDate.getUTCDate() + 7);
+                const [nextWeekYear, nextWeekNumber] = getISOWeekNumber(nextWeekDate);
+                const nextWeekStartDate = getDateOfWeek(nextWeekNumber, nextWeekYear);
+                const nextWeekGrid = generateWeekGrid(nextWeekStartDate, plannerState, activeEquipmentSchedule);
+                calendarTrack.appendChild(nextWeekGrid);
 
-        const nextWeekDate = new Date(currentWeekStartDate);
-        nextWeekDate.setUTCDate(nextWeekDate.getUTCDate() + 7);
-        const [nextWeekYear, nextWeekNumber] = getISOWeekNumber(nextWeekDate);
-        const nextWeekStartDate = getDateOfWeek(nextWeekNumber, nextWeekYear);
-
-        const currentWeekGrid = generateWeekGrid(currentWeekStartDate, plannerState, activeEquipmentSchedule);
-        const nextWeekGrid = generateWeekGrid(nextWeekStartDate, plannerState, activeEquipmentSchedule);
-
-        calendarTrack.appendChild(currentWeekGrid);
-        calendarTrack.appendChild(nextWeekGrid);
-
-        if (currentYear > minYearWeek || (currentYear === minYearWeek && currentWeek > minWeekNumber)) {
-            positionTrackAtIndex(1);
-        } else {
-            positionTrackAtIndex(0);
-        }
+                positionTrackAtIndex(hasPrevWeek ? 1 : 0);
+            }
+        });
 
         const weekEndDate = new Date(currentWeekStartDate);
         weekEndDate.setUTCDate(weekEndDate.getUTCDate() + 6);

@@ -362,7 +362,7 @@ export async function mount(options = {}) {
                     }
                 };
 
-                if (window.__FORCE_SYNC_RENDER__ || options.isTabSwitch) {
+                if (window.__FORCE_SYNC_RENDER__) {
                     if (renderFrameId) {
                         cancelAnimationFrame(renderFrameId);
                         renderFrameId = null;

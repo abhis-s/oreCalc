@@ -371,19 +371,24 @@ function handleModalStateChange(element, isOpen, options = {}) {
                 hasClass('navigation-drawer') ||
                 hasClass('nav-drawer')
             ));
-            const shouldReplace = Boolean(options.replace) || isReplacingDrawer;
+            const hasUserInteracted = typeof navigator !== 'undefined' && navigator.userActivation
+                ? Boolean(navigator.userActivation.hasBeenActive)
+                : true;
+            const shouldReplace = Boolean(options.replace) || isReplacingDrawer || !hasUserInteracted;
 
-            if (shouldReplace && modalStack.length > 0) {
-                const replaced = modalStack.pop();
-                if (replaced && replaced.trapHandler && typeof replaced.element?.removeEventListener === 'function') {
-                    replaced.element.removeEventListener('keydown', replaced.trapHandler);
+            if (shouldReplace) {
+                if (modalStack.length > 0 && (isReplacingDrawer || options.replace)) {
+                    const replaced = modalStack.pop();
+                    if (replaced && replaced.trapHandler && typeof replaced.element?.removeEventListener === 'function') {
+                        replaced.element.removeEventListener('keydown', replaced.trapHandler);
+                    }
                 }
-                modalStack.push({ element, stateId, previousActiveElement, trapHandler, options });
+                modalStack.push({ element, stateId, previousActiveElement, trapHandler, options, wasPushed: false });
                 if (typeof window !== 'undefined' && window.history && typeof window.history.replaceState === 'function') {
                     window.history.replaceState({ modalStateId: stateId }, '');
                 }
             } else {
-                modalStack.push({ element, stateId, previousActiveElement, trapHandler, options });
+                modalStack.push({ element, stateId, previousActiveElement, trapHandler, options, wasPushed: true });
                 if (typeof window !== 'undefined' && window.history && typeof window.history.pushState === 'function') {
                     window.history.pushState({ modalStateId: stateId }, '');
                 }
@@ -424,8 +429,15 @@ function handleModalStateChange(element, isOpen, options = {}) {
 
             // If closed manually by user (X button, tap outside) and state is top of stack, pop history entry
             if (!suppressHistoryPop && typeof window !== 'undefined' && window.history && window.history.state && window.history.state.modalStateId === removed.stateId) {
-                isPoppingForClose = true;
-                window.history.back();
+                if (removed.wasPushed) {
+                    isPoppingForClose = true;
+                    window.history.back();
+                } else {
+                    const cleanUrl = window.location.pathname + window.location.search + window.location.hash;
+                    const currentState = (typeof window.history.state === 'object' && window.history.state !== null) ? { ...window.history.state } : {};
+                    delete currentState.modalStateId;
+                    window.history.replaceState(currentState, document.title, cleanUrl);
+                }
             }
         }
     }
