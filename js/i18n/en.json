@@ -1297,6 +1297,8 @@
                 "snackInfo": "Includes ~2 Star Bonus Snacks per month from daily snack packs.",
                 "thPlanningTitle": "Plan your Town Hall Upgrades",
                 "thRewardInfo": "Daily rewards are determined by your Town Hall level.",
+                "thRewardsTitle": "Town Hall Rewards",
+                "thUnlockNote": "Ores unlock at Town Hall 8.",
                 "title": "Star Bonus",
                 "unreleasedTH": "TH {th} (unreleased, likely Nov {year})",
                 "upgradeToTH": "Upgrade to TH {th} in:"

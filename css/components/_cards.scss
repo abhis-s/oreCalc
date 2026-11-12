@@ -315,6 +315,164 @@
                 }
             }
         }
+
+        .th-rewards-hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: $spacing-sm $spacing-md;
+            background: color-mix(in srgb, $accent-primary 12%, transparent);
+            border: 1px solid color-mix(in srgb, $accent-primary 30%, transparent);
+            border-radius: $shape-corner-small;
+            margin-bottom: 10px;
+
+            .th-rewards-hero-left {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .th-rewards-hero-img {
+                width: 32px;
+                height: 32px;
+                object-fit: contain;
+                filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+                flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                }
+            }
+
+            .th-rewards-hero-title {
+                font-size: 0.78rem;
+                font-weight: $font-weight-extrabold;
+                color: $accent-primary;
+            }
+
+            .th-rewards-hero-badge {
+                font-size: 0.55rem;
+                font-weight: $font-weight-extrabold;
+                padding: $spacing-2xs 6px;
+                border-radius: $shape-corner-compact;
+                background: $accent-primary;
+                color: $text-on-accent;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                line-height: 1.2;
+            }
+
+            .th-rewards-hero-ores {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                font-size: 0.70rem;
+                font-weight: $font-weight-bold;
+            }
+
+            .th-rewards-hero-ore-item {
+                display: inline-flex;
+                align-items: center;
+                gap: 2px;
+
+                clashcalc-assets-image,
+                img {
+                    width: 12px;
+                    height: 12px;
+                    object-fit: contain;
+                    flex-shrink: 0;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                &.shiny {
+                    color: $shiny-ore;
+                }
+
+                &.glowy {
+                    color: $glowy-ore;
+                }
+
+                &.starry {
+                    color: $starry-ore;
+                }
+            }
+        }
+
+        .th-rewards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+
+            .th-rewards-col {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .th-rewards-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 5px 8px;
+                background: $bg-surface-secondary;
+                border: 1px solid $border-primary;
+                border-radius: $shape-corner-compact;
+                font-size: 0.70rem;
+                transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
+
+                &.is-current {
+                    background: color-mix(in srgb, $accent-primary 16%, $bg-surface-secondary);
+                    border-color: color-mix(in srgb, $accent-primary 50%, transparent);
+
+                    .th-rewards-th-tag {
+                        color: $accent-primary;
+                    }
+                }
+
+                .th-rewards-th-tag {
+                    font-weight: $font-weight-extrabold;
+                    color: $text-secondary;
+                    font-size: 0.70rem;
+                }
+
+                .th-rewards-ores {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-variant-numeric: tabular-nums;
+                    font-size: 0.68rem;
+                    font-weight: $font-weight-bold;
+
+                    .th-rewards-ore-sep {
+                        color: color-mix(in srgb, $text-muted 60%, transparent);
+                        font-weight: $font-weight-regular;
+                        font-size: 0.65rem;
+                    }
+
+                    .th-rewards-ore-val {
+                        &.shiny {
+                            color: $shiny-ore;
+                        }
+
+                        &.glowy {
+                            color: $glowy-ore;
+                        }
+
+                        &.starry {
+                            color: $starry-ore;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     &:has(.popover-equipment-pool) {
@@ -328,6 +486,12 @@
         max-width: min(320px, calc(100vw - 24px));
         width: max-content;
         min-width: min(250px, calc(100vw - 24px));
+    }
+
+    &:has(.th-rewards-grid) {
+        max-width: min(340px, calc(100vw - 24px));
+        width: min(324px, calc(100vw - 24px));
+        padding: 10px 12px;
     }
 
     .popover-footer {
@@ -658,6 +822,10 @@
                 font-size: $font-size-xs;
                 color: $text-secondary;
                 line-height: 1.4;
+            }
+
+            .info-btn {
+                flex-shrink: 0;
             }
         }
 

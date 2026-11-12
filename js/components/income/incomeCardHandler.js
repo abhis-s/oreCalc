@@ -1,4 +1,5 @@
 import { EQUIPMENT_RECOMMENDATIONS_LAST_UPDATED } from '../../data/equipmentCommonData.js';
+import { townHallStarBonusData } from '../../data/incomeSources/starBonus.js';
 import { getSupercellEventUrl } from '../../data/languagesData.js';
 import { currencyData } from '../../data/pricingData.js';
 import { translate } from '../../i18n/translator.js';
@@ -7,7 +8,7 @@ import { state } from '../../core/state.js';
 
 import { getAddPlayerHelpContent, hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { formatRegionalDate } from '../../utils/dateUtils.js';
-import { updateCalculatedValue } from '../../utils/numberFormatter.js';
+import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 
 import { bindSelectInput } from '../common/formBindingUtils.js';
 import { openBugReportModal } from '../appSettings/settingsSupportModals.js';
@@ -46,6 +47,81 @@ export function initializeIncomeCardHandler() {
         showCardHelpPopover(btn, content, { isToggle: true });
     };
 
+    const getStarBonusThRewardsPopoverContent = () => {
+        let currentTH = 18;
+        if (state.playerProfile && state.playerProfile.townHallLevel) {
+            currentTH = Number(state.playerProfile.townHallLevel) || 18;
+        } else {
+            const activeTag = state.savedPlayerTags?.[0];
+            const activePlayer = state.allPlayersData?.[activeTag];
+            if (activePlayer?.playerProfile?.townHallLevel) {
+                currentTH = Number(activePlayer.playerProfile.townHallLevel) || 18;
+            }
+        }
+        currentTH = Math.min(Math.max(currentTH, 1), 18);
+
+        const title = translate('views.income.starBonus.thRewardsTitle');
+        const dailyBadge = translate('time.daily');
+        const activeLabel = translate('views.spotright.activeVillage');
+        const currentRewards = townHallStarBonusData[currentTH] || { shiny: 0, glowy: 0, starry: 0 };
+        const formatNum = (num) => formatNumber(num || 0);
+
+        const header = `
+            <clashcalc-assets-image src="assets/th/th${currentTH}.png" class="popover-img" alt="${translate('views.equipment.thShort', { level: currentTH })}" width="22" height="22"></clashcalc-assets-image>
+            <div class="popover-title-group">
+                <div class="popover-title">${title}</div>
+                <div class="popover-badge">${dailyBadge}</div>
+            </div>
+        `;
+
+        const heroHtml = `
+            <div class="th-rewards-hero">
+                <div class="th-rewards-hero-left">
+                    <clashcalc-assets-image src="assets/th/th${currentTH}.png" class="th-rewards-hero-img" alt="${translate('views.equipment.thShort', { level: currentTH })}" width="32" height="32"></clashcalc-assets-image>
+                    <span class="th-rewards-hero-title">${translate('views.equipment.thShort', { level: currentTH })}</span>
+                    <span class="th-rewards-hero-badge">${activeLabel}</span>
+                </div>
+                <div class="th-rewards-hero-ores">
+                    <span class="th-rewards-hero-ore-item shiny"><clashcalc-assets-image src="assets/shiny_ore.png" alt="${translate('entities.ores.shiny')}" width="12" height="12"></clashcalc-assets-image> ${formatNum(currentRewards.shiny)}</span>
+                    <span class="th-rewards-hero-ore-item glowy"><clashcalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" width="12" height="12"></clashcalc-assets-image> ${formatNum(currentRewards.glowy)}</span>
+                    <span class="th-rewards-hero-ore-item starry"><clashcalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" width="12" height="12"></clashcalc-assets-image> ${formatNum(currentRewards.starry)}</span>
+                </div>
+            </div>
+        `;
+
+        const col1Levels = [8, 9, 10, 11, 12, 13];
+        const col2Levels = [14, 15, 16, 17, 18];
+
+        const renderRow = (lvl) => {
+            const rewards = townHallStarBonusData[lvl] || { shiny: 0, glowy: 0, starry: 0 };
+            const isCurrent = lvl === currentTH;
+            return `
+                <div class="th-rewards-row ${isCurrent ? 'is-current' : ''}">
+                    <span class="th-rewards-th-tag">${translate('views.equipment.thShort', { level: lvl })}</span>
+                    <span class="th-rewards-ores">
+                        <span class="th-rewards-ore-val shiny">${formatNum(rewards.shiny)}</span>
+                        <span class="th-rewards-ore-sep">&middot;</span>
+                        <span class="th-rewards-ore-val glowy">${formatNum(rewards.glowy)}</span>
+                        <span class="th-rewards-ore-sep">&middot;</span>
+                        <span class="th-rewards-ore-val starry">${formatNum(rewards.starry)}</span>
+                    </span>
+                </div>
+            `;
+        };
+
+        const body = `
+            ${heroHtml}
+            <div class="th-rewards-grid">
+                <div class="th-rewards-col">${col1Levels.map(renderRow).join('')}</div>
+                <div class="th-rewards-col">${col2Levels.map(renderRow).join('')}</div>
+            </div>
+        `;
+
+        const footer = translate('views.income.starBonus.thUnlockNote');
+
+        return { header, body, footer };
+    };
+
     const getPopoverContent = (btnOrKey) => {
         const infoKey = typeof btnOrKey === 'string' ? btnOrKey : btnOrKey.getAttribute('data-info');
         let body = '';
@@ -53,6 +129,8 @@ export function initializeIncomeCardHandler() {
 
         if (infoKey === 'player.addPlayerHelp') {
             body = getAddPlayerHelpContent();
+        } else if (infoKey === 'views.income.starBonus.thRewardsTitle') {
+            return getStarBonusThRewardsPopoverContent();
         } else if (infoKey === 'views.income.supercellEvents.help') {
             const currentLang = state.uiSettings?.language || 'en';
             body = translate(infoKey, { url: getSupercellEventUrl(currentLang) });

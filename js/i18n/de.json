@@ -1297,6 +1297,8 @@
                 "snackInfo": "Enthält ca. 2 Sternebonus-Snacks pro Monat aus täglichen Snack-Packs.",
                 "thPlanningTitle": "Plane deine Rathaus-Upgrades",
                 "thRewardInfo": "Tägliche Belohnungen richten sich nach deinem Rathaus-Level.",
+                "thRewardsTitle": "Rathaus-Belohnungen",
+                "thUnlockNote": "Erze werden ab Rathaus 8 freigeschaltet.",
                 "title": "Sternebonus",
                 "unreleasedTH": "RH {th} (unveröffentlicht, voraussichtliche Veröffentlichung Nov. {year})",
                 "upgradeToTH": "Upgrade auf RH {th} in:"
