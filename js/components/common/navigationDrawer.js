@@ -1,6 +1,7 @@
 const SWIPE_DISMISS_THRESHOLD = -60;
 const SWIPE_MAX_DRAG = -300;
 const SWIPE_LOCK_MIN_PX = 8;
+const DRAWER_TRIGGER_COOLDOWN_MS = 400;
 
 /**
  * @typedef {Object} NavigationDrawerOptions
@@ -176,8 +177,15 @@ export function initNavigationDrawer(options = {}) {
         }
     };
 
+    let lastTriggerTimestamp = 0;
+
     const onTriggerClick = (e) => {
         e?.preventDefault?.();
+        const now = Date.now();
+        if (now - lastTriggerTimestamp < DRAWER_TRIGGER_COOLDOWN_MS) {
+            return;
+        }
+        lastTriggerTimestamp = now;
         toggle();
     };
 

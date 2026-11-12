@@ -24,6 +24,8 @@ function triggerShake(el) {
     }
 }
 
+const TOGGLE_COOLDOWN_MS = 400;
+
 /**
  * Initializes the Landing Portal player tag search form.
  *
@@ -84,6 +86,7 @@ export function initLandingSearchForm({
     const updateToggleAddBtnState = (isOpen) => {
         if (!toggleAddBtn) return;
         toggleAddBtn.classList.toggle('is-active', isOpen);
+        toggleAddBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         if (isOpen) {
             toggleAddBtn.innerHTML = `
                 <clashcalc-assets-svg name="close" width="14" height="14"></clashcalc-assets-svg>
@@ -131,8 +134,22 @@ export function initLandingSearchForm({
         }
         clearSearchFeedback();
         updateToggleAddBtnState(true);
-        searchInput?.focus();
-        searchInput?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (searchInput) {
+            if (typeof requestAnimationFrame === 'function') {
+                requestAnimationFrame(() => {
+                    try {
+                        searchInput.focus({ preventScroll: true });
+                    } catch {
+                        searchInput.focus();
+                    }
+                    if (typeof searchInput.scrollIntoView === 'function') {
+                        searchInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                });
+            } else {
+                searchInput.focus();
+            }
+        }
     };
 
     const closeSearchForm = () => {
@@ -163,8 +180,16 @@ export function initLandingSearchForm({
         updateToggleAddBtnState(false);
     };
 
+    let lastToggleTimestamp = 0;
+
     if (toggleAddBtn) {
         toggleAddBtn.addEventListener('click', () => {
+            const now = Date.now();
+            if (now - lastToggleTimestamp < TOGGLE_COOLDOWN_MS) {
+                return;
+            }
+            lastToggleTimestamp = now;
+
             if (isSearchFormOpen()) {
                 closeSearchForm();
             } else {

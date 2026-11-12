@@ -130,6 +130,7 @@ input[type="number"] {
     border-radius: $shape-corner-xs;
     cursor: pointer;
     background-color: $bg-app;
+    touch-action: manipulation;
     @include input-focus-ring;
 
     .dropdown-selected {
@@ -137,11 +138,21 @@ input[type="number"] {
         display: flex;
         align-items: center;
         justify-content: center;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        -webkit-user-select: none;
 
-        img {
+        > * {
+            pointer-events: none;
+        }
+
+        img,
+        clashcalc-assets-image {
             width: 24px !important;
             height: 24px !important;
             display: block;
+            pointer-events: none;
         }
     }
 

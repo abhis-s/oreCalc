@@ -240,15 +240,26 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
     const sourcesThItems = rootContainer.querySelectorAll('#calc-sources-th-dropdown .calc-th-dropdown-item');
 
     if (sourcesThTrigger && sourcesThMenu) {
+        let lastSourcesThTimestamp = 0;
+        const TH_COOLDOWN_MS = 400;
+
         sourcesThTrigger.addEventListener('click', (e) => {
             e.stopPropagation();
-            const isOpen = sourcesThMenu.style.display !== 'none';
+            const now = Date.now();
+            if (now - lastSourcesThTimestamp < TH_COOLDOWN_MS) {
+                return;
+            }
+            lastSourcesThTimestamp = now;
+
+            const isOpen = !sourcesThMenu.hidden;
+            sourcesThMenu.hidden = isOpen;
             sourcesThMenu.style.display = isOpen ? 'none' : 'block';
             sourcesThTrigger.setAttribute('aria-expanded', String(!isOpen));
             sourcesThDropdown?.classList.toggle('is-open', !isOpen);
         });
 
         const closeSourcesThMenu = () => {
+            sourcesThMenu.hidden = true;
             sourcesThMenu.style.display = 'none';
             sourcesThTrigger.setAttribute('aria-expanded', 'false');
             sourcesThDropdown?.classList.remove('is-open');

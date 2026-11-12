@@ -27,10 +27,30 @@
     border: 1px solid color-mix(in srgb, $accent-primary 30%, transparent);
     cursor: pointer;
     user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
     pointer-events: auto;
     letter-spacing: 0.3px;
     white-space: nowrap;
+    position: relative;
     transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
+
+    > * {
+        pointer-events: none;
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        min-width: 44px;
+        height: 100%;
+        min-height: 44px;
+    }
 
     &:hover {
         background: color-mix(in srgb, $accent-primary 22%, $bg-surface-secondary);

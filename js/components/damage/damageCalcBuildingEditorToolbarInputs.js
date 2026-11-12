@@ -46,8 +46,17 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
     const thItems = modalBody.querySelectorAll('.calc-th-dropdown-item');
 
     if (thTrigger && thMenu) {
+        let lastThTimestamp = 0;
+        const TH_COOLDOWN_MS = 400;
+
         thTrigger.addEventListener('click', (e) => {
             e.stopPropagation();
+            const now = Date.now();
+            if (now - lastThTimestamp < TH_COOLDOWN_MS) {
+                return;
+            }
+            lastThTimestamp = now;
+
             const isOpen = !thMenu.hidden;
             thMenu.hidden = isOpen;
             thTrigger.setAttribute('aria-expanded', String(!isOpen));

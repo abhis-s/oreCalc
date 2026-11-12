@@ -129,7 +129,15 @@
     border-radius: $shape-corner-small;
     white-space: nowrap;
     position: relative;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
     transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
+
+    > * {
+        pointer-events: none;
+    }
 
     &::before {
         content: '';
@@ -137,9 +145,8 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        min-width: 44px;
-        min-height: 44px;
         width: 100%;
+        min-height: 44px;
         height: 100%;
     }
 

@@ -23,6 +23,8 @@ import { escapeHTML } from '../../utils/stringUtils.js';
  * @property {boolean} [requiresStandalone]
  */
 
+const BRAND_PILL_COOLDOWN_MS = 400;
+
 /**
  * Canonical registry of primary tools accessible via the brand pill dropdown.
  * @type {BrandToolDescriptor[]}
@@ -217,12 +219,19 @@ export function initBrandToolsDropdown(options = {}) {
     }
     buttonEl.dataset.dropdownInitialized = 'true';
 
+    let lastToggleTimestamp = 0;
+
     /**
      * @param {MouseEvent} event
      */
     const handleButtonClick = (event) => {
         event.preventDefault();
         event.stopPropagation();
+        const now = Date.now();
+        if (now - lastToggleTimestamp < BRAND_PILL_COOLDOWN_MS) {
+            return;
+        }
+        lastToggleTimestamp = now;
         toggleBrandToolsDropdown(wrapper);
     };
 

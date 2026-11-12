@@ -325,8 +325,28 @@ dialog.navigation-drawer,
     border: none;
     padding: 0;
     color: inherit;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
     transition: background-color $duration-fast $ease-smooth,
                 transform $duration-instant $ease-smooth;
+
+    > * {
+        pointer-events: none;
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        min-width: 44px;
+        min-height: 44px;
+        width: 100%;
+        height: 100%;
+    }
 
     @media (hover: hover) {
         &:hover {

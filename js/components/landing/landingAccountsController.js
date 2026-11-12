@@ -348,7 +348,16 @@ export function initLandingAccountsManager({
     }
 
     if (manageBtn) {
+        let lastManageTimestamp = 0;
+        const MANAGE_COOLDOWN_MS = 400;
+
         manageBtn.addEventListener('click', () => {
+            const now = Date.now();
+            if (now - lastManageTimestamp < MANAGE_COOLDOWN_MS) {
+                return;
+            }
+            lastManageTimestamp = now;
+
             isManagingAccounts = !isManagingAccounts;
             manageBtn.classList.toggle('is-active', isManagingAccounts);
             manageBtn.innerHTML = isManagingAccounts

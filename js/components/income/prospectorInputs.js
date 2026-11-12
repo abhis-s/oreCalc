@@ -48,7 +48,16 @@ function initializeCustomDropdown(dropdownElement, whichOre) {
     const labelKey = whichOre === 'from' ? 'views.income.prospector.fromOre' : 'views.income.prospector.toOre';
     dropdownElement.setAttribute('aria-label', translate(labelKey));
 
+    let lastDropdownToggle = 0;
+    const PROSPECTOR_DROPDOWN_COOLDOWN_MS = 400;
+
     selected.addEventListener('click', () => {
+        const now = Date.now();
+        if (now - lastDropdownToggle < PROSPECTOR_DROPDOWN_COOLDOWN_MS) {
+            return;
+        }
+        lastDropdownToggle = now;
+
         dropdownElement.classList.toggle('is-open');
         dropdownElement.setAttribute('aria-expanded', dropdownElement.classList.contains('is-open') ? 'true' : 'false');
     });
