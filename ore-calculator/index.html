@@ -26,17 +26,11 @@
     <meta property="og:image:height" content="630">
     <meta property="og:logo" content="https://clashcalc.com/assets/app_icon_large.png">
 
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://clashcalc.com/ore-calculator/">
-    <meta property="twitter:title" content="OreCalc — Clash of Clans Equipment &amp; Upgrade Planner | ClashCalc">
-    <meta property="twitter:description"
-        content="The ultimate Clash of Clans Ore Calculator and Planner. Forecast your ore income, plan hero equipment upgrades with a drag-and-drop calendar, and manage multiple accounts. Features comprehensive income tracking, upgrade priority lists, offline support (PWA), and cloud sync.">
-    <meta property="twitter:image" content="https://clashcalc.com/assets/ore_calc_og.png">
+    <meta name="twitter:card" content="summary_large_image">
 
-    <base href="/">
-    <!-- include: partials/head/importmap.html -->
     <title data-i18n="app.metaTitle">OreCalc — Clash of Clans Equipment &amp; Upgrade Planner | ClashCalc</title>
     <link rel="icon" href="/assets/favicon.png" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/assets/app_icon_large.png">
     <link rel="manifest" href="/manifest.json?v=3.1.0">
     <link rel="canonical" href="https://clashcalc.com/ore-calculator/">
     <link rel="alternate" hreflang="en" href="https://clashcalc.com/ore-calculator/" />
@@ -62,21 +56,6 @@
       "description": "OreCalc is an optimization calculator for managing Clash of Clans equipment upgrades and scheduling ore requirements."
     }
     </script>
-
-    <link rel="modulepreload" href="js/app.js">
-    <link rel="modulepreload" href="js/core/state.js">
-    <link rel="modulepreload" href="js/core/stateManager.js">
-    <link rel="modulepreload" href="js/core/renderer.js">
-    <link rel="modulepreload" href="js/core/calculator.js">
-    <link rel="modulepreload" href="js/core/localStorageManager.js">
-    <link rel="modulepreload" href="js/dom/domElements.js">
-    <link rel="modulepreload" href="js/ui/noticeModal.js">
-    <link rel="modulepreload" href="js/i18n/translator.js">
-    <link rel="modulepreload" href="js/utils/logger.js">
-    <link rel="modulepreload" href="js/utils/svgManager.js">
-    <link rel="modulepreload" href="js/utils/responsiveTextHandler.js">
-    <link rel="modulepreload" href="js/utils/inputValidator.js">
-    <link rel="modulepreload" href="js/utils/chipManager.js">
 </head>
 
 <body class="dark-mode">
@@ -85,26 +64,13 @@
     <div id="preloader" hidden>
         <script>
             (function () {
-                var accent = 'blue';
-                var isLight = false;
-                try {
-                    var settingsStr = localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings');
-                    if (settingsStr) {
-                        var parsed = JSON.parse(settingsStr);
-                        if (parsed) {
-                            if (parsed.accentColor) accent = parsed.accentColor;
-                            if (parsed.theme === 'light') isLight = true;
-                        }
-                    }
-                } catch (e) {}
-                if (accent === 'random') {
-                    var accents = ['blue', 'gold', 'purple', 'green', 'red'];
-                    accent = accents[Math.floor(Math.random() * accents.length)];
-                    window.sessionRandomAccent = accent;
-                }
+                var accent = document.documentElement.getAttribute('data-accent') || 'blue';
+                var isLight = document.documentElement.classList.contains('light-mode');
                 var preloader = document.getElementById('preloader');
-                preloader.setAttribute('data-accent', accent);
-                preloader.setAttribute('data-theme', isLight ? 'light' : 'dark');
+                if (preloader) {
+                    preloader.setAttribute('data-accent', accent);
+                    preloader.setAttribute('data-theme', isLight ? 'light' : 'dark');
+                }
             })();
         </script>
         <div class="preloader-loader">

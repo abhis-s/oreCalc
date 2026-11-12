@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import { state } from '../../js/core/state.js';
 import { loadTranslations } from '../../js/i18n/translator.js';
-import { getChangelogHtml } from '../../js/services/changelogService.js';
+import { getChangelogHtml, _setCachedCommitsForTesting } from '../../js/services/changelogService.js';
 import { showChangelogModal } from '../../js/components/changelog/changelogModal.js';
 import { dom } from '../../js/dom/domElements.js';
 
@@ -62,23 +62,27 @@ describe('Changelog Modal & Commits Button Visibility Domain Suite', () => {
 
         global.window = {
             __ENV__: {
-                COMMITS_SINCE_TAG: [
-                    { hash: 'a673992', subject: 'test: validate inline HTML script syntax' },
-                    { hash: '407d3e0', subject: 'feat: optimize error alerts' }
-                ]
+                APP_VERSION: '3.1.0'
             },
             isAppStartingUp: false
         };
+
+        _setCachedCommitsForTesting([
+            { hash: 'a673992', subject: 'test: validate inline HTML script syntax' },
+            { hash: '407d3e0', subject: 'feat: optimize error alerts' }
+        ]);
     });
 
     afterEach(() => {
+        _setCachedCommitsForTesting(null);
         global.window = originalWindow;
         global.document = originalDocument;
     });
 
-    test('commits button is displayed as inline-flex when commits exist and changelog is non-empty', () => {
+    test('commits button is displayed as inline-flex when commits exist and changelog is non-empty', async () => {
         const sampleChangelog = '<div class="changelog-container"><h3>v2.2.0</h3><ul><li>Feature 1</li></ul></div>';
         showChangelogModal(sampleChangelog);
+        await Promise.resolve();
 
         const commitsBtn = mockElements['changelog-commits-btn'];
         const modal = mockElements['changelog-modal'];
@@ -88,26 +92,19 @@ describe('Changelog Modal & Commits Button Visibility Domain Suite', () => {
         assert.equal(mockElements['changelog-modal-body'].innerHTML, sampleChangelog);
     });
 
-    test('commits button is hidden when COMMITS_SINCE_TAG is empty', () => {
-        global.window.__ENV__.COMMITS_SINCE_TAG = [];
+    test('commits button is hidden when cached commits is empty', async () => {
+        _setCachedCommitsForTesting([]);
         const sampleChangelog = '<div class="changelog-container"><h3>v2.2.0</h3></div>';
         showChangelogModal(sampleChangelog);
+        await Promise.resolve();
 
         const commitsBtn = mockElements['changelog-commits-btn'];
         assert.equal(commitsBtn.hidden, true);
     });
 
-    test('commits button is hidden when changelog content is empty', () => {
+    test('commits button is hidden when changelog content is empty', async () => {
         showChangelogModal('');
-
-        const commitsBtn = mockElements['changelog-commits-btn'];
-        assert.equal(commitsBtn.hidden, true);
-    });
-
-    test('commits button is hidden when COMMITS_SINCE_TAG is undefined or non-array', () => {
-        global.window.__ENV__.COMMITS_SINCE_TAG = undefined;
-        const sampleChangelog = '<div class="changelog-container"><h3>v2.2.0</h3></div>';
-        showChangelogModal(sampleChangelog);
+        await Promise.resolve();
 
         const commitsBtn = mockElements['changelog-commits-btn'];
         assert.equal(commitsBtn.hidden, true);

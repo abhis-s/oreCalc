@@ -40,12 +40,12 @@ describe('Layout & Viewport Hardening Contracts', () => {
 
     describe('Universal Header Shell & Navigation Drawer Accessibility Contracts', () => {
         const headerFiles = [
-            'index.html',
+            'partials/header-landing.html',
             'partials/header.html',
-            'damage-calculator/index.html',
-            'hero-journey/index.html',
-            'account/index.html',
-            'app-management/index.html'
+            'partials/header-damage-calculator.html',
+            'partials/header-hero-journey.html',
+            'partials/header-account-page.html',
+            'partials/header-app-management.html'
         ];
 
         test('All application headers declare accessible hamburger navigation trigger for drawer', () => {

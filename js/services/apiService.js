@@ -21,7 +21,7 @@ export function getApiBaseUrl(hostname) {
             return 'https://api.orecalc.tech';
         }
     }
-    return (typeof window !== 'undefined' && (window.__ENV__?.PUBLIC_API_BASE_URL || window.__ENV__?.VITE_API_BASE_URL)) || 'https://api.clashcalc.com';
+    return (typeof window !== 'undefined' && window.__ENV__?.PUBLIC_API_BASE_URL) || 'https://api.clashcalc.com';
 }
 
 const BASE_URL = getApiBaseUrl();

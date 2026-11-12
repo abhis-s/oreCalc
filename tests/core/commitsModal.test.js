@@ -65,7 +65,7 @@ describe('Commits Modal Domain Suite', () => {
 
         global.window = {
             __ENV__: {
-                COMMITS_SINCE_TAG: []
+                APP_VERSION: '3.1.0'
             },
             isAppStartingUp: false
         };

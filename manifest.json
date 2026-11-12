@@ -70,14 +70,14 @@
             "short_name": "OreCalc",
             "description": "Equipment levels and upgrade planner",
             "url": "/ore-calculator/",
-            "icons": [{ "src": "assets/app_icon_small.png", "sizes": "192x192" }]
+            "icons": [{ "src": "assets/app_icon_large.png", "sizes": "512x512" }]
         },
         {
-            "name": "Damage Calculator",
-            "short_name": "Damage Calc",
+            "name": "DamageCalc",
+            "short_name": "DamageCalc",
             "description": "ZapQuake combos and equipment combat damage",
             "url": "/damage-calculator/",
-            "icons": [{ "src": "assets/app_icon_small.png", "sizes": "192x192" }]
+            "icons": [{ "src": "assets/damage_calc_icon.png", "sizes": "512x512" }]
         },
         {
             "name": "Hero's Journey",
@@ -91,7 +91,7 @@
             "short_name": "Hub",
             "description": "Village overview and tool hub",
             "url": "/",
-            "icons": [{ "src": "assets/app_icon_small.png", "sizes": "192x192" }]
+            "icons": [{ "src": "assets/app_icon_large.png", "sizes": "512x512" }]
         }
     ]
 }

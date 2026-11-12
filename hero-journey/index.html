@@ -23,11 +23,7 @@
     <meta property="og:image:height" content="630">
     <meta property="og:logo" content="https://clashcalc.com/assets/hero_journey_icon.png">
 
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://clashcalc.com/hero-journey/">
-    <meta property="twitter:title" content="Hero Journey Rewards &amp; Tracker | Clash of Clans | ClashCalc">
-    <meta property="twitter:description" content="Explore all Clash of Clans Hero Journey milestone rewards, chest ore drops, and track your player progress with direct tag search.">
-    <meta property="twitter:image" content="https://clashcalc.com/assets/hero_journey_og.png">
+    <meta name="twitter:card" content="summary_large_image">
 
     <link rel="icon" type="image/png" href="/assets/hero_journey_favicon.png">
     <link rel="apple-touch-icon" href="/assets/hero_journey_icon.png">
@@ -38,7 +34,6 @@
     <link rel="alternate" hreflang="zh" href="https://clashcalc.com/zh/hero-journey/" />
     <link rel="alternate" hreflang="x-default" href="https://clashcalc.com/hero-journey/" />
 
-    <!-- include: partials/head/importmap.html -->
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/hero-journey.css">
     <!-- include: partials/head-theme-bootstrap.html -->
@@ -47,36 +42,7 @@
 <body class="dark-mode hero-journey-page">
     <!-- include: partials/shell-top.html -->
 
-    <header class="app-header">
-        <div class="app-header__inner">
-            <div class="app-header__brand">
-                <button type="button" id="hamburger-btn" class="app-header__hamburger"
-                    aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
-                    <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
-                </button>
-                <a href="/" class="brand-title-link" tabindex="0" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
-                    <h1 class="brand-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h1>
-                </a>
-                <span class="brand-separator" aria-hidden="true">&middot;</span>
-                <div class="brand-page-pill-wrapper">
-                    <button type="button" class="brand-page-pill" id="brand-page-pill-btn" aria-haspopup="menu" aria-expanded="false">
-                        <span class="brand-page-pill__label" data-i18n="views.heroJourney.widget.title">Hero's Journey</span>
-                        <clashcalc-assets-svg name="chevron-down" class="brand-page-pill__chevron" width="10" height="10" aria-hidden="true"></clashcalc-assets-svg>
-                    </button>
-                    <div id="brand-tools-dropdown" class="brand-tools-dropdown" role="menu" aria-labelledby="brand-page-pill-btn" hidden>
-                        <!-- DYNAMIC INSERTION: Brand tool dropdown items -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- include: partials/header-player-dropdown.html -->
-
-            <div class="app-header__actions">
-                <!-- include: partials/header-spotright.html -->
-                <!-- include: partials/header-account.html -->
-            </div>
-        </div>
-    </header>
+    <!-- include: partials/header-hero-journey.html -->
     <div class="app-header-placeholder"></div>
 
     <main class="container hero-journey-page__main" id="main-content">
@@ -93,7 +59,7 @@
             <div class="hero-journey-page__player-header home-profile-header">
                 <div class="profile-meta-left">
                     <div class="th-badge th-badge--lg">
-                        <clashcalc-assets-image class="th-badge__img is-silhouette" src="assets/th/th18.png" alt="Town Hall" data-i18n-alt="entities.defenses.townHall" size="standard"></clashcalc-assets-image>
+                        <clashcalc-assets-image class="th-badge__img is-silhouette" src="/assets/th/th18.png" alt="Town Hall" data-i18n-alt="entities.defenses.townHall" size="standard"></clashcalc-assets-image>
                         <span class="th-badge__level">18</span>
                     </div>
                     <div class="player-identity">
@@ -137,22 +103,22 @@
                 <div class="hero-journey-title-container">
                     <div class="hero-mountain-cluster" data-i18n-aria-label="views.heroJourney.nodes.heroEmblems">
                         <div class="mountain-badge-slot pos-1">
-                            <clashcalc-assets-image src="assets/heroes/emblemRoyalChampion.png" data-i18n-alt="entities.heroes.royalChampion" class="mountain-badge" size="standard" loading="eager"></clashcalc-assets-image>
+                            <clashcalc-assets-image src="/assets/heroes/emblemRoyalChampion.png" data-i18n-alt="entities.heroes.royalChampion" class="mountain-badge" size="standard" loading="eager"></clashcalc-assets-image>
                         </div>
                         <div class="mountain-badge-slot pos-2">
-                            <clashcalc-assets-image src="assets/heroes/emblemMinionPrince.png" data-i18n-alt="entities.heroes.minionPrince" class="mountain-badge" size="standard" loading="eager"></clashcalc-assets-image>
+                            <clashcalc-assets-image src="/assets/heroes/emblemMinionPrince.png" data-i18n-alt="entities.heroes.minionPrince" class="mountain-badge" size="standard" loading="eager"></clashcalc-assets-image>
                         </div>
                         <div class="mountain-badge-slot pos-3">
-                            <clashcalc-assets-image src="assets/heroes/emblemBarbarianKing.png" data-i18n-alt="entities.heroes.barbarianKing" class="mountain-badge" size="standard" loading="eager"></clashcalc-assets-image>
+                            <clashcalc-assets-image src="/assets/heroes/emblemBarbarianKing.png" data-i18n-alt="entities.heroes.barbarianKing" class="mountain-badge" size="standard" loading="eager"></clashcalc-assets-image>
                         </div>
                         <div class="mountain-badge-slot pos-4">
-                            <clashcalc-assets-image src="assets/heroes/emblemArcherQueen.png" data-i18n-alt="entities.heroes.archerQueen" class="mountain-badge" size="standard" loading="eager" fetchpriority="high"></clashcalc-assets-image>
+                            <clashcalc-assets-image src="/assets/heroes/emblemArcherQueen.png" data-i18n-alt="entities.heroes.archerQueen" class="mountain-badge" size="standard" loading="eager" fetchpriority="high"></clashcalc-assets-image>
                         </div>
                         <div class="mountain-badge-slot pos-5">
-                            <clashcalc-assets-image src="assets/heroes/emblemGrandWarden.png" data-i18n-alt="entities.heroes.grandWarden" class="mountain-badge" size="standard" loading="eager"></clashcalc-assets-image>
+                            <clashcalc-assets-image src="/assets/heroes/emblemGrandWarden.png" data-i18n-alt="entities.heroes.grandWarden" class="mountain-badge" size="standard" loading="eager"></clashcalc-assets-image>
                         </div>
                         <div class="mountain-badge-slot pos-6">
-                            <clashcalc-assets-image src="assets/heroes/emblemDragonDuke.png" data-i18n-alt="entities.heroes.dragonDuke" class="mountain-badge" size="standard" loading="eager"></clashcalc-assets-image>
+                            <clashcalc-assets-image src="/assets/heroes/emblemDragonDuke.png" data-i18n-alt="entities.heroes.dragonDuke" class="mountain-badge" size="standard" loading="eager"></clashcalc-assets-image>
                         </div>
                     </div>
                     <h2 id="home-hj-title" class="hero-journey-title">

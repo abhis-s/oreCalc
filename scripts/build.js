@@ -199,65 +199,53 @@ async function build() {
 
         const packageJson = require('../package.json');
         const { appVersion, commitsSinceTag } = await resolveBuildMetadata(packageJson);
-        const baseUrl = process.env.PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL || 'https://api.clashcalc.com';
-        const turnstileSiteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY || process.env.VITE_TURNSTILE_SITE_KEY || '';
+        const baseUrl = process.env.PUBLIC_API_BASE_URL || 'https://api.clashcalc.com';
+        const turnstileSiteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         const buildTime = process.env.BUILD_TIME || new Date().toISOString();
-        const envScript = `<meta charset="UTF-8">\n    <script>window.__ENV__ = { PUBLIC_API_BASE_URL: "${baseUrl}", PUBLIC_TURNSTILE_SITE_KEY: "${turnstileSiteKey}", VITE_API_BASE_URL: "${baseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`;
+        const envScript = `<meta charset="UTF-8">\n    <script>window.__ENV__ = { PUBLIC_API_BASE_URL: "${baseUrl}", PUBLIC_TURNSTILE_SITE_KEY: "${turnstileSiteKey}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}" };</script>`;
 
-        let landingHtml = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
-        landingHtml = processHtmlIncludes(landingHtml);
-        landingHtml = landingHtml.replace('<meta charset="UTF-8">', envScript);
-        landingHtml = landingHtml.replace(/src="\/?js\/landingApp\.js(\?v=[^"]+)?"/g, `src="/js/landingApp.js?v=${encodeURIComponent(appVersion)}"`);
-        landingHtml = landingHtml.replace(/href="\/?css\/landing(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/landing.min.css?v=${encodeURIComponent(appVersion)}"`);
-        landingHtml = landingHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
-        landingHtml = landingHtml.replace(/href="\/?manifest\.json(\?v=[^"]+)?"/g, `href="/manifest.json?v=${encodeURIComponent(appVersion)}"`);
+        fs.writeFileSync(path.join(distDir, 'commits.json'), JSON.stringify(commitsSinceTag, null, 2) + '\n', 'utf8');
+        console.log(`[OK] Generated commits.json (${commitsSinceTag.length} commits) in dist/.`);
 
-        let oreCalcHtml = fs.readFileSync(path.join(projectRoot, 'ore-calculator/index.html'), 'utf8');
-        oreCalcHtml = processHtmlIncludes(oreCalcHtml);
-        oreCalcHtml = oreCalcHtml.replace('<meta charset="UTF-8">', envScript);
-        oreCalcHtml = oreCalcHtml.replace(/src="\/?js\/app\.js(\?v=[^"]+)?"/g, `src="/js/app.js?v=${encodeURIComponent(appVersion)}"`);
-        oreCalcHtml = oreCalcHtml.replace(/href="\/?js\/app\.js(\?v=[^"]+)?"/g, `href="/js/app.js?v=${encodeURIComponent(appVersion)}"`);
-        oreCalcHtml = oreCalcHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
-        oreCalcHtml = oreCalcHtml.replace(/href="(\/)?manifest\.json(\?v=[^"]+)?"/g, `href="/manifest.json?v=${encodeURIComponent(appVersion)}"`);
-        oreCalcHtml = oreCalcHtml.replace(/<link rel="modulepreload" href="\/?js\/(?!app\.js)[^"]+">\s*/g, '');
+        const landingHtml = processHtmlIncludes(fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8'))
+            .replace('<meta charset="UTF-8">', envScript)
+            .replace(/src="\/js\/landingApp\.js(?:\?v=[^"]+)?"/g, `src="/js/landingApp.js?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/landing(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/landing.min.css?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/main(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/manifest\.json(?:\?v=[^"]+)?"/g, `href="/manifest.json?v=${encodeURIComponent(appVersion)}"`);
 
-        let hjHtml = fs.readFileSync(path.join(projectRoot, 'hero-journey/index.html'), 'utf8');
-        hjHtml = processHtmlIncludes(hjHtml);
-        hjHtml = hjHtml.replace('<meta charset="UTF-8">', envScript);
-        hjHtml = hjHtml.replace(/src="\/?js\/heroJourneyApp\.js(\?v=[^"]+)?"/g, `src="/js/heroJourneyApp.js?v=${encodeURIComponent(appVersion)}"`);
-        hjHtml = hjHtml.replace(/href="\/?css\/hero-journey(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/hero-journey.min.css?v=${encodeURIComponent(appVersion)}"`);
-        hjHtml = hjHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+        const clashCalcHtml = processHtmlIncludes(fs.readFileSync(path.join(projectRoot, 'ore-calculator/index.html'), 'utf8'))
+            .replace('<meta charset="UTF-8">', envScript)
+            .replace(/src="\/js\/app\.js(?:\?v=[^"]+)?"/g, `src="/js/app.js?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/main(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/manifest\.json(?:\?v=[^"]+)?"/g, `href="/manifest.json?v=${encodeURIComponent(appVersion)}"`);
 
-        let damageCalcHtml = fs.readFileSync(path.join(projectRoot, 'damage-calculator/index.html'), 'utf8');
-        damageCalcHtml = processHtmlIncludes(damageCalcHtml);
-        damageCalcHtml = damageCalcHtml.replace('<meta charset="UTF-8">', envScript);
-        damageCalcHtml = damageCalcHtml.replace(/src="\/?js\/damageApp\.js(\?v=[^"]+)?"/g, `src="/js/damageApp.js?v=${encodeURIComponent(appVersion)}"`);
-        damageCalcHtml = damageCalcHtml.replace(/href="\/?css\/damage-calculator(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/damage-calculator.min.css?v=${encodeURIComponent(appVersion)}"`);
-        damageCalcHtml = damageCalcHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+        const hjHtml = processHtmlIncludes(fs.readFileSync(path.join(projectRoot, 'hero-journey/index.html'), 'utf8'))
+            .replace('<meta charset="UTF-8">', envScript)
+            .replace(/src="\/js\/heroJourneyApp\.js(?:\?v=[^"]+)?"/g, `src="/js/heroJourneyApp.js?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/hero-journey(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/hero-journey.min.css?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/main(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
 
-        let accountHtml = fs.readFileSync(path.join(projectRoot, 'account/index.html'), 'utf8');
-        accountHtml = processHtmlIncludes(accountHtml);
-        accountHtml = accountHtml.replace('<meta charset="UTF-8">', envScript);
-        accountHtml = accountHtml.replace(/src="\/?js\/accountApp\.js(\?v=[^"]+)?"/g, `src="/js/accountApp.js?v=${encodeURIComponent(appVersion)}"`);
-        accountHtml = accountHtml.replace(/href="\/?css\/management(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/management.min.css?v=${encodeURIComponent(appVersion)}"`);
-        accountHtml = accountHtml.replace(/href="\/?css\/account(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/account.min.css?v=${encodeURIComponent(appVersion)}"`);
-        accountHtml = accountHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+        const damageCalcHtml = processHtmlIncludes(fs.readFileSync(path.join(projectRoot, 'damage-calculator/index.html'), 'utf8'))
+            .replace('<meta charset="UTF-8">', envScript)
+            .replace(/src="\/js\/damageApp\.js(?:\?v=[^"]+)?"/g, `src="/js/damageApp.js?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/damage-calculator(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/damage-calculator.min.css?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/main(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
 
-        let appManagementHtml = fs.readFileSync(path.join(projectRoot, 'app-management/index.html'), 'utf8');
-        appManagementHtml = processHtmlIncludes(appManagementHtml);
-        appManagementHtml = appManagementHtml.replace('<meta charset="UTF-8">', envScript);
-        appManagementHtml = appManagementHtml.replace(/src="\/?js\/appManagementApp\.js(\?v=[^"]+)?"/g, `src="/js/appManagementApp.js?v=${encodeURIComponent(appVersion)}"`);
-        appManagementHtml = appManagementHtml.replace(/href="\/?css\/management(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/management.min.css?v=${encodeURIComponent(appVersion)}"`);
-        appManagementHtml = appManagementHtml.replace(/href="\/?css\/main(\.min)?\.css(\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
+        const accountHtml = processHtmlIncludes(fs.readFileSync(path.join(projectRoot, 'account/index.html'), 'utf8'))
+            .replace('<meta charset="UTF-8">', envScript)
+            .replace(/src="\/js\/accountApp\.js(?:\?v=[^"]+)?"/g, `src="/js/accountApp.js?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/management(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/management.min.css?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/account(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/account.min.css?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/main(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
 
-        landingHtml = landingHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
-        oreCalcHtml = oreCalcHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
-        hjHtml = hjHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
-        damageCalcHtml = damageCalcHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
-        accountHtml = accountHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
-        appManagementHtml = appManagementHtml.replace(/<script type="importmap">[\s\S]*?<\/script>\s*/gi, '');
+        const appManagementHtml = processHtmlIncludes(fs.readFileSync(path.join(projectRoot, 'app-management/index.html'), 'utf8'))
+            .replace('<meta charset="UTF-8">', envScript)
+            .replace(/src="\/js\/appManagementApp\.js(?:\?v=[^"]+)?"/g, `src="/js/appManagementApp.js?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/management(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/management.min.css?v=${encodeURIComponent(appVersion)}"`)
+            .replace(/href="\/css\/main(?:\.min)?\.css(?:\?v=[^"]+)?"/g, `href="/css/main.min.css?v=${encodeURIComponent(appVersion)}"`);
 
-        console.log(`[OK] Injected build parameters (v${appVersion}, commits: ${commitsSinceTag.length}) into HTML heads.`);
+        console.log(`[OK] Injected build parameters (v${appVersion}) into HTML heads.`);
 
         const copyEntries = [
             { src: 'assets', dest: 'assets' },
@@ -356,16 +344,16 @@ async function build() {
 
         const oreCalcDestDir = path.join(distDir, 'ore-calculator');
         fs.mkdirSync(oreCalcDestDir, { recursive: true });
-        const defaultOreCalcHtml = generateLocalizedHtml(oreCalcHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
-        fs.writeFileSync(path.join(oreCalcDestDir, 'index.html'), defaultOreCalcHtml, 'utf8');
+        const defaultClashCalcHtml = generateLocalizedHtml(clashCalcHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
+        fs.writeFileSync(path.join(oreCalcDestDir, 'index.html'), defaultClashCalcHtml, 'utf8');
         console.log('Generated root tool route: dist/ore-calculator/index.html');
 
         for (const lang of supportedLanguages) {
             if (lang === 'en') continue;
             const langOreCalcDir = path.join(distDir, lang, 'ore-calculator');
             fs.mkdirSync(langOreCalcDir, { recursive: true });
-            const localizedOreCalcHtml = generateLocalizedHtml(oreCalcHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
-            fs.writeFileSync(path.join(langOreCalcDir, 'index.html'), localizedOreCalcHtml, 'utf8');
+            const localizedClashCalcHtml = generateLocalizedHtml(clashCalcHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
+            fs.writeFileSync(path.join(langOreCalcDir, 'index.html'), localizedClashCalcHtml, 'utf8');
             console.log(`Generated localized tool route: dist/${lang}/ore-calculator/index.html`);
         }
 

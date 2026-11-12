@@ -18,18 +18,14 @@
     <meta property="og:url" content="https://clashcalc.com/account/">
     <meta property="og:title" content="Account &amp; Security | Clash of Clans | ClashCalc">
     <meta property="og:description" content="Manage your ClashCalc cloud account, passkeys, passwords, and security settings.">
-    <meta property="og:image" content="https://clashcalc.com/assets/og_image.png">
+    <meta property="og:image" content="https://clashcalc.com/assets/landing_og.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
 
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://clashcalc.com/account/">
-    <meta property="twitter:title" content="Account &amp; Security | Clash of Clans | ClashCalc">
-    <meta property="twitter:description" content="Manage your ClashCalc cloud account, passkeys, passwords, and security settings.">
-    <meta property="twitter:image" content="https://clashcalc.com/assets/og_image.png">
+    <meta name="twitter:card" content="summary_large_image">
 
     <link rel="icon" type="image/png" href="/assets/favicon.png">
-    <link rel="apple-touch-icon" href="/assets/hero_journey_icon.png">
+    <link rel="apple-touch-icon" href="/assets/app_icon_large.png">
     <link rel="canonical" href="https://clashcalc.com/account/">
     <link rel="alternate" hreflang="en" href="https://clashcalc.com/account/" />
     <link rel="alternate" hreflang="de" href="https://clashcalc.com/de/account/" />
@@ -47,34 +43,7 @@
 <body class="dark-mode management-page">
     <!-- include: partials/shell-top.html -->
 
-    <header class="app-header management-page__header">
-        <div class="app-header__inner">
-            <div class="app-header__brand">
-                <button type="button" id="hamburger-btn" class="app-header__hamburger"
-                    aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
-                    <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
-                </button>
-                <a href="/" class="brand-title-link" tabindex="0" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
-                    <h1 class="brand-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h1>
-                </a>
-                <span class="brand-separator" aria-hidden="true">&middot;</span>
-                <div class="brand-page-pill-wrapper">
-                    <button type="button" class="brand-page-pill" id="brand-page-pill-btn" aria-haspopup="menu" aria-expanded="false">
-                        <span class="brand-page-pill__label" data-i18n="auth.account">Account</span>
-                        <clashcalc-assets-svg name="chevron-down" class="brand-page-pill__chevron" width="10" height="10" aria-hidden="true"></clashcalc-assets-svg>
-                    </button>
-                    <div id="brand-tools-dropdown" class="brand-tools-dropdown" role="menu" aria-labelledby="brand-page-pill-btn" hidden>
-                        <!-- DYNAMIC INSERTION: Brand tool dropdown items -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="app-header__actions">
-                <!-- include: partials/header-spotright.html -->
-                <!-- include: partials/header-account.html -->
-            </div>
-        </div>
-    </header>
+    <!-- include: partials/header-account-page.html -->
     <div class="app-header-placeholder"></div>
 
     <main class="management-main" id="main-content">
@@ -205,8 +174,8 @@
                 <div class="management-grid">
                     <div class="management-card" id="account-profile-card">
                         <div class="account-profile-header">
-                            <button type="button" id="account-profile-avatar-btn" class="account-profile-avatar-btn" aria-label="Change Avatar" data-i18n-aria-label="auth.changeAvatar" title="Change Avatar">
-                                <clashcalc-assets-image id="account-profile-avatar-img" class="account-profile-avatar" src="assets/avatars/archer.png" alt="Avatar" data-i18n-alt="auth.avatarAlt" size="standard"></clashcalc-assets-image>
+                            <button type="button" id="account-profile-avatar-btn" class="account-profile-avatar-btn" aria-label="Change Avatar" data-i18n-aria-label="auth.changeAvatar" title="Change Avatar" data-i18n-title="auth.changeAvatar">
+                                <clashcalc-assets-image id="account-profile-avatar-img" class="account-profile-avatar" src="/assets/avatars/archer.png" alt="Avatar" data-i18n-alt="auth.avatarAlt" size="standard"></clashcalc-assets-image>
                                 <span class="account-profile-avatar-overlay" aria-hidden="true">
                                     <clashcalc-assets-svg name="edit"></clashcalc-assets-svg>
                                 </span>

@@ -62,3 +62,46 @@ export function getChangelogHtml() {
     html += '</div>';
     return html;
 }
+
+let cachedCommits = null;
+
+/**
+ * Sets or clears the in-memory cached commits list for isolated testing.
+ * @param {Array<{ hash: string, subject: string }>|null} commits
+ */
+export function _setCachedCommitsForTesting(commits) {
+    cachedCommits = commits;
+}
+
+/**
+ * Fetches recent git commits from /commits.json on demand with in-memory caching.
+ *
+ * @param {Object} [options={}]
+ * @param {boolean} [options.forceRefresh=false]
+ * @returns {Promise<Array<{ hash: string, subject: string }>>}
+ */
+export async function fetchCommits({ forceRefresh = false } = {}) {
+    if (cachedCommits && !forceRefresh) {
+        return cachedCommits;
+    }
+
+    if (typeof fetch !== 'function') {
+        return cachedCommits || [];
+    }
+
+    try {
+        const response = await fetch('/commits.json');
+        if (!response.ok) {
+            return cachedCommits || [];
+        }
+        const data = await response.json();
+        if (Array.isArray(data)) {
+            cachedCommits = data;
+            return cachedCommits;
+        }
+    } catch (_) {
+        // Fallback gracefully on offline / network error
+    }
+
+    return cachedCommits || [];
+}

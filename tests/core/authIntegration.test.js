@@ -49,7 +49,7 @@ if (typeof globalThis.window === 'undefined') {
             href: 'http://localhost:8080/ore-calculator/'
         },
         history: globalThis.history,
-        __ENV__: { APP_VERSION: '2.2.0', PUBLIC_API_BASE_URL: 'http://localhost:3000', VITE_API_BASE_URL: 'http://localhost:3000' }
+        __ENV__: { APP_VERSION: '2.2.0', PUBLIC_API_BASE_URL: 'http://localhost:3000' }
     };
 } else {
     if (!globalThis.window.location) {

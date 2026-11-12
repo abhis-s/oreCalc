@@ -2,36 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <title data-i18n="views.appManagement.meta.title">App Management | Clash of Clans | ClashCalc</title>
     <meta name="description" content="Manage ClashCalc offline storage, launch preferences, and installed application settings." data-i18n="views.appManagement.meta.description">
-    <meta name="author" content="ClashCalc">
+    <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#121212">
-    <meta name="color-scheme" content="dark light">
-
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/assets/icon-512.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/assets/icon-192.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="/assets/icon-512.png">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f9fa">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ClashCalc">
 
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://clashcalc.com/app-management/">
     <meta property="og:title" content="App Management | Clash of Clans | ClashCalc">
     <meta property="og:description" content="Manage ClashCalc offline storage, launch preferences, and installed application settings.">
-    <meta property="og:image" content="https://clashcalc.com/assets/og-image.png">
-    <meta property="og:url" content="https://clashcalc.com/app-management/">
-    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://clashcalc.com/assets/landing_og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
     <meta name="twitter:card" content="summary_large_image">
 
+    <link rel="icon" href="/assets/favicon.png" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/assets/app_icon_large.png">
+    <link rel="manifest" href="/manifest.json?v=3.1.0">
     <link rel="canonical" href="https://clashcalc.com/app-management/" />
     <link rel="alternate" hreflang="en" href="https://clashcalc.com/app-management/" />
     <link rel="alternate" hreflang="de" href="https://clashcalc.com/de/app-management/" />
@@ -42,40 +37,12 @@
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/management.css">
     <!-- include: partials/head-theme-bootstrap.html -->
-    <!-- include: partials/head/importmap.html -->
 </head>
 
 <body class="dark-mode management-page">
     <!-- include: partials/shell-top.html -->
 
-    <header class="app-header management-page__header">
-        <div class="app-header__inner">
-            <div class="app-header__brand">
-                <button type="button" id="hamburger-btn" class="app-header__hamburger"
-                    aria-label="Menu" data-i18n-aria-label="nav.menu" aria-expanded="false" aria-controls="navigation-drawer">
-                    <clashcalc-assets-svg name="menu" class="menu-icon"></clashcalc-assets-svg>
-                </button>
-                <a href="/" class="brand-title-link" tabindex="0" aria-label="ClashCalc Home" data-i18n-aria-label="nav.brandHome">
-                    <h1 class="brand-title"><span class="brand-clash">Clash</span><span class="brand-calc">Calc</span></h1>
-                </a>
-                <span class="brand-separator" aria-hidden="true">&middot;</span>
-                <div class="brand-page-pill-wrapper">
-                    <button type="button" class="brand-page-pill" id="brand-page-pill-btn" aria-haspopup="menu" aria-expanded="false">
-                        <span class="brand-page-pill__label" data-i18n="views.appManagement.title">App Management</span>
-                        <clashcalc-assets-svg name="chevron-down" class="brand-page-pill__chevron" width="10" height="10" aria-hidden="true"></clashcalc-assets-svg>
-                    </button>
-                    <div id="brand-tools-dropdown" class="brand-tools-dropdown" role="menu" aria-labelledby="brand-page-pill-btn" hidden>
-                        <!-- DYNAMIC INSERTION: Brand tool dropdown items -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="app-header__actions">
-                <!-- include: partials/header-spotright.html -->
-                <!-- include: partials/header-account.html -->
-            </div>
-        </div>
-    </header>
+    <!-- include: partials/header-app-management.html -->
     <div class="app-header-placeholder"></div>
 
     <main class="management-main" id="main-content">

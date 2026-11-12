@@ -1,4 +1,5 @@
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
+import { fetchCommits } from '../../services/changelogService.js';
 
 import { showCommitsModal } from './commitsModal.js';
 
@@ -31,9 +32,8 @@ export function initializeChangelogModal() {
     }
 
     if (modal && commitsButton && typeof commitsButton.addEventListener === 'function') {
-        commitsButton.addEventListener('click', () => {
-            const rawCommits = window.__ENV__?.COMMITS_SINCE_TAG;
-            const commits = Array.isArray(rawCommits) ? rawCommits : [];
+        commitsButton.addEventListener('click', async () => {
+            const commits = await fetchCommits();
             if (commits.length > 0) {
                 closeModalAnimated(modal, () => {
                     showCommitsModal(commits);
@@ -79,10 +79,15 @@ export function showChangelogModal(content, options = {}) {
         modalBody.innerHTML = content;
 
         if (commitsButton) {
-            const rawCommits = window.__ENV__?.COMMITS_SINCE_TAG;
-            const commits = Array.isArray(rawCommits) ? rawCommits : [];
+            commitsButton.hidden = true;
             const isChangelogEmpty = !content || content.trim() === '' || content === '<div class="changelog-container"></div>';
-            commitsButton.hidden = !(commits.length > 0 && !isChangelogEmpty);
+            if (!isChangelogEmpty) {
+                fetchCommits().then(commits => {
+                    if (commits.length > 0) {
+                        commitsButton.hidden = false;
+                    }
+                });
+            }
         }
 
         initializeChangelogModal();

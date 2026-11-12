@@ -49,6 +49,7 @@
     "build:css": "sass css/main.scss dist/css/main.min.css --style compressed && sass css/management.scss dist/css/management.min.css --style compressed && sass css/hero-journey.scss dist/css/hero-journey.min.css --style compressed && sass css/landing.scss dist/css/landing.min.css --style compressed && sass css/damage-calculator.scss dist/css/damage-calculator.min.css --style compressed && sass css/account.scss dist/css/account.min.css --style compressed && sass legal/legal.scss dist/legal/legal.css --style compressed",
     "build:sw": "workbox injectManifest workbox-config.js",
     "bump": "node scripts/bump.js",
+    "generate:icons": "node scripts/dev/generate-icons.js",
     "generate:og": "node scripts/dev/generate-og-images.js",
     "start": "node scripts/prod/start-prod-server.js"
   },

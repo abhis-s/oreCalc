@@ -51,7 +51,7 @@ export async function fetchTurnstileConfig(options = {}) {
         }
 
         const envSiteKey = (typeof window !== 'undefined' &&
-            (/** @type {any} */ (window).__ENV__?.PUBLIC_TURNSTILE_SITE_KEY || /** @type {any} */ (window).__ENV__?.VITE_TURNSTILE_SITE_KEY)) || '';
+            /** @type {any} */ (window).__ENV__?.PUBLIC_TURNSTILE_SITE_KEY) || '';
         cachedConfig = {
             enabled: Boolean(envSiteKey),
             siteKey: envSiteKey

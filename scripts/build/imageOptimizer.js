@@ -38,6 +38,7 @@ async function optimizeImages(distDir, verbose = false) {
         'app_icon_large.png',
         'app_icon_small.png',
         'app_og.png',
+        'damage_calc_icon.png',
         'damage_calc_og.png',
         'favicon.png',
         'hero_journey_favicon.png',

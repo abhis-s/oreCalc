@@ -111,7 +111,7 @@ function getTableNodeDetails(node, trackResolution = null, state = null) {
             ? `<span class="accent-text">${escapeHTML(skinWords[0])}</span> ${escapeHTML(skinWords.slice(1).join(' '))}`
             : escapeHTML(rawSkinName);
         name = rawSkinName;
-        icon = (node.icon || 'assets/skins/default.png').replace(/^\//, '');
+        icon = (node.icon || (node.skinKey ? `assets/skins/${node.skinKey}.png` : 'assets/skins/majesticBarbarianKing.png')).replace(/^\//, '');
         yieldHtml = '—';
         return { name, nameHtml, icon, yieldHtml };
     }

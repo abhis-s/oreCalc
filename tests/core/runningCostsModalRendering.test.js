@@ -220,7 +220,7 @@ const mockWindow = {
     cancelAnimationFrame: () => {},
     scrollTo: () => {},
     location: { hostname: 'localhost' },
-    __ENV__: { APP_VERSION: '2.1.0', PUBLIC_API_BASE_URL: 'https://api.orecalc.tech', VITE_API_BASE_URL: 'https://api.orecalc.tech' }
+    __ENV__: { APP_VERSION: '2.1.0', PUBLIC_API_BASE_URL: 'https://api.orecalc.tech' }
 };
 
 if (typeof globalThis.window === 'undefined') {

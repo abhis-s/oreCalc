@@ -42,7 +42,7 @@ import './ui/savingIndicator.js';
 import { showChangelogModal } from './components/changelog/changelogModal.js';
 import { showCommitsModal } from './components/changelog/commitsModal.js';
 import { dom, initializeDOMElements } from './dom/domElements.js';
-import { getChangelogHtml } from './services/changelogService.js';
+import { fetchCommits, getChangelogHtml } from './services/changelogService.js';
 import { initializePwaService } from './services/pwaService.js';
 import { setJustSyncedFromQr, importUserData, initializeAppData, isJustSyncedFromQr } from './services/cloudSaveService.js';
 import { showAddPlayerModal } from './components/player/playerModalInputs.js';
@@ -219,25 +219,23 @@ export async function mount(options = {}) {
                     }
                 }, 1200);
             } else {
-                const rawCommits = window.__ENV__?.COMMITS_SINCE_TAG;
-                const commits = Array.isArray(rawCommits) ? rawCommits : [];
-                if (commits.length > 0) {
-                    startupModalTimeout = setTimeout(async () => {
-                        startupModalTimeout = null;
-                        if (!isMounted) return;
-                        const currentLang = state.uiSettings?.language || 'en';
-                        await loadTranslations('en');
-                        if (currentLang !== 'en') {
-                            await loadTranslations(currentLang);
-                        }
-                        if (!isMounted) return;
-                        if (isInterruptionRestricted()) {
-                            window.pendingCommits = commits;
-                        } else {
-                            showCommitsModal(commits);
-                        }
-                    }, 1200);
-                }
+                startupModalTimeout = setTimeout(async () => {
+                    startupModalTimeout = null;
+                    if (!isMounted) return;
+                    const commits = await fetchCommits();
+                    if (!isMounted || !Array.isArray(commits) || commits.length === 0) return;
+                    const currentLang = state.uiSettings?.language || 'en';
+                    await loadTranslations('en');
+                    if (currentLang !== 'en') {
+                        await loadTranslations(currentLang);
+                    }
+                    if (!isMounted) return;
+                    if (isInterruptionRestricted()) {
+                        window.pendingCommits = commits;
+                    } else {
+                        showCommitsModal(commits);
+                    }
+                }, 1200);
             }
         }
 

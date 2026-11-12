@@ -18,7 +18,7 @@ if (typeof globalThis.localStorage === 'undefined') {
 if (typeof globalThis.window === 'undefined') {
     globalThis.window = {
         location: { hostname: 'localhost', origin: 'http://localhost:8080' },
-        __ENV__: { APP_VERSION: '2.2.0', PUBLIC_API_BASE_URL: 'http://localhost:3000', VITE_API_BASE_URL: 'http://localhost:3000' }
+        __ENV__: { APP_VERSION: '2.2.0', PUBLIC_API_BASE_URL: 'http://localhost:3000' }
     };
 }
 
@@ -90,8 +90,7 @@ describe('Turnstile Client Service & Auth Integration', () => {
         store.clear();
         globalThis.window.__ENV__ = {
             APP_VERSION: '2.2.0',
-            PUBLIC_API_BASE_URL: 'http://localhost:3000',
-            VITE_API_BASE_URL: 'http://localhost:3000'
+            PUBLIC_API_BASE_URL: 'http://localhost:3000'
         };
         delete globalThis.window.turnstile;
         const originalFetch = globalThis.fetch;
@@ -137,23 +136,6 @@ describe('Turnstile Client Service & Auth Integration', () => {
             assert.strictEqual(config.siteKey, '0x4AAAAAA_PUBLIC_KEY');
         } finally {
             delete globalThis.window.__ENV__.PUBLIC_TURNSTILE_SITE_KEY;
-            globalThis.fetch = originalFetch;
-        }
-    });
-
-    test('fetchTurnstileConfig falls back to legacy VITE_TURNSTILE_SITE_KEY when PUBLIC is unset and API fails', async () => {
-        const originalFetch = globalThis.fetch;
-        globalThis.fetch = async () => {
-            throw new Error('Network error');
-        };
-
-        globalThis.window.__ENV__.VITE_TURNSTILE_SITE_KEY = '0x4AAAAAA_LEGACY_KEY';
-        try {
-            const config = await fetchTurnstileConfig({ forceRefresh: true });
-            assert.strictEqual(config.enabled, true);
-            assert.strictEqual(config.siteKey, '0x4AAAAAA_LEGACY_KEY');
-        } finally {
-            delete globalThis.window.__ENV__.VITE_TURNSTILE_SITE_KEY;
             globalThis.fetch = originalFetch;
         }
     });

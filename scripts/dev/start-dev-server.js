@@ -4,8 +4,8 @@ const fs = require('fs');
 const path = require('path');
 
 const verbose = process.env.VERBOSE === 'true';
-const devApiBaseUrl = process.env.PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL || 'http://localhost:3000';
-const devTurnstileSiteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY || process.env.VITE_TURNSTILE_SITE_KEY || '';
+const devApiBaseUrl = process.env.PUBLIC_API_BASE_URL || 'http://localhost:3000';
+const devTurnstileSiteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 
 /**
  * Searches the host OS network interfaces to find the external, non-loopback IPv4 address.
@@ -150,8 +150,8 @@ function getDevEnvironmentData() {
     return { appVersion, buildTime, commitsSinceTag };
 }
 
-function getDevEnvScript(appVersion, buildTime, commitsSinceTag) {
-    return `<meta charset="UTF-8">\n    <script>window.__ENV__ = { PUBLIC_API_BASE_URL: "${devApiBaseUrl}", PUBLIC_TURNSTILE_SITE_KEY: "${devTurnstileSiteKey}", VITE_API_BASE_URL: "${devApiBaseUrl}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}", COMMITS_SINCE_TAG: ${JSON.stringify(commitsSinceTag)} };</script>`;
+function getDevEnvScript(appVersion, buildTime) {
+    return `<meta charset="UTF-8">\n    <script>window.__ENV__ = { PUBLIC_API_BASE_URL: "${devApiBaseUrl}", PUBLIC_TURNSTILE_SITE_KEY: "${devTurnstileSiteKey}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}" };</script>`;
 }
 
 function getCompiledIndexHtml(lang = 'en') {
@@ -181,7 +181,7 @@ function getCompiledHeroJourneyHtml(lang = 'en') {
     return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'hero-journey');
 }
 
-function getCompiledOreCalcHtml(lang = 'en') {
+function getCompiledClashCalcHtml(lang = 'en') {
     const calcPath = path.join(process.cwd(), 'ore-calculator/index.html');
     if (!fs.existsSync(calcPath)) return '';
     let content = fs.readFileSync(calcPath, 'utf8');
@@ -282,6 +282,15 @@ function createDevServerParams(overrides = {}) {
             const isExactLangNoSlash = exactLangNoSlash.includes(pathname);
             const exactLangMatch = pathname.match(exactLangRegex);
 
+            if (pathname === '/commits.json') {
+                const { commitsSinceTag } = getDevEnvironmentData();
+                res.writeHead(200, {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'Cache-Control': 'no-cache'
+                });
+                return res.end(JSON.stringify(commitsSinceTag, null, 2) + '\n');
+            }
+
             if (pathname.endsWith('.html') && pathname !== '/index.html' && pathname !== '/404.html') {
                 const cleanPath = pathname.substring(0, pathname.length - 5);
                 res.writeHead(301, { Location: `${cleanPath}/${query}` });
@@ -316,13 +325,13 @@ function createDevServerParams(overrides = {}) {
             }
 
             if (pathname === '/ore-calculator/') {
-                const html = getCompiledOreCalcHtml('en');
+                const html = getCompiledClashCalcHtml('en');
                 res.setHeader('Content-Type', 'text/html');
                 return res.end(html);
             }
             const oreCalcLangMatch = pathname.match(/^\/([a-z-]+)\/ore-calculator\/$/);
             if (oreCalcLangMatch && supportedLanguages.includes(oreCalcLangMatch[1])) {
-                const html = getCompiledOreCalcHtml(oreCalcLangMatch[1]);
+                const html = getCompiledClashCalcHtml(oreCalcLangMatch[1]);
                 res.setHeader('Content-Type', 'text/html');
                 return res.end(html);
             }

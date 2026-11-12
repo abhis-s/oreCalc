@@ -157,7 +157,7 @@ export function getNoteCodePopoverContent(noteCode) {
     if (noteCode === 'giant_arrow_air_defense_2x') {
         return {
             header: `
-                <clashcalc-assets-image src="${equipmentDamageData.giant_arrow?.icon ? '/' + equipmentDamageData.giant_arrow.icon : '/assets/equipment/giant_arrow.png'}" alt="Giant Arrow" class="popover-img"></clashcalc-assets-image>
+                <clashcalc-assets-image src="${equipmentDamageData.giant_arrow?.icon ? '/' + equipmentDamageData.giant_arrow.icon : '/assets/equipment/archer_queen/AQ_giant_arrow.png'}" alt="Giant Arrow" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.giantArrowVulnerabilityTitle') || 'Giant Arrow (2x Damage)')}</span>
                     <span class="popover-badge">${escapeHTML(translate('entities.defenses.airDefense') || 'Air Defense')}</span>
