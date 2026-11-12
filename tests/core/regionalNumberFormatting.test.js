@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { formatNumber, formatCurrency } from '../../js/utils/numberFormatter.js';
+import { formatFloat, formatNumber, formatCurrency } from '../../js/utils/numberFormatter.js';
 import { state } from '../../js/core/state.js';
 
 test('regionalNumberFormatting - Regional Formatting & Delimiter Suite', async (t) => {
@@ -56,5 +56,19 @@ test('regionalNumberFormatting - Regional Formatting & Delimiter Suite', async (
         assert.equal(Number(frTrophyText.replace(/\D/g, '')), 1092);
         assert.equal(Number(simpleTrophyText.replace(/\D/g, '')), 500);
         assert.equal(Number(''.replace(/\D/g, '')) || 0, 0);
+    });
+
+    await t.test('formatFloat formats decimal numbers with fixed precision and regional decimal point', () => {
+        state.uiSettings = { language: 'en' };
+        assert.equal(formatFloat(3.5, 1), '3.5');
+        assert.equal(formatFloat(4, 1), '4.0');
+        assert.equal(formatFloat(29.04, 1), '29.0');
+        assert.equal(formatFloat(0, 1), '0.0');
+
+        state.uiSettings = { language: 'de' };
+        assert.equal(formatFloat(3.5, 1), '3,5');
+        assert.equal(formatFloat(4, 1), '4,0');
+        assert.equal(formatFloat(29.04, 1), '29,0');
+        assert.equal(formatFloat(0, 1), '0,0');
     });
 });

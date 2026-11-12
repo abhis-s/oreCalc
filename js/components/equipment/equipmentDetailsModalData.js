@@ -3,6 +3,7 @@ import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
 
+import { formatNumber } from '../../utils/numberFormatter.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 
 /** @type {Map<string, Object | null>} */
@@ -246,13 +247,13 @@ export function computeStatDelta(currentVal, prevVal, deltaType, valueUnit = 'nu
     }
 
     if (effectiveDeltaType === 'flat') {
-        return `+${diff}`;
+        return `+${formatNumber(diff)}`;
     } else {
         const pct = Math.round((rawDiff / prevVal) * 100);
         if (pct > 99) {
-            return `+${diff}`;
+            return `+${formatNumber(diff)}`;
         }
-        return `+${pct}%`;
+        return `+${formatNumber(pct)}%`;
     }
 }
 

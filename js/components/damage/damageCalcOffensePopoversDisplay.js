@@ -8,7 +8,7 @@ import { spellsData } from '../../data/spellsData.js';
 import { getEffectiveEquipmentLevel } from '../../domain/damage/damageFormulas.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
-import { formatNumber } from '../../utils/numberFormatter.js';
+import { formatFloat, formatNumber } from '../../utils/numberFormatter.js';
 import { getActiveModifier } from './damageCalcState.js';
 import {
     getDefenseDisplayName,
@@ -68,7 +68,7 @@ export function getEquipmentStatsPopoverContent(equipmentId, level, options = {}
             const adDisplayName = getDefenseDisplayName('air_defense');
             bullets.push(`<li><strong>${escapeHTML(damageLabel)}:</strong> ${formatNumber(dmg)} ${hpUnit}</li>`);
             bullets.push(`<li><strong>${escapeHTML(favoriteTargetLabel)}:</strong> ${escapeHTML(adDisplayName)} (2x · ${formatNumber(adDmg)} ${hpUnit})</li>`);
-            bullets.push(`<li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${radius.toFixed(1)} ${escapeHTML(tilesText)}</li>`);
+            bullets.push(`<li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>`);
             break;
         }
 
@@ -76,7 +76,7 @@ export function getEquipmentStatsPopoverContent(equipmentId, level, options = {}
             const dmg = equip.damageByLevel[safeLvl] || 0;
             const radius = equip.radiusByLevel?.[safeLvl] || 4.0;
             bullets.push(`<li><strong>${escapeHTML(damageLabel)}:</strong> ${formatNumber(dmg)} ${hpUnit}</li>`);
-            bullets.push(`<li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${radius.toFixed(1)} ${escapeHTML(tilesText)}</li>`);
+            bullets.push(`<li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>`);
             break;
         }
 
@@ -107,7 +107,7 @@ export function getEquipmentStatsPopoverContent(equipmentId, level, options = {}
             const dmg = equip.damageByLevel[safeLvl] || 0;
             const radius = equip.radius || 4.0;
             bullets.push(`<li><strong>${escapeHTML(damageLabel)}:</strong> ${formatNumber(dmg)} ${hpUnit}</li>`);
-            bullets.push(`<li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${radius.toFixed(1)} ${escapeHTML(tilesText)}</li>`);
+            bullets.push(`<li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>`);
             break;
         }
 
@@ -180,7 +180,7 @@ export function getEarthquakeStatsPopoverContent({ level = 8, count = 1, isCombo
             dimRowsHtml += `
                 <div class="calc-breakdown-row">
                     <span>${s.label}</span>
-                    <span class="font-weight-semibold">${s.pct.toFixed(1)}%${isFifth ? ` ${escapeHTML(translate('views.damageCalc.zapQuake.each'))}` : ` <span class="calc-breakdown-meta">(${s.cum.toFixed(1)}% ${escapeHTML(totalLabel.toLowerCase())})</span>`}</span>
+                    <span class="font-weight-semibold">${formatFloat(s.pct, 1)}%${isFifth ? ` ${escapeHTML(translate('views.damageCalc.zapQuake.each'))}` : ` <span class="calc-breakdown-meta">(${formatFloat(s.cum, 1)}% ${escapeHTML(totalLabel.toLowerCase())})</span>`}</span>
                 </div>
             `;
         }
@@ -208,9 +208,9 @@ export function getEarthquakeStatsPopoverContent({ level = 8, count = 1, isCombo
             `,
             body: `
                 <ul class="calc-popover-stat-list">
-                    <li><strong>${escapeHTML(buildingDamageLabel)}:</strong> ${basePct.toFixed(1)}%</li>
-                    ${troopBasePct > 0 ? `<li><strong>${escapeHTML(troopDamageLabel)}:</strong> ${troopBasePct.toFixed(1)}%</li>` : ''}
-                    <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${radius.toFixed(1)} ${escapeHTML(tilesText)}</li>
+                    <li><strong>${escapeHTML(buildingDamageLabel)}:</strong> ${formatFloat(basePct, 1)}%</li>
+                    ${troopBasePct > 0 ? `<li><strong>${escapeHTML(troopDamageLabel)}:</strong> ${formatFloat(troopBasePct, 1)}%</li>` : ''}
+                    <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>
                     <li><strong>${escapeHTML(wallsLabel)}:</strong> ${escapeHTML(wallBreakCondition)}</li>
                     <li><strong>${escapeHTML(immunitiesLabel)}:</strong> ${eqImmuneNames}</li>
                 </ul>
@@ -246,11 +246,11 @@ export function getEarthquakeStatsPopoverContent({ level = 8, count = 1, isCombo
 
         let strikeValueHtml = '';
         if (targetScope === 'buildings') {
-            strikeValueHtml = `<span class="font-weight-semibold">${strikeBldPct.toFixed(1)}%</span>`;
+            strikeValueHtml = `<span class="font-weight-semibold">${formatFloat(strikeBldPct, 1)}%</span>`;
         } else if (targetScope === 'troops') {
-            strikeValueHtml = `<span class="font-weight-semibold">${strikeTroopPct.toFixed(1)}%</span>`;
+            strikeValueHtml = `<span class="font-weight-semibold">${formatFloat(strikeTroopPct, 1)}%</span>`;
         } else {
-            strikeValueHtml = `<span class="font-weight-semibold">${strikeBldPct.toFixed(1)}% <span class="calc-breakdown-meta">(${escapeHTML(buildingsLabel)})</span> &middot; ${strikeTroopPct.toFixed(1)}% <span class="calc-breakdown-meta">(${escapeHTML(troopsLabel)})</span></span>`;
+            strikeValueHtml = `<span class="font-weight-semibold">${formatFloat(strikeBldPct, 1)}% <span class="calc-breakdown-meta">(${escapeHTML(buildingsLabel)})</span> &middot; ${formatFloat(strikeTroopPct, 1)}% <span class="calc-breakdown-meta">(${escapeHTML(troopsLabel)})</span></span>`;
         }
 
         strikeRowsHtml += `
@@ -266,11 +266,11 @@ export function getEarthquakeStatsPopoverContent({ level = 8, count = 1, isCombo
         const orderedBreakdownTitle = translate('views.damageCalc.popovers.orderedStrikeBreakdown');
         let totalValueHtml = '';
         if (targetScope === 'buildings') {
-            totalValueHtml = `<span>${cumBldPct.toFixed(1)}%</span>`;
+            totalValueHtml = `<span>${formatFloat(cumBldPct, 1)}%</span>`;
         } else if (targetScope === 'troops') {
-            totalValueHtml = `<span>${cumTroopPct.toFixed(1)}%</span>`;
+            totalValueHtml = `<span>${formatFloat(cumTroopPct, 1)}%</span>`;
         } else {
-            totalValueHtml = `<span>${cumBldPct.toFixed(1)}% <span class="calc-breakdown-meta">(${escapeHTML(buildingsLabel)})</span> &middot; ${cumTroopPct.toFixed(1)}% <span class="calc-breakdown-meta">(${escapeHTML(troopsLabel)})</span></span>`;
+            totalValueHtml = `<span>${formatFloat(cumBldPct, 1)}% <span class="calc-breakdown-meta">(${escapeHTML(buildingsLabel)})</span> &middot; ${formatFloat(cumTroopPct, 1)}% <span class="calc-breakdown-meta">(${escapeHTML(troopsLabel)})</span></span>`;
         }
 
         breakdownSectionHtml = `
@@ -294,19 +294,19 @@ export function getEarthquakeStatsPopoverContent({ level = 8, count = 1, isCombo
     let statListHtml = '';
     if (targetScope === 'buildings') {
         statListHtml = `
-            <li><strong>${escapeHTML(buildingDamageLabel)}:</strong> ${basePct.toFixed(1)}%${count > 1 ? ` (${escapeHTML(strike1Text)})` : ''}</li>
-            <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${radius.toFixed(1)} ${escapeHTML(tilesText)}</li>
+            <li><strong>${escapeHTML(buildingDamageLabel)}:</strong> ${formatFloat(basePct, 1)}%${count > 1 ? ` (${escapeHTML(strike1Text)})` : ''}</li>
+            <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>
         `;
     } else if (targetScope === 'troops') {
         statListHtml = `
-            <li><strong>${escapeHTML(troopDamageLabel)}:</strong> ${troopBasePct.toFixed(1)}%${count > 1 ? ` (${escapeHTML(strike1Text)})` : ''}</li>
-            <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${radius.toFixed(1)} ${escapeHTML(tilesText)}</li>
+            <li><strong>${escapeHTML(troopDamageLabel)}:</strong> ${formatFloat(troopBasePct, 1)}%${count > 1 ? ` (${escapeHTML(strike1Text)})` : ''}</li>
+            <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>
         `;
     } else {
         statListHtml = `
-            <li><strong>${escapeHTML(buildingDamageLabel)}:</strong> ${basePct.toFixed(1)}%${count > 1 ? ` (${escapeHTML(strike1Text)})` : ''}</li>
-            <li><strong>${escapeHTML(troopDamageLabel)}:</strong> ${troopBasePct.toFixed(1)}%${count > 1 ? ` (${escapeHTML(strike1Text)})` : ''}</li>
-            <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${radius.toFixed(1)} ${escapeHTML(tilesText)}</li>
+            <li><strong>${escapeHTML(buildingDamageLabel)}:</strong> ${formatFloat(basePct, 1)}%${count > 1 ? ` (${escapeHTML(strike1Text)})` : ''}</li>
+            <li><strong>${escapeHTML(troopDamageLabel)}:</strong> ${formatFloat(troopBasePct, 1)}%${count > 1 ? ` (${escapeHTML(strike1Text)})` : ''}</li>
+            <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>
         `;
     }
 
@@ -382,8 +382,8 @@ export function getLightningStatsPopoverContent({ level = 13, count = 1, isCombo
             body: `
                 <ul class="calc-popover-stat-list">
                     <li><strong>${escapeHTML(damageLabel)}:</strong> ${formatNumber(zapDmg)} ${hpUnit}</li>
-                    <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${radius.toFixed(1)} ${escapeHTML(tilesText)}</li>
-                    <li><strong>${escapeHTML(stunEffectLabel)}:</strong> 0.1s</li>
+                    <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>
+                    <li><strong>${escapeHTML(stunEffectLabel)}:</strong> ${formatFloat(0.1, 1)}s</li>
                     <li><strong>${escapeHTML(immunitiesLabel)}:</strong> ${zapImmuneNames}</li>
                 </ul>
             `
@@ -440,7 +440,7 @@ export function getLightningStatsPopoverContent({ level = 13, count = 1, isCombo
         body: `
             <ul class="calc-popover-stat-list">
                 <li><strong>${escapeHTML(damageLabel)}:</strong> ${strikeDmgText}</li>
-                <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${radius.toFixed(1)} ${escapeHTML(tilesText)}</li>
+                <li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>
             </ul>
             ${calcSectionHtml}
         `

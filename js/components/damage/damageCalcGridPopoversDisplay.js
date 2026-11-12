@@ -21,7 +21,7 @@ import {
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { safeJsonParse } from '../../utils/jsonUtils.js';
-import { formatNumber } from '../../utils/numberFormatter.js';
+import { formatFloat, formatNumber } from '../../utils/numberFormatter.js';
 import { getActiveModifier, getShownTownHall } from './damageCalcState.js';
 import {
     getDefenseDisplayName,
@@ -136,11 +136,11 @@ export function getComboBreakdownPopoverContent(elem, state) {
         const totalDamage = bestAttempt?.totalDamage ?? 0;
         const remainingHp = bestAttempt?.remainingHp ?? maxHp;
         const pctDealt = bestAttempt?.percentDealt != null
-            ? bestAttempt.percentDealt.toFixed(1)
-            : (maxHp > 0 ? ((totalDamage / maxHp) * 100).toFixed(1) : '0.0');
+            ? formatFloat(bestAttempt.percentDealt, 1)
+            : (maxHp > 0 ? formatFloat((totalDamage / maxHp) * 100, 1) : formatFloat(0, 1));
         const pctRemaining = bestAttempt?.percentRemaining != null
-            ? bestAttempt.percentRemaining.toFixed(1)
-            : (maxHp > 0 ? ((remainingHp / maxHp) * 100).toFixed(1) : '100.0');
+            ? formatFloat(bestAttempt.percentRemaining, 1)
+            : (maxHp > 0 ? formatFloat((remainingHp / maxHp) * 100, 1) : formatFloat(100, 1));
 
         const rows = [];
 
@@ -168,7 +168,7 @@ export function getComboBreakdownPopoverContent(elem, state) {
         } else if ((bestAttempt?.eqCount || 0) > 0) {
             const eqCount = bestAttempt.eqCount;
             const eqDmg = bestAttempt.eqDamage || 0;
-            const eqPct = maxHp > 0 ? ((eqDmg / maxHp) * 100).toFixed(1) : '0.0';
+            const eqPct = maxHp > 0 ? formatFloat((eqDmg / maxHp) * 100, 1) : formatFloat(0, 1);
             rows.push({
                 name: `${eqCount}x ${eqSpellName} (${eqPct}%)`,
                 value: `-${formatNumber(eqDmg)} ${hpUnit}`
@@ -295,7 +295,7 @@ export function getComboBreakdownPopoverContent(elem, state) {
         totalDamage += dmg;
         const ccAbbr = translate('views.damageCalc.offense.clanCastleAbbr');
         rows.push({
-            name: `${translate('views.damageCalc.offense.spellEarthquake') || 'Earthquake'} #${i}${strike.isCc ? ` (${ccAbbr})` : ''} (${strikePct.toFixed(1)}%)`,
+            name: `${translate('views.damageCalc.offense.spellEarthquake') || 'Earthquake'} #${i}${strike.isCc ? ` (${ccAbbr})` : ''} (${formatFloat(strikePct, 1)}%)`,
             dmg: `-${formatNumber(dmg)} ${hpUnit}`
         });
     }

@@ -162,12 +162,22 @@
                     var cachedOresRaw = localStorage.getItem('clashCalc_cachedHomeOres_' + activeTag);
                     if (cachedOresRaw) {
                         var ores = JSON.parse(cachedOresRaw);
+                        var docLang = document.documentElement.lang || 'en';
+                        try {
+                            var settingsStr = localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings');
+                            if (settingsStr) {
+                                var parsedSettings = JSON.parse(settingsStr);
+                                if (parsedSettings && parsedSettings.language && parsedSettings.language !== 'auto') {
+                                    docLang = parsedSettings.language;
+                                }
+                            }
+                        } catch (e) {}
                         var s = document.getElementById('home-result-quantity-shiny');
-                        if (s && ores.shiny !== undefined) s.textContent = Number(ores.shiny).toLocaleString();
+                        if (s && ores.shiny !== undefined) s.textContent = Number(ores.shiny).toLocaleString(docLang);
                         var g = document.getElementById('home-result-quantity-glowy');
-                        if (g && ores.glowy !== undefined) g.textContent = Number(ores.glowy).toLocaleString();
+                        if (g && ores.glowy !== undefined) g.textContent = Number(ores.glowy).toLocaleString(docLang);
                         var st = document.getElementById('home-result-quantity-starry');
-                        if (st && ores.starry !== undefined) st.textContent = Number(ores.starry).toLocaleString();
+                        if (st && ores.starry !== undefined) st.textContent = Number(ores.starry).toLocaleString(docLang);
 
                         var setTime = function(prefix, data) {
                             var y = document.getElementById('home-result-time-' + prefix + '-years');

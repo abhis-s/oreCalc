@@ -117,7 +117,16 @@ export function animateValue(element, start, end, duration = 750, formatFn = val
     element.__animationFrameId = requestAnimationFrame(update);
 }
 
-function formatFloat(number, decimals, integerDigits = 1) {
+/**
+ * Formats a floating-point number with specified decimal precision using current UI locale.
+ *
+ * @param {number} number - Number to format.
+ * @param {number} decimals - Maximum decimal fraction digits.
+ * @param {number} [integerDigits=1] - Minimum integer digits.
+ * @returns {string} Formatted decimal string.
+ */
+export function formatFloat(number, decimals, integerDigits = 1) {
+    const safeNum = (typeof number === 'number' && !isNaN(number)) ? number : (Number(number) || 0);
     const language = state.uiSettings?.language || 'en';
     const locale = getLocale(language);
     const clampedDecimals = Math.min(5, Math.max(0, decimals));
@@ -126,7 +135,7 @@ function formatFloat(number, decimals, integerDigits = 1) {
         minimumIntegerDigits: clampedIntegers,
         minimumFractionDigits: clampedDecimals,
         maximumFractionDigits: clampedDecimals
-    }).format(number);
+    }).format(safeNum);
 }
 
 /**

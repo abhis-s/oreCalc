@@ -686,9 +686,11 @@ test('Damage Calculator Offense Popovers Localization & HP Unit', async (t) => {
         const zapDe = getLightningStatsPopoverContent({ level: 13, count: 1, isCombo: false });
         assert.ok(zapDe.body.includes('Rathaus, Clanburg, Lager'), 'Must compose Lightning immunities from German building names');
 
-        // 3. German combo titles
+        // 3. German combo titles and localized decimal formatting
         const eqComboDe = getEarthquakeStatsPopoverContent({ level: 8, count: 2, isCombo: true });
         assert.ok(eqComboDe.header.includes('2x Erdbeben'), 'Must localize Earthquake combo title in German');
+        assert.ok(eqComboDe.body.includes('29,0%'), 'Building damage must use decimal comma in German');
+        assert.ok(eqComboDe.body.includes('4,7 Felder'), 'Radius must use decimal comma in German');
         const zapComboDe = getLightningStatsPopoverContent({ level: 13, count: 3, isCombo: true });
         assert.ok(zapComboDe.header.includes('3x Blitz'), 'Must localize Lightning combo title in German');
 
