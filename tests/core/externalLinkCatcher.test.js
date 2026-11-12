@@ -255,4 +255,11 @@ describe('External Link Catcher Domain Suite', () => {
         assert.equal(defaultPrevented, true);
         assert.equal(globalThis.window.location.href, 'mailto:support@clashcalc.com');
     });
+
+    test('deduplicates multiple init calls on the same root', () => {
+        initExternalLinkCatcher(mockDocument);
+        assert.equal(clickListeners.length, 1);
+        initExternalLinkCatcher(mockDocument);
+        assert.equal(clickListeners.length, 1, 'Should not attach duplicate listener to same root');
+    });
 });

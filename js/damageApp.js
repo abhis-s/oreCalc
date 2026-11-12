@@ -55,6 +55,8 @@ import {
 let activeAddPlayerModalControls = null;
 let hasAttachedDamageListeners = false;
 let isMounted = false;
+/** @type {Promise<void> | null} */
+let activeMountPromise = null;
 
 /**
  * Asynchronously revalidates and refreshes player data in the background from the API.
@@ -453,17 +455,27 @@ async function initDamageApp() {
  * @returns {Promise<void>}
  */
 export async function mount(options = {}) {
+    if (activeMountPromise) return activeMountPromise;
     if (isMounted && !options.force) return;
-    isMounted = true;
 
-    await initDamageApp();
-    finalizeRouteMount('damage-calculator', { mount, destroy });
+    activeMountPromise = (async () => {
+        isMounted = true;
+        await initDamageApp();
+        finalizeRouteMount('damage-calculator', { mount, destroy });
+    })();
+
+    try {
+        await activeMountPromise;
+    } finally {
+        activeMountPromise = null;
+    }
 }
 
 /**
  * Destroys and cleans up active Damage Calculator controllers.
  */
 export function destroy() {
+    activeMountPromise = null;
     if (!isMounted) return;
     isMounted = false;
 }

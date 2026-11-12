@@ -26,6 +26,8 @@ import './console.js';
 
 let hasAttachedAccountListeners = false;
 let isMounted = false;
+/** @type {Promise<void> | null} */
+let activeMountPromise = null;
 
 /**
  * Initializes and populates the navigation drawer for the account page.
@@ -153,17 +155,27 @@ async function initAccountApp() {
  * @returns {Promise<void>}
  */
 export async function mount(options = {}) {
+    if (activeMountPromise) return activeMountPromise;
     if (isMounted && !options.force) return;
-    isMounted = true;
 
-    await initAccountApp();
-    finalizeRouteMount('account', { mount, destroy });
+    activeMountPromise = (async () => {
+        isMounted = true;
+        await initAccountApp();
+        finalizeRouteMount('account', { mount, destroy });
+    })();
+
+    try {
+        await activeMountPromise;
+    } finally {
+        activeMountPromise = null;
+    }
 }
 
 /**
  * Destroys and cleans up active Account page controllers.
  */
 export function destroy() {
+    activeMountPromise = null;
     if (!isMounted) return;
     isMounted = false;
 }

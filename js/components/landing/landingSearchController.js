@@ -33,13 +33,16 @@ const TOGGLE_COOLDOWN_MS = 400;
  * @param {(cleanTag: string) => void} options.selectVillage - Callback to activate an existing or newly added village.
  * @param {(cleanTag: string) => void} options.handleDeleteVillage - Callback when a village is deleted.
  * @param {(village: any) => void} options.openLaunchModal - Callback to open launch choice modal.
- * @returns {{ openSearchForm: () => void, closeSearchForm: () => void, isSearchFormOpen: () => boolean, updateToggleAddBtnState: (isOpen: boolean) => void }}
+ * @returns {{ openSearchForm: () => void, closeSearchForm: () => void, isSearchFormOpen: () => boolean, updateToggleAddBtnState: (isOpen: boolean) => void, destroy: () => void }}
  */
 export function initLandingSearchForm({
     selectVillage,
     handleDeleteVillage,
     openLaunchModal
 }) {
+    const abortController = new AbortController();
+    const { signal } = abortController;
+
     const searchForm = /** @type {HTMLFormElement | null} */ (document.getElementById('landing-search-form'));
     const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById('landing-search-input'));
     const searchErrorEl = document.getElementById('landing-search-error-message');
@@ -195,13 +198,13 @@ export function initLandingSearchForm({
             } else {
                 openSearchForm();
             }
-        });
+        }, { signal });
     }
 
     if (cancelBtn) {
         cancelBtn.addEventListener('click', () => {
             closeSearchForm();
-        });
+        }, { signal });
     }
 
     if (searchInput) {
@@ -222,12 +225,12 @@ export function initLandingSearchForm({
             if (searchBtn) {
                 searchBtn.disabled = searchInput.value.trim().length === 0;
             }
-        });
+        }, { signal });
 
         searchInput.addEventListener('blur', () => {
             searchInput.classList.remove('shake');
             searchWrapper?.classList.remove('shake');
-        });
+        }, { signal });
     }
 
     if (clearBtn && searchInput) {
@@ -247,7 +250,7 @@ export function initLandingSearchForm({
             }
             clearSearchFeedback();
             searchInput.focus();
-        });
+        }, { signal });
     }
 
     if (searchForm && searchInput) {
@@ -311,13 +314,16 @@ export function initLandingSearchForm({
                 if (searchBtn) searchBtn.classList.remove('is-loading');
                 if (searchInput) searchInput.disabled = false;
             }
-        });
+        }, { signal });
     }
 
     return {
         openSearchForm,
         closeSearchForm,
         isSearchFormOpen,
-        updateToggleAddBtnState
+        updateToggleAddBtnState,
+        destroy: () => {
+            abortController.abort();
+        }
     };
 }

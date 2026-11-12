@@ -26,6 +26,8 @@ import './utils/imageManager.js';
 import './console.js';
 
 let isMounted = false;
+/** @type {Promise<void> | null} */
+let activeMountPromise = null;
 
 /**
  * Initializes and populates the navigation drawer.
@@ -100,17 +102,27 @@ async function initAppManagementApp() {
  * @returns {Promise<void>}
  */
 export async function mount(options = {}) {
+    if (activeMountPromise) return activeMountPromise;
     if (isMounted && !options.force) return;
-    isMounted = true;
 
-    await initAppManagementApp();
-    finalizeRouteMount('app-management', { mount, destroy });
+    activeMountPromise = (async () => {
+        isMounted = true;
+        await initAppManagementApp();
+        finalizeRouteMount('app-management', { mount, destroy });
+    })();
+
+    try {
+        await activeMountPromise;
+    } finally {
+        activeMountPromise = null;
+    }
 }
 
 /**
  * Destroys and cleans up active App Management page controllers.
  */
 export function destroy() {
+    activeMountPromise = null;
     if (!isMounted) return;
     isMounted = false;
 }

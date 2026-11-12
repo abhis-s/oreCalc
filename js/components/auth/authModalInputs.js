@@ -416,7 +416,12 @@ async function handlePasswordRegisterSubmit(e) {
  */
 export function initializeAuthModal() {
     const modal = document.getElementById('auth-modal');
-    if (!modal) return;
+    if (!modal || modal.dataset?.authInitialized === 'true') {
+        return;
+    }
+    if (modal.dataset) {
+        modal.dataset.authInitialized = 'true';
+    }
 
     const closeBtn = document.getElementById('close-auth-modal-btn');
     closeBtn?.addEventListener('click', () => {

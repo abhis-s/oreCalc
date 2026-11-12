@@ -1,6 +1,8 @@
 import { translate } from '../../i18n/translator.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 
+const boundLinkCatcherRoots = new WeakSet();
+
 /**
  * Initializes external link interception for a document or root container.
  * Prompts user confirmation before navigating away from the application.
@@ -12,6 +14,10 @@ export function initExternalLinkCatcher(root = document) {
     if (!root || typeof root.addEventListener !== 'function') {
         return () => {};
     }
+    if (boundLinkCatcherRoots.has(root)) {
+        return () => {};
+    }
+    boundLinkCatcherRoots.add(root);
 
     const handleClick = async (e) => {
         const link = /** @type {HTMLElement} */ (e.target).closest('a');
@@ -52,6 +58,7 @@ export function initExternalLinkCatcher(root = document) {
 
     root.addEventListener('click', handleClick);
     return () => {
+        boundLinkCatcherRoots.delete(root);
         root.removeEventListener('click', handleClick);
     };
 }

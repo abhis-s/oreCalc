@@ -130,6 +130,16 @@ export function getAppRouteHandler(route) {
 }
 
 /**
+ * Reports whether the persistent app shell navigator is currently executing a route transition.
+ * Used by bootstrap lifecycles to suppress duplicate initial mounts during dynamic route imports.
+ *
+ * @returns {boolean}
+ */
+export function isNavigatorTransitioning() {
+    return isTransitioning;
+}
+
+/**
  * Determines whether an anchor element is eligible for soft app shell navigation.
  *
  * @param {HTMLAnchorElement | null} anchor

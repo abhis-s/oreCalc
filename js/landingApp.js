@@ -367,6 +367,8 @@ function initLandingCrossTabSync() {
 
 let isMounted = false;
 let hasAttachedLandingListeners = false;
+/** @type {Promise<void> | null} */
+let activeMountPromise = null;
 
 /**
  * Mounts the Landing Portal application.
@@ -376,33 +378,45 @@ let hasAttachedLandingListeners = false;
  */
 export async function mount(options = {}) {
     if (isMounted && !options.force) return;
-    isMounted = true;
-
-    try {
-        sessionStorage.setItem('clashCalc_sessionLaunched', 'true');
-    } catch (_) {}
-
-    await bootstrapShellLanguageAndStorage({ hydrateState: true });
-    initSharedShellChrome({
-        domainNotice: false,
-        headerOptions: {
-            headerElement: '.landing-header',
-            hasPill: true,
-            hasPlayerDropdown: false,
-            hasTabs: false
-        }
-    });
-
-    updateToolLinks();
-    await initCommandCenter();
-    initLandingToolsInputs();
-    landingDrawerInstance = bindStandaloneNavigationDrawer(updateLandingDrawer);
-    if (!hasAttachedLandingListeners) {
-        hasAttachedLandingListeners = true;
-        initLandingCrossTabSync();
+    if (activeMountPromise) {
+        return activeMountPromise;
     }
 
-    finalizeRouteMount('hub', { mount, destroy });
+    activeMountPromise = (async () => {
+        isMounted = true;
+
+        try {
+            sessionStorage.setItem('clashCalc_sessionLaunched', 'true');
+        } catch (_) {}
+
+        await bootstrapShellLanguageAndStorage({ hydrateState: true });
+        initSharedShellChrome({
+            domainNotice: false,
+            headerOptions: {
+                headerElement: '.landing-header',
+                hasPill: true,
+                hasPlayerDropdown: false,
+                hasTabs: false
+            }
+        });
+
+        updateToolLinks();
+        await initCommandCenter();
+        initLandingToolsInputs();
+        landingDrawerInstance = bindStandaloneNavigationDrawer(updateLandingDrawer);
+        if (!hasAttachedLandingListeners) {
+            hasAttachedLandingListeners = true;
+            initLandingCrossTabSync();
+        }
+
+        finalizeRouteMount('hub', { mount, destroy });
+    })();
+
+    try {
+        await activeMountPromise;
+    } finally {
+        activeMountPromise = null;
+    }
 }
 
 /**
@@ -413,6 +427,7 @@ export function destroy() {
     isMounted = false;
 
     destroyLandingToolsInputs();
+    landingSearchController?.destroy?.();
     landingAccountsManager?.destroy?.();
     landingDrawerInstance?.destroy?.();
     landingAccountsManager = null;

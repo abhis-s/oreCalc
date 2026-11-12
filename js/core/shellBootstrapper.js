@@ -2,7 +2,7 @@ import { loadTranslations, translate } from '../i18n/translator.js';
 import { updateUIWithTranslations } from '../i18n/uiTranslator.js';
 
 import { registerGlobalErrorBoundaries } from './appEventInterceptors.js';
-import { initAppShellNavigator, registerAppRoute } from './appShellNavigator.js';
+import { initAppShellNavigator, isNavigatorTransitioning, registerAppRoute } from './appShellNavigator.js';
 import { getLanguageFromPath, syncLanguageUrl } from './languageRouter.js';
 import { loadState } from './localStorageManager.js';
 import { getSavedProfiles } from './playerStorage.js';
@@ -201,7 +201,9 @@ export function finalizeRouteMount(routeKey, { mount, destroy, isStandalone = tr
  */
 export function mountWhenReady(mountFn) {
     if (typeof document === 'undefined') return;
+    if (isNavigatorTransitioning()) return;
     const run = () => {
+        if (isNavigatorTransitioning()) return;
         mountFn().catch((err) => {
             console.error('Error bootstrapping route:', err);
         });

@@ -57,6 +57,8 @@ registerGlobalErrorBoundaries();
 
 let isMounted = false;
 let hasAttachedAppListeners = false;
+/** @type {Promise<void> | null} */
+let activeMountPromise = null;
 /** @type {ReturnType<typeof setTimeout> | null} */
 let appDataInitTimeout = null;
 /** @type {ReturnType<typeof setTimeout> | null} */
@@ -72,9 +74,14 @@ let renderFrameId = null;
  */
 export async function mount(options = {}) {
     if (isMounted && !options.force) return;
-    isMounted = true;
+    if (activeMountPromise) {
+        return activeMountPromise;
+    }
 
-    const urlParams = new URLSearchParams(window.location.search);
+    activeMountPromise = (async () => {
+        isMounted = true;
+
+        const urlParams = new URLSearchParams(window.location.search);
         let userIdFromUrl = urlParams.get('userId');
         let tagFromUrl = urlParams.get('tag');
         let pendingQrUserId = null;
@@ -502,6 +509,13 @@ export async function mount(options = {}) {
 
         initializeGlobalInterceptors();
         finalizeRouteMount('ore-calculator', { mount, destroy, isStandalone: false });
+    })();
+
+    try {
+        await activeMountPromise;
+    } finally {
+        activeMountPromise = null;
+    }
 }
 
 /**
@@ -510,6 +524,7 @@ export async function mount(options = {}) {
 export function destroy() {
     if (!isMounted) return;
     isMounted = false;
+    activeMountPromise = null;
     if (appDataInitTimeout) {
         clearTimeout(appDataInitTimeout);
         appDataInitTimeout = null;

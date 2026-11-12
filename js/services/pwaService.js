@@ -143,6 +143,9 @@ export function initializePwaService() {
     if (!('serviceWorker' in navigator) || !('workbox' in window)) {
         return;
     }
+    if (typeof window !== 'undefined' && window.__WB__) {
+        return;
+    }
 
     const wb = new window.workbox.Workbox('/service-worker.js');
     window.__WB__ = wb;
@@ -203,25 +206,27 @@ export function initializePwaService() {
     });
 
     // Listen for server-forced update events (e.g., on 426 responses)
-    document.addEventListener('app:api-version-force-update', () => {
-        const lastReload = sessionStorage.getItem('clashCalc_lastSwReload');
-        const now = Date.now();
-        if (lastReload && (now - Number(lastReload) < 15000)) {
-            logger.warn('Forced update reload loop detected. Aborting automatic reload.');
-            return;
-        }
-        sessionStorage.setItem('clashCalc_lastSwReload', now.toString());
-        sessionStorage.removeItem('oreCalcUpdateDetectedAt');
-        markSWUpdated();
-
-        wb.register().then(reg => {
-            if (reg && reg.waiting) {
-                wb.messageSkipWaiting();
-            } else {
-                window.location.reload();
+    if (typeof document !== 'undefined') {
+        document.addEventListener('app:api-version-force-update', () => {
+            const lastReload = sessionStorage.getItem('clashCalc_lastSwReload');
+            const now = Date.now();
+            if (lastReload && (now - Number(lastReload) < 15000)) {
+                logger.warn('Forced update reload loop detected. Aborting automatic reload.');
+                return;
             }
+            sessionStorage.setItem('clashCalc_lastSwReload', now.toString());
+            sessionStorage.removeItem('oreCalcUpdateDetectedAt');
+            markSWUpdated();
+
+            wb.register().then(reg => {
+                if (reg && reg.waiting) {
+                    wb.messageSkipWaiting();
+                } else {
+                    window.location.reload();
+                }
+            });
         });
-    });
+    }
 
     wb.register().then(reg => {
         if (reg) {

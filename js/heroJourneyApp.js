@@ -61,6 +61,8 @@ import { renderNavigationDrawerContent } from './components/common/navigationDra
 
 const resetFilters = () => handleResetFilters(hjState, renderUI);
 let isMounted = false;
+/** @type {Promise<void> | null} */
+let activeMountPromise = null;
 let hasAttachedHjListeners = false;
 
 /**
@@ -552,17 +554,27 @@ function updateHeroJourneyDrawer(activeView = 'track') {
  * @returns {Promise<void>}
  */
 export async function mount(options = {}) {
+    if (activeMountPromise) return activeMountPromise;
     if (isMounted && !options.force) return;
-    isMounted = true;
 
-    await init();
-    finalizeRouteMount('hero-journey', { mount, destroy });
+    activeMountPromise = (async () => {
+        isMounted = true;
+        await init();
+        finalizeRouteMount('hero-journey', { mount, destroy });
+    })();
+
+    try {
+        await activeMountPromise;
+    } finally {
+        activeMountPromise = null;
+    }
 }
 
 /**
  * Destroys and cleans up active Hero's Journey controllers and drawer.
  */
 export function destroy() {
+    activeMountPromise = null;
     if (!isMounted) return;
     isMounted = false;
 
