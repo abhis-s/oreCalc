@@ -1,6 +1,8 @@
 import { translate } from '../../i18n/translator.js';
 
+import { selectIsEquipmentMaxed } from '../../core/selectors.js';
 import { state } from '../../core/state.js';
+import { getActiveCustomComingSoon, isOfficialComingSoonDefined } from '../../domain/equipment/comingSoonEquipmentDomain.js';
 
 import { hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { formatDate } from '../../utils/dateUtils.js';
@@ -134,6 +136,36 @@ export function renderDraggableList(globalPriorityList, suggestions) {
     }
 
     if (globalPriorityList.length === 0) {
+        const chipContainer = /** @type {HTMLElement|null} */ (document.querySelector('.equipment-chip-container'));
+        const activeSoon = getActiveCustomComingSoon(state.heroes);
+        const hasUnmaxedComingSoon = Boolean(activeSoon && (activeSoon.item.level || 1) < 27);
+
+        if (selectIsEquipmentMaxed(state) && !hasUnmaxedComingSoon) {
+            if (chipContainer) chipContainer.hidden = true;
+            const canAddComingSoon = !isOfficialComingSoonDefined() && !activeSoon;
+            const actionBtnHtml = canAddComingSoon ? `
+                <div class="empty-state-actions">
+                    <button type="button" id="priority-modal-add-coming-soon-btn" class="animated-btn btn-accent btn--sm">
+                        <span class="animated-btn-icon-wrapper">
+                            <clashcalc-assets-svg name="plus"></clashcalc-assets-svg>
+                        </span>
+                        <span class="animated-btn-text" data-i18n="views.equipment.addComingSoonTitle">${translate('views.equipment.addComingSoonTitle')}</span>
+                    </button>
+                </div>
+            ` : '';
+            editor.innerHTML = `
+                <div class="maxed-empty-state planner-maxed-empty-state">
+                    <clashcalc-assets-svg name="trophy" class="empty-state-icon" height="40" width="40"></clashcalc-assets-svg>
+                    <h4 class="empty-state-title" data-i18n="views.equipment.emptyState.maxedTitle">${translate('views.equipment.emptyState.maxedTitle')}</h4>
+                    <p class="empty-state-desc" data-i18n="views.planner.priorityModalMaxedDesc">${translate('views.planner.priorityModalMaxedDesc')}</p>
+                    ${actionBtnHtml}
+                </div>
+            `;
+            renderSuggestionsAndErrors([], []);
+            return;
+        }
+
+        if (chipContainer) chipContainer.hidden = false;
         editor.innerHTML = `<p class="placeholder-text" data-i18n="views.planner.priorityPlaceholder">${translate('views.planner.priorityPlaceholder')}</p>`;
         renderSuggestionsAndErrors([], []);
         return;

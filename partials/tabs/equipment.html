@@ -4,6 +4,20 @@
                     <div id="heroes-container">
                         <!-- DYNAMIC INSERTION: Hero equipment cards -->
                     </div>
+                    <div id="eq-heroes-empty-state" class="maxed-empty-state" hidden>
+                        <clashcalc-assets-svg name="trophy" class="empty-state-icon" height="48" width="48"></clashcalc-assets-svg>
+                        <h3 class="empty-state-title" data-i18n="views.equipment.emptyState.maxedTitle"></h3>
+                        <p class="empty-state-desc" data-i18n="views.equipment.emptyState.maxedDesc"></p>
+                        <div class="empty-state-actions">
+                            <button type="button" id="eq-empty-add-coming-soon-btn" class="animated-btn btn-accent btn--sm">
+                                <span class="animated-btn-icon-wrapper">
+                                    <clashcalc-assets-svg name="plus"></clashcalc-assets-svg>
+                                </span>
+                                <span class="animated-btn-text" data-i18n="views.equipment.addComingSoonTitle"></span>
+                            </button>
+                            <button type="button" id="eq-empty-show-maxed-btn" class="btn btn--secondary btn--sm" data-i18n="views.equipment.emptyState.showMaxedBtn"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="right-panel">
                     <div id="orecalc-equipment-settings-card" class="equipment-card card">
@@ -34,6 +48,26 @@
                                 <span class="slider round"></span>
                             </div>
                         </div>
+                        <div class="input-group-flex" id="eq-storage-overflow-setting-wrapper" hidden>
+                            <div class="field-descriptor-group">
+                                <label for="eq-allow-overflow-switch" data-i18n="views.equipment.allowOverflow"></label>
+                                <p class="form-setting-text" data-i18n="views.equipment.allowOverflowDesc"></p>
+                            </div>
+                            <div class="switch">
+                                <input type="checkbox" id="eq-allow-overflow-switch">
+                                <span class="slider round"></span>
+                            </div>
+                        </div>
+                        <div class="input-group-flex" id="eq-add-coming-soon-setting-wrapper">
+                            <div class="field-descriptor-group">
+                                <label for="eq-coming-soon-switch" class="field-descriptor-group__label" data-i18n="views.equipment.comingSoonToggleTitle"></label>
+                                <p id="eq-add-coming-soon-desc" class="form-setting-text" data-i18n="views.equipment.addComingSoonSettingDesc"></p>
+                            </div>
+                            <div class="switch">
+                                <input type="checkbox" id="eq-coming-soon-switch" aria-haspopup="dialog">
+                                <span class="slider round"></span>
+                            </div>
+                        </div>
                     </div>
                     <div id="orecalc-equipment-results-card" class="equipment-card card calculated">
                         <h2 class="results-title">
@@ -43,6 +77,7 @@
                                 <clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>
                             </button>
                         </h2>
+                        <div id="eq-storage-goal-bar-container" class="post-max-goal-bar-container" hidden></div>
                         <div class="ores">
                             <div class="ore">
                                 <clashcalc-assets-image src="/assets/shiny_ore.png" data-i18n-alt="entities.ores.shiny" class="ore-image"></clashcalc-assets-image>
@@ -73,6 +108,12 @@
                                     <input type="number" id="eq-shiny-ore-storage" name="eq-shiny-ore-storage" class="ore-value updatable" value="0" min="0" max="50000" step="100" maxlength="5" aria-label="Shiny Ore" data-i18n-aria-label="entities.ores.shiny" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     <span id="eq-shiny-hero-journey-badge" class="badge hero-journey-upcoming-badge" hidden data-info="views.heroJourney.nodes.upcomingOresTooltip">+0</span>
                                 </div>
+                                <div id="eq-shiny-meter" class="storage-meter-wrapper" hidden>
+                                    <div class="progress-bar-mini" data-ore="shiny">
+                                        <div id="eq-shiny-fill" class="progress-bar-fill shiny-fill"></div>
+                                    </div>
+                                    <span id="eq-shiny-tag" class="storage-meter-tag"></span>
+                                </div>
                             </div>
                             <div class="ore">
                                 <clashcalc-assets-image src="/assets/glowy_ore.png" data-i18n-alt="entities.ores.glowy" class="ore-image"></clashcalc-assets-image>
@@ -80,12 +121,24 @@
                                     <input type="number" id="eq-glowy-ore-storage" name="eq-glowy-ore-storage" class="ore-value updatable" value="0" min="0" max="5000" step="10" maxlength="4" aria-label="Glowy Ore" data-i18n-aria-label="entities.ores.glowy" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     <span id="eq-glowy-hero-journey-badge" class="badge hero-journey-upcoming-badge" hidden data-info="views.heroJourney.nodes.upcomingOresTooltip">+0</span>
                                 </div>
+                                <div id="eq-glowy-meter" class="storage-meter-wrapper" hidden>
+                                    <div class="progress-bar-mini" data-ore="glowy">
+                                        <div id="eq-glowy-fill" class="progress-bar-fill glowy-fill"></div>
+                                    </div>
+                                    <span id="eq-glowy-tag" class="storage-meter-tag"></span>
+                                </div>
                             </div>
                             <div class="ore">
                                 <clashcalc-assets-image src="/assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image>
                                 <div class="ore-input-wrapper">
                                     <input type="number" id="eq-starry-ore-storage" name="eq-starry-ore-storage" class="ore-value updatable" value="0" min="0" max="1000" step="1" maxlength="4" aria-label="Starry Ore" data-i18n-aria-label="entities.ores.starry" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false">
                                     <span id="eq-starry-hero-journey-badge" class="badge hero-journey-upcoming-badge" hidden data-info="views.heroJourney.nodes.upcomingOresTooltip">+0</span>
+                                </div>
+                                <div id="eq-starry-meter" class="storage-meter-wrapper" hidden>
+                                    <div class="progress-bar-mini" data-ore="starry">
+                                        <div id="eq-starry-fill" class="progress-bar-fill starry-fill"></div>
+                                    </div>
+                                    <span id="eq-starry-tag" class="storage-meter-tag"></span>
                                 </div>
                             </div>
                         </div>

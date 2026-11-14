@@ -4,6 +4,7 @@ import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
 
+import { getHeroEquipmentList } from '../../domain/equipment/comingSoonEquipmentDomain.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 
 /**
@@ -33,19 +34,21 @@ export function renderHeroEquipmentGrid(gridContainer, globalPriorityList) {
         const equipmentColumn = document.createElement('div');
         equipmentColumn.classList.add('equipment-chips-column');
 
-        hero.equipment.forEach(equip => {
-            const eqKeyStr = equip.key || toCamelCase(equip.name || '');
-            const eqDisplayName = translate(`entities.equipment.${eqKeyStr}`);
-            const heroStateName = {
-                barbarianKing: 'Barbarian King',
-                archerQueen: 'Archer Queen',
-                minionPrince: 'Minion Prince',
-                grandWarden: 'Grand Warden',
-                royalChampion: 'Royal Champion',
-                dragonDuke: 'Dragon Duke'
-            }[heroKeyStr] || heroKeyStr;
+        const heroStateName = {
+            barbarianKing: 'Barbarian King',
+            archerQueen: 'Archer Queen',
+            minionPrince: 'Minion Prince',
+            grandWarden: 'Grand Warden',
+            royalChampion: 'Royal Champion',
+            dragonDuke: 'Dragon Duke'
+        }[heroKeyStr] || hero.name || heroKeyStr;
 
-            const userHeroState = state.heroes[heroStateName] || state.heroes[heroKeyStr];
+        const userHeroState = state.heroes[heroStateName] || state.heroes[heroKeyStr];
+        const equipmentList = getHeroEquipmentList(hero, userHeroState);
+
+        equipmentList.forEach(equip => {
+            const eqKeyStr = equip.key || toCamelCase(equip.name || '');
+            const eqDisplayName = translate(`entities.equipment.${eqKeyStr}`) || equip.name;
             const currentLevel = userHeroState?.equipment?.[eqKeyStr]?.level || userHeroState?.equipment?.[equip.name]?.level || 1;
             const maxLevel = getEquipmentMaxLevel(equip.type);
 
@@ -63,7 +66,7 @@ export function renderHeroEquipmentGrid(gridContainer, globalPriorityList) {
                 `;
 
                 const isMaxedInPlan = globalPriorityList.some(item =>
-                    item.heroName === hero.name &&
+                    (item.heroName === hero.name || item.heroName === heroKeyStr) &&
                     item.name === equip.name &&
                     item.targetLevel === maxLevel
                 );
@@ -73,7 +76,7 @@ export function renderHeroEquipmentGrid(gridContainer, globalPriorityList) {
 
                 const customMaxLevel = state.planner.customMaxLevel?.[equip.type] || getEquipmentMaxLevel(equip.type);
                 const isCustomMaxedInPlan = globalPriorityList.some(item =>
-                    item.heroName === hero.name &&
+                    (item.heroName === hero.name || item.heroName === heroKeyStr) &&
                     item.name === equip.name &&
                     item.targetLevel >= customMaxLevel
                 );

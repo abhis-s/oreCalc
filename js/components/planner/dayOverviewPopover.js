@@ -113,8 +113,9 @@ export function hideDayOverviewPopover() {
  * @param {Date} date
  * @param {Object} plannerState
  * @param {Object} activeEquipmentSchedule
+ * @param {any} [storageForecast]
  */
-export function showDayOverviewPopover(dayCell, date, plannerState, activeEquipmentSchedule) {
+export function showDayOverviewPopover(dayCell, date, plannerState, activeEquipmentSchedule, storageForecast = null) {
     if (!dayCell) return;
     const popover = getOrCreateDayPopover();
 
@@ -297,6 +298,41 @@ export function showDayOverviewPopover(dayCell, date, plannerState, activeEquipm
         `;
     }
 
+    let storageBalanceHtml = '';
+    const balance = storageForecast?.dailyBalancesByDate?.[dateStr];
+    if (balance) {
+        storageBalanceHtml = `
+            <div class="day-overview-summary-card day-overview-storage-card">
+                <div class="day-overview-summary-title">${translate('views.planner.dayOverview.projectedStorage')}</div>
+                <div class="day-overview-ores-grid">
+                    <div class="day-ore-stat">
+                        <span class="day-ore-val">${formatNumber(balance.shiny)}</span>
+                        <clashcalc-assets-image src="assets/shiny_ore.png" class="ore-icon-small" alt="${translate('entities.ores.shiny')}" data-i18n-alt="entities.ores.shiny"></clashcalc-assets-image>
+                    </div>
+                    <div class="day-ore-stat">
+                        <span class="day-ore-val">${formatNumber(balance.glowy)}</span>
+                        <clashcalc-assets-image src="assets/glowy_ore.png" class="ore-icon-small" alt="${translate('entities.ores.glowy')}" data-i18n-alt="entities.ores.glowy"></clashcalc-assets-image>
+                    </div>
+                    <div class="day-ore-stat">
+                        <span class="day-ore-val">${formatNumber(balance.starry)}</span>
+                        <clashcalc-assets-image src="assets/starry_ore.png" class="ore-icon-small" alt="${translate('entities.ores.starry')}" data-i18n-alt="entities.ores.starry"></clashcalc-assets-image>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    let overflowNoticeHtml = '';
+    const overflowInfo = storageForecast?.overflowByDate?.[dateStr];
+    if (overflowInfo) {
+        overflowNoticeHtml = `
+            <div class="day-overview-overflow-notice">
+                <clashcalc-assets-svg name="warning"></clashcalc-assets-svg>
+                <span>${translate('views.planner.dayOverview.storageOverflowNotice')}</span>
+            </div>
+        `;
+    }
+
     popover.innerHTML = `
         <div class="day-overview-header">
             <h3 class="day-overview-date">${formattedDateHeader}</h3>
@@ -322,6 +358,8 @@ export function showDayOverviewPopover(dayCell, date, plannerState, activeEquipm
             </div>
         </div>
         ${milestoneHtml}
+        ${storageBalanceHtml}
+        ${overflowNoticeHtml}
         <div class="day-overview-chips-section">
             ${items.length === 0 ? `
                 <div class="day-overview-empty" data-i18n="views.planner.dayOverview.noChips">${translate('views.planner.dayOverview.noChips')}</div>

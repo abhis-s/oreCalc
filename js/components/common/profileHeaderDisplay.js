@@ -187,7 +187,7 @@ export function renderProfileHeaderHtml({
         const totalAttr = !isGuestMode && maxEquipment.total !== undefined ? ` data-total-equip="${maxEquipment.total}"` : '';
 
         resolvedActionsHtml += `
-            <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}">
+            <div class="player-maxed-equip-mini" title="${translate('views.home.profile.maxedEquipment')}" data-i18n-title="views.home.profile.maxedEquipment">
                 <clashcalc-assets-svg name="equipment-filled" height="12" width="12" class="maxed-equip-icon-mini" aria-hidden="true"></clashcalc-assets-svg>
                 <span><span class="maxed-count"${targetAttr}${prevAttr}${totalAttr}>${displayCount}/${totalCount}</span> <span data-i18n="views.home.profile.maxedEquipment">${translate('views.home.profile.maxedEquipment')}</span></span>
             </div>

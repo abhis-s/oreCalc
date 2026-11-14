@@ -40,7 +40,7 @@ export const ZERO_ORES = Object.freeze({ shiny: 0, glowy: 0, starry: 0 });
  * Selects the active player's stored ores inventory.
  *
  * @param {import('./types.js').AppState} state - Application state.
- * @returns {import('./types.js').OreQuantity} Stored ores quantity.
+ * @returns {import('./types.js').StoredOres} Stored ores quantity.
  */
 export const selectStoredOres = (state) => state?.storedOres || selectActivePlayer(state)?.storedOres || ZERO_ORES;
 
@@ -103,3 +103,35 @@ export const selectDerivedSourceIncome = (state, sourceId, timeframe = 'monthly'
  * @returns {import('./types.js').UISettingsState | Record<string, any>} UI settings state.
  */
 export const selectUISettings = (state) => state?.uiSettings || {};
+
+/**
+ * Selects whether the active player allows stored ores above Blacksmith storage limits.
+ *
+ * @param {import('./types.js').AppState | any} state - Application state.
+ * @returns {boolean} Whether storage overflow is enabled.
+ */
+export const selectAllowStorageOverflow = (state) => Boolean(selectStoredOres(state)?.allowOverflow);
+
+/**
+ * Selects whether all currently tracked equipment upgrades are maxed out.
+ *
+ * @param {import('./types.js').AppState | any} state - Application state.
+ * @returns {boolean} True if tracked equipment is maxed.
+ */
+export const selectIsEquipmentMaxed = (state) => Boolean(selectDerived(state)?.isEquipmentMaxed);
+
+/**
+ * Selects the active post-max storage or release buffer goal.
+ *
+ * @param {import('./types.js').AppState | any} state - Application state.
+ * @returns {import('./types.js').ActiveStorageGoal | null} Active goal or null.
+ */
+export const selectActiveGoal = (state) => selectDerived(state)?.activeGoal || null;
+
+/**
+ * Selects current storage capacity utilization and overflow metrics.
+ *
+ * @param {import('./types.js').AppState | any} state - Application state.
+ * @returns {import('./types.js').StorageCapacityMetrics | null} Storage metrics or null.
+ */
+export const selectStorageMetrics = (state) => selectDerived(state)?.storageMetrics || null;

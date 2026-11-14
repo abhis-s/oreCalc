@@ -5,6 +5,8 @@ import path from 'node:path';
 
 import {
     STORAGE_LIMITS,
+    STORAGE_OVERFLOW_LIMITS,
+    STORAGE_GOAL_PRESETS,
     STORAGE_STEPS,
     MEDAL_STEPS,
     CUSTOM_CHIP_LIMITS,
@@ -62,6 +64,21 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             assert.equal(STORAGE_LIMITS.starry, 1000);
         });
 
+        test('STORAGE_OVERFLOW_LIMITS is strictly frozen and defines max overflow bounds', () => {
+            assert.ok(Object.isFrozen(STORAGE_OVERFLOW_LIMITS));
+            assert.equal(STORAGE_OVERFLOW_LIMITS.shiny, 100000);
+            assert.equal(STORAGE_OVERFLOW_LIMITS.glowy, 10000);
+            assert.equal(STORAGE_OVERFLOW_LIMITS.starry, 2000);
+        });
+
+        test('STORAGE_GOAL_PRESETS is strictly frozen and defines canonical goal identifiers', () => {
+            assert.ok(Object.isFrozen(STORAGE_GOAL_PRESETS));
+            assert.equal(STORAGE_GOAL_PRESETS.AUTO, 'auto');
+            assert.equal(STORAGE_GOAL_PRESETS.MAX_STORAGE, 'maxStorage');
+            assert.equal(STORAGE_GOAL_PRESETS.NEXT_EPIC, 'nextEpic');
+            assert.equal(STORAGE_GOAL_PRESETS.NONE, 'none');
+        });
+
         test('STORAGE_STEPS is strictly frozen and defines input steppers', () => {
             assert.ok(Object.isFrozen(STORAGE_STEPS));
             assert.equal(STORAGE_STEPS.shiny, 100);
@@ -90,6 +107,7 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             assert.equal(CALENDAR_SETTINGS_DEFAULTS.showChipIcons, true);
             assert.equal(CALENDAR_SETTINGS_DEFAULTS.showEquipmentMilestones, true);
             assert.equal(CALENDAR_SETTINGS_DEFAULTS.highlightUpgradeRanges, true);
+            assert.equal(CALENDAR_SETTINGS_DEFAULTS.showStorageMilestones, true);
         });
 
         test('STAR_BONUS_2X_DEFAULTS is strictly frozen and defines multiplier bounds', () => {

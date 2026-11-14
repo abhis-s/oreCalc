@@ -15,6 +15,11 @@ import { calculateRaidMedalTraderIncome } from '../domain/income/raidMedalTrader
 import { calculateShopOfferIncome } from '../domain/income/shopOffersIncome.js';
 import { calculateStarBonusIncome } from '../domain/income/starBonusIncome.js';
 import { calculateSupercellEventsIncome } from '../domain/income/supercellEventsIncome.js';
+import {
+    getStorageCapacityMetrics,
+    isTrackedEquipmentMaxed,
+    resolveActiveStorageGoal
+} from '../domain/equipment/storageGoalDomain.js';
 
 /**
  * Recalculates all derived state slices (required ores, income sources, total income, ETAs, real money costs).
@@ -34,6 +39,23 @@ export function recalculateAll(state) {
     const heroJourneyUpcomingOres = calculateHeroJourneyUpcomingOres(state);
     state.derived.heroJourneyUpcomingOres = heroJourneyUpcomingOres;
     state.derived.requiredOres = calculateRequiredOres(state.heroes, state.storedOres, state.planner, heroJourneyUpcomingOres);
+
+    const isEquipmentMaxed = isTrackedEquipmentMaxed(state.heroes, state.planner);
+    state.derived.isEquipmentMaxed = isEquipmentMaxed;
+    state.derived.storageMetrics = getStorageCapacityMetrics(state.storedOres);
+
+    const activeGoal = resolveActiveStorageGoal({
+        isEquipmentMaxed,
+        storageGoal: state.planner?.storageGoal,
+        storedOres: state.storedOres,
+        heroJourneyUpcomingOres,
+        heroesState: state.heroes
+    });
+    state.derived.activeGoal = activeGoal;
+
+    if (isEquipmentMaxed && activeGoal.isGoalActive) {
+        state.derived.requiredOres = activeGoal.storageFillRemainingOres || activeGoal.remainingOres;
+    }
 
     const eventPassIncome = calculateEventPassIncome(state.income?.eventPass);
     const eventTraderIncome = calculateEventTraderIncome(state.income?.eventTrader, eventPassIncome?.availableMedals);

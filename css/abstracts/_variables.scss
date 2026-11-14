@@ -50,6 +50,7 @@ $spacing-md: 12px;
 $spacing-lg: 16px;
 $spacing-xl: 24px;
 $spacing-2xl: 32px;
+$spacing-hairline: 1px;
 
 $shape-corner-2xs: 2px;
 $shape-corner-xs: 4px;
@@ -67,6 +68,7 @@ $btn-min-width: 100px;
 $btn-min-height: 40px;
 $btn-min-height-compact: 32px;
 $btn-radius: $shape-corner-xl;
+$meter-track-height: 4px;
 
 $modal-width-compact: 420px;
 $modal-width-standard: 480px;
@@ -112,6 +114,9 @@ $font-size-lg: var(--font-size-lg, 1rem);
 $font-size-xl: var(--font-size-xl, 1.125rem);
 $font-size-2xl: var(--font-size-2xl, 1.25rem);
 $font-size-3xl: var(--font-size-3xl, 1.5rem);
+$font-size-fluid-title: clamp(#{$font-size-lg}, 2.2vw, #{$font-size-2xl});
+$font-size-fluid-desc: clamp(#{$font-size-xs}, 1.6vw, #{$font-size-base});
+$letter-spacing-caps: 0.5px;
 
 $font-weight-regular: 400;
 $font-weight-medium: 500;
@@ -148,6 +153,9 @@ $color-rarity-epic: var(--color-rarity-epic);
 
 $color-gold-glow: var(--color-gold-glow);
 $color-gold-glow-shadow: var(--color-gold-glow-shadow);
+$filter-glow-gold-sm: drop-shadow(0 0 6px $color-gold-glow-shadow);
+$filter-glow-gold-md: drop-shadow(0 0 8px $color-gold-glow-shadow);
+$filter-glow-epic: drop-shadow(0 0 6px color-mix(in srgb, $palette-purple-400 60%, transparent));
 
 $shiny-ore: var(--shiny-ore);
 $glowy-ore: var(--glowy-ore);
@@ -244,3 +252,17 @@ $container-header-wide: 980px;
 $container-toolbar-compact: 560px;
 $container-toolbar-collapse: 820px;
 $container-card-toolbar-collapse: 520px;
+
+// --- 6. ICON SCALE SYSTEM ---
+$icon-size-3xs: 11px;
+$icon-size-2xs: 12px;
+$icon-size-xs: 14px;
+$icon-size-sm: 16px;
+$icon-size-md: 18px;
+$icon-size-base: 20px;
+$icon-size-lg: 24px;
+$icon-size-xl: 28px;
+$icon-size-2xl: 32px;
+$icon-size-3xl: 36px;
+$icon-size-4xl: 40px;
+$icon-size-hero: 48px;

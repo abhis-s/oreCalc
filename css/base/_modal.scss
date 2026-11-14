@@ -392,6 +392,25 @@ dialog.modal,
         line-height: 1.4;
     }
 
+    .modal-section {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+        margin-top: $spacing-md;
+
+        &:first-of-type {
+            margin-top: $spacing-sm;
+        }
+    }
+
+    .modal-section-label {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        color: $text-secondary;
+        text-transform: uppercase;
+        letter-spacing: $letter-spacing-caps;
+    }
+
     .privacy-notice {
         font-size: 11px;
         color: $text-muted;

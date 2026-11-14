@@ -1,8 +1,8 @@
-import { loadTranslations, translate } from '../../i18n/translator.js';
+import { translate } from '../../i18n/translator.js';
 
-import { syncLanguageUrl } from '../../core/languageRouter.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
+import { applyAppLanguage } from '../common/appSettingsManager.js';
 
 import { dom } from '../../dom/domElements.js';
 import { applyCardLayout } from '../../ui/cardLayoutManager.js';
@@ -16,17 +16,7 @@ export function initializeSettingsAppearance() {
     if (languageSelect) {
         languageSelect.addEventListener('change', async (e) => {
             const newLanguage = /** @type {HTMLSelectElement} */ (e.target).value;
-            await loadTranslations(newLanguage);
-
-            handleStateUpdate(() => {
-                state.uiSettings.language = newLanguage;
-                syncLanguageUrl(newLanguage, false);
-            }, false, { preferencesOnly: true });
-
-            document.dispatchEvent(new CustomEvent('app:translate'));
-
-            const event = new Event('languageChanged');
-            document.dispatchEvent(event);
+            await applyAppLanguage(newLanguage, false);
         });
     }
 

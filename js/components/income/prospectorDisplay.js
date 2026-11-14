@@ -225,22 +225,36 @@ export function updateProspectorTip() {
     let nextHtml = '';
 
     if (isPriorityListEmpty) {
-        nextHtml = `
-            <div class="prospector-rec-section" data-card-type="next">
-                <div class="prospector-rec-header">
-                    <span class="prospector-rec-badge">
-                        ${getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
-                        <span>${translate('views.income.prospector.tips.nextTitle')}</span>
-                        <button class="info-btn" data-info="views.income.prospector.nextUpgradeHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
-                            <clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>
-                        </button>
-                    </span>
+        if (state.derived?.isEquipmentMaxed === true && state.derived?.activeGoal && state.derived.activeGoal.preset !== 'none') {
+            const goal = state.derived.activeGoal;
+            nextHtml = generateRecommendationHtml(
+                translate(goal.labelKey),
+                goal.targetOres,
+                stored,
+                baseIncome,
+                false,
+                translate('views.equipment.goals.goalBarLabel'),
+                '',
+                'goal'
+            );
+        } else {
+            nextHtml = `
+                <div class="prospector-rec-section" data-card-type="next">
+                    <div class="prospector-rec-header">
+                        <span class="prospector-rec-badge">
+                            ${getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
+                            <span>${translate('views.income.prospector.tips.nextTitle')}</span>
+                            <button class="info-btn" data-info="views.income.prospector.nextUpgradeHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                                <clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>
+                            </button>
+                        </span>
+                    </div>
+                    <div class="prospector-rec-empty">
+                        <span>${translate('views.income.prospector.tips.addToPlanner.pre')}<button class="prospector-priority-btn" id="prospector-go-to-priority-list">${translate('views.planner.priorityList')}</button>${translate('views.income.prospector.tips.addToPlanner.post')}</span>
+                    </div>
                 </div>
-                <div class="prospector-rec-empty">
-                    <span>${translate('views.income.prospector.tips.addToPlanner.pre')}<button class="prospector-priority-btn" id="prospector-go-to-priority-list">${translate('views.planner.priorityList')}</button>${translate('views.income.prospector.tips.addToPlanner.post')}</span>
-                </div>
-            </div>
-        `;
+            `;
+        }
     } else {
         const nextReq = getUpgradeRequirements(globalPriorityList, true, state);
         const currentLevel = state.heroes[firstItem.heroName]?.equipment[firstItem.name]?.level || 1;
@@ -273,22 +287,36 @@ export function updateProspectorTip() {
         );
     } else {
         if (isPriorityListEmpty) {
-            overallHtml = `
-                <div class="prospector-rec-section" data-card-type="overall">
-                    <div class="prospector-rec-header">
-                        <span class="prospector-rec-badge">
-                            ${getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
-                            <span>${translate('views.income.prospector.tips.plannerTitle')}</span>
-                            <button class="info-btn" data-info="views.income.prospector.strategyModeHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
-                                <clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>
-                            </button>
-                        </span>
+            if (state.derived?.isEquipmentMaxed === true && state.derived?.activeGoal && state.derived.activeGoal.preset !== 'none') {
+                const goal = state.derived.activeGoal;
+                overallHtml = generateRecommendationHtml(
+                    translate(goal.labelKey),
+                    goal.targetOres,
+                    stored,
+                    baseIncome,
+                    false,
+                    translate('views.equipment.goals.goalBarLabel'),
+                    '',
+                    'goal'
+                );
+            } else {
+                overallHtml = `
+                    <div class="prospector-rec-section" data-card-type="overall">
+                        <div class="prospector-rec-header">
+                            <span class="prospector-rec-badge">
+                                ${getSVG('suggestion', 'prospector-rec-icon', 20, 20, 'currentColor')}
+                                <span>${translate('views.income.prospector.tips.plannerTitle')}</span>
+                                <button class="info-btn" data-info="views.income.prospector.strategyModeHelp" aria-label="Show Information" data-i18n-aria-label="actions.showInfo">
+                                    <clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>
+                                </button>
+                            </span>
+                        </div>
+                        <div class="prospector-rec-empty">
+                            <span>${translate('views.income.prospector.tips.addToPlanner.pre')}<button class="prospector-priority-btn" id="prospector-go-to-priority-list-planner">${translate('views.planner.priorityList')}</button>${translate('views.income.prospector.tips.addToPlanner.post')}</span>
+                        </div>
                     </div>
-                    <div class="prospector-rec-empty">
-                        <span>${translate('views.income.prospector.tips.addToPlanner.pre')}<button class="prospector-priority-btn" id="prospector-go-to-priority-list-planner">${translate('views.planner.priorityList')}</button>${translate('views.income.prospector.tips.addToPlanner.post')}</span>
-                    </div>
-                </div>
-            `;
+                `;
+            }
         } else {
             const overallReq = getUpgradeRequirements(globalPriorityList, false, state);
             overallHtml = generateRecommendationHtml(

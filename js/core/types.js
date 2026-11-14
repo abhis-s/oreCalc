@@ -10,6 +10,58 @@
  */
 
 /**
+ * @typedef {Object} StoredOres
+ * @property {number} shiny - Shiny ore amount
+ * @property {number} glowy - Glowy ore amount
+ * @property {number} starry - Starry ore amount
+ * @property {boolean} [allowOverflow] - Whether user allows ore amounts above Blacksmith storage caps
+ * @property {number} [lastUpdated] - Epoch timestamp of last storage update
+ */
+
+/**
+ * @typedef {'auto' | 'maxStorage' | 'nextEpic' | 'none'} StorageGoalPreset
+ */
+
+/**
+ * @typedef {Object} StorageGoalConfig
+ * @property {StorageGoalPreset} preset - Storage goal preset
+ */
+
+/**
+ * @typedef {Object} StorageCapacityMetric
+ * @property {number} amount - Current stored amount
+ * @property {number} cap - Blacksmith storage cap
+ * @property {number} fillPct - Raw fill percentage (may exceed 100)
+ * @property {number} clampedPct - Clamped fill percentage (0-100)
+ * @property {number} overflowAmount - Excess amount above cap (>= 0)
+ * @property {boolean} isFull - Whether storage has reached or exceeded cap
+ * @property {boolean} isOverflowed - Whether storage strictly exceeds cap
+ */
+
+/**
+ * @typedef {Object} StorageCapacityMetrics
+ * @property {StorageCapacityMetric} shiny - Shiny ore capacity metric
+ * @property {StorageCapacityMetric} glowy - Glowy ore capacity metric
+ * @property {StorageCapacityMetric} starry - Starry ore capacity metric
+ * @property {boolean} anyFull - Whether at least one ore is full
+ * @property {boolean} allFull - Whether all three ores are full
+ * @property {boolean} anyOverflowed - Whether at least one ore has overflow
+ */
+
+/**
+ * @typedef {Object} ActiveStorageGoal
+ * @property {StorageGoalPreset} preset - Resolved active preset
+ * @property {string} labelKey - Localization key for preset title
+ * @property {boolean} isGoalActive - Whether a storage goal is currently active
+ * @property {OreQuantity} targetOres - Target ore quantities
+ * @property {OreQuantity} remainingOres - Remaining ores required to hit goal
+ * @property {OreQuantity} [storageFillRemainingOres] - Remaining ores required to fill storage without overflow
+ * @property {boolean} isTargetMet - Whether current storage + upcoming meets target
+ * @property {boolean} requiresOverflow - Whether target exceeds Blacksmith capacity
+ * @property {OreQuantity} overflowRequired - Ore excess above Blacksmith capacity required
+ */
+
+/**
  * @typedef {Object} UpgradePlanStep
  * @property {number} targetLevel - Target equipment level for this upgrade step
  * @property {boolean} enabled - Whether this step is active
@@ -21,6 +73,8 @@
  * @property {number} level - Current equipment level
  * @property {boolean} [checked] - Whether equipment upgrade calculation is included
  * @property {boolean} [isServerOwned] - Whether verified owned by Supercell API
+ * @property {'common' | 'epic'} [type] - Equipment rarity type for custom or placeholder equipment
+ * @property {boolean} [isCustom] - Whether item is custom placeholder equipment
  * @property {Record<string, UpgradePlanStep>} [upgradePlan] - Priority upgrade plan steps
  */
 
@@ -293,12 +347,13 @@
  * @typedef {Object} PlannerState
  * @property {PlannerCalendarState} [calendar] - Calendar state
  * @property {Record<string, number>} [customMaxLevel] - Custom equipment max level overrides
+ * @property {StorageGoalConfig} [storageGoal] - Storage fill and buffer upgrade goal settings
  */
 
 /**
  * @typedef {Object} PlayerData
  * @property {Record<string, HeroItem>} heroes - Player hero and equipment levels
- * @property {OreQuantity} storedOres - Player currently stored inventory ores
+ * @property {StoredOres} storedOres - Player currently stored inventory ores
  * @property {IncomeSourcesState} income - Income source configurations
  * @property {PlannerState} planner - Calendar and upgrade priority planner
  * @property {PlayerProfile | null} playerProfile - Supercell API player profile
@@ -317,6 +372,9 @@
  * @property {IncomeTimeframeRates} [totalMonthlyIncome] - Aggregated monthly ore and currency income
  * @property {RemainingTimeEstimate} [remainingTime] - Time to completion estimates per ore type
  * @property {Record<string, number>} [totalMoneyCost] - Aggregated real money costs per currency
+ * @property {boolean} [isEquipmentMaxed] - Whether all tracked equipment has reached max level
+ * @property {ActiveStorageGoal} [activeGoal] - Currently active storage/release buffer goal
+ * @property {StorageCapacityMetrics} [storageMetrics] - Storage capacity utilization and overflow metrics
  */
 
 /**

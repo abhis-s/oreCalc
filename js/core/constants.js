@@ -16,6 +16,21 @@ export const STORAGE_LIMITS = Object.freeze({
     starry: 1000
 });
 
+const STORAGE_OVERFLOW_MULTIPLIER = 2.0;
+
+export const STORAGE_OVERFLOW_LIMITS = Object.freeze({
+    shiny: STORAGE_LIMITS.shiny * STORAGE_OVERFLOW_MULTIPLIER,
+    glowy: STORAGE_LIMITS.glowy * STORAGE_OVERFLOW_MULTIPLIER,
+    starry: STORAGE_LIMITS.starry * STORAGE_OVERFLOW_MULTIPLIER
+});
+
+export const STORAGE_GOAL_PRESETS = Object.freeze({
+    AUTO: 'auto',
+    MAX_STORAGE: 'maxStorage',
+    NEXT_EPIC: 'nextEpic',
+    NONE: 'none'
+});
+
 export const STORAGE_STEPS = Object.freeze({
     shiny: 100,
     glowy: 10,
@@ -39,7 +54,8 @@ export const CALENDAR_SETTINGS_DEFAULTS = Object.freeze({
     autoPlaceScope: 'month',
     showChipIcons: true,
     showEquipmentMilestones: true,
-    highlightUpgradeRanges: true
+    highlightUpgradeRanges: true,
+    showStorageMilestones: true
 });
 
 export const STAR_BONUS_2X_DEFAULTS = Object.freeze({

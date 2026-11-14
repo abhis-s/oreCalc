@@ -2,9 +2,7 @@ import { EQUIPMENT_STATS_LAST_UPDATED, getEquipmentMaxLevel } from '../../data/e
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
-
 import { formatRegionalDate } from '../../utils/dateUtils.js';
-import { openModal } from '../../utils/modalHistoryManager.js';
 import { getEquipmentDisplayName } from '../../utils/equipmentMetadata.js';
 
 import {
@@ -116,7 +114,7 @@ export function renderFooterMeta(footerMetaElem) {
  * @param {Object | null} [data]
  */
 export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmentType, currentLevel, data = null) {
-    const itemImg = document.getElementById('eq-details-item-img');
+    const itemImg = /** @type {HTMLImageElement | null} */ (document.getElementById('eq-details-item-img'));
     const titleEl = document.getElementById('eq-details-title');
     const descEl = document.getElementById('eq-details-desc');
     const typeBadge = document.getElementById('eq-details-type-badge');
@@ -163,7 +161,7 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
         recBadge.hidden = false;
         recBadge.style.display = 'inline-flex';
         recBadge.className = 'eq-badge badge-unreleased';
-        recBadge.innerHTML = `<clashcalc-assets-svg name="experiment" class="badge-icon"></clashcalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;
+        recBadge.innerHTML = `<clashcalc-assets-svg name="experiment" class="badge-icon"></clashcalc-assets-svg> <span data-i18n="views.equipment.unreleased">${translate('views.equipment.unreleased')}</span>`;
         recBadge.setAttribute('data-info', 'views.equipment.recUnreleasedHelp');
     }
 
@@ -193,7 +191,7 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
         lvlHeaderLabel.dataset.i18n = 'validation.level';
     }
     if (currentLvlText) {
-        currentLvlText.textContent = String((currentLevel && currentLevel > 1) ? currentLevel : '-');
+        currentLvlText.textContent = String((currentLevel && currentLevel >= 1) ? currentLevel : '-');
     }
     if (maxLvlText) {
         const prefix = translate('views.equipment.maxLevel');
@@ -254,5 +252,4 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
     }
 
     if (footerMetaElem) renderFooterMeta(footerMetaElem);
-    openModal(modal);
 }

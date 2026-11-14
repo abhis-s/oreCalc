@@ -17,9 +17,10 @@ const sourceOrder = [...CANONICAL_CHIP_PRIORITY_ORDER];
  * @param {Date} date
  * @param {Object} plannerState
  * @param {{ milestones?: Record<string, any[]>, ranges?: any[] }} [activeEquipmentSchedule]
+ * @param {any} [storageForecast]
  * @returns {HTMLDivElement}
  */
-export function createDayCell(date, plannerState, activeEquipmentSchedule = { milestones: {}, ranges: [] }) {
+export function createDayCell(date, plannerState, activeEquipmentSchedule = { milestones: {}, ranges: [] }, storageForecast = null) {
     const dayCell = document.createElement('div');
     dayCell.classList.add('day-cell');
 
@@ -311,6 +312,44 @@ export function createDayCell(date, plannerState, activeEquipmentSchedule = { mi
         }
     }
 
+    if (storageForecast) {
+        const storageMilestones = storageForecast.milestonesByDate?.[dateStr];
+        if (storageMilestones && storageMilestones.length > 0) {
+            dayCell.classList.add('storage-full-day');
+            const storageContainer = document.createElement('div');
+            storageContainer.classList.add('calendar-storage-container');
+
+            storageMilestones.forEach(m => {
+                const badge = document.createElement('div');
+                badge.className = `calendar-storage-badge calendar-storage-badge--full badge--${m.ore}`;
+                badge.title = `${translate(`entities.ores.${m.ore}`)}: ${translate('views.equipment.storageFullShort')}`;
+
+                const img = document.createElement('clashcalc-assets-image');
+                img.setAttribute('src', `assets/${m.ore}_ore.png`);
+                img.classList.add('calendar-storage-icon');
+                badge.appendChild(img);
+
+                const txt = document.createElement('span');
+                txt.classList.add('calendar-storage-text');
+                txt.textContent = translate('views.equipment.storageFullShort');
+                badge.appendChild(txt);
+
+                storageContainer.appendChild(badge);
+            });
+
+            if (currentView === 'weekly') {
+                const dayMeta = dayCell.querySelector('.day-meta-container');
+                if (dayMeta) {
+                    dayMeta.appendChild(storageContainer);
+                } else {
+                    dayCell.appendChild(storageContainer);
+                }
+            } else {
+                dayCell.appendChild(storageContainer);
+            }
+        }
+    }
+
     return dayCell;
 }
 
@@ -319,9 +358,10 @@ export function createDayCell(date, plannerState, activeEquipmentSchedule = { mi
  * @param {Date} dateForMonth
  * @param {Object} plannerState
  * @param {{ milestones?: Record<string, any[]>, ranges?: any[] }} [activeEquipmentSchedule]
+ * @param {any} [storageForecast]
  * @returns {HTMLDivElement}
  */
-export function generateMonthGrid(dateForMonth, plannerState, activeEquipmentSchedule = { milestones: {}, ranges: [] }) {
+export function generateMonthGrid(dateForMonth, plannerState, activeEquipmentSchedule = { milestones: {}, ranges: [] }, storageForecast = null) {
     const grid = document.createElement('div');
     grid.classList.add('calendar-grid');
 
@@ -363,7 +403,7 @@ export function generateMonthGrid(dateForMonth, plannerState, activeEquipmentSch
 
     let currentDate = new Date(startDate);
     while (currentDate <= endDate) {
-        const dayCell = createDayCell(currentDate, plannerState, activeEquipmentSchedule);
+        const dayCell = createDayCell(currentDate, plannerState, activeEquipmentSchedule, storageForecast);
         if (currentDate.getUTCMonth() !== month) {
             dayCell.classList.add('other-month');
         }
@@ -378,9 +418,10 @@ export function generateMonthGrid(dateForMonth, plannerState, activeEquipmentSch
  * @param {Date} date
  * @param {Object} plannerState
  * @param {{ milestones?: Record<string, any[]>, ranges?: any[] }} [activeEquipmentSchedule]
+ * @param {any} [storageForecast]
  * @returns {HTMLDivElement}
  */
-export function generateWeekGrid(date, plannerState, activeEquipmentSchedule = { milestones: {}, ranges: [] }) {
+export function generateWeekGrid(date, plannerState, activeEquipmentSchedule = { milestones: {}, ranges: [] }, storageForecast = null) {
     const grid = document.createElement('div');
     grid.classList.add('weekly-view-grid');
 
@@ -403,7 +444,7 @@ export function generateWeekGrid(date, plannerState, activeEquipmentSchedule = {
     for (let i = 0; i < 7; i++) {
         const day = new Date(startOfWeek);
         day.setUTCDate(startOfWeek.getUTCDate() + i);
-        const dayCell = createDayCell(day, plannerState, activeEquipmentSchedule);
+        const dayCell = createDayCell(day, plannerState, activeEquipmentSchedule, storageForecast);
         grid.appendChild(dayCell);
     }
 

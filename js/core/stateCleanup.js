@@ -65,6 +65,34 @@ export function migrateComingSoonEquipment(heroes) {
         const comingSoonKeys = Object.keys(hero.equipment).filter(isComingSoonEquipment);
         if (comingSoonKeys.length === 0) continue;
 
+        const heroObj = heroData[heroKey] || Object.values(heroData).find(h => h.name === heroKey || h.key === heroKey);
+        const officialSoonEquip = heroObj?.equipment?.find(e => isComingSoonEquipment(e.key || e.name));
+
+        if (officialSoonEquip) {
+            const canonicalKey = officialSoonEquip.key || officialSoonEquip.name;
+            for (const sKey of comingSoonKeys) {
+                if (hero.equipment[sKey]?.isCustom) {
+                    const sourcePlan = hero.equipment[sKey].upgradePlan;
+                    if (sKey !== canonicalKey) {
+                        hero.equipment[canonicalKey] = {
+                            level: hero.equipment[sKey].level || 1,
+                            checked: hero.equipment[sKey].checked !== false,
+                            ...(sourcePlan ? { upgradePlan: structuredClone(sourcePlan) } : {})
+                        };
+                        delete hero.equipment[sKey];
+                    } else {
+                        delete hero.equipment[sKey].isCustom;
+                        delete hero.equipment[sKey].type;
+                    }
+                    if (hero.equipment[canonicalKey]?.upgradePlan) {
+                        cleanupEquipmentUpgradePlan(hero.equipment[canonicalKey]);
+                    }
+                    modified = true;
+                }
+            }
+            continue;
+        }
+
         const mapping = COMING_SOON_EQUIPMENT_MAPPINGS.find(m =>
             m.heroKeys.includes(heroKey)
         );
@@ -102,12 +130,20 @@ export function migrateComingSoonEquipment(heroes) {
                 cleanupEquipmentUpgradePlan(targetEquip);
                 modified = true;
             }
-        }
 
-        // Purge coming-soon equipment in all cases (mapped or unmapped)
-        for (const sKey of comingSoonKeys) {
-            delete hero.equipment[sKey];
-            modified = true;
+            // Purge coming-soon equipment when mapped to replacement
+            for (const sKey of comingSoonKeys) {
+                delete hero.equipment[sKey];
+                modified = true;
+            }
+        } else {
+            // Purge unmapped coming-soon equipment unless marked as custom
+            for (const sKey of comingSoonKeys) {
+                if (!hero.equipment[sKey]?.isCustom) {
+                    delete hero.equipment[sKey];
+                    modified = true;
+                }
+            }
         }
     }
 

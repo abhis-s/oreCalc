@@ -131,14 +131,14 @@ export async function applyAppLanguage(targetLang, replaceUrl = false) {
     if (targetLang === currentLang && document.documentElement?.lang === targetLang) return;
 
     await loadTranslations(targetLang);
+    setDefaultDateLocale(targetLang);
 
     handleStateUpdate(() => {
         if (!state.uiSettings) {
             state.uiSettings = {};
         }
         state.uiSettings.language = targetLang;
-    }, true, { preferencesOnly: true });
-    setDefaultDateLocale(targetLang);
+    }, false, { preferencesOnly: true });
     persistAppSettings({ language: targetLang });
     syncLanguageUrl(targetLang, replaceUrl);
 

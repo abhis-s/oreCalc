@@ -11,6 +11,7 @@ export function getPlannerDOMElements() {
         },
         heroCarouselContent: document.getElementById('planner-hero-carousel-content'),
         plannerPageDots: document.getElementById('planner-page-dots'),
+        calendarStorageCountdownStrip: document.getElementById('calendar-storage-countdown-strip'),
         calendarGrid: document.getElementById('calendar-grid'),
         currentMonthYearHeader: document.getElementById('current-month-year'),
         prevMonthBtn: document.getElementById('prev-month'),

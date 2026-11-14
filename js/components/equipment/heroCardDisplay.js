@@ -1,4 +1,10 @@
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
+import {
+    getActiveCustomComingSoon,
+    getHeroEquipmentList,
+    hasAnyCustomComingSoonEquipment,
+    isOfficialComingSoonDefined
+} from '../../domain/equipment/comingSoonEquipmentDomain.js';
 import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
 
@@ -32,8 +38,9 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
         const currentHeroData = heroData[heroKey];
         const heroName = currentHeroData.name;
         const heroState = heroesState[heroName] || { equipment: {} };
-        for (const equip of currentHeroData.equipment) {
-            const equipState = heroState.equipment?.[equip.name] || {};
+        const equipmentList = getHeroEquipmentList(currentHeroData, heroState);
+        for (const equip of equipmentList) {
+            const equipState = heroState.equipment?.[equip.name] || heroState.equipment?.[equip.key] || {};
             const currentLevel = equipState.level || 1;
             const maxLevel = getEquipmentMaxLevel(equip.type);
             if (currentLevel >= maxLevel) {
@@ -85,6 +92,30 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
         }
     }
 
+    const addComingSoonWrapper = dom.equipment?.addComingSoonWrapper;
+    const comingSoonSwitch = dom.equipment?.comingSoonSwitch;
+    const addComingSoonDesc = dom.equipment?.addComingSoonDesc;
+
+    if (addComingSoonWrapper) {
+        if (isOfficialComingSoonDefined()) {
+            addComingSoonWrapper.hidden = true;
+        } else {
+            addComingSoonWrapper.hidden = false;
+            const activeSoon = getActiveCustomComingSoon(heroesState);
+            if (comingSoonSwitch) {
+                comingSoonSwitch.checked = Boolean(activeSoon);
+            }
+            if (addComingSoonDesc) {
+                if (activeSoon) {
+                    const localizedHero = translate(`entities.heroes.${activeSoon.heroKey}`) || activeSoon.heroName;
+                    addComingSoonDesc.textContent = translate('views.equipment.addComingSoonDesc', { hero: localizedHero });
+                } else {
+                    addComingSoonDesc.textContent = translate('views.equipment.addComingSoonSettingDesc');
+                }
+            }
+        }
+    }
+
     let hiddenCount = 0;
     let lockedHiddenCount = 0;
     const trackResolution = resolveHeroJourneyTrack(state);
@@ -101,10 +132,11 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
         const heroTitle = heroCard.querySelector('.hero-title h3');
         if (heroTitle) {
             heroTitle.textContent = translate(`entities.heroes.${heroKey}`);
+            heroTitle.dataset.i18n = `entities.heroes.${heroKey}`;
         }
         let heroAllHidden = true;
 
-        for (const equip of currentHeroData.equipment) {
+        for (const equip of getHeroEquipmentList(currentHeroData, heroState)) {
             const equipKey = equip.key || toCamelCase(equip.name);
             const equipName = equip.name;
             const equipState = heroState.equipment?.[equipName] || heroState.equipment?.[equipKey] || {};
@@ -117,6 +149,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             const equipLabel = equipItem.querySelector('label');
             if (equipLabel) {
                 equipLabel.textContent = translate(`entities.equipment.${equipKey}`);
+                equipLabel.dataset.i18n = `entities.equipment.${equipKey}`;
             }
 
             const upgradeBtnDisplay = /** @type {HTMLElement | null} */ (equipItem.querySelector('[data-mode="input-disabled"]'));
@@ -198,11 +231,10 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             }
 
             let isOverLeveled = false;
-            const equipmentData = currentHeroData.equipment.find(e => e.name === equipName);
-            if (equipmentData && plannerState) {
+            if (plannerState) {
                 const customCommonMax = plannerState.customMaxLevel?.common ?? getEquipmentMaxLevel('common');
                 const customEpicMax = plannerState.customMaxLevel?.epic ?? getEquipmentMaxLevel('epic');
-                const customMaxLevel = equipmentData.type === 'common' ? customCommonMax : customEpicMax;
+                const customMaxLevel = equip.type === 'common' ? customCommonMax : customEpicMax;
                 isOverLeveled = currentLevel >= customMaxLevel && currentLevel < maxLevel;
             }
 
@@ -238,6 +270,20 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
         }
 
         heroCard.classList.toggle('hero-hidden', heroAllHidden && (isHideMaxedEnabled || isHideLockedEnabled));
+    }
+
+    const allHeroesHidden = container.querySelectorAll('.hero-card:not(.hero-hidden)').length === 0;
+    const heroesEmptyState = dom.equipment?.heroesEmptyState;
+    if (heroesEmptyState) {
+        const isShown = allHeroesHidden && isHideMaxedEnabled;
+        heroesEmptyState.hidden = !isShown;
+        if (isShown) {
+            const emptyAddComingSoonBtn = dom.equipment?.emptyAddComingSoonBtn;
+            if (emptyAddComingSoonBtn) {
+                const canAddComingSoon = !isOfficialComingSoonDefined() && !hasAnyCustomComingSoonEquipment(heroesState);
+                emptyAddComingSoonBtn.hidden = !canAddComingSoon;
+            }
+        }
     }
 
     const hiddenCountLabel = dom.equipment?.hiddenCountLabel;

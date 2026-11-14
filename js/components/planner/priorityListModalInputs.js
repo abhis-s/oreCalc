@@ -3,12 +3,15 @@
  * Tier 4: User Inputs (Handles modal lifecycle, actions, delete dialogs, and delegates drag gestures).
  */
 
+import {
+    findHeroEquipment,
+    COMING_SOON_KEY
+} from '../../domain/equipment/comingSoonEquipmentDomain.js';
 import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
 import {
     renderDraggableList,
     renderPriorityEditor
@@ -25,6 +28,8 @@ import {
 } from './priorityListSuggestionsDisplay.js';
 import { initializeStoredOresModal, openStoredOresModal } from './storedOresModal.js';
 import { openLevelSelectModal } from './levelSelectModal.js';
+import { openAddComingSoonModal } from '../equipment/addComingSoonModal.js';
+import { initializeHeroCards } from '../equipment/heroCard.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 import { initPriorityDragAndDrop } from './priorityListDragDropController.js';
 
@@ -157,7 +162,8 @@ export function initializePriorityListModal() {
         if (!heroKey) return;
         const hero = heroData[heroKey];
         if (hero) {
-            const equip = hero.equipment.find(e => (e.key && e.key === equipKey) || e.name === equipName || toCamelCase(e.name || '') === equipKey);
+            const userHero = state.heroes[heroKey] || state.heroes[hero.name];
+            const equip = findHeroEquipment(hero, equipKey || equipName, userHero);
             if (equip) {
                 openLevelSelectModal(hero, equip);
             }
@@ -250,6 +256,24 @@ export function initializePriorityListModal() {
                 setSuggestionsHidden(true);
                 const { globalPriorityList, suggestions } = getGlobalPriorityList();
                 renderSuggestionsAndErrors(globalPriorityList, suggestions);
+                return;
+            }
+
+            const addComingSoonBtn = target.closest('#priority-modal-add-coming-soon-btn');
+            if (addComingSoonBtn && modalBody.contains(addComingSoonBtn)) {
+                openAddComingSoonModal((addedData) => {
+                    initializeHeroCards(state.heroes, state.uiSettings, state.planner);
+                    renderPriorityEditor();
+                    const heroKey = addedData?.heroKey;
+                    const hero = heroKey ? (heroData[heroKey] || Object.values(heroData).find(h => h.name === heroKey)) : null;
+                    if (hero) {
+                        const userHero = state.heroes[heroKey] || state.heroes[hero.name];
+                        const csEquip = findHeroEquipment(hero, COMING_SOON_KEY, userHero);
+                        if (csEquip) {
+                            openLevelSelectModal(hero, csEquip);
+                        }
+                    }
+                });
                 return;
             }
         });

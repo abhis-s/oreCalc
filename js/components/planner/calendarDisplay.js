@@ -1,5 +1,6 @@
 import { translate } from '../../i18n/translator.js';
 
+import { selectIsEquipmentMaxed } from '../../core/selectors.js';
 import { state } from '../../core/state.js';
 
 import { checkAndGenerateRecurringChips } from '../../utils/chipManager.js';
@@ -13,9 +14,74 @@ import {
 } from './calendarMonthChipsDisplay.js';
 import { getCurrentView, getEquipmentSchedule } from './calendarScheduler.js';
 import { renderIncomeChips } from './incomeChipsDisplay.js';
+import { calculateStorageForecast } from '../../domain/equipment/storageForecastDomain.js';
 
 let animateNextRender = false;
 let activeEquipmentSchedule = { milestones: {}, ranges: [] };
+let activeStorageForecast = null;
+
+/**
+ * Gets the current active storage forecast.
+ * @returns {any}
+ */
+export function getActiveStorageForecast() {
+    return activeStorageForecast;
+}
+
+/**
+ * Renders the compact storage full countdown strip above the calendar track.
+ *
+ * @param {HTMLElement | null} container
+ * @param {any} forecast
+ */
+function renderStorageCountdownStrip(container, forecast) {
+    if (!container) return;
+
+    if (!forecast || !forecast.firstFullDates) {
+        container.hidden = true;
+        container.innerHTML = '';
+        return;
+    }
+
+    const ores = /** @type {Array<'shiny'|'glowy'|'starry'>} */ (['shiny', 'glowy', 'starry']);
+    const pills = ores.map(ore => {
+        const fullInfo = forecast.firstFullDates[ore];
+        if (!fullInfo) return '';
+
+        const oreName = translate(`entities.ores.${ore}`);
+        const isFull = fullInfo.alreadyFull;
+        const pillText = isFull
+            ? translate('views.planner.storageAlreadyFull', { ore: oreName })
+            : translate('views.planner.storageFullInDays', { ore: oreName, days: fullInfo.daysFromToday });
+
+        const fullClass = isFull ? ' pill--full' : '';
+        return `
+            <button type="button" class="storage-countdown-pill${fullClass} pill--${ore}" data-target-date="${fullInfo.dateStr}">
+                <clashcalc-assets-image src="assets/${ore}_ore.png" class="storage-countdown-icon"></clashcalc-assets-image>
+                <span class="storage-countdown-text">${pillText}</span>
+            </button>
+        `;
+    }).filter(Boolean);
+
+    if (pills.length === 0) {
+        container.hidden = true;
+        container.innerHTML = '';
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="calendar-storage-countdown-inner">
+            <span class="storage-countdown-title">
+                <clashcalc-assets-svg name="timer" class="storage-countdown-title-icon"></clashcalc-assets-svg>
+                <span data-i18n="views.planner.storageCountdownStrip">${translate('views.planner.storageCountdownStrip')}</span>
+            </span>
+            <div class="storage-countdown-pills">
+                ${pills.join('')}
+            </div>
+        </div>
+    `;
+    container.hidden = false;
+}
 
 /**
  * Positions the calendar carousel track at the specified index.
@@ -91,6 +157,23 @@ export function renderCalendar(plannerState) {
         activeEquipmentSchedule = { milestones: {}, ranges: [] };
     }
 
+    const countdownStrip = document.getElementById('calendar-storage-countdown-strip');
+    const isEquipmentMaxed = selectIsEquipmentMaxed(state);
+    const showStorageMilestones = isEquipmentMaxed && settings.showStorageMilestones !== false;
+    if (showStorageMilestones) {
+        const today = new Date();
+        const maxBound = getMaxDate();
+        const endDate = new Date(Date.UTC(maxBound.year, maxBound.month, 0));
+        activeStorageForecast = calculateStorageForecast(state, today, endDate, activeEquipmentSchedule);
+        renderStorageCountdownStrip(countdownStrip, activeStorageForecast);
+    } else {
+        activeStorageForecast = null;
+        if (countdownStrip) {
+            countdownStrip.hidden = true;
+            countdownStrip.innerHTML = '';
+        }
+    }
+
     const currentView = getCurrentView();
 
     if (currentView === 'monthly') {
@@ -100,7 +183,7 @@ export function renderCalendar(plannerState) {
         const currentMonth = parseInt(monthStr, 10) - 1;
 
         const currentDate = new Date(Date.UTC(currentYear, currentMonth, 1));
-        const currentMonthGrid = generateMonthGrid(currentDate, plannerState, activeEquipmentSchedule);
+        const currentMonthGrid = generateMonthGrid(currentDate, plannerState, activeEquipmentSchedule, activeStorageForecast);
         calendarTrack.appendChild(currentMonthGrid);
         positionTrackAtIndex(0);
 
@@ -114,11 +197,11 @@ export function renderCalendar(plannerState) {
             if (calendarTrack.children.length === 1 && calendarTrack.contains(currentMonthGrid)) {
                 if (hasPrev) {
                     const prevDate = new Date(Date.UTC(currentYear, currentMonth - 1, 1));
-                    const prevMonthGrid = generateMonthGrid(prevDate, plannerState, activeEquipmentSchedule);
+                    const prevMonthGrid = generateMonthGrid(prevDate, plannerState, activeEquipmentSchedule, activeStorageForecast);
                     calendarTrack.insertBefore(prevMonthGrid, currentMonthGrid);
                 }
                 const nextDate = new Date(Date.UTC(currentYear, currentMonth + 1, 1));
-                const nextMonthGrid = generateMonthGrid(nextDate, plannerState, activeEquipmentSchedule);
+                const nextMonthGrid = generateMonthGrid(nextDate, plannerState, activeEquipmentSchedule, activeStorageForecast);
                 calendarTrack.appendChild(nextMonthGrid);
 
                 positionTrackAtIndex(hasPrev ? 1 : 0);
@@ -131,7 +214,7 @@ export function renderCalendar(plannerState) {
         const currentWeek = parseInt(weekStr, 10);
 
         const currentWeekStartDate = getDateOfWeek(currentWeek, currentYear);
-        const currentWeekGrid = generateWeekGrid(currentWeekStartDate, plannerState, activeEquipmentSchedule);
+        const currentWeekGrid = generateWeekGrid(currentWeekStartDate, plannerState, activeEquipmentSchedule, activeStorageForecast);
         calendarTrack.appendChild(currentWeekGrid);
         positionTrackAtIndex(0);
 
@@ -146,14 +229,14 @@ export function renderCalendar(plannerState) {
                     prevWeekDate.setUTCDate(prevWeekDate.getUTCDate() - 7);
                     const [prevWeekYear, prevWeekNumber] = getISOWeekNumber(prevWeekDate);
                     const prevWeekStartDate = getDateOfWeek(prevWeekNumber, prevWeekYear);
-                    const prevWeekGrid = generateWeekGrid(prevWeekStartDate, plannerState, activeEquipmentSchedule);
+                    const prevWeekGrid = generateWeekGrid(prevWeekStartDate, plannerState, activeEquipmentSchedule, activeStorageForecast);
                     calendarTrack.insertBefore(prevWeekGrid, currentWeekGrid);
                 }
                 const nextWeekDate = new Date(currentWeekStartDate);
                 nextWeekDate.setUTCDate(nextWeekDate.getUTCDate() + 7);
                 const [nextWeekYear, nextWeekNumber] = getISOWeekNumber(nextWeekDate);
                 const nextWeekStartDate = getDateOfWeek(nextWeekNumber, nextWeekYear);
-                const nextWeekGrid = generateWeekGrid(nextWeekStartDate, plannerState, activeEquipmentSchedule);
+                const nextWeekGrid = generateWeekGrid(nextWeekStartDate, plannerState, activeEquipmentSchedule, activeStorageForecast);
                 calendarTrack.appendChild(nextWeekGrid);
 
                 positionTrackAtIndex(hasPrevWeek ? 1 : 0);

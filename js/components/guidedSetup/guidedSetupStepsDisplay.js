@@ -6,6 +6,7 @@ import { translate } from '../../i18n/translator.js';
 import { state } from '../../core/state.js';
 import { getCurrencySymbol, getPriceForTier } from '../../utils/incomeUtils.js';
 import { formatNumber, formatCurrency } from '../../utils/numberFormatter.js';
+import { syncStoredOreInputBounds } from '../common/storageControlsHelper.js';
 
 import { guidedSetupState } from './guidedSetupState.js';
 
@@ -348,6 +349,11 @@ export function syncGuidedSetupQuickSettings(tag) {
     if (storedShinyInput) storedShinyInput.value = String(guidedSetupState.tempStoredShiny);
     if (storedGlowyInput) storedGlowyInput.value = String(guidedSetupState.tempStoredGlowy);
     if (storedStarryInput) storedStarryInput.value = String(guidedSetupState.tempStoredStarry);
+
+    syncStoredOreInputBounds(
+        { shiny: storedShinyInput, glowy: storedGlowyInput, starry: storedStarryInput },
+        false
+    );
 
     const recommendationsSwitch = /** @type {HTMLInputElement|null} */ (document.getElementById('guided-setup-pref-recommendations'));
     if (recommendationsSwitch) {

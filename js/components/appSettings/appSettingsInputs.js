@@ -72,6 +72,16 @@ export function initializeAppSettings() {
         });
     }
 
+    const emptyShowMaxedBtn = /** @type {HTMLButtonElement|null} */ (dom.equipment?.emptyShowMaxedBtn);
+    if (emptyShowMaxedBtn) {
+        emptyShowMaxedBtn.addEventListener('click', () => {
+            if (hideMaxedToggle) hideMaxedToggle.checked = false;
+            handleStateUpdate(() => {
+                state.uiSettings.hideMaxedEquipment = false;
+            }, false, { preferencesOnly: true });
+        });
+    }
+
     const hideLockedToggle = /** @type {HTMLInputElement|null} */ (dom.equipment?.hideLockedToggle);
     if (hideLockedToggle) {
         hideLockedToggle.checked = state.uiSettings.hideLockedEquipment;

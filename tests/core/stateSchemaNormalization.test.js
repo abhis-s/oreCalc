@@ -85,6 +85,10 @@ test('getDefaultPlayerState returns complete instantiated income schema with zer
     assert.equal(playerState.storedOres.shiny, 0);
     assert.equal(playerState.storedOres.glowy, 0);
     assert.equal(playerState.storedOres.starry, 0);
+    assert.equal(playerState.storedOres.allowOverflow, false);
+    assert.ok(playerState.planner?.storageGoal);
+    assert.equal(playerState.planner.storageGoal.preset, 'auto');
+    assert.equal(playerState.planner.calendar?.settings?.showStorageMilestones, true);
 
     const income = playerState.income;
     assert.ok(income);

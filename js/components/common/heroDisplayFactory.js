@@ -1,4 +1,5 @@
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
+import { getHeroEquipmentList } from '../../domain/equipment/comingSoonEquipmentDomain.js';
 import { translate } from '../../i18n/translator.js';
 
 import { toCamelCase, toKebabCase } from '../../utils/stringUtils.js';
@@ -206,8 +207,13 @@ export function createHeroCard({ hero, heroState, heroKey, mode = 'interactive',
         containerToAppendTo = equipmentList;
     }
 
-    hero.equipment.forEach(equip => {
-        const equipState = heroState.equipment[equip.name];
+    getHeroEquipmentList(hero, heroState).forEach(equip => {
+        const equipState = heroState.equipment?.[equip.name] || heroState.equipment?.[equip.key] || (equip.isCustom ? {
+            level: 1,
+            checked: true,
+            type: equip.type,
+            isCustom: true
+        } : {});
         const equipmentItem = createEquipmentItem({
             equip,
             equipState,
@@ -216,6 +222,35 @@ export function createHeroCard({ hero, heroState, heroKey, mode = 'interactive',
             mode: mode,
             uiSettings
         });
+
+        if (equip.isCustom) {
+            equipmentItem.classList.add('is-custom-coming-soon');
+
+            if (mode === 'interactive') {
+                const origImg = equipmentItem.querySelector('.equipment-image');
+                if (origImg && origImg.parentElement) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'equipment-image-container is-custom-coming-soon-image';
+                    imgContainer.dataset.action = 'delete-coming-soon';
+                    imgContainer.setAttribute('role', 'button');
+                    imgContainer.setAttribute('tabindex', '0');
+                    imgContainer.setAttribute('aria-label', translate('views.equipment.confirmRemoveEquipment', {
+                        name: translate('entities.equipment.comingSoon') || 'Coming Soon',
+                        hero: hero.name
+                    }) || 'Delete Coming Soon Equipment');
+
+                    origImg.parentElement.insertBefore(imgContainer, origImg);
+                    imgContainer.appendChild(origImg);
+
+                    const overlay = document.createElement('span');
+                    overlay.className = 'coming-soon-delete-overlay';
+                    overlay.setAttribute('aria-hidden', 'true');
+                    overlay.innerHTML = getSVG('trash', 'trash-icon', 20, 20);
+                    imgContainer.appendChild(overlay);
+                }
+            }
+        }
+
         containerToAppendTo.appendChild(equipmentItem);
     });
 

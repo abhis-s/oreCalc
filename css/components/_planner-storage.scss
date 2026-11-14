@@ -1,0 +1,202 @@
+@use '../abstracts/variables' as *;
+
+// Storage countdown strip above the calendar
+.calendar-storage-countdown-strip {
+    width: 100%;
+    margin-bottom: $spacing-sm;
+    box-sizing: border-box;
+
+    &[hidden] {
+        display: none !important;
+    }
+}
+
+.calendar-storage-countdown-inner {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+    padding: $spacing-2xs 0;
+}
+
+.storage-countdown-title {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2xs;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+    margin-right: $spacing-xs;
+}
+
+.storage-countdown-title-icon {
+    width: $icon-size-xs;
+    height: $icon-size-xs;
+    fill: currentColor;
+}
+
+.storage-countdown-pills {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+}
+
+.storage-countdown-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2xs;
+    padding: $spacing-2xs $spacing-sm;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $shape-corner-full;
+    font-family: inherit;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth, color $duration-fast $ease-smooth;
+
+    &:hover {
+        background-color: $bg-surface-tertiary;
+        border-color: $border-accent;
+        color: $text-primary;
+    }
+
+    &.pill--full {
+        border-color: color-mix(in srgb, $color-warning 40%, transparent);
+        color: $color-warning;
+        background-color: color-mix(in srgb, $color-warning 8%, transparent);
+    }
+}
+
+.storage-countdown-icon {
+    width: $icon-size-2xs;
+    height: $icon-size-2xs;
+    object-fit: contain;
+}
+
+.storage-countdown-text {
+    line-height: 1;
+}
+
+// Calendar day cell storage milestone badges
+.calendar-storage-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: $spacing-2xs;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: $spacing-2xs;
+    box-sizing: border-box;
+    z-index: $z-index-interactive;
+}
+
+.calendar-storage-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2xs;
+    font-size: $font-size-3xs;
+    font-weight: $font-weight-bold;
+    padding: $spacing-hairline $spacing-xs;
+    border-radius: $shape-corner-xs;
+    line-height: 1.2;
+    cursor: default;
+
+    &.calendar-storage-badge--full {
+        background-color: color-mix(in srgb, $color-gold-glow 20%, rgba(0, 0, 0, 0.4));
+        color: $color-gold-glow;
+        border: 1px solid color-mix(in srgb, $color-gold-glow 40%, transparent);
+    }
+}
+
+.calendar-storage-icon {
+    width: $icon-size-3xs;
+    height: $icon-size-3xs;
+    object-fit: contain;
+    fill: currentColor;
+}
+
+.calendar-storage-text {
+    font-size: $font-size-3xs;
+    white-space: nowrap;
+}
+
+.day-cell {
+    &.storage-full-day {
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, $color-gold-glow 35%, transparent);
+    }
+}
+
+// Planner maxed equipment empty state
+.planner-maxed-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: $spacing-sm;
+    padding: $spacing-xl $spacing-lg;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-secondary;
+    border-radius: $card-radius;
+    box-sizing: border-box;
+    width: 100%;
+    margin: $spacing-sm 0;
+
+    .empty-state-icon {
+        width: $icon-size-3xl;
+        height: $icon-size-3xl;
+        fill: $color-gold-glow;
+        filter: $filter-glow-gold-sm;
+    }
+
+    .empty-state-title {
+        font-size: $font-size-base;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        margin: 0;
+    }
+
+    .empty-state-desc {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+        max-width: 320px;
+        margin: 0;
+        line-height: 1.4;
+    }
+}
+
+// Day overview popover storage balances & overflow notice
+.day-overview-storage-card {
+    margin-top: $spacing-md;
+    padding-top: $spacing-md;
+    border-top: 1px solid $border-primary;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+}
+
+.day-overview-overflow-notice {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-sm;
+    background-color: color-mix(in srgb, $color-warning 15%, transparent);
+    border: 1px solid color-mix(in srgb, $color-warning 30%, transparent);
+    border-radius: $shape-corner-xs;
+    font-size: $font-size-xs;
+    color: $color-warning;
+    margin-top: $spacing-2xs;
+
+    clashcalc-assets-svg,
+    orecalc-assets-svg {
+        width: $icon-size-xs;
+        height: $icon-size-xs;
+        fill: currentColor;
+        flex-shrink: 0;
+    }
+}

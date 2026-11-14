@@ -1,6 +1,7 @@
 import { translate } from '../../i18n/translator.js';
 
 import { CALENDAR_SETTINGS_DEFAULTS } from '../../core/constants.js';
+import { selectIsEquipmentMaxed } from '../../core/selectors.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
@@ -10,7 +11,7 @@ import { getISOWeekNumber } from '../../utils/dateUtils.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 
 import { handleChipDropOnCalendar, handleDragLeave, handleDragOver, handleDrop } from './calendarDragDrop.js';
-import { positionTrackAtIndex, renderCalendar, setAnimateNextRender } from './calendarDisplay.js';
+import { getActiveStorageForecast, positionTrackAtIndex, renderCalendar, setAnimateNextRender } from './calendarDisplay.js';
 import {
     handleMediaQueryChange,
     handleTouchEnd,
@@ -98,7 +99,31 @@ export function initializeCalendarEventListeners() {
     const showIconsSwitch = /** @type {HTMLInputElement|null} */ (document.getElementById('calendar-show-icons-switch'));
     const showEquipmentMilestonesSwitch = /** @type {HTMLInputElement|null} */ (document.getElementById('calendar-show-equipment-milestones-switch'));
     const highlightUpgradeRangesSwitch = /** @type {HTMLInputElement|null} */ (document.getElementById('calendar-highlight-upgrade-ranges-switch'));
+    const storageMilestonesSwitch = /** @type {HTMLInputElement|null} */ (document.getElementById('calendar-show-storage-milestones-switch'));
     const autoPlaceScopeSelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('calendar-auto-place-scope-select'));
+    const countdownStrip = document.getElementById('calendar-storage-countdown-strip');
+
+    if (countdownStrip && !boundCalendarElements.has(countdownStrip)) {
+        boundCalendarElements.add(countdownStrip);
+        countdownStrip.addEventListener('click', (e) => {
+            const target = /** @type {HTMLElement|null} */ (e.target);
+            const pill = /** @type {HTMLElement|null} */ (target?.closest('.storage-countdown-pill'));
+            if (!pill || !pill.dataset.targetDate) return;
+            const targetDateStr = pill.dataset.targetDate;
+            const [y, m, d] = targetDateStr.split('-');
+            const targetMonth = `${y}-${m}`;
+            const targetDateObj = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)));
+            const [weekYear, weekNum] = getISOWeekNumber(targetDateObj);
+            const targetWeek = `${weekYear}-${String(weekNum).padStart(2, '0')}`;
+
+            handleStateUpdate(() => {
+                state.planner.calendar.view.month = targetMonth;
+                state.planner.calendar.view.week = targetWeek;
+            });
+            setAnimateNextRender(true);
+            renderCalendar(state.planner);
+        });
+    }
 
     if (calendarContainer && !boundCalendarElements.has(calendarContainer)) {
         boundCalendarElements.add(calendarContainer);
@@ -160,14 +185,14 @@ export function initializeCalendarEventListeners() {
             if (!dayCell) return;
 
             const hasChips = dayCell.querySelector('.income-chip');
-            const isSpecialDay = dayCell.classList.contains('equipment-completion-day') || dayCell.classList.contains('equipment-accumulating');
+            const isSpecialDay = dayCell.classList.contains('equipment-completion-day') || dayCell.classList.contains('equipment-accumulating') || dayCell.classList.contains('storage-full-day');
             if (hasChips || isSpecialDay) {
                 const dateStr = dayCell.dataset.date;
                 if (dateStr) {
                     const [y, m, d] = dateStr.split('-').map(Number);
                     const date = new Date(Date.UTC(y, m - 1, d));
                     const schedule = getEquipmentSchedule();
-                    showDayOverviewPopover(dayCell, date, state.planner, schedule);
+                    showDayOverviewPopover(dayCell, date, state.planner, schedule, getActiveStorageForecast());
                 }
             }
         });
@@ -264,8 +289,14 @@ export function initializeCalendarEventListeners() {
             if (firstDaySelect) firstDaySelect.value = settings.firstDayOfWeek;
             if (showIconsSwitch) showIconsSwitch.checked = settings.showChipIcons;
             if (showEquipmentMilestonesSwitch) showEquipmentMilestonesSwitch.checked = settings.showEquipmentMilestones !== false;
+            if (storageMilestonesSwitch) storageMilestonesSwitch.checked = settings.showStorageMilestones !== false;
             if (highlightUpgradeRangesSwitch) highlightUpgradeRangesSwitch.checked = settings.highlightUpgradeRanges !== false;
             if (autoPlaceScopeSelect) autoPlaceScopeSelect.value = settings.autoPlaceScope;
+
+            const storageWrapper = document.getElementById('calendar-storage-milestones-setting-wrapper');
+            const isMaxed = selectIsEquipmentMaxed(state);
+            if (storageWrapper) storageWrapper.hidden = !isMaxed;
+
             if (calendarSettingsModal) openModal(calendarSettingsModal);
         });
     }
@@ -292,6 +323,7 @@ export function initializeCalendarEventListeners() {
                     firstDayOfWeek: firstDaySelect ? firstDaySelect.value : CALENDAR_SETTINGS_DEFAULTS.firstDayOfWeek,
                     showChipIcons: showIconsSwitch ? showIconsSwitch.checked : CALENDAR_SETTINGS_DEFAULTS.showChipIcons,
                     showEquipmentMilestones: showEquipmentMilestonesSwitch ? showEquipmentMilestonesSwitch.checked : CALENDAR_SETTINGS_DEFAULTS.showEquipmentMilestones,
+                    showStorageMilestones: storageMilestonesSwitch ? storageMilestonesSwitch.checked : CALENDAR_SETTINGS_DEFAULTS.showStorageMilestones,
                     highlightUpgradeRanges: highlightUpgradeRangesSwitch ? highlightUpgradeRangesSwitch.checked : CALENDAR_SETTINGS_DEFAULTS.highlightUpgradeRanges,
                     autoPlaceScope: autoPlaceScopeSelect ? autoPlaceScopeSelect.value : CALENDAR_SETTINGS_DEFAULTS.autoPlaceScope
                 };

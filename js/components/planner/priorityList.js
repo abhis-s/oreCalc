@@ -1,5 +1,6 @@
 import { translate } from '../../i18n/translator.js';
 
+import { selectIsEquipmentMaxed } from '../../core/selectors.js';
 import { state } from '../../core/state.js';
 
 import { formatDate } from '../../utils/dateUtils.js';
@@ -94,8 +95,33 @@ export function initializePriorityList(options = {}) {
     });
 
     if (visiblePriorityList.length === 0) {
+        if (selectIsEquipmentMaxed(state)) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'maxed-empty-state planner-maxed-empty-state';
+            emptyState.innerHTML = `
+                <clashcalc-assets-svg name="trophy" class="empty-state-icon" height="40" width="40"></clashcalc-assets-svg>
+                <h4 class="empty-state-title" data-i18n="views.equipment.emptyState.maxedTitle">${translate('views.equipment.emptyState.maxedTitle')}</h4>
+                <p class="empty-state-desc" data-i18n="views.planner.trueMaxedDesc">${translate('views.planner.trueMaxedDesc')}</p>
+            `;
+            priorityListContainer.appendChild(emptyState);
+            return;
+        }
+
+        if (globalPriorityList.length > 0) {
+            const plannedCompleteState = document.createElement('div');
+            plannedCompleteState.className = 'maxed-empty-state planner-maxed-empty-state';
+            plannedCompleteState.innerHTML = `
+                <clashcalc-assets-svg name="trophy" class="empty-state-icon" height="40" width="40"></clashcalc-assets-svg>
+                <h4 class="empty-state-title" data-i18n="views.planner.plannedCompleteTitle">${translate('views.planner.plannedCompleteTitle')}</h4>
+                <p class="empty-state-desc" data-i18n="views.planner.plannedCompleteDesc">${translate('views.planner.plannedCompleteDesc')}</p>
+            `;
+            priorityListContainer.appendChild(plannedCompleteState);
+            return;
+        }
+
         const placeholder = document.createElement('p');
         placeholder.classList.add('placeholder-text');
+        placeholder.setAttribute('data-i18n', 'views.planner.noPriorityItems');
         placeholder.textContent = translate('views.planner.noPriorityItems');
         priorityListContainer.appendChild(placeholder);
         return;
@@ -179,7 +205,7 @@ export function initializePriorityList(options = {}) {
 
         const errorMsg = document.createElement('p');
         errorMsg.className = 'priority-error-truncated-msg';
-        errorMsg.innerHTML = `${getSVG('error', '', 18, 18, 'currentColor')} <span>${translate('views.planner.resolveErrorsToViewPlan')}</span>`;
+        errorMsg.innerHTML = `${getSVG('error', '', 18, 18, 'currentColor')} <span data-i18n="views.planner.resolveErrorsToViewPlan">${translate('views.planner.resolveErrorsToViewPlan')}</span>`;
         priorityListContainer.appendChild(errorMsg);
     }
 }

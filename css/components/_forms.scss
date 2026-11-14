@@ -208,7 +208,8 @@ input[type="number"] {
         }
     }
 
-    label {
+    label,
+    &__label {
         margin-bottom: $spacing-2xs;
         flex: none; // Override parent input-group-flex label expansion
     }

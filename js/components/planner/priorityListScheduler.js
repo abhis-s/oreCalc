@@ -6,9 +6,8 @@ import { autoPlaceIncomeChipsForRange } from '../../utils/autoPlaceChips.js';
 import { getMaxDate, getMinDate } from '../../utils/dateUtils.js';
 import { logger } from '../../utils/logger.js';
 import { calculateCompletionDates } from '../../utils/predictionCalculator.js';
-import { toCamelCase } from '../../utils/stringUtils.js';
-import { isComingSoonEquipment } from '../../core/constants.js';
 import { migrateComingSoonEquipment } from '../../core/stateCleanup.js';
+import { findHeroEquipment } from '../../domain/equipment/comingSoonEquipmentDomain.js';
 
 /**
  * Automatically places recurring income chips across the entire date range based on active priority schedules.
@@ -65,9 +64,8 @@ export function getGlobalPriorityList() {
     for (const heroKey in state.heroes) {
         const hero = state.heroes[heroKey];
         for (const equipName in hero.equipment) {
-            if (isComingSoonEquipment(equipName)) continue;
             const equipment = hero.equipment[equipName];
-            if (equipment.upgradePlan) {
+            if (equipment?.upgradePlan) {
                 for (const stepNum in equipment.upgradePlan) {
                     const stepData = equipment.upgradePlan[stepNum];
                     const currentLevel = state.heroes[heroKey]?.equipment[equipName]?.level || 1;
@@ -76,14 +74,15 @@ export function getGlobalPriorityList() {
                         const heroEntry = heroData[heroDataKey];
                         if (!heroEntry) continue;
 
-                        const equipMatch = heroEntry.equipment.find(e => e.name === equipName || e.key === equipName || e.key === toCamelCase(equipName));
+                        const userHero = state.heroes[heroKey] || state.heroes[heroDataKey];
+                        const equipMatch = findHeroEquipment(heroEntry, equipName, userHero);
                         if (!equipMatch || !equipMatch.image) continue;
 
                         globalPriorityList.push({
                             name: equipMatch.name || equipName,
                             image: equipMatch.image,
                             targetLevel: stepData.targetLevel,
-                            step: parseInt(stepNum, 10),
+                            step: Number(stepNum) || 0,
                             priorityIndex: stepData.priorityIndex,
                             heroName: heroKey
                         });

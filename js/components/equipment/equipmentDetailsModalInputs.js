@@ -39,10 +39,9 @@ export function initializeEquipmentDetailsModal() {
     const prevBtn = document.getElementById('eq-details-prev-btn');
     const nextBtn = document.getElementById('eq-details-next-btn');
 
+    const handleClose = () => closeModalAnimated(modal, () => resetModalSessionState());
     if (closeBtn && modal) {
-        closeBtn.addEventListener('click', () => {
-            closeModalAnimated(modal, () => resetModalSessionState());
-        });
+        closeBtn.addEventListener('click', handleClose);
     }
 
     if (modal) {
@@ -51,7 +50,7 @@ export function initializeEquipmentDetailsModal() {
             if (!target) return;
 
             if (target === modal) {
-                closeModalAnimated(modal, () => resetModalSessionState());
+                handleClose();
                 return;
             }
 
@@ -219,7 +218,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     const prevBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-prev-btn'));
     const nextBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-next-btn'));
 
-    const setBtnState = (btn, isEnabled) => {
+    const updateNavBtn = (btn, isEnabled) => {
         if (!btn) return;
         btn.disabled = !isEnabled;
         btn.classList.toggle('is-disabled', !isEnabled);
@@ -227,19 +226,15 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     };
 
     if (prevBtn) {
-        setBtnState(prevBtn, false);
+        updateNavBtn(prevBtn, false);
         if (currentEquipIdx > 0) {
-            findValidEquipmentIndex(equipList, currentEquipIdx, 'prev').then(prevIdx => {
-                setBtnState(prevBtn, prevIdx !== -1);
-            });
+            findValidEquipmentIndex(equipList, currentEquipIdx, 'prev').then(idx => updateNavBtn(prevBtn, idx !== -1));
         }
     }
     if (nextBtn) {
-        setBtnState(nextBtn, false);
+        updateNavBtn(nextBtn, false);
         if (currentEquipIdx !== -1 && currentEquipIdx < equipList.length - 1) {
-            findValidEquipmentIndex(equipList, currentEquipIdx, 'next').then(nextIdx => {
-                setBtnState(nextBtn, nextIdx !== -1);
-            });
+            findValidEquipmentIndex(equipList, currentEquipIdx, 'next').then(idx => updateNavBtn(nextBtn, idx !== -1));
         }
     }
 
@@ -295,10 +290,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     const tableContainer = modal.querySelector('.eq-details-table-container');
 
     if (itemImg) itemImg.classList.remove('is-data-unavailable');
-    if (emptyStateContainer) {
-        emptyStateContainer.style.display = 'none';
-        emptyStateContainer.innerHTML = '';
-    }
+    if (emptyStateContainer) { emptyStateContainer.style.display = 'none'; emptyStateContainer.innerHTML = ''; }
     if (contentWrapper) contentWrapper.style.display = '';
     if (tableWrapper) tableWrapper.style.display = '';
     if (footerMetaElem) footerMetaElem.style.display = '';
@@ -317,15 +309,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
 
     const activeTag = state.savedPlayerTags?.[0] || 'DEFAULT0';
     const playerData = state.allPlayersData?.[activeTag];
-    const userTH = Number(
-        state.playerProfile?.townHallLevel ||
-        state.playerProfile?.townHall ||
-        playerData?.playerProfile?.townHallLevel ||
-        playerData?.playerProfile?.townHall ||
-        playerData?.townHallLevel ||
-        playerData?.townHall ||
-        16
-    );
+    const userTH = Number(state.playerProfile?.townHallLevel || state.playerProfile?.townHall || playerData?.playerProfile?.townHallLevel || playerData?.townHallLevel || 16);
     const calculatedMaxLevel = getEquipmentMaxLevel(data.rarity || equipmentRarity);
     const isEquipmentMaxed = currentLevel >= calculatedMaxLevel;
 
@@ -490,38 +474,26 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
 
             unitStatsToggleBtn.style.display = 'inline-flex';
 
-            if (currentViewMode === 'unitStats') {
-                unitStatsToggleBtn.innerHTML = `<clashcalc-assets-svg name="group" class="toggle-btn-icon"></clashcalc-assets-svg> <span>${overviewBtnLabel}</span>`;
-                overviewElements.forEach(el => /** @type {HTMLElement} */ (el).style.display = 'none');
-                const effective = computeEffectiveLevels(currentLevel, calculatedMaxLevel, data.rarity || equipmentRarity, activeModifierTab);
-                renderUnitStatsView(unitStatsContent, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, effective.effectiveLevel, false);
-                if (unitStatsContent) unitStatsContent.style.display = 'block';
-            } else {
-                currentViewMode = 'overview';
-                unitStatsToggleBtn.innerHTML = `<clashcalc-assets-svg name="group" class="toggle-btn-icon"></clashcalc-assets-svg> <span>${unitStatsBtnLabel}</span>`;
-                if (unitStatsContent) unitStatsContent.style.display = 'none';
-                overviewElements.forEach(el => /** @type {HTMLElement} */ (el).style.display = '');
-            }
+            const applyViewMode = (mode, isAnimate = false) => {
+                currentViewMode = mode;
+                const isUnit = mode === 'unitStats';
+                unitStatsToggleBtn.innerHTML = `<clashcalc-assets-svg name="group" class="toggle-btn-icon"></clashcalc-assets-svg> <span>${isUnit ? overviewBtnLabel : unitStatsBtnLabel}</span>`;
+                overviewElements.forEach(el => /** @type {HTMLElement} */ (el).style.display = isUnit ? 'none' : '');
+                if (unitStatsContent) unitStatsContent.style.display = isUnit ? 'block' : 'none';
+                if (isUnit) {
+                    const effective = computeEffectiveLevels(currentLevel, calculatedMaxLevel, data.rarity || equipmentRarity, activeModifierTab);
+                    renderUnitStatsView(unitStatsContent, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, effective.effectiveLevel, isAnimate);
+                }
+            };
+
+            applyViewMode(currentViewMode === 'unitStats' ? 'unitStats' : 'overview');
 
             unitStatsToggleBtn.onclick = () => {
                 const modTabs = document.getElementById('eq-details-modifier-tabs');
                 const firstRect = modTabs ? modTabs.getBoundingClientRect() : null;
-
-                if (currentViewMode === 'overview') {
-                    currentViewMode = 'unitStats';
-                    setModalSessionState({ viewModePreference: 'unitStats' });
-                    unitStatsToggleBtn.innerHTML = `<clashcalc-assets-svg name="group" class="toggle-btn-icon"></clashcalc-assets-svg> <span>${overviewBtnLabel}</span>`;
-                    overviewElements.forEach(el => /** @type {HTMLElement} */ (el).style.display = 'none');
-                    const effective = computeEffectiveLevels(currentLevel, calculatedMaxLevel, data.rarity || equipmentRarity, activeModifierTab);
-                    renderUnitStatsView(unitStatsContent, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, effective.effectiveLevel, true);
-                    if (unitStatsContent) unitStatsContent.style.display = 'block';
-                } else {
-                    currentViewMode = 'overview';
-                    setModalSessionState({ viewModePreference: 'overview' });
-                    unitStatsToggleBtn.innerHTML = `<clashcalc-assets-svg name="group" class="toggle-btn-icon"></clashcalc-assets-svg> <span>${unitStatsBtnLabel}</span>`;
-                    if (unitStatsContent) unitStatsContent.style.display = 'none';
-                    overviewElements.forEach(el => /** @type {HTMLElement} */ (el).style.display = '');
-                }
+                const nextMode = currentViewMode === 'overview' ? 'unitStats' : 'overview';
+                setModalSessionState({ viewModePreference: nextMode });
+                applyViewMode(nextMode, true);
 
                 if (modTabs && firstRect) {
                     const lastRect = modTabs.getBoundingClientRect();

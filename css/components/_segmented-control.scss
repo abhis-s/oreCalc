@@ -35,6 +35,25 @@
         transform: translateX(100%);
     }
 
+    &:has(> .segmented-btn:first-child:nth-last-child(3)),
+    &:has(> .segmented-btn:nth-child(3)) {
+        &::before {
+            width: calc((100% - (#{$spacing-2xs} * 2)) / 3);
+        }
+
+        &:has(> .segmented-btn:nth-child(1).is-active)::before {
+            transform: translateX(0);
+        }
+
+        &:has(> .segmented-btn:nth-child(2).is-active)::before {
+            transform: translateX(100%);
+        }
+
+        &:has(> .segmented-btn:nth-child(3).is-active)::before {
+            transform: translateX(200%);
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         &::before {
             transition: none;

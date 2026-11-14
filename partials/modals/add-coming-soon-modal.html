@@ -1,0 +1,34 @@
+<dialog id="add-coming-soon-modal" class="modal" aria-labelledby="add-coming-soon-modal-title">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="add-coming-soon-modal-title" data-i18n="views.equipment.addComingSoonTitle">Add Coming Soon Equipment</h2>
+            <button type="button" id="close-add-coming-soon-modal-btn" class="modal__close-btn" aria-label="Close" data-i18n-aria-label="actions.close">
+                <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-info-text" data-i18n="views.equipment.addComingSoonGlobalDesc"></p>
+            <div class="modal-section">
+                <span id="coming-soon-hero-label" class="modal-section-label" data-i18n="views.equipment.selectHero"></span>
+                <div class="coming-soon-hero-options" id="coming-soon-hero-options" role="radiogroup" aria-labelledby="coming-soon-hero-label"></div>
+            </div>
+            <div class="modal-section">
+                <span id="coming-soon-rarity-label" class="modal-section-label" data-i18n="views.equipment.selectRarity"></span>
+                <div class="coming-soon-rarity-options" role="radiogroup" aria-labelledby="coming-soon-rarity-label">
+                    <button type="button" class="btn-rarity-choice" data-rarity="common" role="radio" aria-checked="false">
+                        <span class="rarity-choice-name common-equip" data-i18n="views.equipment.common">Common</span>
+                        <span class="rarity-choice-cap" data-rarity-cap="common">Max Lv 18</span>
+                    </button>
+                    <button type="button" class="btn-rarity-choice is-selected" data-rarity="epic" role="radio" aria-checked="true">
+                        <span class="rarity-choice-name epic-equip" data-i18n="views.equipment.epic">Epic</span>
+                        <span class="rarity-choice-cap" data-rarity-cap="epic">Max Lv 27</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" id="cancel-add-coming-soon-modal-btn" class="btn btn--secondary" data-i18n="actions.cancel">Cancel</button>
+            <button type="button" id="confirm-add-coming-soon-btn" class="btn btn--primary" data-i18n="views.equipment.addEquipment">Add Equipment</button>
+        </div>
+    </div>
+</dialog>

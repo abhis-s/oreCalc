@@ -395,6 +395,7 @@ export async function mount(options = {}) {
 
             document.addEventListener('app:translate', () => {
                 updateUIWithTranslations();
+                renderApp(state);
             });
 
             document.addEventListener('tour:close', () => {

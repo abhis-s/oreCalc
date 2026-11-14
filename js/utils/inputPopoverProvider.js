@@ -60,16 +60,20 @@ export function registerInputPopover(inputElement, options = {}) {
     };
 
     const showTitle = !!options.showTitle;
-    const showRange = !!options.showRange;
+    const isRangeEnabled = () => (typeof options.showRange === 'function' ? options.showRange() : !!options.showRange);
 
     const getShowMin = (currMin) => {
-        if (showRange) return false;
-        return options.showMin !== undefined ? !!options.showMin : (currMin !== 0);
+        if (isRangeEnabled()) return false;
+        if (typeof options.showMin === 'function') return options.showMin();
+        if (options.showMin !== undefined) return !!options.showMin;
+        return currMin !== 0;
     };
 
     const getShowMax = () => {
-        if (showRange) return false;
-        return options.showMax !== false;
+        if (isRangeEnabled()) return false;
+        if (typeof options.showMax === 'function') return options.showMax();
+        if (options.showMax !== undefined) return !!options.showMax;
+        return true;
     };
 
     const isRecommendedEnabled = () => {
@@ -164,7 +168,7 @@ export function registerInputPopover(inputElement, options = {}) {
             currMax,
             showTitle,
             titleText: getTitleText(),
-            showRange,
+            showRange: isRangeEnabled(),
             showMin: getShowMin(currMin),
             showMax: getShowMax(),
             showRecNow,

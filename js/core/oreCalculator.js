@@ -1,5 +1,6 @@
 import { getEquipmentMaxLevel, upgradeCosts } from '../data/equipmentCommonData.js';
 import { heroData } from '../data/heroData.js';
+import { findHeroEquipment } from '../domain/equipment/comingSoonEquipmentDomain.js';
 
 /**
  * Calculates remaining ores needed across all selected equipment upgrades,
@@ -22,7 +23,7 @@ export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels,
             const equip = hero.equipment[equipName];
             if (equip.checked === false) continue;
 
-            const equipData = getEquipmentData(heroName, equipName, plannerMaxLevels);
+            const equipData = getEquipmentData(heroName, equipName, plannerMaxLevels, equip);
             if (!equipData) continue;
 
             const currentLevel = equip.level || 1;
@@ -59,12 +60,13 @@ export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels,
  * @param {string} heroName - Canonical or localized hero name.
  * @param {string} equipName - Equipment name.
  * @param {import('./types.js').PlannerState} [plannerMaxLevels={}] - Planner configuration.
+ * @param {any} [equipState=null] - Equipment state slice.
  * @returns {{ type: string, maxLevel: number } | null} Equipment data or null.
  */
-function getEquipmentData(heroName, equipName, plannerMaxLevels = {}) {
+function getEquipmentData(heroName, equipName, plannerMaxLevels = {}, equipState = null) {
     const customMaxLevel = plannerMaxLevels?.customMaxLevel;
     const hero = Object.values(heroData).find(h => h.name === heroName || h.key === heroName);
-    const equipment = hero?.equipment?.find(e => e.name === equipName || e.key === equipName);
+    const equipment = findHeroEquipment(hero, equipName, equipState);
     if (!equipment) return null;
 
     const maxLevel = customMaxLevel?.[equipment.type] || getEquipmentMaxLevel(equipment.type);

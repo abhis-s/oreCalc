@@ -30,7 +30,7 @@ export function renderRecommendationBadge(recBadge, data, equipmentName, rec, ac
 
     if (isUnreleased) {
         recBadge.hidden = false;
-        recBadge.innerHTML = `<clashcalc-assets-svg name="experiment" class="badge-icon"></clashcalc-assets-svg> <span>${translate('views.equipment.unreleased')}</span>`;
+        recBadge.innerHTML = `<clashcalc-assets-svg name="experiment" class="badge-icon"></clashcalc-assets-svg> <span data-i18n="views.equipment.unreleased">${translate('views.equipment.unreleased')}</span>`;
         recBadge.className = 'eq-badge badge-unreleased';
         recBadge.setAttribute('data-info', 'views.equipment.recUnreleasedHelp');
     } else if (isMustHave) {

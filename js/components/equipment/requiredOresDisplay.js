@@ -1,5 +1,8 @@
 import { updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { dom } from '../../dom/domElements.js';
+import { selectIsEquipmentMaxed } from '../../core/selectors.js';
+import { state } from '../../core/state.js';
+import { syncPostMaxGoalBanner } from '../common/storageControlsHelper.js';
 
 /**
  * Renders required ore totals across Equipment tab and Home tab results cards.
@@ -24,4 +27,20 @@ export function renderRequiredOres(requiredOres) {
     if (homeTabElements?.shiny) updateCalculatedValue(homeTabElements.shiny, shiny);
     if (homeTabElements?.glowy) updateCalculatedValue(homeTabElements.glowy, glowy);
     if (homeTabElements?.starry) updateCalculatedValue(homeTabElements.starry, starry);
+
+    const isMaxed = selectIsEquipmentMaxed(state);
+    const activeGoal = state.derived?.activeGoal;
+    const allowOverflow = Boolean(state.storedOres?.allowOverflow);
+
+    const eqGoalBarContainer = dom.equipment?.storageGoalBarContainer;
+    if (eqGoalBarContainer) {
+        syncPostMaxGoalBanner(eqGoalBarContainer, activeGoal, isMaxed, allowOverflow, 'eq', state.heroes);
+    }
+
+    if (typeof document !== 'undefined') {
+        const homeGoalBarContainer = document.getElementById('home-storage-goal-bar-container');
+        if (homeGoalBarContainer) {
+            syncPostMaxGoalBanner(homeGoalBarContainer, activeGoal, isMaxed, allowOverflow, 'home', state.heroes);
+        }
+    }
 }

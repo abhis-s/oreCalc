@@ -3,6 +3,10 @@ import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
+import {
+    getActiveCustomComingSoon,
+    deleteComingSoonEquipment
+} from '../../domain/equipment/comingSoonEquipmentDomain.js';
 
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { addValidation } from '../../utils/inputValidator.js';
@@ -11,11 +15,14 @@ import { cleanupUpgradePlan, reindexGlobalPriority } from '../../utils/plannerUt
 import { createHeroCard } from '../common/heroDisplayFactory.js';
 import { dom } from '../../dom/domElements.js';
 import { initializeEquipmentDetailsModal, openEquipmentDetailsModal } from './equipmentDetailsModalInputs.js';
+import { openAddComingSoonModal } from './addComingSoonModal.js';
 import { getEquipLevel } from './equipmentDetailsModalData.js';
 import { refreshLayout } from '../../ui/cardLayoutManager.js';
+import { showConfirm } from '../../ui/noticeModal.js';
 
 const temporarilyVisibleMaxed = new Set();
 const activeTimeouts = new Map();
+let isHeroContainerBound = false;
 
 /**
  * Marks an equipment item as manually maxed to preserve visibility for a 5-second grace period.
@@ -74,6 +81,34 @@ export function clearEquipmentTemporarilyVisible(heroName, equipName) {
 export function revealEquipmentTemporarily(heroName, equipName) {
     markEquipmentManuallyMaxed(heroName, equipName);
     handleStateUpdate(() => {});
+}
+
+/**
+ * Prompts user confirmation to remove custom Coming Soon equipment and deletes it from state upon confirmation.
+ *
+ * @param {string} heroLookup
+ * @param {string} [heroName]
+ */
+function triggerDeleteComingSoon(heroLookup, heroName) {
+    const heroDisplayName = translate(`entities.heroes.${heroLookup}`) || heroName || heroLookup;
+    const confirmMsg = translate('views.equipment.confirmRemoveEquipment', {
+        name: translate('entities.equipment.comingSoon') || 'Coming Soon',
+        hero: heroDisplayName
+    });
+    const comingSoonSwitch = /** @type {HTMLInputElement|null} */ (dom.equipment?.comingSoonSwitch);
+    showConfirm(confirmMsg, 'actions.delete', 'actions.delete', 'actions.cancel').then(confirmed => {
+        if (confirmed) {
+            handleStateUpdate(() => {
+                const keys = [heroLookup, heroName].filter(Boolean);
+                for (const hk of keys) {
+                    deleteComingSoonEquipment(state.heroes[hk]);
+                }
+                reindexGlobalPriority();
+            });
+            initializeHeroCards(state.heroes, state.uiSettings, state.planner);
+        }
+        comingSoonSwitch?.focus();
+    });
 }
 
 /**
@@ -188,13 +223,96 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
         });
     });
 
+    const comingSoonSwitch = /** @type {HTMLInputElement|null} */ (dom.equipment?.comingSoonSwitch);
+    const emptyAddComingSoonBtn = /** @type {HTMLButtonElement|null} */ (dom.equipment?.emptyAddComingSoonBtn);
+    if (!isHeroContainerBound) {
+        if (comingSoonSwitch) {
+            comingSoonSwitch.addEventListener('change', () => {
+                const activeSoon = getActiveCustomComingSoon(state.heroes);
+                if (comingSoonSwitch.checked) {
+                    if (activeSoon) return;
+                    openAddComingSoonModal(
+                        () => {
+                            initializeHeroCards(state.heroes, state.uiSettings, state.planner);
+                            comingSoonSwitch?.focus();
+                        },
+                        'barbarianKing',
+                        () => {
+                            const stillActive = getActiveCustomComingSoon(state.heroes);
+                            comingSoonSwitch.checked = Boolean(stillActive);
+                            comingSoonSwitch?.focus();
+                        }
+                    );
+                } else {
+                    if (!activeSoon) {
+                        comingSoonSwitch.checked = false;
+                        comingSoonSwitch?.focus();
+                        return;
+                    }
+                    const heroLookup = activeSoon.heroKey;
+                    const heroDisplayName = translate(`entities.heroes.${activeSoon.heroKey}`) || activeSoon.heroName;
+                    const confirmMsg = translate('views.equipment.confirmRemoveEquipment', {
+                        name: translate('entities.equipment.comingSoon') || 'Coming Soon',
+                        hero: heroDisplayName
+                    });
+                    showConfirm(confirmMsg, 'actions.delete', 'actions.delete', 'actions.cancel').then(confirmed => {
+                        if (confirmed) {
+                            handleStateUpdate(() => {
+                                const keys = [heroLookup, activeSoon.heroName].filter(Boolean);
+                                for (const hk of keys) {
+                                    deleteComingSoonEquipment(state.heroes[hk]);
+                                }
+                                reindexGlobalPriority();
+                            });
+                            initializeHeroCards(state.heroes, state.uiSettings, state.planner);
+                        } else {
+                            comingSoonSwitch.checked = true;
+                        }
+                        comingSoonSwitch?.focus();
+                    });
+                }
+            });
+        }
+        if (emptyAddComingSoonBtn) {
+            emptyAddComingSoonBtn.addEventListener('click', () => {
+                openAddComingSoonModal(
+                    () => {
+                        initializeHeroCards(state.heroes, state.uiSettings, state.planner);
+                        comingSoonSwitch?.focus();
+                    },
+                    'barbarianKing',
+                    () => {
+                        comingSoonSwitch?.focus();
+                    }
+                );
+            });
+        }
+    }
+
+    if (isHeroContainerBound) return;
+    isHeroContainerBound = true;
+
     container.addEventListener('click', (event) => {
         const target = /** @type {HTMLElement | null} */ (event.target);
         if (!target) return;
 
+        const customComingSoonImg = /** @type {HTMLElement | null} */ (target.closest('.is-custom-coming-soon-image, [data-action="delete-coming-soon"]'));
+        if (customComingSoonImg) {
+            const heroCard = /** @type {HTMLElement | null} */ (customComingSoonImg.closest('.hero-card'));
+            const heroLookup = heroCard?.dataset.heroKey || heroCard?.dataset.heroName;
+            const heroName = heroCard?.dataset.heroName;
+            if (heroLookup) {
+                triggerDeleteComingSoon(heroLookup, heroName);
+            }
+            return;
+        }
+
         const equipClickable = target.closest('.equipment-image, .equipment-name label');
         if (equipClickable) {
             const equipItem = /** @type {HTMLElement | null} */ (equipClickable.closest('.equipment-item'));
+            if (equipItem?.classList.contains('is-custom-coming-soon')) {
+                return;
+            }
             const heroCard = /** @type {HTMLElement | null} */ (equipClickable.closest('.hero-card'));
             const equipKey = equipItem ? (equipItem.dataset.equipKey || equipItem.dataset.equipName) : null;
             const equipName = equipItem ? equipItem.dataset.equipName : null;
@@ -242,6 +360,10 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
                 }
                 break;
             }
+            case 'delete-coming-soon': {
+                triggerDeleteComingSoon(heroLookup, heroName);
+                break;
+            }
         }
     });
 
@@ -250,10 +372,25 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
             const target = /** @type {HTMLElement | null} */ (event.target);
             if (!target) return;
 
+            const customComingSoonImg = /** @type {HTMLElement | null} */ (target.closest('.is-custom-coming-soon-image, [data-action="delete-coming-soon"]'));
+            if (customComingSoonImg) {
+                event.preventDefault();
+                const heroCard = /** @type {HTMLElement | null} */ (customComingSoonImg.closest('.hero-card'));
+                const heroLookup = heroCard?.dataset.heroKey || heroCard?.dataset.heroName;
+                const heroName = heroCard?.dataset.heroName;
+                if (heroLookup) {
+                    triggerDeleteComingSoon(heroLookup, heroName);
+                }
+                return;
+            }
+
             const equipClickable = target.closest('.equipment-image, .equipment-name label');
             if (equipClickable) {
-                event.preventDefault();
                 const equipItem = /** @type {HTMLElement | null} */ (equipClickable.closest('.equipment-item'));
+                if (equipItem?.classList.contains('is-custom-coming-soon')) {
+                    return;
+                }
+                event.preventDefault();
                 const heroCard = /** @type {HTMLElement | null} */ (equipClickable.closest('.hero-card'));
                 const equipKey = equipItem ? (equipItem.dataset.equipKey || equipItem.dataset.equipName) : null;
                 const equipName = equipItem ? equipItem.dataset.equipName : null;

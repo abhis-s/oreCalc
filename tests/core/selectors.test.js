@@ -12,7 +12,11 @@ import {
     selectHeroJourney,
     selectDerived,
     selectDerivedSourceIncome,
-    selectUISettings
+    selectUISettings,
+    selectAllowStorageOverflow,
+    selectIsEquipmentMaxed,
+    selectActiveGoal,
+    selectStorageMetrics
 } from '../../js/core/selectors.js';
 
 test('ZERO_ORES is an immutable frozen singleton with zero ore values', () => {
@@ -112,4 +116,24 @@ test('selectors return safe immutable defaults on empty or null states', () => {
     assert.deepEqual(selectDerivedSourceIncome(null, 'starBonus'), ZERO_ORES);
     assert.deepEqual(selectDerivedSourceIncome({}, 'starBonus'), ZERO_ORES);
     assert.deepEqual(selectUISettings(null), {});
+    assert.equal(selectAllowStorageOverflow(null), false);
+    assert.equal(selectIsEquipmentMaxed(null), false);
+    assert.equal(selectActiveGoal(null), null);
+    assert.equal(selectStorageMetrics(null), null);
+});
+
+test('post-max and storage selectors extract values from state and partitions', () => {
+    const testState = {
+        storedOres: { shiny: 50000, glowy: 5000, starry: 1000, allowOverflow: true },
+        derived: {
+            isEquipmentMaxed: true,
+            activeGoal: { preset: 'maxStorage', isGoalActive: true },
+            storageMetrics: { allFull: true }
+        }
+    };
+
+    assert.equal(selectAllowStorageOverflow(testState), true);
+    assert.equal(selectIsEquipmentMaxed(testState), true);
+    assert.deepEqual(selectActiveGoal(testState), { preset: 'maxStorage', isGoalActive: true });
+    assert.deepEqual(selectStorageMetrics(testState), { allFull: true });
 });

@@ -14,6 +14,7 @@ import { showConfirm } from '../../ui/noticeModal.js';
 import { showApiErrorToast } from '../../ui/toast.js';
 import { isPlayerRefreshStale } from '../../core/playerRefreshThrottler.js';
 import { persistAppSettings } from '../common/appSettingsManager.js';
+import { openStoredOresModal } from '../planner/storedOresModal.js';
 import { refreshActivePlayerData } from './playerRefreshController.js';
 
 let lastTouchTime = 0;
@@ -449,6 +450,10 @@ export function initPlayerDropdown(options = {}) {
                     } else {
                         showAddPlayerModal();
                     }
+                }
+
+                if (/** @type {HTMLElement} */ (event.target)?.closest?.('#home-profile-edit-storage-btn, [data-action="open-stored-ores"]')) {
+                    openStoredOresModal();
                 }
 
                 const collapseBtn = /** @type {HTMLElement} */ (event.target)?.closest?.('.profile-collapse-toggle-btn, #home-profile-collapse-btn');

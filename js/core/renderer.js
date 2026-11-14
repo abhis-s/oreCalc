@@ -1,7 +1,7 @@
 import { renderHeroCards } from '../components/equipment/heroCardDisplay.js';
 import { renderRemainingTime } from '../components/equipment/remainingTimeDisplay.js';
 import { renderRequiredOres } from '../components/equipment/requiredOresDisplay.js';
-import { renderStorageInputs } from '../components/equipment/storageInputs.js';
+import { renderStorageInputs } from '../components/equipment/storageDisplay.js';
 import { renderFab } from '../components/fab/fab.js';
 import { renderHeroJourneyDisplay, updateHeroJourneyUpcomingBadges } from '../components/home/heroJourneyDisplay.js';
 import { setupHeroJourneyInputs } from '../components/home/heroJourneyInputs.js';

@@ -197,6 +197,22 @@ describe('Coming Soon Equipment Planning Migration & State Purging', () => {
         assert.equal(heroes['Minion Prince'].equipment['Dark Orb'].level, 1);
     });
 
+    test('preserves active custom coming soon equipment when unmapped', () => {
+        const heroes = {
+            barbarianKing: {
+                enabled: true,
+                equipment: {
+                    comingSoon: { level: 1, checked: true, type: 'epic', isCustom: true }
+                }
+            }
+        };
+
+        const modified = migrateComingSoonEquipment(heroes);
+        assert.equal(modified, false);
+        assert.ok(heroes.barbarianKing.equipment.comingSoon);
+        assert.equal(heroes.barbarianKing.equipment.comingSoon.isCustom, true);
+    });
+
     test('purges coming soon equipment that has no upgrade plan', () => {
         const heroes = {
             'Dragon Duke': {

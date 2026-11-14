@@ -1,5 +1,6 @@
 import { heroData } from '../data/heroData.js';
 import { shopOfferData, resolveBestMatchShopOfferSet } from '../data/incomeSources/shopOffers.js';
+import { STORAGE_LIMITS } from './constants.js';
 
 import { compareVersions } from '../utils/versionUtils.js';
 
@@ -101,7 +102,7 @@ function getDefaultPlayerStateProperties() {
 
     return {
         heroes: getDefaultHeroesState(),
-        storedOres: { shiny: 0, glowy: 0, starry: 0 },
+        storedOres: { shiny: 0, glowy: 0, starry: 0, allowOverflow: false },
         onboardingTimestamp: null,
         income: {
             shopOffers: { enabled: false, selectedSet: null, purchases: {}, '0': {} },
@@ -149,6 +150,9 @@ function getDefaultPlayerStateProperties() {
         },
         planner: {
             customMaxLevel: {},
+            storageGoal: {
+                preset: 'auto'
+            },
             calendar: {
                 isHydrated: false,
                 settings: {
@@ -156,7 +160,8 @@ function getDefaultPlayerStateProperties() {
                     showChipIcons: true,
                     autoPlaceScope: 'tillEnd', // 'month', 'tillEnd'
                     showEquipmentMilestones: true,
-                    highlightUpgradeRanges: true
+                    highlightUpgradeRanges: true,
+                    showStorageMilestones: true
                 },
                 view: {
                     select: 'monthly',
@@ -392,11 +397,17 @@ function ensureStateDefaults(s) {
             }
 
             if (!ps.storedOres) {
-                ps.storedOres = { shiny: 0, glowy: 0, starry: 0 };
+                ps.storedOres = { shiny: 0, glowy: 0, starry: 0, allowOverflow: false };
             } else {
                 ps.storedOres.shiny = ps.storedOres.shiny || 0;
                 ps.storedOres.glowy = ps.storedOres.glowy || 0;
                 ps.storedOres.starry = ps.storedOres.starry || 0;
+                if (ps.storedOres.allowOverflow === undefined) {
+                    const hasOverflow = ps.storedOres.shiny > STORAGE_LIMITS.shiny ||
+                        ps.storedOres.glowy > STORAGE_LIMITS.glowy ||
+                        ps.storedOres.starry > STORAGE_LIMITS.starry;
+                    ps.storedOres.allowOverflow = hasOverflow;
+                }
             }
 
             if (!ps.income) {
@@ -509,13 +520,23 @@ function ensureStateDefaults(s) {
             }
 
             if (!ps.planner) ps.planner = {};
+            if (!ps.planner.storageGoal) {
+                ps.planner.storageGoal = {
+                    preset: 'auto'
+                };
+            } else if (!ps.planner.storageGoal.preset) {
+                ps.planner.storageGoal.preset = 'auto';
+            }
             if (!ps.planner.calendar) ps.planner.calendar = {};
             if (!ps.planner.calendar.settings) {
                 ps.planner.calendar.settings = {
                     firstDayOfWeek: 'auto',
                     showChipIcons: true,
-                    autoPlaceScope: 'tillEnd'
+                    autoPlaceScope: 'tillEnd',
+                    showStorageMilestones: true
                 };
+            } else if (ps.planner.calendar.settings.showStorageMilestones === undefined) {
+                ps.planner.calendar.settings.showStorageMilestones = true;
             }
             if (!ps.planner.calendar.view) ps.planner.calendar.view = {};
 

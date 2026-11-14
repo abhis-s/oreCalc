@@ -1,12 +1,11 @@
-import { translate } from '../../i18n/translator.js';
-
-import { STORAGE_LIMITS } from '../../core/constants.js';
+import { selectIsEquipmentMaxed } from '../../core/selectors.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
 import { addValidation } from '../../utils/inputValidator.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
+import { buildStorageInputPopoverOptions, syncStoredOreInputBounds } from '../common/storageControlsHelper.js';
 
 /**
  * Checks if opening the stored ores modal should be suppressed due to open welcome/consent/tour dialogs.
@@ -55,6 +54,21 @@ export function openStoredOresModal() {
     if (starryEl) starryEl.value = String(state.storedOres.starry !== undefined ? state.storedOres.starry : 0);
     if (dontAskCheckbox) dontAskCheckbox.checked = false;
 
+    const isMaxed = selectIsEquipmentMaxed(state);
+    const overflowWrapper = document.getElementById('modal-stored-ore-overflow-wrapper');
+    if (overflowWrapper) {
+        overflowWrapper.hidden = !isMaxed;
+    }
+
+    const overflowSwitch = /** @type {HTMLInputElement|null} */ (document.getElementById('modal-stored-ore-allow-overflow-switch'));
+    const isOverflow = Boolean(state.storedOres?.allowOverflow);
+    if (overflowSwitch) overflowSwitch.checked = isOverflow;
+
+    syncStoredOreInputBounds(
+        { shiny: shinyEl, glowy: glowyEl, starry: starryEl },
+        isOverflow
+    );
+
     openModal(modal);
 }
 
@@ -96,33 +110,30 @@ export function initializeStoredOresModal() {
     const shinyInput = /** @type {HTMLInputElement|null} */ (document.getElementById('modal-stored-ore-shiny'));
     const glowyInput = /** @type {HTMLInputElement|null} */ (document.getElementById('modal-stored-ore-glowy'));
     const starryInput = /** @type {HTMLInputElement|null} */ (document.getElementById('modal-stored-ore-starry'));
+    const overflowSwitch = /** @type {HTMLInputElement|null} */ (document.getElementById('modal-stored-ore-allow-overflow-switch'));
+
+    if (overflowSwitch) {
+        overflowSwitch.addEventListener('change', () => {
+            syncStoredOreInputBounds(
+                { shiny: shinyInput, glowy: glowyInput, starry: starryInput },
+                overflowSwitch.checked
+            );
+        });
+    }
+
+    const getAllowOverflow = () => Boolean(overflowSwitch ? overflowSwitch.checked : state.storedOres?.allowOverflow);
 
     if (shinyInput) {
         addValidation(shinyInput, { inputName: 'modal-stored-ore-shiny' });
-        registerInputPopover(shinyInput, {
-            title: () => translate('entities.ores.shiny'),
-            min: 0,
-            max: STORAGE_LIMITS.shiny,
-            clickToFill: { max: true }
-        });
+        registerInputPopover(shinyInput, buildStorageInputPopoverOptions('shiny', getAllowOverflow));
     }
     if (glowyInput) {
         addValidation(glowyInput, { inputName: 'modal-stored-ore-glowy' });
-        registerInputPopover(glowyInput, {
-            title: () => translate('entities.ores.glowy'),
-            min: 0,
-            max: STORAGE_LIMITS.glowy,
-            clickToFill: { max: true }
-        });
+        registerInputPopover(glowyInput, buildStorageInputPopoverOptions('glowy', getAllowOverflow));
     }
     if (starryInput) {
         addValidation(starryInput, { inputName: 'modal-stored-ore-starry' });
-        registerInputPopover(starryInput, {
-            title: () => translate('entities.ores.starry'),
-            min: 0,
-            max: STORAGE_LIMITS.starry,
-            clickToFill: { max: true }
-        });
+        registerInputPopover(starryInput, buildStorageInputPopoverOptions('starry', getAllowOverflow));
     }
 
     const closeBtn = document.getElementById('close-stored-ores-modal-btn');
@@ -139,11 +150,13 @@ export function initializeStoredOresModal() {
 
             const dontAskCheckbox = /** @type {HTMLInputElement|null} */ (document.getElementById('modal-stored-ore-dont-ask'));
             const dontAsk = dontAskCheckbox ? dontAskCheckbox.checked : false;
+            const allowOverflow = overflowSwitch ? overflowSwitch.checked : Boolean(state.storedOres?.allowOverflow);
 
             handleStateUpdate(() => {
                 state.storedOres.shiny = shinyVal;
                 state.storedOres.glowy = glowyVal;
                 state.storedOres.starry = starryVal;
+                state.storedOres.allowOverflow = allowOverflow;
                 state.storedOres.lastUpdated = dontAsk ? (Date.now() + 60 * 24 * 60 * 60 * 1000) : Date.now();
             });
 

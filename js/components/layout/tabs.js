@@ -3,6 +3,7 @@ import { navigationRegistry } from '../../data/navigationRegistry.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
+import { shouldPromptStoredOresReminder } from '../../domain/equipment/storageGoalDomain.js';
 import { closeFabMenu } from '../fab/fab.js';
 import { setAnimateNextRender } from '../planner/calendar.js';
 import { openStoredOresModal } from '../planner/priorityListModal.js';
@@ -11,17 +12,8 @@ import { renderTabs } from './tabDisplay.js';
 function checkPlannerTabStoredOres() {
     const storedOres = state.storedOres || {};
     const lastUpdated = storedOres.lastUpdated || 0;
-    const timeDiff = Date.now() - lastUpdated;
 
-    const isMoreThan48HoursOld = timeDiff > (48 * 60 * 60 * 1000);
-    const isMoreThan12HoursOld = timeDiff > (12 * 60 * 60 * 1000);
-
-    const shiny = storedOres.shiny !== undefined ? storedOres.shiny : 0;
-    const glowy = storedOres.glowy !== undefined ? storedOres.glowy : 0;
-    const starry = storedOres.starry !== undefined ? storedOres.starry : 0;
-    const hasAtLeastOneZero = shiny === 0 || glowy === 0 || starry === 0;
-
-    if (isMoreThan48HoursOld || (isMoreThan12HoursOld && hasAtLeastOneZero)) {
+    if (shouldPromptStoredOresReminder({ storedOres, lastUpdated })) {
         openStoredOresModal();
     }
 }
