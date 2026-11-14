@@ -7,6 +7,7 @@
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { STARTUP_ROUTE_OPTIONS } from '../../services/appManagementService.js';
+import { state } from '../../core/state.js';
 
 /**
  * Builds localized composite label for sub-views using canonical brand name.
@@ -161,8 +162,9 @@ export function formatDiagnosticsReport(diagnostics, version) {
  * @returns {string}
  */
 export function getAppVersionString() {
+    const envVersion = typeof window !== 'undefined' ? (window.__ENV__?.APP_VERSION || window.__BUILD_VERSION__) : null;
     const metaBuild = typeof document !== 'undefined' ? document.querySelector('meta[name="build-version"]')?.getAttribute('content') : null;
-    const version = metaBuild || (typeof window !== 'undefined' && window.__BUILD_VERSION__) || '3.0.0';
+    const version = envVersion || metaBuild || state.appVersion || '3.1.0';
     return 'v' + String(version).replace(/^v/, '');
 }
 
@@ -186,7 +188,6 @@ export function renderUpdateLifecycle(rowEl, updateState = 'idle', isStandalone 
     if (!titleEl || !descEl || !btnEl) return;
 
     const versionStr = getAppVersionString();
-    const versionLabel = `${translate('app.version')} ${versionStr}`;
     const isInstalled = updateState === 'installed';
 
     rowEl.classList.toggle('management-item-row--update', isInstalled);
@@ -203,7 +204,7 @@ export function renderUpdateLifecycle(rowEl, updateState = 'idle', isStandalone 
         return;
     }
 
-    titleEl.textContent = versionLabel;
+    titleEl.innerHTML = `${escapeHTML(translate('app.version'))} <code class="management-version-tag" id="app-lifecycle-version">${escapeHTML(versionStr)}</code>`;
     btnEl.className = 'btn btn--secondary';
 
     switch (updateState) {

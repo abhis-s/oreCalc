@@ -359,7 +359,7 @@ export function openBugReportModal(initialMode = 'bug', options = {}) {
 
     const versionEl = document.getElementById('support-sw-version-text');
     if (versionEl) {
-        const rawVersion = (typeof window !== 'undefined' && window.__ENV__?.APP_VERSION) || state.appVersion || '2.0.0';
+        const rawVersion = (typeof window !== 'undefined' && window.__ENV__?.APP_VERSION) || state.appVersion || '3.1.0';
         versionEl.textContent = 'v' + String(rawVersion).replace(/^v/, '');
     }
 

@@ -20,7 +20,9 @@ import {
     getStartupOptionLabel,
     formatStartupSubViewLabel,
     renderStorageUsage,
-    formatDiagnosticsReport
+    formatDiagnosticsReport,
+    getAppVersionString,
+    renderUpdateLifecycle
 } from '../../js/components/appManagement/appManagementDisplay.js';
 import {
     getHapticsPreference,
@@ -373,5 +375,60 @@ describe('App Management Display & Label Concatenation', () => {
         assert.equal(getHapticsPreference(), true);
         assert.equal(state.uiSettings.hapticsEnabled, true);
         assert.equal(mockStorage.has('clashcalc_tactile_haptics'), false);
+    });
+
+    test('getAppVersionString resolves environment, meta, and fallback versions', () => {
+        // Fallback default without document or window environment
+        const resetDoc = mockGlobal('document', undefined);
+        const resetWin = mockGlobal('window', undefined);
+        assert.equal(getAppVersionString(), 'v3.1.0');
+        resetDoc();
+        resetWin();
+
+        // Resolves from window.__ENV__.APP_VERSION with precedence over meta tag
+        const resetEnvWin = mockGlobal('window', { __ENV__: { APP_VERSION: '3.1.0+abcdef1' } });
+        const resetMetaWithEnv = mockGlobal('document', {
+            querySelector: (sel) => {
+                if (sel === 'meta[name="build-version"]') {
+                    return { getAttribute: () => '3.1.0' };
+                }
+                return null;
+            }
+        });
+        assert.equal(getAppVersionString(), 'v3.1.0+abcdef1');
+        resetEnvWin();
+        resetMetaWithEnv();
+
+        // Resolves from meta tag in document when window.__ENV__ is absent
+        const resetWinEmpty = mockGlobal('window', undefined);
+        const resetMetaDoc = mockGlobal('document', {
+            querySelector: (sel) => {
+                if (sel === 'meta[name="build-version"]') {
+                    return { getAttribute: () => '3.1.0+frommeta' };
+                }
+                return null;
+            }
+        });
+        assert.equal(getAppVersionString(), 'v3.1.0+frommeta');
+        resetMetaDoc();
+        resetWinEmpty();
+    });
+
+    test('renderUpdateLifecycle renders version in a code tag', () => {
+        const titleEl = { innerHTML: '', textContent: '' };
+        const descEl = { textContent: '' };
+        const btnEl = { disabled: false, className: '', innerHTML: '' };
+        const mockRow = {
+            querySelector: (sel) => {
+                if (sel === '#app-lifecycle-title') return titleEl;
+                if (sel === '#app-lifecycle-desc') return descEl;
+                if (sel === '#app-check-update-btn') return btnEl;
+                return null;
+            },
+            classList: { toggle: () => {} }
+        };
+
+        renderUpdateLifecycle(mockRow, 'idle');
+        assert.ok(titleEl.innerHTML.includes('<code class="management-version-tag" id="app-lifecycle-version">v3.1.0</code>'));
     });
 });

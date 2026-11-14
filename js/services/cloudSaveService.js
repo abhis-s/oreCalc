@@ -111,7 +111,7 @@ export async function initializeAppData() {
 
     if (cloudData) {
         // Version Check: Prevent syncing if cloud data was saved by a newer version than current running client
-        const runningAppVersion = window.__ENV__?.APP_VERSION || '2.0.0';
+        const runningAppVersion = window.__ENV__?.APP_VERSION || '3.1.0';
         const cloudAppVersion = cloudData.appVersion || '1.0.0';
 
         if (compareVersions(cloudAppVersion, runningAppVersion) > 0) {
@@ -276,7 +276,7 @@ export async function importUserData(importId) {
             const importedData = await loadUserData(importId);
             if (importedData) {
                 // Version Check: Prevent importing if data was saved by a newer version than current running client
-                const runningAppVersion = window.__ENV__?.APP_VERSION || '2.0.0';
+                const runningAppVersion = window.__ENV__?.APP_VERSION || '3.1.0';
                 const importedVersion = importedData.appVersion || '1.0.0';
                 if (compareVersions(importedVersion, runningAppVersion) > 0) {
                     await showAlert(translate('alerts.importNewerVersionRequired'));

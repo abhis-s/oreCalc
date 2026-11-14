@@ -142,7 +142,7 @@ export function syncActiveFooterLinks(containerSelector = '.app-footer__list, .a
  * @param {{ version?: string }} [options={}]
  */
 export function initAppFooter(options = {}) {
-    const rawVersion = (typeof window !== 'undefined' && window.__ENV__?.APP_VERSION) || options.version || '3.0.0';
+    const rawVersion = (typeof window !== 'undefined' && window.__ENV__?.APP_VERSION) || options.version || '3.1.0';
     const formattedVersion = 'v' + String(rawVersion).replace(/^v/, '');
 
     const versionDisplays = document.querySelectorAll('#app-version-display, .navigation-drawer__app-version, #support-sw-version-text');

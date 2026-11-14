@@ -202,7 +202,7 @@ async function build() {
         const baseUrl = process.env.PUBLIC_API_BASE_URL || 'https://api.clashcalc.com';
         const turnstileSiteKey = process.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         const buildTime = process.env.BUILD_TIME || new Date().toISOString();
-        const envScript = `<meta charset="UTF-8">\n    <script>window.__ENV__ = { PUBLIC_API_BASE_URL: "${baseUrl}", PUBLIC_TURNSTILE_SITE_KEY: "${turnstileSiteKey}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}" };</script>`;
+        const envScript = `<meta charset="UTF-8">\n    <meta name="build-version" content="${appVersion}">\n    <script>window.__ENV__ = { PUBLIC_API_BASE_URL: "${baseUrl}", PUBLIC_TURNSTILE_SITE_KEY: "${turnstileSiteKey}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}" };</script>`;
 
         fs.writeFileSync(path.join(distDir, 'commits.json'), JSON.stringify(commitsSinceTag, null, 2) + '\n', 'utf8');
         console.log(`[OK] Generated commits.json (${commitsSinceTag.length} commits) in dist/.`);

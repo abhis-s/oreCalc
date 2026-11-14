@@ -193,7 +193,8 @@ export function renderSupercellEvents(referenceDate) {
                     return;
                 }
                 const incomeTab = document.getElementById('income-tab');
-                if (incomeTab && !incomeTab.classList.contains('active')) {
+                const isTabActive = incomeTab ? incomeTab.classList.contains('is-active') : (state.activeTab === 'income-tab');
+                if (!isTabActive) {
                     stopCountdownTimer();
                     return;
                 }

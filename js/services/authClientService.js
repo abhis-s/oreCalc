@@ -330,7 +330,7 @@ export function purgeAccountDataOnLogout() {
         uiTimestamps: {
             tour: rawSettings.uiTimestamps?.tour ?? null
         },
-        appVersion: rawSettings.appVersion || '3.0.0',
+        appVersion: rawSettings.appVersion || '3.1.0',
         timestamp: new Date().toISOString()
     };
     localStorage.setItem(settingsKey, JSON.stringify(sanitizedSettings));

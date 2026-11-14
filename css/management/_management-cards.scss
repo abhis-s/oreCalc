@@ -214,6 +214,25 @@
     font-size: $font-size-md;
     font-weight: $font-weight-semibold;
     color: $text-primary;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+}
+
+.management-version-tag {
+    font-family: 'Roboto Mono', monospace;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $accent-primary;
+    background-color: color-mix(in srgb, $accent-primary 10%, $bg-surface-primary);
+    border: 1px solid color-mix(in srgb, $accent-primary 25%, transparent);
+    padding: $spacing-2xs $spacing-xs;
+    border-radius: $shape-corner-xs;
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+    display: inline-block;
+    vertical-align: middle;
+    user-select: all;
 }
 
 .management-item-desc {

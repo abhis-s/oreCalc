@@ -205,7 +205,7 @@ export function saveState(state, immediate = false) {
             const appSettingsToSave = {
                 ...(state.uiSettings || {}),
                 uiTimestamps: cleanUiTimestamps,
-                appVersion: state.appVersion || '3.0.0',
+                appVersion: state.appVersion || '3.1.0',
                 timestamp: state.timestamp || new Date().toISOString()
             };
             delete appSettingsToSave.saveError;
@@ -271,7 +271,7 @@ export function loadState() {
 
         const appSettingsStr = getStorageItem(CANONICAL_APP_SETTINGS_KEY, APP_SETTINGS_KEY);
         const appSettings = (appSettingsStr ? safeJsonParse(appSettingsStr, {}) : {}) || {};
-        appSettings.appVersion = '3.0.0';
+        appSettings.appVersion = '3.1.0';
         const targetSettingsKey = isClashCalcHost() ? CANONICAL_APP_SETTINGS_KEY : APP_SETTINGS_KEY;
         localStorage.setItem(targetSettingsKey, JSON.stringify(appSettings));
     }

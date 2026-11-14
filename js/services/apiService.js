@@ -203,7 +203,7 @@ export async function saveUserData(userId, data) {
         method: 'POST',
         headers: getAuthHeaders({
             'Content-Type': 'application/json',
-            'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+            'x-app-version': window.__ENV__?.APP_VERSION || '3.1.0'
         }),
         body: JSON.stringify({ userId, data })
     });
@@ -231,7 +231,7 @@ export async function saveSinglePlayerData(userId, tag, playerData) {
         method: 'POST',
         headers: getAuthHeaders({
             'Content-Type': 'application/json',
-            'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+            'x-app-version': window.__ENV__?.APP_VERSION || '3.1.0'
         }),
         body: JSON.stringify({ userId, tag, playerData })
     });
@@ -258,7 +258,7 @@ export async function saveUserPreferences(userId, preferences) {
         method: 'PATCH',
         headers: getAuthHeaders({
             'Content-Type': 'application/json',
-            'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+            'x-app-version': window.__ENV__?.APP_VERSION || '3.1.0'
         }),
         body: JSON.stringify({ userId, preferences })
     });
@@ -286,7 +286,7 @@ export async function markUserMigrated(userId) {
             method: 'POST',
             headers: getAuthHeaders({
                 'Content-Type': 'application/json',
-                'x-app-version': window.__ENV__?.APP_VERSION || '3.0.0'
+                'x-app-version': window.__ENV__?.APP_VERSION || '3.1.0'
             }),
             body: JSON.stringify({ userId })
         });
@@ -316,7 +316,7 @@ export async function loadUserData(userId) {
     const response = await fetch(url, {
         cache: 'no-store',
         headers: getAuthHeaders({
-            'x-app-version': window.__ENV__?.APP_VERSION || '2.0.0'
+            'x-app-version': window.__ENV__?.APP_VERSION || '3.1.0'
         })
     });
 

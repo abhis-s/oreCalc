@@ -151,7 +151,7 @@ function getDevEnvironmentData() {
 }
 
 function getDevEnvScript(appVersion, buildTime) {
-    return `<meta charset="UTF-8">\n    <script>window.__ENV__ = { PUBLIC_API_BASE_URL: "${devApiBaseUrl}", PUBLIC_TURNSTILE_SITE_KEY: "${devTurnstileSiteKey}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}" };</script>`;
+    return `<meta charset="UTF-8">\n    <meta name="build-version" content="${appVersion}">\n    <script>window.__ENV__ = { PUBLIC_API_BASE_URL: "${devApiBaseUrl}", PUBLIC_TURNSTILE_SITE_KEY: "${devTurnstileSiteKey}", APP_VERSION: "${appVersion}", BUILD_TIME: "${buildTime}" };</script>`;
 }
 
 function getCompiledIndexHtml(lang = 'en') {

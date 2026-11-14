@@ -135,7 +135,7 @@ export async function mount(options = {}) {
                 if (appSettingsStr) {
                     const settings = safeJsonParse(appSettingsStr, {}) || {};
                     if (!settings.appVersion || compareVersions(settings.appVersion, '2.0.0') < 0) {
-                        settings.appVersion = window.__ENV__?.APP_VERSION || '3.0.0';
+                        settings.appVersion = window.__ENV__?.APP_VERSION || '3.1.0';
                         const targetKey = isClashCalcHost() ? 'clashCalc_appSettings' : 'oreCalc_appSettings';
                         try {
                             localStorage.setItem(targetKey, JSON.stringify(settings));
@@ -145,7 +145,7 @@ export async function mount(options = {}) {
                 return false;
             }
 
-            console.log('Legacy monolithic state detected: resetting to baseline 3.0.0...');
+            console.log('Legacy monolithic state detected: resetting to baseline 3.1.0...');
             let legacyState = safeJsonParse(legacyStateStr, null);
             try {
                 let extractedTags = [];
@@ -161,7 +161,7 @@ export async function mount(options = {}) {
 
                 const fallbackSettingsStr = getStorageItem('clashCalc_appSettings', 'oreCalc_appSettings');
                 const cleanAppSettings = (fallbackSettingsStr ? safeJsonParse(fallbackSettingsStr, {}) : {}) || {};
-                cleanAppSettings.appVersion = '3.0.0';
+                cleanAppSettings.appVersion = '3.1.0';
                 const targetSettingsKey = isClashCalcHost() ? 'clashCalc_appSettings' : 'oreCalc_appSettings';
                 localStorage.setItem(targetSettingsKey, JSON.stringify(cleanAppSettings));
                 if (isClashCalcHost()) {
@@ -169,7 +169,7 @@ export async function mount(options = {}) {
                 }
                 localStorage.removeItem('oreCalculatorState');
                 localStorage.removeItem('OreCalculatorState');
-                console.log('Reset to 3.0.0 completed successfully. Reloading page...');
+                console.log('Reset to 3.1.0 completed successfully. Reloading page...');
                 window.location.reload();
             } catch (err) {
                 console.error('CRITICAL ERROR DURING LEGACY STATE RESET:', err);
