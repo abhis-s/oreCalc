@@ -4,16 +4,9 @@
  */
 
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
-import { BUILDER_REPAIR_PER_HIT } from '../../domain/damage/attackSimulator.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
-import { formatNumber } from '../../utils/numberFormatter.js';
 import { getActiveModifier } from './damageCalcState.js';
-import { getDefenseDisplayName } from '../../utils/equipmentMetadata.js';
-import {
-    getLvlShort,
-    getHpUnit
-} from './damageCalcDisplay.js';
 import {
     getEquipmentStatsPopoverContent,
     getDamageSourcePopoverContent
@@ -109,36 +102,6 @@ export function getGenericInfoPopoverContent(infoKey) {
 export function getActionInfoPopoverContent(actionKey, state = null) {
     if (!actionKey) return null;
 
-    if (actionKey === 'builder_repair') {
-        const currentHutLvl = state?.simulator?.builderHutLevel || state?.builderHutLevel || 1;
-        const title = translate('views.damageCalc.offense.builderRepairLabel');
-        const currentHealRate = BUILDER_REPAIR_PER_HIT[currentHutLvl] || 71.25;
-        const lvlShort = getLvlShort();
-        const hpUnit = getHpUnit();
-        const buildingLabel = translate('views.damageCalc.popovers.statBuilding');
-        const buildersHutText = getDefenseDisplayName('builders_hut');
-        const repairLabel = translate('views.damageCalc.popovers.statRepair');
-        const conditionLabel = translate('views.damageCalc.popovers.statCondition');
-        const conditionText = translate('views.damageCalc.popovers.builderRepairCondition');
-
-        return {
-            header: `
-                <clashcalc-assets-image src="/assets/buildings/builders_hut/level_${currentHutLvl}.png" alt="${escapeHTML(title)}" class="popover-img"></clashcalc-assets-image>
-                <div class="popover-title-group">
-                    <span class="popover-title">${escapeHTML(title)}</span>
-                    <span class="popover-badge">${escapeHTML(buildingLabel)}</span>
-                </div>
-            `,
-            body: `
-                <ul class="calc-popover-stat-list">
-                    <li><strong>${escapeHTML(buildingLabel)}:</strong> ${escapeHTML(buildersHutText)} (${escapeHTML(lvlShort)} ${currentHutLvl})</li>
-                    <li><strong>${escapeHTML(repairLabel)}:</strong> ${escapeHTML(translate('views.damageCalc.popovers.perHit', { amount: formatNumber(currentHealRate), unit: hpUnit }))}</li>
-                    <li><strong>${escapeHTML(conditionLabel)}:</strong> ${escapeHTML(conditionText)}</li>
-                </ul>
-            `
-        };
-    }
-
     if (equipmentDamageData[actionKey]) {
         const rawLvl = state?.offense?.equipment?.[actionKey] || equipmentDamageData[actionKey].maxLevel || (equipmentDamageData[actionKey].rarity === 'epic' ? 27 : 18);
         const activeMod = getActiveModifier(state);
@@ -176,18 +139,6 @@ export function getNoteCodePopoverContent(noteCode) {
                 </div>
             `,
             body: `<p>${escapeHTML(translate('views.damageCalc.popovers.spellImmunityBody') || '')}</p>`
-        };
-    }
-    if (noteCode === 'repair_ticks') {
-        return {
-            header: `
-                <clashcalc-assets-image src="/assets/buildings/builders_hut/level_8.png" alt="Builder" class="popover-img"></clashcalc-assets-image>
-                <div class="popover-title-group">
-                    <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.builderRepairTitle') || 'Builder Repair Mechanics')}</span>
-                    <span class="popover-badge">${escapeHTML(translate('views.damageCalc.offense.builderRepairLabel') || 'Builder Repair')}</span>
-                </div>
-            `,
-            body: `<p>${escapeHTML(translate('views.damageCalc.popovers.builderRepairBody') || '')}</p>`
         };
     }
     return {

@@ -54,8 +54,7 @@ import {
 } from '../../js/domain/damage/equipmentDamage.js';
 import {
     simulateAttackSequence,
-    simulateSequenceAcrossAllDefenses,
-    BUILDER_REPAIR_PER_HIT
+    simulateSequenceAcrossAllDefenses
 } from '../../js/domain/damage/attackSimulator.js';
 await preloadDefensesData();
 
@@ -783,27 +782,6 @@ test('Attack Sequence Simulator - Shared Diminishing Returns & Timing', async (t
         // Step 3 & 4: Zaps deal 720 dmg each
         assert.equal(sim.timeline[2].damageDealt, 720);
         assert.equal(sim.timeline[3].damageDealt, 720);
-    });
-
-    await t.test('Builder repair restores hitpoints per hit based on hut level', () => {
-        const expectedRates = { 1: 0, 2: 37.5, 3: 45.0, 4: 52.5, 5: 60.0, 6: 63.75, 7: 67.5, 8: 71.25, sc1: 71.25, sc2: 71.25 };
-        for (const [lvl, rate] of Object.entries(expectedRates)) {
-            assert.equal(BUILDER_REPAIR_PER_HIT[lvl], rate);
-        }
-
-        const steps = [
-            { type: 'spell', id: 'lightning', level: 13, count: 2 }, // 1440 dmg
-            { type: 'builder_repair', hutLevel: 8 },                    // Builder repairs 71.25 HP
-            { type: 'spell', id: 'lightning', level: 13, count: 1 }
-        ];
-
-        const sim = simulateAttackSequence('inferno_tower', 12, steps);
-
-        // Builder repair step repaired 71.25 HP
-        const repairStep = sim.timeline[2];
-        assert.equal(repairStep.type, 'builder_repair');
-        assert.equal(repairStep.damageDealt, -71.25);
-        assert.equal(repairStep.remainingHp, sim.initialHp - 1440 + 71.25);
     });
 
     await t.test('Subsequent steps skipped when target is destroyed', () => {

@@ -1,6 +1,6 @@
 /**
  * Canonical Battle & Difficulty Modifiers Data.
- * Source: Clash of Clans Wiki (Ranked Battles, Esports Mode, Rage Spell, Rage Gem, Rage Spell Tower, Builder's Hut).
+ * Source: Clash of Clans Wiki (Ranked Battles, Esports Mode, Rage Spell, Rage Gem, Rage Spell Tower).
  */
 
 export const battleModifiersData = Object.freeze({
@@ -74,16 +74,6 @@ export const battleModifiersData = Object.freeze({
         18: 0.50
     }),
     rageSpellTower: Object.freeze({
-        damageMultiplier: 2.00,
-        builderRepairMultiplier: 1.60
-    }),
-    buildersHutRepair: Object.freeze({
-        2: 37.5,
-        3: 45.0,
-        4: 52.5,
-        5: 60.0,
-        6: 63.75,
-        7: 67.5,
-        8: 71.25
+        damageMultiplier: 2.00
     })
 });

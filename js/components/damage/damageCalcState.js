@@ -91,9 +91,6 @@ function createDefaultState() {
             filterStatus: 'all',
             buildingFilter: 'all',
             searchQuery: '',
-            builderHutLevel: 8,
-            builderCount: 1,
-            rageTowerActive: false,
             steps: [
                 { type: 'equipment', id: 'fireball', level: 27 },
                 { type: 'spell', id: 'earthquake', level: 8, count: 1 },
@@ -186,12 +183,15 @@ export function loadPersistedState() {
 
         if (parsed.simulator) {
             Object.assign(damageCalcState.simulator, parsed.simulator);
+            delete damageCalcState.simulator.builderHutLevel;
+            delete damageCalcState.simulator.builderCount;
+            delete damageCalcState.simulator.rageTowerActive;
             if (!['all', 'defenses', 'heroes', 'guardians', 'other'].includes(damageCalcState.simulator.buildingFilter)) {
                 damageCalcState.simulator.buildingFilter = 'all';
             }
             if (Array.isArray(damageCalcState.simulator.steps)) {
                 damageCalcState.simulator.steps = damageCalcState.simulator.steps.filter(
-                    s => s && s.type !== 'delay'
+                    s => s && s.type !== 'delay' && s.type !== 'builder_repair'
                 );
             }
         }

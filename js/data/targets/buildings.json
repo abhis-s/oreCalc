@@ -718,44 +718,37 @@
             "2": {
                 "hp": 1000,
                 "th": 14,
-                "isWeaponized": true,
-                "repairRate": 37.5
+                "isWeaponized": true
             },
             "3": {
                 "hp": 1300,
                 "th": 14,
-                "isWeaponized": true,
-                "repairRate": 45
+                "isWeaponized": true
             },
             "4": {
                 "hp": 1600,
                 "th": 14,
-                "isWeaponized": true,
-                "repairRate": 52.5
+                "isWeaponized": true
             },
             "5": {
                 "hp": 1800,
                 "th": 15,
-                "isWeaponized": true,
-                "repairRate": 60
+                "isWeaponized": true
             },
             "6": {
                 "hp": 1900,
                 "th": 16,
-                "isWeaponized": true,
-                "repairRate": 63.75
+                "isWeaponized": true
             },
             "7": {
                 "hp": 2000,
                 "th": 17,
-                "isWeaponized": true,
-                "repairRate": 67.5
+                "isWeaponized": true
             },
             "8": {
                 "hp": 2100,
                 "th": 18,
                 "isWeaponized": true,
-                "repairRate": 71.25,
                 "supercharges": {
                     "tier1": {
                         "hp": 2100

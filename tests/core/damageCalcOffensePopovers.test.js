@@ -618,11 +618,8 @@ test('Battle Modifier & League Rules Popover', async (t) => {
         assert.ok(popover.body.includes('calc-popover-stat-list'));
     });
 
-    await t.test('getActionInfoPopoverContent returns structured stats for builder repair and damage sources', () => {
-        const repairAction = getActionInfoPopoverContent('builder_repair');
-        assert.ok(repairAction);
-        assert.ok(repairAction.header.includes('Builder Repair'));
-        assert.ok(repairAction.body.includes('+71.25 HP per hit'));
+    await t.test('getActionInfoPopoverContent returns structured stats for damage sources', () => {
+        assert.equal(getActionInfoPopoverContent('builder_repair'), null);
 
         const fireballAction = getActionInfoPopoverContent('fireball');
         assert.ok(fireballAction);
@@ -634,8 +631,7 @@ test('Battle Modifier & League Rules Popover', async (t) => {
             offense: {
                 equipment: { fireball: 27 },
                 spells: { lightning: 13, earthquake: 8 }
-            },
-            simulator: { builderHutLevel: 5 }
+            }
         };
         const fireballEsports = getActionInfoPopoverContent('fireball', esportsState);
         assert.ok(fireballEsports);
@@ -644,12 +640,6 @@ test('Battle Modifier & League Rules Popover', async (t) => {
         assert.ok(!fireballEsports.body.includes('Level:'));
         assert.ok(fireballEsports.body.includes('3,650 HP'));
         assert.ok(fireballEsports.body.includes('5.0 tiles'));
-
-        const repairLvl5 = getActionInfoPopoverContent('builder_repair', esportsState);
-        assert.ok(repairLvl5);
-        assert.ok(repairLvl5.header.includes('level_5.png'));
-        assert.ok(repairLvl5.body.includes('Builder Hut (Lvl 5)'));
-        assert.ok(repairLvl5.body.includes('+60 HP per hit'));
     });
 
     await t.test('getNoteCodePopoverContent returns concise 200% damage note for Giant Arrow vs Air Defense', () => {
