@@ -9,6 +9,7 @@ import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import {
     getMaxSuperchargeTier,
     getDefaultSuperchargeTier,
+    isClusterDefenseSunsetForTownHall,
     isDefenseInSeason,
     getBuildingGroupId,
     getDefenseCategoryTier,
@@ -83,6 +84,7 @@ export function renderBuildingGridCardsHtml({
         const d = getDefensesData()[k];
         if (!d) continue;
         if (!isDefenseInSeason(d, referenceDate)) continue;
+        if (townHallLevel != null && isClusterDefenseSunsetForTownHall(k, townHallLevel)) continue;
 
         const info = townHallLevel != null ? getMaxDefenseLevelForTownHall(k, townHallLevel) : { level: d.maxLevel, status: 'available' };
         const isUnavailable = info.status === 'locked' || info.status === 'sunset';
@@ -96,7 +98,6 @@ export function renderBuildingGridCardsHtml({
             if (!isGroupEnabled) continue;
         } else if (townHallLevel != null) {
             if (d.minTH && townHallLevel < d.minTH) continue;
-            if ('maxTH' in d && typeof d.maxTH === 'number' && townHallLevel > d.maxTH) continue;
         }
         const tier = getDefenseCategoryTier(k, d);
         const isDefense = tier === 1;

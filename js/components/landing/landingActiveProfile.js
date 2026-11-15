@@ -3,9 +3,9 @@ import { MAX_TOWN_HALL, UNRANKED_LEAGUE_ID } from '../../core/constants.js';
 import { heroData } from '../../data/heroData.js';
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 import {
-    getCumulativeHeroLevel,
     getMaxCumulativeHeroLevel,
-    getMaxCumulativeLevelsByTH
+    getMaxCumulativeLevelForTH,
+    getRawCumulativeHeroLevel
 } from '../../domain/income/heroJourneyLevels.js';
 import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
@@ -93,11 +93,10 @@ export function calculateHeroJourneyProgress(playerData, profile, thLevel = MAX_
     const rawCumulative = profile?.heroJourney?.cumulativeHeroLevel ?? playerData?.heroJourney?.cumulativeHeroLevel;
     let cumulativeLevel = Number(rawCumulative);
     if (rawCumulative == null || Number.isNaN(cumulativeLevel)) {
-        cumulativeLevel = getCumulativeHeroLevel({ playerProfile: profile, heroes: playerData?.heroes });
+        cumulativeLevel = getRawCumulativeHeroLevel({ playerProfile: profile, heroes: playerData?.heroes });
     }
-    const maxLevelsByTH = getMaxCumulativeLevelsByTH();
     const overallMax = getMaxCumulativeHeroLevel();
-    const thCap = maxLevelsByTH[thLevel] || overallMax;
+    const thCap = getMaxCumulativeLevelForTH(thLevel) || overallMax;
     const progressPercent = Math.min(100, Math.max(0, Math.round((cumulativeLevel / thCap) * 100)));
     const isThMaxed = cumulativeLevel >= thCap;
     const isTrackMaxed = cumulativeLevel >= overallMax;

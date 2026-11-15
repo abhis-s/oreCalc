@@ -12,6 +12,7 @@ import {
     getMaxDefenseLevelForTownHall,
     getMaxSuperchargeTier,
     getMaxSuperchargeTierForTownHall,
+    isClusterDefenseSunsetForTownHall,
     isDefenseInSeason,
     isSuperchargeAvailableForTownHall,
     snapDefenseLevel
@@ -218,40 +219,11 @@ export function loadPersistedState() {
             }
         }
         if (Array.isArray(damageCalcState.zapQuake.selectedCluster)) {
-            let seenCrafted = false;
-            let seenGuardian = false;
-            let heroCount = 0;
-            const shownTh = getShownTownHall(damageCalcState);
-            damageCalcState.zapQuake.selectedCluster = damageCalcState.zapQuake.selectedCluster
-                .filter(t => {
-                    if (!t || !isDefenseInSeason(t.defenseKey)) return false;
-                    const defObj = getDefensesData()[t.defenseKey];
-                    if (defObj?.minTH && shownTh < defObj.minTH) return false;
-                    if (defObj?.subCategory === 'crafted') {
-                        if (seenCrafted) return false;
-                        seenCrafted = true;
-                    }
-                    if (defObj?.category === 'guardian') {
-                        if (seenGuardian) return false;
-                        seenGuardian = true;
-                    }
-                    if (defObj?.category === 'hero') {
-                        if (heroCount >= 4) return false;
-                        heroCount++;
-                    }
-                    return true;
-                })
-                .slice(0, 5)
-                .map(item => {
-                    const maxThLvl = getMaxDefenseLevelForTownHall(item.defenseKey, shownTh).level;
-                    const cappedLvl = maxThLvl > 0 ? Math.min(item.level, maxThLvl) : item.level;
-                    const maxTier = getMaxSuperchargeTier(item.defenseKey, cappedLvl);
-                    return {
-                        ...item,
-                        level: cappedLvl,
-                        superchargeTier: item.superchargeTier !== undefined ? Math.min(item.superchargeTier, maxTier) : 0
-                    };
-                });
+            pruneSelectedClusterForTownHall(
+                damageCalcState.zapQuake,
+                getShownTownHall(damageCalcState),
+                { enforceCaps: true }
+            );
         }
 
         if (typeof parsed.globalSuperchargeTier === 'number' && Number.isInteger(parsed.globalSuperchargeTier)) {
@@ -489,6 +461,99 @@ export function syncStateSpellCaps(targetState = damageCalcState, usePreset = fa
 }
 
 /**
+ * Prunes locked, seasonal, and Cluster-Planner-sunset entries from selectedCluster,
+ * synchronizes adjacentPairs and clusterEquipmentSharing indices, and clamps or resets levels.
+ *
+ * @param {Object} zq - Damage calculator zapQuake state object.
+ * @param {number} shownTh - Active effective Town Hall level.
+ * @param {Object} [options={}]
+ * @param {boolean} [options.resetToMax=false] - Reset kept targets to TH max level & default supercharge.
+ * @param {boolean} [options.enforceCaps=false] - Enforce crafted, guardian, hero, season, and 5-target caps.
+ */
+function pruneSelectedClusterForTownHall(zq, shownTh, { resetToMax = false, enforceCaps = false } = {}) {
+    if (!zq || !Array.isArray(zq.selectedCluster)) return;
+
+    let seenCrafted = false;
+    let seenGuardian = false;
+    let heroCount = 0;
+    const keptOldToNewIdx = new Map();
+    const nextCluster = [];
+
+    zq.selectedCluster.forEach((item, oldIdx) => {
+        if (!item) return;
+        if (enforceCaps && !isDefenseInSeason(item.defenseKey)) return;
+        const def = getDefensesData()[item.defenseKey];
+        if (def?.minTH && shownTh < def.minTH) return;
+        if (isClusterDefenseSunsetForTownHall(item.defenseKey, shownTh)) return;
+        if (enforceCaps) {
+            if (nextCluster.length >= 5) return;
+            if (def?.subCategory === 'crafted') {
+                if (seenCrafted) return;
+                seenCrafted = true;
+            }
+            if (def?.category === 'guardian') {
+                if (seenGuardian) return;
+                seenGuardian = true;
+            }
+            if (def?.category === 'hero') {
+                if (heroCount >= 4) return;
+                heroCount++;
+            }
+        }
+
+        keptOldToNewIdx.set(oldIdx, nextCluster.length);
+        const maxThLvl = getMaxDefenseLevelForTownHall(item.defenseKey, shownTh).level;
+        const nextLvl = resetToMax
+            ? (maxThLvl > 0 ? maxThLvl : item.level)
+            : (maxThLvl > 0 ? Math.min(item.level, maxThLvl) : item.level);
+        const maxTier = getMaxSuperchargeTier(item.defenseKey, nextLvl);
+        const nextTier = resetToMax
+            ? Math.min(getDefaultSuperchargeTier(item.defenseKey, nextLvl, shownTh), maxTier)
+            : (item.superchargeTier !== undefined ? Math.min(item.superchargeTier, maxTier) : 0);
+
+        nextCluster.push({
+            ...item,
+            level: nextLvl,
+            superchargeTier: nextTier
+        });
+    });
+
+    const clusterChanged = nextCluster.length !== zq.selectedCluster.length;
+    zq.selectedCluster = nextCluster;
+
+    if (!clusterChanged) return;
+
+    if (Array.isArray(zq.adjacentPairs)) {
+        const remappedPairs = [];
+        for (const pair of zq.adjacentPairs) {
+            const [uRaw, vRaw] = Array.isArray(pair) ? pair : String(pair).split('-').map(Number);
+            const u = keptOldToNewIdx.get(uRaw);
+            const v = keptOldToNewIdx.get(vRaw);
+            if (u !== undefined && v !== undefined && u !== v) {
+                remappedPairs.push(`${Math.min(u, v)}-${Math.max(u, v)}`);
+            }
+        }
+        zq.adjacentPairs = Array.from(new Set(remappedPairs));
+    }
+
+    if (zq.clusterEquipmentSharing && typeof zq.clusterEquipmentSharing === 'object') {
+        const remappedSharing = {};
+        for (const [equipKey, targets] of Object.entries(zq.clusterEquipmentSharing)) {
+            if (!Array.isArray(targets)) continue;
+            const mappedTargets = Array.from(new Set(
+                targets
+                    .map(t => keptOldToNewIdx.get(t))
+                    .filter(t => t !== undefined)
+            )).sort((a, b) => a - b);
+            if (mappedTargets.length > 0 && mappedTargets.length < nextCluster.length) {
+                remappedSharing[equipKey] = mappedTargets;
+            }
+        }
+        zq.clusterEquipmentSharing = remappedSharing;
+    }
+}
+
+/**
  * Sets the active player Town Hall level and actively prunes overrides that match
  * the new Town Hall baseline defaults.
  *
@@ -505,24 +570,7 @@ export function setPlayerTownHall(townHallLevel) {
         setGlobalSuperchargeTier(getMaxSuperchargeTierForTownHall(shownTh));
     }
     pruneDefenseOverrides(damageCalcState);
-    if (Array.isArray(damageCalcState.zapQuake.selectedCluster)) {
-        damageCalcState.zapQuake.selectedCluster = damageCalcState.zapQuake.selectedCluster
-            .filter(item => {
-                if (!item) return false;
-                const def = getDefensesData()[item.defenseKey];
-                return !def?.minTH || shownTh >= def.minTH;
-            })
-            .map(item => {
-                const maxThLvl = getMaxDefenseLevelForTownHall(item.defenseKey, shownTh).level;
-                const cappedLvl = maxThLvl > 0 ? Math.min(item.level, maxThLvl) : item.level;
-                const maxTier = getMaxSuperchargeTier(item.defenseKey, cappedLvl);
-                return {
-                    ...item,
-                    level: cappedLvl,
-                    superchargeTier: item.superchargeTier !== undefined ? Math.min(item.superchargeTier, maxTier) : 0
-                };
-            });
-    }
+    pruneSelectedClusterForTownHall(damageCalcState.zapQuake, shownTh);
     persistState();
 }
 
@@ -545,25 +593,7 @@ export function applyTownHallPreset(townHallLevel) {
         damageCalcState.globalSuperchargeTier = 0;
     }
     pruneDefenseOverrides(damageCalcState);
-    if (Array.isArray(damageCalcState.zapQuake.selectedCluster)) {
-        damageCalcState.zapQuake.selectedCluster = damageCalcState.zapQuake.selectedCluster
-            .filter(item => {
-                if (!item) return false;
-                const def = getDefensesData()[item.defenseKey];
-                return !def?.minTH || shownTh >= def.minTH;
-            })
-            .map(item => {
-                const maxThLvl = getMaxDefenseLevelForTownHall(item.defenseKey, shownTh).level;
-                const newLvl = maxThLvl > 0 ? maxThLvl : item.level;
-                const maxTier = getMaxSuperchargeTier(item.defenseKey, newLvl);
-                const defaultTier = getDefaultSuperchargeTier(item.defenseKey, newLvl, shownTh);
-                return {
-                    ...item,
-                    level: newLvl,
-                    superchargeTier: Math.min(defaultTier, maxTier)
-                };
-            });
-    }
+    pruneSelectedClusterForTownHall(damageCalcState.zapQuake, shownTh, { resetToMax: true });
     persistState();
 }
 

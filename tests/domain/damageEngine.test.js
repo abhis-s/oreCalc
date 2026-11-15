@@ -925,6 +925,24 @@ test('Whole-Village ZapQuake Solutions & Combo Grouping', async (t) => {
         assert.equal(th18.length, 36, 'TH18 must have exactly 36 active targets');
     });
 
+    await t.test('solveAllDefensesZapQuake lifecycle: TH19 retains scattershot and archer tower until TH20 post-sunset', () => {
+        const th19 = solveAllDefensesZapQuake({ townHallLevel: 19, lightningLevel: 14, earthquakeLevel: 8 });
+        const keys19 = th19.map(d => d.defenseKey);
+
+        assert.strictEqual(keys19.includes('scattershot'), true, 'Scattershot must remain available at TH19 in ZapQuake Solver');
+        assert.strictEqual(keys19.includes('archer_tower'), true, 'Standard archer tower must remain available at TH19 in ZapQuake Solver');
+        assert.strictEqual(keys19.includes('firecracker_tower'), true, 'Firecracker tower must be included at TH19');
+        assert.strictEqual(keys19.includes('spiky_tower'), true, 'Spiky tower must be included at TH19');
+        assert.strictEqual(keys19.includes('cannon'), false, 'Standard cannon remains excluded at TH19');
+        assert.strictEqual(keys19.includes('eagle_artillery'), false, 'Eagle artillery remains excluded at TH19');
+
+        const th20 = solveAllDefensesZapQuake({ townHallLevel: 20, lightningLevel: 14, earthquakeLevel: 8 });
+        const keys20 = th20.map(d => d.defenseKey);
+
+        assert.strictEqual(keys20.includes('scattershot'), false, 'Scattershot must disappear post-sunset at TH20');
+        assert.strictEqual(keys20.includes('archer_tower'), false, 'Standard archer tower must disappear post-sunset at TH20');
+    });
+
     await t.test('solveAllDefensesZapQuake lifecycle: TH16 has both merged and unmerged defenses plus eagle artillery', () => {
         const th16 = solveAllDefensesZapQuake({ townHallLevel: 16, lightningLevel: 13, earthquakeLevel: 8 });
         const keys = th16.map(d => d.defenseKey);

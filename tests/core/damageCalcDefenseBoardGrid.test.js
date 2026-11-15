@@ -28,6 +28,7 @@ import { loadTranslations } from '../../js/i18n/translator.js';
 import { preloadDefensesData, getDefensesData } from '../../js/data/defenseTargetsData.js';
 import { getClusterPresetsForTownHall } from '../../js/data/clusterPresetsData.js';
 import { renderDefenseBoardPanel } from '../../js/components/damage/damageCalcDefenseBoardDisplay.js';
+import { getSuggestedNeighborsForDefense } from '../../js/components/damage/damageCalcClusterWidgetsDisplay.js';
 import { getClusterTargetPopoverContent } from '../../js/components/damage/damageCalcClusterAndBadgePopoversDisplay.js';
 import { damageCalcState, loadPersistedState } from '../../js/components/damage/damageCalcState.js';
 import { attachDamageCalcListeners } from '../../js/components/damage/damageCalcInputs.js';
@@ -145,45 +146,92 @@ test('Cluster Planner Panel - Renders visual building selection grid with search
     );
 });
 
-test('Cluster Planner Panel - Town Hall lifecycle: TH17 sunsets eagle artillery but retains cannon and merged defenses', () => {
-    const container = createMockContainer();
-    const state = {
+test('Cluster Planner Panel - Town Hall lifecycle: immediate sunset on maxTH except eagle artillery (post-sunset)', () => {
+    const createGridState = (th, unavailable = false) => ({
         ...damageCalcState,
         activeTab: 'cluster_planner',
-        playerTownHall: 17,
+        playerTownHall: th,
+        enabledBuildingGroups: {
+            defenses: true,
+            heroes: true,
+            guardians: true,
+            other: true,
+            unavailable
+        },
         zapQuake: {
             defenseKey: 'air_defense',
-            defenseLevel: 15,
+            defenseLevel: 14,
             superchargeTier: 0,
             lightningLevel: 13,
             earthquakeLevel: 8,
-            selectedCluster: [{ defenseKey: 'air_defense', level: 15, superchargeTier: 0 }],
+            selectedCluster: [{ defenseKey: 'air_defense', level: 14, superchargeTier: 0 }],
             searchQuery: '',
             multiSelectMode: true
         }
-    };
+    });
 
-    renderDefenseBoardPanel(state, container);
-    const html = container.innerHTML;
+    // TH16 retains eagle artillery and standard cannon
+    const container16 = createMockContainer();
+    renderDefenseBoardPanel(createGridState(16), container16);
+    const html16 = container16.innerHTML;
+    assert.strictEqual(html16.includes('data-building-key="eagle_artillery"'), true, 'Eagle artillery card must stay visible at TH16');
+    assert.strictEqual(html16.includes('data-building-key="cannon"'), true, 'Standard cannon card must render at TH16');
 
-    // Eagle artillery is sunset at TH17
-    assert.strictEqual(html.includes('data-building-key="eagle_artillery"'), false, 'Eagle artillery card must be excluded at TH17');
+    // TH17 excludes both eagle artillery (post-sunset) and cannon (sunsets on TH17), even if unavailable group is enabled
+    const container17 = createMockContainer();
+    renderDefenseBoardPanel(createGridState(17, true), container17);
+    const html17 = container17.innerHTML;
+    assert.strictEqual(html17.includes('data-building-key="eagle_artillery"'), false, 'Eagle artillery card must be excluded at TH17');
+    assert.strictEqual(html17.includes('data-building-key="cannon"'), false, 'Standard cannon card must be excluded on TH17 in Cluster Planner');
+    assert.strictEqual(html17.includes('data-building-key="ricochet_cannon"'), true, 'Ricochet cannon card must be rendered at TH17');
+    assert.strictEqual(html17.includes('data-building-key="multi_archer_tower"'), true, 'Multi-archer tower card must be rendered at TH17');
+    assert.strictEqual(html17.includes('data-building-key="archer_tower"'), true, 'Standard archer tower card must remain rendered at TH17');
+    assert.strictEqual(html17.includes('data-building-key="scattershot"'), true, 'Scattershot card must remain rendered at TH17');
+    assert.strictEqual(html17.includes('data-building-key="air_defense"'), true, 'Air defense card must be rendered at TH17');
 
-    // Cannon remains available till TH17
-    assert.strictEqual(html.includes('data-building-key="cannon"'), true, 'Standard cannon card must be rendered at TH17');
-
-    // Continuing & merged defenses must be rendered at TH17
-    assert.strictEqual(html.includes('data-building-key="ricochet_cannon"'), true, 'Ricochet cannon card must be rendered at TH17');
-    assert.strictEqual(html.includes('data-building-key="multi_archer_tower"'), true, 'Multi-archer tower card must be rendered at TH17');
-    assert.strictEqual(html.includes('data-building-key="archer_tower"'), true, 'Standard archer tower card must remain rendered at TH17');
-    assert.strictEqual(html.includes('data-building-key="air_defense"'), true, 'Air defense card must be rendered at TH17');
-
-    // Verify TH18 excludes both cannon and eagle artillery
+    // TH18 retains scattershot and archer_tower while excluding cannon and eagle artillery
     const container18 = createMockContainer();
-    renderDefenseBoardPanel({ ...state, playerTownHall: 18 }, container18);
+    renderDefenseBoardPanel(createGridState(18), container18);
     const html18 = container18.innerHTML;
     assert.strictEqual(html18.includes('data-building-key="cannon"'), false, 'Standard cannon card must be excluded at TH18');
     assert.strictEqual(html18.includes('data-building-key="eagle_artillery"'), false, 'Eagle artillery card must be excluded at TH18');
+    assert.strictEqual(html18.includes('data-building-key="archer_tower"'), true, 'Archer tower card must remain rendered at TH18');
+    assert.strictEqual(html18.includes('data-building-key="scattershot"'), true, 'Scattershot card must remain rendered at TH18');
+
+    // TH19 excludes archer_tower and scattershot on same TH (plus cannon & eagle), even if unavailable group is enabled
+    const container19 = createMockContainer();
+    renderDefenseBoardPanel(createGridState(19, true), container19);
+    const html19 = container19.innerHTML;
+    assert.strictEqual(html19.includes('data-building-key="archer_tower"'), false, 'Archer tower card must be excluded on TH19 in Cluster Planner');
+    assert.strictEqual(html19.includes('data-building-key="scattershot"'), false, 'Scattershot card must be excluded on TH19 in Cluster Planner');
+    assert.strictEqual(html19.includes('data-building-key="cannon"'), false, 'Cannon must remain excluded on TH19');
+    assert.strictEqual(html19.includes('data-building-key="eagle_artillery"'), false, 'Eagle artillery must remain excluded on TH19');
+    assert.strictEqual(html19.includes('data-building-key="firecracker_tower"'), true, 'Firecracker tower must render on TH19');
+    assert.strictEqual(html19.includes('data-building-key="spiky_tower"'), true, 'Spiky tower must render on TH19');
+});
+
+test('Cluster Planner Suggested Neighbors - Eagle visible up to TH16 while scattershot disappears at TH19', () => {
+    const refDate = new Date('2026-11-15T00:00:00Z');
+
+    // Through TH16, Eagle Artillery appears in Suggested Neighbors unless selected itself
+    const th16Monolith = getSuggestedNeighborsForDefense('monolith', 16, refDate);
+    assert.equal(th16Monolith.length, 3);
+    assert.strictEqual(th16Monolith.includes('eagle_artillery'), true, 'TH16 neighbors must include Eagle Artillery');
+    assert.strictEqual(getSuggestedNeighborsForDefense('air_defense', 16, refDate).includes('eagle_artillery'), true);
+    assert.strictEqual(getSuggestedNeighborsForDefense('eagle_artillery', 16, refDate).includes('eagle_artillery'), false, 'Must exclude active target');
+    assert.strictEqual(getSuggestedNeighborsForDefense('inferno_tower', 13, refDate).includes('eagle_artillery'), true, 'TH13 neighbors must include Eagle Artillery');
+
+    // TH17 removes Eagle Artillery post-sunset while keeping Scattershot
+    const th17Monolith = getSuggestedNeighborsForDefense('monolith', 17, refDate);
+    assert.strictEqual(th17Monolith.includes('eagle_artillery'), false, 'TH17 neighbors must exclude Eagle Artillery');
+    assert.strictEqual(th17Monolith.includes('scattershot'), true, 'TH17 neighbors retain Scattershot');
+
+    // TH18 retains Scattershot; TH19 excludes Scattershot immediately on its sunset TH
+    assert.strictEqual(getSuggestedNeighborsForDefense('monolith', 18, refDate).includes('scattershot'), true, 'TH18 neighbors retain Scattershot');
+    const th19Monolith = getSuggestedNeighborsForDefense('monolith', 19, refDate);
+    assert.equal(th19Monolith.length, 3);
+    assert.strictEqual(th19Monolith.includes('scattershot'), false, 'TH19 neighbors must exclude sunsetting Scattershot');
+    assert.strictEqual(th19Monolith.includes('eagle_artillery'), false, 'TH19 neighbors remain excluding Eagle Artillery');
 });
 
 test('Cluster Planner Panel - Renders compound cluster solution for multi-defense targets', () => {
@@ -1244,9 +1292,26 @@ test('Cluster Planner Panel - When playerTownHall is < 9, renders with active TH
     assert.equal(html.includes('data-building-key="builders_hut"'), false, 'Builder\'s Hut must not appear at TH 9');
 });
 
-test('Town Hall Adaptive Recommended Cluster Presets - Resolves accurate defenses per TH and gates to TH 16-18', () => {
+test('Town Hall Adaptive Recommended Cluster Presets - Resolves accurate defenses per TH and gates to TH 16-19', () => {
+    const inSeasonDate = new Date('2026-11-15T00:00:00Z');
+    const postExpiryDate = new Date('2027-01-01T00:00:00Z');
+
+    // TH 19 presets: Option A with Firecracker Tower, Spiky Tower, and seasonal Cake-A-Pult
+    const presets19 = getClusterPresetsForTownHall(19, inSeasonDate);
+    assert.equal(presets19.length, 2, 'TH 19 must have 2 presets');
+    assert.deepEqual(presets19[0].targets, ['cake_a_pult', 'inferno_tower', 'firecracker_tower', 'multi_archer_tower', 'spell_tower']);
+    assert.deepEqual(presets19[0].equipment, ['fireball']);
+    assert.deepEqual(presets19[1].targets, ['spiky_tower', 'clan_castle', 'monolith']);
+    assert.deepEqual(presets19[1].equipment, ['giant_arrow', 'rocket_backpack']);
+
+    // Expired seasonal defenses are omitted from cluster presets post-expiry while keeping >= 2 targets
+    const expiredPresets19 = getClusterPresetsForTownHall(19, postExpiryDate);
+    assert.equal(expiredPresets19.length, 2);
+    assert.equal(expiredPresets19[0].targets.includes('cake_a_pult'), false, 'Expired seasonal defense must be filtered post-expiry');
+    assert.ok(expiredPresets19.every(p => p.targets.length >= 2), 'Remaining presets must keep at least 2 targets');
+
     // TH 18 presets: Apex & Crafted with Super Wizard Tower and Revenge Tower
-    const presets18 = getClusterPresetsForTownHall(18);
+    const presets18 = getClusterPresetsForTownHall(18, inSeasonDate);
     assert.equal(presets18.length, 2, 'TH 18 must have 2 presets');
     assert.deepEqual(presets18[0].targets, ['cake_a_pult', 'inferno_tower', 'super_wizard_tower', 'multi_archer_tower', 'spell_tower']);
     assert.deepEqual(presets18[0].equipment, ['fireball']);
@@ -1256,7 +1321,7 @@ test('Town Hall Adaptive Recommended Cluster Presets - Resolves accurate defense
     assert.equal(presets18[1].titleKey, 'views.damageCalc.presets.arrowBackpackPresetTitle');
 
     // TH 17 presets: Super Wizard Tower replaced with Firespitter, Revenge Tower with Multi-Gear Tower
-    const presets17 = getClusterPresetsForTownHall(17);
+    const presets17 = getClusterPresetsForTownHall(17, inSeasonDate);
     assert.equal(presets17.length, 2, 'TH 17 must have 2 presets');
     assert.deepEqual(presets17[0].targets, ['cake_a_pult', 'inferno_tower', 'firespitter', 'multi_archer_tower', 'spell_tower']);
     assert.deepEqual(presets17[0].equipment, ['fireball']);
@@ -1268,7 +1333,7 @@ test('Town Hall Adaptive Recommended Cluster Presets - Resolves accurate defense
     assert.ok(!presets17[1].targets.includes('revenge_tower'), 'TH 17 must not contain revenge_tower');
 
     // TH 16 presets: Super Wizard Tower replaced with Eagle Artillery, Revenge Tower with Ricochet Cannon
-    const presets16 = getClusterPresetsForTownHall(16);
+    const presets16 = getClusterPresetsForTownHall(16, inSeasonDate);
     assert.equal(presets16.length, 2, 'TH 16 must have 2 presets');
     assert.deepEqual(presets16[0].targets, ['cake_a_pult', 'inferno_tower', 'eagle_artillery', 'multi_archer_tower', 'spell_tower']);
     assert.deepEqual(presets16[0].equipment, ['fireball']);
@@ -1281,21 +1346,28 @@ test('Town Hall Adaptive Recommended Cluster Presets - Resolves accurate defense
     assert.ok(!presets16[1].targets.includes('revenge_tower'), 'TH 16 must not contain revenge_tower');
     assert.ok(!presets16[1].targets.includes('multi_gear_tower'), 'TH 16 must not contain multi_gear_tower');
 
-    // All presets below TH 16 return empty array (gated to TH 16-18)
+    // All presets below TH 16 return empty array
     for (let th = 9; th <= 15; th++) {
-        const presetsLow = getClusterPresetsForTownHall(th);
+        const presetsLow = getClusterPresetsForTownHall(th, inSeasonDate);
         assert.deepEqual(presetsLow, [], `TH ${th} presets must be empty array`);
     }
 
-    // Verify all targets in TH 16-18 presets meet minTH requirement
-    for (const th of [16, 17, 18]) {
-        const presets = getClusterPresetsForTownHall(th);
+    // Verify all targets in TH 16-19 presets meet minTH and maxTH lifecycle bounds
+    for (const th of [16, 17, 18, 19]) {
+        const presets = getClusterPresetsForTownHall(th, inSeasonDate);
         for (const preset of presets) {
             for (const tgtKey of preset.targets) {
                 const def = getDefensesData()[tgtKey];
                 assert.ok(def, `Building ${tgtKey} must exist in defenses data`);
                 const minTh = def.minTH || 1;
                 assert.ok(minTh <= th, `Building ${tgtKey} minTH (${minTh}) must be <= Town Hall ${th}`);
+                if (def.maxTH) {
+                    if (tgtKey === 'eagle_artillery') {
+                        assert.ok(th <= def.maxTH, `Eagle Artillery maxTH (${def.maxTH}) must be >= Town Hall ${th}`);
+                    } else {
+                        assert.ok(th < def.maxTH, `Building ${tgtKey} sunsetting maxTH (${def.maxTH}) must be > Town Hall ${th}`);
+                    }
+                }
             }
         }
     }

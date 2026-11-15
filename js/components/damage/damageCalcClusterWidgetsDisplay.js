@@ -7,7 +7,11 @@ import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { getClusterPresetsForTownHall } from '../../data/clusterPresetsData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
-import { getMaxDefenseLevelForTownHall } from '../../domain/damage/defenseProgressionDomain.js';
+import {
+    getMaxDefenseLevelForTownHall,
+    isClusterDefenseSunsetForTownHall,
+    isDefenseInSeason
+} from '../../domain/damage/defenseProgressionDomain.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import {
@@ -183,15 +187,25 @@ export function renderMobileSpellDockHtml({
 
 /**
  * Resolves suggested complementary neighbors for a defense at the active Town Hall.
+ * Excludes expired seasonal/crafted defenses and sunsetted buildings.
  *
  * @param {string} defenseKey - Selected defense key.
  * @param {number} activeTh - Active Town Hall level.
+ * @param {Date|string|number} [referenceDate=new Date()] - Reference date for seasonal filtering.
  * @returns {Array<string>} Array of up to 3 candidate defense keys.
  */
-export function getSuggestedNeighborsForDefense(defenseKey, activeTh) {
-    const candidates = ['monolith', 'scattershot', 'inferno_tower', 'spell_tower', 'air_defense', 'eagle_artillery', 'clan_castle', 'cake_a_pult'];
+export function getSuggestedNeighborsForDefense(defenseKey, activeTh, referenceDate = new Date()) {
+    const candidates = ['monolith', 'eagle_artillery', 'scattershot', 'inferno_tower', 'spell_tower', 'air_defense', 'clan_castle', 'cake_a_pult'];
+    const defs = getDefensesData();
     return candidates
-        .filter(k => k !== defenseKey && getDefensesData()[k] && (!getDefensesData()[k].minTH || activeTh >= getDefensesData()[k].minTH))
+        .filter(k => {
+            if (k === defenseKey) return false;
+            const def = defs[k];
+            if (!def) return false;
+            if (def.minTH && activeTh < def.minTH) return false;
+            if (isClusterDefenseSunsetForTownHall(k, activeTh)) return false;
+            return isDefenseInSeason(def, referenceDate);
+        })
         .slice(0, 3);
 }
 
@@ -199,17 +213,21 @@ export function getSuggestedNeighborsForDefense(defenseKey, activeTh) {
  * Renders the Popular Cluster Presets cards for the empty state.
  *
  * @param {number} activeTh - Current Town Hall level.
+ * @param {Date|string|number} [referenceDate=new Date()] - Reference date for seasonal filtering.
  * @returns {string} HTML markup.
  */
-export function renderClusterPresetsHtml(activeTh) {
-    const presets = getClusterPresetsForTownHall(activeTh);
+export function renderClusterPresetsHtml(activeTh, referenceDate = new Date()) {
+    const presets = getClusterPresetsForTownHall(activeTh, referenceDate);
     if (!presets || presets.length === 0) {
         return '';
     }
 
     const presetCardsHtml = presets.map(preset => {
         const titleText = escapeHTML(translate(preset.titleKey) || preset.defaultTitle);
-        const descText = escapeHTML(translate(preset.descKey) || preset.defaultDesc);
+        const rawDesc = translate(preset.descKey) || preset.defaultDesc;
+        const isCountAdjusted = typeof preset.baseTargetCount === 'number' && preset.targets.length !== preset.baseTargetCount;
+        const descText = escapeHTML(isCountAdjusted ? rawDesc.replace(/\d+/, String(preset.targets.length)) : rawDesc);
+        const descI18nAttr = isCountAdjusted ? '' : ` data-i18n="${preset.descKey}"`;
         const loadBtnText = escapeHTML(translate('actions.load') || 'Load');
 
         const targetsThumbsHtml = preset.targets.map((tgtKey, i) => {
@@ -240,7 +258,7 @@ export function renderClusterPresetsHtml(activeTh) {
                 <div class="calc-cluster-preset-card__header">
                     <div class="calc-cluster-preset-card__info">
                         <span class="calc-cluster-preset-card__title" data-i18n="${preset.titleKey}">${titleText}</span>
-                        <span class="calc-cluster-preset-card__desc" data-i18n="${preset.descKey}">${descText}</span>
+                        <span class="calc-cluster-preset-card__desc"${descI18nAttr}>${descText}</span>
                     </div>
                     <button type="button" class="btn-secondary calc-cluster-preset-card__btn" data-i18n="actions.load">
                         ${loadBtnText}

@@ -12,6 +12,7 @@ import {
     resolveHeroJourneyTrack
 } from '../../domain/income/heroJourneyResolution.js';
 import {
+    getMaxCumulativeLevelForTH,
     getMaxCumulativeLevelsByTH,
     getMaxTownHallLevel,
     getNodeTownHallLevel,
@@ -71,7 +72,7 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
         return true;
     });
 
-    const playerMaxLevel = maxLevelsByTH[thLevel] || Infinity;
+    const playerMaxLevel = getMaxCumulativeLevelForTH(thLevel) || Infinity;
     const revealBeyondTH = state?.heroJourney?.revealBeyondTH || false;
 
     const visibleNodes = revealBeyondTH

@@ -1,6 +1,6 @@
 import { translate } from '../../i18n/translator.js';
 import { heroJourneyNodes } from '../../data/heroJourneyData.js';
-import { getMaxCumulativeLevelsByTH, getMaxTownHallLevel, getNodeTownHallLevel, getTownHallStartLevel } from '../../domain/income/heroJourneyLevels.js';
+import { getMaxCumulativeHeroLevel, getMaxCumulativeLevelForTH, getMaxTownHallLevel, getNodeTownHallLevel, getTownHallStartLevel } from '../../domain/income/heroJourneyLevels.js';
 import { resolveHeroJourneyTrack } from '../../domain/income/heroJourneyResolution.js';
 import { createNodeChipElement } from '../home/heroJourneyNodeBuilder.js';
 import { createTHStartDivider, createTHBoundaryDivider, createTHLimitBlockCard } from '../home/heroJourneyDividersDisplay.js';
@@ -76,13 +76,11 @@ export function renderTrackView(options = {}) {
 
     trackEl.innerHTML = '';
 
-    const maxLevelsByTH = getMaxCumulativeLevelsByTH();
     const state = buildStateFromPlayerData(hjState.playerData, hjState);
-    const allMaxValues = Object.values(maxLevelsByTH);
-    const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 0;
+    const overallTrueMaxLevel = getMaxCumulativeHeroLevel();
     const isUserSynced = Boolean(hjState.playerData);
     const isTrueMaxPlayer = isUserSynced && hjState.cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
-    const playerMaxLevel = maxLevelsByTH[hjState.thLevel] || Infinity;
+    const playerMaxLevel = getMaxCumulativeLevelForTH(hjState.thLevel) || Infinity;
     const trackResolution = resolveHeroJourneyTrack(state);
 
     /** @type {'accelerated' | 'normal'} */
@@ -210,12 +208,10 @@ export function renderTrackView(options = {}) {
  * Updates top progress bar and cumulative level badge.
  */
 export function updateProgressBar() {
-    const maxLevelsByTH = getMaxCumulativeLevelsByTH();
     const maxTH = getMaxTownHallLevel();
     const thLevel = hjState.thLevel || maxTH;
-    const thMaxLevel = maxLevelsByTH[thLevel] || 0;
-    const allMax = Object.values(maxLevelsByTH);
-    const overallMax = allMax.length > 0 ? Math.max(...allMax) : 485;
+    const thMaxLevel = getMaxCumulativeLevelForTH(thLevel);
+    const overallMax = getMaxCumulativeHeroLevel();
 
     const cumulativeBadge = document.getElementById('home-hj-cumulative-badge');
     const progressFill = document.getElementById('home-hj-progress-fill');
@@ -288,9 +284,7 @@ export function syncClaimSwitchPill() {
     if (claimSwitches.length === 0) return;
 
     const hasPlayer = Boolean(hjState.playerData);
-    const maxLevelsByTH = getMaxCumulativeLevelsByTH();
-    const allMaxValues = Object.values(maxLevelsByTH);
-    const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 0;
+    const overallTrueMaxLevel = getMaxCumulativeHeroLevel();
     const isTrueMaxPlayer = hasPlayer && hjState.cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
 
     const shouldHide = !hasPlayer || isTrueMaxPlayer;

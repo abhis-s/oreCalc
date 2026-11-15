@@ -66,6 +66,32 @@ export function getMaxCumulativeLevelsByTH() {
     return cachedMaxCumulativeLevelsByTH;
 }
 
+const HERO_NAME_TO_KEY = Object.freeze({
+    'Barbarian King': 'barbarianKing',
+    'Archer Queen': 'archerQueen',
+    'Minion Prince': 'minionPrince',
+    'Grand Warden': 'grandWarden',
+    'Royal Champion': 'royalChampion',
+    'Dragon Duke': 'dragonDuke'
+});
+
+/**
+ * Resolves the maximum cumulative hero level cap for a Town Hall by walking down to the highest defined cap.
+ *
+ * @param {number|string} thLevel - Target Town Hall level.
+ * @returns {number} Cumulative hero level cap unlocked at or below thLevel.
+ */
+export function getMaxCumulativeLevelForTH(thLevel) {
+    const levelsMap = getMaxCumulativeLevelsByTH();
+    const targetTH = Math.floor(Number(thLevel) || 0);
+    for (let currentTH = targetTH; currentTH >= 1; currentTH--) {
+        if (levelsMap[currentTH] !== undefined) {
+            return levelsMap[currentTH];
+        }
+    }
+    return 0;
+}
+
 /**
  * Resolves maximum Town Hall level currently defined in Hero Journey data.
  * @returns {number} Maximum Town Hall level.
@@ -106,45 +132,41 @@ export function getTownHallLevel(state) {
 }
 
 /**
- * Gets effective hero levels for the player based on state, clamped by current Town Hall limits.
+ * Gets effective hero levels for the player based on state, optionally clamped by current Town Hall limits.
  *
  * @param {import('../../core/types.js').AppState | any} state - Application state.
- * @returns {Record<string, number>} Map of hero key to clamped hero level.
+ * @param {boolean} [clampToTH=true] - Whether to clamp individual hero levels to Town Hall track caps.
+ * @returns {Record<string, number>} Map of hero key to hero level.
  */
-function getHeroLevels(state) {
+function getHeroLevels(state, clampToTH = true) {
     const thLevel = getTownHallLevel(state);
     const heroLevels = { barbarianKing: 0, archerQueen: 0, minionPrince: 0, grandWarden: 0, royalChampion: 0, dragonDuke: 0 };
+
+    const assignHeroLevel = (key, rawLevel) => {
+        const level = Math.max(0, Number(rawLevel) || 0);
+        if (!clampToTH) {
+            heroLevels[key] = level;
+            return;
+        }
+        const maxAllowed = getHeroMaxLevelForTH(key, thLevel);
+        heroLevels[key] = Math.min(level, maxAllowed);
+    };
 
     if (state?.playerProfile?.ownedHeroes && typeof state.playerProfile.ownedHeroes === 'object' && !Array.isArray(state.playerProfile.ownedHeroes) && Object.keys(state.playerProfile.ownedHeroes).length > 0) {
         for (const heroName in state.playerProfile.ownedHeroes) {
             const hero = state.playerProfile.ownedHeroes[heroName];
-            let key = null;
-            if (heroName === "Barbarian King") key = "barbarianKing";
-            else if (heroName === "Archer Queen") key = "archerQueen";
-            else if (heroName === "Minion Prince") key = "minionPrince";
-            else if (heroName === "Grand Warden") key = "grandWarden";
-            else if (heroName === "Royal Champion") key = "royalChampion";
-            else if (heroName === "Dragon Duke") key = "dragonDuke";
-
+            const key = HERO_NAME_TO_KEY[heroName];
             if (key) {
-                const maxAllowed = getHeroMaxLevelForTH(key, thLevel);
-                heroLevels[key] = Math.min(hero.level || 0, maxAllowed);
+                assignHeroLevel(key, hero?.level);
             }
         }
-    } else if (Array.isArray(state?.playerProfile?.heroes)) {
-        const homeHeroes = state.playerProfile.heroes.filter(h => h.village === 'home' || !h.village);
+    } else if (Array.isArray(state?.playerProfile?.heroes) || Array.isArray(state?.heroes)) {
+        const heroesArray = Array.isArray(state?.playerProfile?.heroes) ? state.playerProfile.heroes : state.heroes;
+        const homeHeroes = heroesArray.filter(h => h.village === 'home' || !h.village);
         for (const hero of homeHeroes) {
-            let key = null;
-            if (hero.name === "Barbarian King") key = "barbarianKing";
-            else if (hero.name === "Archer Queen") key = "archerQueen";
-            else if (hero.name === "Minion Prince") key = "minionPrince";
-            else if (hero.name === "Grand Warden") key = "grandWarden";
-            else if (hero.name === "Royal Champion") key = "royalChampion";
-            else if (hero.name === "Dragon Duke") key = "dragonDuke";
-
+            const key = HERO_NAME_TO_KEY[hero?.name];
             if (key) {
-                const maxAllowed = getHeroMaxLevelForTH(key, thLevel);
-                heroLevels[key] = Math.min(hero.level || 0, maxAllowed);
+                assignHeroLevel(key, hero.level);
             }
         }
     } else if (state?.heroes) {
@@ -153,8 +175,7 @@ function getHeroLevels(state) {
             const heroState = state.heroes[heroInfo.name];
             if (heroState && heroState.enabled !== false) {
                 const levelInState = state.heroLevels?.[heroKey] ?? heroState.level ?? 1;
-                const maxAllowed = getHeroMaxLevelForTH(heroKey, thLevel);
-                heroLevels[heroKey] = Math.min(levelInState, maxAllowed);
+                assignHeroLevel(heroKey, levelInState);
             }
         }
     }
@@ -162,8 +183,7 @@ function getHeroLevels(state) {
     if (state?.heroLevels) {
         for (const key in heroLevels) {
             if (state.heroLevels[key] !== undefined) {
-                const maxAllowed = getHeroMaxLevelForTH(key, thLevel);
-                heroLevels[key] = Math.min(Number(state.heroLevels[key]) || 0, maxAllowed);
+                assignHeroLevel(key, state.heroLevels[key]);
             }
         }
     }
@@ -172,13 +192,24 @@ function getHeroLevels(state) {
 }
 
 /**
- * Calculates total cumulative hero level across all 6 heroes.
+ * Calculates total cumulative hero level across all 6 heroes, clamped to defined Town Hall Hero Journey caps.
  *
  * @param {import('../../core/types.js').AppState | any} state - Application state.
- * @returns {number} Sum of active hero levels.
+ * @returns {number} Sum of clamped hero levels.
  */
 export function getCumulativeHeroLevel(state) {
-    const levels = getHeroLevels(state);
+    const levels = getHeroLevels(state, true);
+    return Object.values(levels).reduce((sum, lvl) => sum + lvl, 0);
+}
+
+/**
+ * Calculates uncapped cumulative hero level across all 6 heroes for user-facing progress display.
+ *
+ * @param {import('../../core/types.js').AppState | any} state - Application state.
+ * @returns {number} Uncapped sum of active hero levels.
+ */
+export function getRawCumulativeHeroLevel(state) {
+    const levels = getHeroLevels(state, false);
     return Object.values(levels).reduce((sum, lvl) => sum + lvl, 0);
 }
 

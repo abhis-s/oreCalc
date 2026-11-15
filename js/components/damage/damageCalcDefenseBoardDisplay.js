@@ -14,7 +14,8 @@ import {
 } from '../../domain/damage/damageFormulas.js';
 import {
     getMaxSuperchargeTier,
-    getMaxDefenseLevelForTownHall
+    getMaxDefenseLevelForTownHall,
+    isClusterDefenseSunsetForTownHall
 } from '../../domain/damage/defenseProgressionDomain.js';
 import {
     renderMobileSpellDockHtml,
@@ -61,7 +62,7 @@ export function renderDefenseBoardPanel(state, container) {
 
     const activeTh = getShownTownHall(state);
     let currentDefense = getDefensesData()[zq.defenseKey];
-    if (!currentDefense || (currentDefense.minTH && activeTh < currentDefense.minTH) || (currentDefense.maxTH && activeTh > currentDefense.maxTH)) {
+    if (!currentDefense || (currentDefense.minTH && activeTh < currentDefense.minTH) || isClusterDefenseSunsetForTownHall(zq.defenseKey, activeTh)) {
         zq.defenseKey = 'air_defense';
         currentDefense = getDefensesData().air_defense;
     }

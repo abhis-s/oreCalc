@@ -454,4 +454,79 @@ test('Damage Calculator State Management', async (t) => {
         assert.equal(damageCalcState.zapQuake.lightningLevel, 13);
         assert.equal(damageCalcState.offense.ccSpells.lightning, 14);
     });
+
+    await t.test('Town Hall switching and persistence prune Cluster-Planner-sunset defenses cleanly', () => {
+        resetDamageCalcState();
+        damageCalcState.playerTownHall = 16;
+        damageCalcState.zapQuake.selectedCluster = [
+            { defenseKey: 'inferno_tower', level: 10, superchargeTier: 0 },
+            { defenseKey: 'cannon', level: 21, superchargeTier: 0 },
+            { defenseKey: 'eagle_artillery', level: 7, superchargeTier: 0 },
+            { defenseKey: 'monolith', level: 3, superchargeTier: 0 }
+        ];
+        damageCalcState.zapQuake.adjacentPairs = ['0-1', '0-3'];
+        damageCalcState.zapQuake.clusterEquipmentSharing = { fireball: [0, 3], spiky_ball: [1] };
+
+        // Switching within TH16 preserves Eagle Artillery and Cannon
+        setPlayerTownHall(16);
+        assert.deepEqual(
+            damageCalcState.zapQuake.selectedCluster.map(t => t.defenseKey),
+            ['inferno_tower', 'cannon', 'eagle_artillery', 'monolith']
+        );
+
+        // Switching to TH17 prunes both Cannon (maxTH 17) and Eagle Artillery (maxTH 16) and remaps indices
+        setPlayerTownHall(17);
+        assert.deepEqual(
+            damageCalcState.zapQuake.selectedCluster.map(t => t.defenseKey),
+            ['inferno_tower', 'monolith']
+        );
+        assert.deepEqual(damageCalcState.zapQuake.adjacentPairs, ['0-1'], 'Remaining adjacent pair remapped to [0, 1]');
+        assert.deepEqual(damageCalcState.zapQuake.clusterEquipmentSharing, {}, 'Removed sharing removed and full-cluster entry collapsed');
+
+        // At TH18 Scattershot and Archer Tower remain; applyTownHallPreset(19) prunes both
+        setPlayerTownHall(18);
+        damageCalcState.zapQuake.selectedCluster = [
+            { defenseKey: 'inferno_tower', level: 12, superchargeTier: 0 },
+            { defenseKey: 'scattershot', level: 7, superchargeTier: 0 },
+            { defenseKey: 'archer_tower', level: 21, superchargeTier: 0 },
+            { defenseKey: 'monolith', level: 5, superchargeTier: 0 }
+        ];
+        applyTownHallPreset(19);
+        assert.deepEqual(
+            damageCalcState.zapQuake.selectedCluster.map(t => t.defenseKey),
+            ['inferno_tower', 'monolith'],
+            'TH19 preset must prune Scattershot and Archer Tower immediately'
+        );
+
+        // Persisted cluster retains Eagle Artillery at TH16, prunes Scattershot at TH19
+        mockStorage.set('clashCalc_damageCalcState', JSON.stringify({
+            playerTownHall: 16,
+            zapQuake: {
+                selectedCluster: [
+                    { defenseKey: 'eagle_artillery', level: 7, superchargeTier: 0 },
+                    { defenseKey: 'monolith', level: 3, superchargeTier: 0 }
+                ]
+            }
+        }));
+        loadPersistedState();
+        assert.deepEqual(
+            damageCalcState.zapQuake.selectedCluster.map(t => t.defenseKey),
+            ['eagle_artillery', 'monolith']
+        );
+
+        mockStorage.set('clashCalc_damageCalcState', JSON.stringify({
+            playerTownHall: 19,
+            zapQuake: {
+                selectedCluster: [
+                    { defenseKey: 'scattershot', level: 7, superchargeTier: 0 },
+                    { defenseKey: 'firecracker_tower', level: 1, superchargeTier: 0 }
+                ]
+            }
+        }));
+        loadPersistedState();
+        assert.deepEqual(
+            damageCalcState.zapQuake.selectedCluster.map(t => t.defenseKey),
+            ['firecracker_tower']
+        );
+    });
 });

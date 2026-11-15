@@ -1,9 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+    getMaxCumulativeHeroLevel,
+    getMaxCumulativeLevelForTH,
     getMaxCumulativeLevelsByTH,
     getMaxTownHallLevel,
     getCumulativeHeroLevel,
+    getRawCumulativeHeroLevel,
     getTownHallLevel
 } from '../../js/domain/income/heroJourneyLevels.js';
 import {
@@ -172,4 +175,40 @@ test('getCumulativeHeroLevel walks down from TH19 without 100-level fallback cla
         }
     };
     assert.equal(getCumulativeHeroLevel(th19FallbackGuestState), 220);
+});
+
+test('TH 19 resolves Hero Journey track cap cleanly while exposing raw cumulative hero levels beyond track max', () => {
+    const trackMax = getMaxCumulativeHeroLevel();
+    assert.ok(trackMax > 0);
+    assert.equal(getMaxCumulativeLevelForTH(19), trackMax);
+    assert.equal(getMaxCumulativeLevelForTH(17), getMaxCumulativeLevelsByTH()[17]);
+    assert.equal(getMaxCumulativeLevelForTH(6), 0);
+
+    const partialTh19State = {
+        playerProfile: {
+            townHallLevel: 19,
+            heroes: [
+                { name: 'Barbarian King', level: 80, village: 'home' },
+                { name: 'Archer Queen', level: 80, village: 'home' }
+            ]
+        }
+    };
+    assert.equal(getRawCumulativeHeroLevel(partialTh19State), 160);
+    assert.equal(getCumulativeHeroLevel(partialTh19State), 160);
+
+    const maxedTh19State = {
+        playerProfile: {
+            townHallLevel: 19,
+            heroes: [
+                { name: 'Barbarian King', level: 115, village: 'home' },
+                { name: 'Archer Queen', level: 115, village: 'home' },
+                { name: 'Minion Prince', level: 100, village: 'home' },
+                { name: 'Grand Warden', level: 90, village: 'home' },
+                { name: 'Royal Champion', level: 60, village: 'home' },
+                { name: 'Dragon Duke', level: 30, village: 'home' }
+            ]
+        }
+    };
+    assert.equal(getRawCumulativeHeroLevel(maxedTh19State), 510);
+    assert.equal(getCumulativeHeroLevel(maxedTh19State), Math.min(510, trackMax));
 });

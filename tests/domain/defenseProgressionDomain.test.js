@@ -32,6 +32,7 @@ import {
     getMaxSuperchargeTierForTownHall,
     isSuperchargeAvailableForTownHall,
     getMaxDefenseLevelForTownHall,
+    isClusterDefenseSunsetForTownHall,
     isDefenseInSeason,
     getDefaultSuperchargeTier,
     isHeroDefense,
@@ -155,4 +156,32 @@ test('Supercharge Town Hall Availability (isSuperchargeAvailableForTownHall)', (
     assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL + 1), true);
     assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL - 1), false);
     assert.equal(isSuperchargeAvailableForTownHall(17), false);
+});
+
+test('Cluster Planner Sunset Lifecycle (isClusterDefenseSunsetForTownHall)', () => {
+    const defs = getDefensesData();
+
+    // Eagle Artillery stays active through TH16 and sunsets post-TH16 (TH17+)
+    assert.equal(isClusterDefenseSunsetForTownHall('eagle_artillery', 11), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('eagle_artillery', 16), false);
+    assert.equal(isClusterDefenseSunsetForTownHall(defs.eagle_artillery, 16), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('eagle_artillery', 17), true);
+    assert.equal(isClusterDefenseSunsetForTownHall('eagle_artillery', 19), true);
+
+    // Cannon sunsets immediately on TH17
+    assert.equal(isClusterDefenseSunsetForTownHall('cannon', 16), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('cannon', 17), true);
+    assert.equal(isClusterDefenseSunsetForTownHall(defs.cannon, 17), true);
+    assert.equal(isClusterDefenseSunsetForTownHall('cannon', 18), true);
+
+    // Archer Tower and Scattershot remain through TH18 and sunset immediately on TH19
+    assert.equal(isClusterDefenseSunsetForTownHall('archer_tower', 18), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('archer_tower', 19), true);
+    assert.equal(isClusterDefenseSunsetForTownHall('scattershot', 18), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('scattershot', 19), true);
+
+    // Permanent non-sunset buildings always return false
+    assert.equal(isClusterDefenseSunsetForTownHall('air_defense', 19), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('wizard_tower', 19), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('firecracker_tower', 19), false);
 });

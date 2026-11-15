@@ -3,7 +3,9 @@ import { translate } from '../../i18n/translator.js';
 import { calculateHeroJourneyUpcomingOres } from '../../domain/income/heroJourneyIncome.js';
 import {
     getCumulativeHeroLevel,
+    getMaxCumulativeLevelForTH,
     getMaxCumulativeLevelsByTH,
+    getRawCumulativeHeroLevel,
     getTownHallLevel,
     hasSyncedHeroInfo,
     isDefaultOrGuestPlayer
@@ -109,14 +111,15 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
     const cumulativeLevel = getCumulativeHeroLevel(state);
     const thLevel = getTownHallLevel(state);
     const maxLevelsByTH = getMaxCumulativeLevelsByTH();
-    const thMaxLevel = maxLevelsByTH[thLevel] || 0;
+    const thMaxLevel = getMaxCumulativeLevelForTH(thLevel);
     const allMaxValues = Object.values(maxLevelsByTH);
     const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 0;
 
-    const isTrueMaxPlayer = cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
     const isGuest = isDefaultOrGuestPlayer(state);
-    const isEligibleToHide = isTrueMaxPlayer || isGuest;
     const hasSyncedHeroes = hasSyncedHeroInfo(state);
+    const displayCumulativeLevel = hasSyncedHeroes ? getRawCumulativeHeroLevel(state) : cumulativeLevel;
+    const isTrueMaxPlayer = displayCumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
+    const isEligibleToHide = isTrueMaxPlayer || isGuest;
 
     const isHidden = Boolean(isEligibleToHide && state?.heroJourney?.hidden);
     const card = document.getElementById('orecalc-home-hero-journey-card') || document.getElementById('hero-journey-track-card') || document.querySelector('.hero-journey-card');
@@ -145,7 +148,7 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
             cumulativeBadge.style.display = 'none';
         } else {
             cumulativeBadge.style.display = '';
-            cumulativeBadge.textContent = overallTrueMaxLevel > 0 ? `${cumulativeLevel}/${overallTrueMaxLevel}` : `${cumulativeLevel}`;
+            cumulativeBadge.textContent = overallTrueMaxLevel > 0 ? `${displayCumulativeLevel}/${overallTrueMaxLevel}` : `${displayCumulativeLevel}`;
             cumulativeBadge.classList.toggle('badge-true-max', isTrueMaxPlayer);
         }
     }
@@ -214,18 +217,18 @@ export function renderHeroJourneyDisplay(state, { skipAutoScroll = false, target
     const progressFill = document.getElementById('home-hj-progress-fill');
 
     if (thMaxLevel > 0) {
-        const pct = Math.min(100, Math.max(0, Math.round((cumulativeLevel / thMaxLevel) * 100)));
-        const isTHMaxed = cumulativeLevel >= thMaxLevel;
+        const pct = Math.min(100, Math.max(0, Math.round((displayCumulativeLevel / thMaxLevel) * 100)));
+        const isTHMaxed = displayCumulativeLevel >= thMaxLevel;
 
         if (progressText) {
             progressText.textContent = isTHMaxed
-                ? translate('views.heroJourney.track.thMaxed', { th: thLevel, current: cumulativeLevel, target: thMaxLevel })
-                : translate('views.heroJourney.track.thMaxProgress', { th: thLevel, current: cumulativeLevel, target: thMaxLevel });
+                ? translate('views.heroJourney.track.thMaxed', { th: thLevel, current: displayCumulativeLevel, target: thMaxLevel })
+                : translate('views.heroJourney.track.thMaxProgress', { th: thLevel, current: displayCumulativeLevel, target: thMaxLevel });
         }
         if (progressPercent) progressPercent.textContent = `${pct}%`;
         if (progressFill) progressFill.style.width = `${pct}%`;
     } else {
-        if (progressText) progressText.textContent = translate('views.heroJourney.track.levelProgress', { current: cumulativeLevel });
+        if (progressText) progressText.textContent = translate('views.heroJourney.track.levelProgress', { current: displayCumulativeLevel });
         if (progressPercent) progressPercent.textContent = `100%`;
         if (progressFill) progressFill.style.width = `100%`;
     }

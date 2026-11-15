@@ -290,6 +290,27 @@ export function isDefenseInSeason(defenseOrKey, referenceDate = new Date()) {
 }
 
 /**
+ * Checks whether a defense is sunsetting for Cluster Planner selection at the given Town Hall.
+ * Standard sunsetting defenses disappear on their sunset TH (`th >= maxTH`), whereas
+ * Eagle Artillery stays active through TH 16 and disappears only post-sunset (`th > maxTH`).
+ *
+ * @param {string|Object} defenseOrKey - Canonical defense key or defense data object.
+ * @param {number} [townHallLevel=MAX_TOWN_HALL] - Target Town Hall level.
+ * @returns {boolean} True if sunsetting / excluded from Cluster Planner at this Town Hall.
+ */
+export function isClusterDefenseSunsetForTownHall(defenseOrKey, townHallLevel = MAX_TOWN_HALL) {
+    if (!defenseOrKey) return false;
+    const def = typeof defenseOrKey === 'string' ? getDefensesData()[defenseOrKey] : defenseOrKey;
+    if (!def || typeof def.maxTH !== 'number') return false;
+
+    const th = Number(townHallLevel);
+    if (!Number.isFinite(th)) return false;
+
+    const key = typeof defenseOrKey === 'string' ? defenseOrKey : def.id;
+    return key === 'eagle_artillery' ? th > def.maxTH : th >= def.maxTH;
+}
+
+/**
  * Resolves the default supercharge tier for a defense level and Town Hall.
  * For TH18, supercharging is the max level progression, defaulting to the maximum available tier.
  * For lower Town Halls or non-superchargeable structures, defaults to 0.
