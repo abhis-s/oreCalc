@@ -799,7 +799,6 @@
                 "targetSlotTitle": "Ziel {number}"
             },
             "filters": {
-                "craftedBadge": "Gefertigt",
                 "craftedDefenseTooltip": "Hergestellte Verteidigung (Stufe ist an die Rathaus-Stufe gekoppelt)",
                 "craftedHpLvlShort": "TP Lvl",
                 "craftedHpModule": "TP-Modul",

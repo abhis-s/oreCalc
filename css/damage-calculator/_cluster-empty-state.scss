@@ -8,6 +8,7 @@
     min-height: 360px;
     padding: $spacing-xl;
     text-align: left;
+    container-type: inline-size;
 
     @media (max-width: $breakpoint-phone) {
         padding: $spacing-md;
@@ -27,6 +28,7 @@
         color: $text-secondary;
         line-height: 1.45;
         text-align: center;
+        text-wrap: balance;
     }
 }
 
@@ -96,9 +98,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: $spacing-sm;
+    gap: $spacing-md;
     width: 100%;
-    flex-wrap: wrap;
 
     .cluster-target-card--preview,
     .cluster-target-card--waiting {
@@ -106,12 +107,12 @@
         align-items: center;
         justify-content: center;
         flex: 1 1 0;
-        max-width: 200px;
         min-width: 0;
         min-height: 56px;
         height: 56px;
         padding: $spacing-xs $spacing-sm;
         box-sizing: border-box;
+        overflow: hidden;
         background-color: $bg-surface-secondary;
         border: 1px dashed $border-accent;
         border-radius: $shape-corner-small;
@@ -123,9 +124,13 @@
 
         .cluster-target-card__header {
             width: 100%;
+            min-width: 0;
         }
 
         .cluster-target-card__name {
+            display: block;
+            max-width: 100%;
+            min-width: 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -138,12 +143,35 @@
             align-items: center;
             justify-content: center;
             gap: $spacing-xs;
+            max-width: 100%;
+            min-width: 0;
             font-size: $font-size-xs;
             font-weight: $font-weight-medium;
             color: $text-secondary;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+
+            clashcalc-assets-svg,
+            orecalc-assets-svg {
+                flex-shrink: 0;
+            }
+
+            span {
+                min-width: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+
+    @container (max-width: #{$breakpoint-phone}) {
+        flex-direction: column;
+        gap: $spacing-md;
+
+        .cluster-target-card--preview,
+        .cluster-target-card--waiting {
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: $breakpoint-micro;
         }
     }
 }
@@ -165,23 +193,24 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: $spacing-2xs;
+    gap: $spacing-sm;
     width: 100%;
-    padding-top: $spacing-2xs;
+    padding-top: $spacing-xs;
 
     &__label {
         font-size: $font-size-2xs;
         font-weight: $font-weight-bold;
         color: $text-muted;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: $letter-spacing-caps;
     }
 
     &__list {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: $spacing-sm;
+        width: 100%;
         flex-wrap: wrap;
     }
 }
@@ -189,8 +218,10 @@
 .calc-cluster-suggest-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 3px $spacing-xs;
+    gap: $spacing-xs;
+    max-width: 100%;
+    min-width: 0;
+    padding: $spacing-xs $spacing-md $spacing-xs $spacing-sm;
     background-color: $bg-surface-secondary;
     border: 1px solid $border-primary;
     border-radius: $shape-corner-full;
@@ -207,8 +238,16 @@
 
     clashcalc-assets-image,
     orecalc-assets-image {
-        width: 16px;
-        height: 16px;
+        width: $icon-size-sm;
+        height: $icon-size-sm;
         object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    span {
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }

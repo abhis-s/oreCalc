@@ -153,9 +153,6 @@ test('Defense Board Panel - Renders streamlined panel with tradeoffs, cluster eq
         activeTab: 'cluster_planner',
         playerTownHall: 18,
         zapQuake: {
-            defenseKey: 'monolith',
-            defenseLevel: 5,
-            superchargeTier: 0,
             lightningLevel: 13,
             earthquakeLevel: 8,
             selectedCluster: [
@@ -163,7 +160,6 @@ test('Defense Board Panel - Renders streamlined panel with tradeoffs, cluster eq
                 { defenseKey: 'inferno_tower', level: 12, superchargeTier: 0 }
             ],
             searchQuery: '',
-            multiSelectMode: false,
             selectedComboIndex: 0,
             mobileDockExpanded: false
         }

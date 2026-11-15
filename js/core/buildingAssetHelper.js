@@ -19,20 +19,6 @@ const FALLBACK_BUILDING_ASSETS = Object.freeze({
     spiky_tower: '/assets/buildings/spiky_tower_placeholder.png'
 });
 
-const ASSET_MAX_LEVEL_OVERRIDES = Object.freeze({
-    clan_castle: 14,
-    air_defense: 16,
-    hidden_tesla: 17,
-    x_bow: 13,
-    multi_archer_tower: 4,
-    multi_gear_tower: 3,
-    ricochet_cannon: 4,
-    builders_hut: 8,
-    gold_storage: 19,
-    elixir_storage: 19,
-    dark_elixir_storage: 13
-});
-
 /**
  * Returns the absolute asset URL for a given target entity key and level.
  *
@@ -58,9 +44,7 @@ export function getBuildingAssetUrl(buildingKey, level = 1) {
         return `/assets/guardians/${buildingKey}.png`;
     }
 
-    const assetCap = ASSET_MAX_LEVEL_OVERRIDES[buildingKey];
-    const dataMaxLvl = def.maxLevel || assetCap || 1;
-    const maxLvl = assetCap ? Math.min(dataMaxLvl, assetCap) : dataMaxLvl;
+    const maxLvl = def.maxLevel || 1;
     const clampedLevel = Math.max(1, Math.min(Math.floor(Number(level) || 1), maxLvl));
 
     if (def.subCategory === 'crafted') {

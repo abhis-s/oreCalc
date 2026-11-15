@@ -332,7 +332,6 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
     buildingCards.forEach(card => {
         card.addEventListener('click', (e) => {
             const btn = /** @type {HTMLElement} */ (e.currentTarget);
-            const prefix = btn.getAttribute('data-prefix') || 'zq';
             const buildingKey = btn.getAttribute('data-building-key');
             if (!buildingKey || !getDefensesData()[buildingKey]) return;
 
@@ -346,77 +345,66 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
                 ? state.defenseSuperchargeOverrides[buildingKey]
                 : defaultTier;
 
-            if (prefix === 'zq') {
-                if (state.zapQuake.multiSelectMode) {
-                    if (!Array.isArray(state.zapQuake.selectedCluster)) {
-                        state.zapQuake.selectedCluster = [];
-                    }
-                    const existingIdx = state.zapQuake.selectedCluster.findIndex(t => t.defenseKey === buildingKey);
-                    const existingCraftedIdx = def.subCategory === 'crafted'
-                        ? state.zapQuake.selectedCluster.findIndex(t => getDefensesData()[t.defenseKey]?.subCategory === 'crafted')
-                        : -1;
-                    const existingGuardianIdx = def.category === 'guardian'
-                        ? state.zapQuake.selectedCluster.findIndex(t => getDefensesData()[t.defenseKey]?.category === 'guardian')
-                        : -1;
-                    const heroIndices = [];
-                    state.zapQuake.selectedCluster.forEach((t, i) => {
-                        if (getDefensesData()[t.defenseKey]?.category === 'hero') {
-                            heroIndices.push(i);
-                        }
-                    });
-                    const isHero = def.category === 'hero';
-                    const hasMaxHeroes = isHero && heroIndices.length >= 4;
-
-                    if (existingIdx !== -1) {
-                        state.zapQuake.selectedCluster.splice(existingIdx, 1);
-                        state.zapQuake.adjacentPairs = pruneAdjacentPairsOnRemove(state.zapQuake.adjacentPairs, existingIdx);
-                        state.zapQuake.clusterEquipmentSharing = pruneEquipmentSharingOnRemove(
-                            state.zapQuake.clusterEquipmentSharing,
-                            existingIdx,
-                            state.zapQuake.selectedCluster.length
-                        );
-                        state.zapQuake.selectedClusterComboIndex = 0;
-                    } else if (existingCraftedIdx !== -1) {
-                        state.zapQuake.selectedCluster[existingCraftedIdx] = {
-                            defenseKey: buildingKey,
-                            level: effectiveLvl,
-                            superchargeTier: effectiveTier
-                        };
-                        state.zapQuake.selectedClusterComboIndex = 0;
-                    } else if (existingGuardianIdx !== -1) {
-                        state.zapQuake.selectedCluster[existingGuardianIdx] = {
-                            defenseKey: buildingKey,
-                            level: effectiveLvl,
-                            superchargeTier: effectiveTier
-                        };
-                        state.zapQuake.selectedClusterComboIndex = 0;
-                    } else if (hasMaxHeroes) {
-                        const targetHeroIdx = heroIndices.at(-1);
-                        state.zapQuake.selectedCluster[targetHeroIdx] = {
-                            defenseKey: buildingKey,
-                            level: effectiveLvl,
-                            superchargeTier: effectiveTier
-                        };
-                        state.zapQuake.selectedClusterComboIndex = 0;
-                    } else if (state.zapQuake.selectedCluster.length < 5) {
-                        state.zapQuake.selectedCluster.push({
-                            defenseKey: buildingKey,
-                            level: effectiveLvl,
-                            superchargeTier: effectiveTier
-                        });
-                        state.zapQuake.selectedClusterComboIndex = 0;
-                    } else {
-                        showToast(translate('views.damageCalc.clusterPlanner.clusterLimitToast') || 'Cluster limit reached (maximum 5 defenses)', 'warning');
-                        return;
-                    }
-                } else {
-                    state.zapQuake.selectedComboIndex = 0;
-                    state.zapQuake.selectedCluster = [{
-                        defenseKey: buildingKey,
-                        level: effectiveLvl,
-                        superchargeTier: effectiveTier
-                    }];
+            if (!Array.isArray(state.zapQuake.selectedCluster)) {
+                state.zapQuake.selectedCluster = [];
+            }
+            const existingIdx = state.zapQuake.selectedCluster.findIndex(t => t.defenseKey === buildingKey);
+            const existingCraftedIdx = def.subCategory === 'crafted'
+                ? state.zapQuake.selectedCluster.findIndex(t => getDefensesData()[t.defenseKey]?.subCategory === 'crafted')
+                : -1;
+            const existingGuardianIdx = def.category === 'guardian'
+                ? state.zapQuake.selectedCluster.findIndex(t => getDefensesData()[t.defenseKey]?.category === 'guardian')
+                : -1;
+            const heroIndices = [];
+            state.zapQuake.selectedCluster.forEach((t, i) => {
+                if (getDefensesData()[t.defenseKey]?.category === 'hero') {
+                    heroIndices.push(i);
                 }
+            });
+            const isHero = def.category === 'hero';
+            const hasMaxHeroes = isHero && heroIndices.length >= 4;
+
+            if (existingIdx !== -1) {
+                state.zapQuake.selectedCluster.splice(existingIdx, 1);
+                state.zapQuake.adjacentPairs = pruneAdjacentPairsOnRemove(state.zapQuake.adjacentPairs, existingIdx);
+                state.zapQuake.clusterEquipmentSharing = pruneEquipmentSharingOnRemove(
+                    state.zapQuake.clusterEquipmentSharing,
+                    existingIdx,
+                    state.zapQuake.selectedCluster.length
+                );
+                state.zapQuake.selectedClusterComboIndex = 0;
+            } else if (existingCraftedIdx !== -1) {
+                state.zapQuake.selectedCluster[existingCraftedIdx] = {
+                    defenseKey: buildingKey,
+                    level: effectiveLvl,
+                    superchargeTier: effectiveTier
+                };
+                state.zapQuake.selectedClusterComboIndex = 0;
+            } else if (existingGuardianIdx !== -1) {
+                state.zapQuake.selectedCluster[existingGuardianIdx] = {
+                    defenseKey: buildingKey,
+                    level: effectiveLvl,
+                    superchargeTier: effectiveTier
+                };
+                state.zapQuake.selectedClusterComboIndex = 0;
+            } else if (hasMaxHeroes) {
+                const targetHeroIdx = heroIndices.at(-1);
+                state.zapQuake.selectedCluster[targetHeroIdx] = {
+                    defenseKey: buildingKey,
+                    level: effectiveLvl,
+                    superchargeTier: effectiveTier
+                };
+                state.zapQuake.selectedClusterComboIndex = 0;
+            } else if (state.zapQuake.selectedCluster.length < 5) {
+                state.zapQuake.selectedCluster.push({
+                    defenseKey: buildingKey,
+                    level: effectiveLvl,
+                    superchargeTier: effectiveTier
+                });
+                state.zapQuake.selectedClusterComboIndex = 0;
+            } else {
+                showToast(translate('views.damageCalc.clusterPlanner.clusterLimitToast') || 'Cluster limit reached (maximum 5 defenses)', 'warning');
+                return;
             }
 
             persistState();

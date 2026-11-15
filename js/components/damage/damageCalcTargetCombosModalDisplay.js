@@ -328,12 +328,11 @@ export function renderTargetCombosModal(state, container, defenseKey, level, sup
     const def = getDefensesData()[defenseKey];
     if (!def) return;
 
-    const zq = state.zapQuake || {};
     const currentTH = getShownTownHall(state);
     const overallMaxLevel = def.maxLevel || 1;
     const thInfo = getMaxDefenseLevelForTownHall(defenseKey, currentTH);
     const maxAllowedLevel = (thInfo?.status === 'available' && thInfo.level > 0) ? thInfo.level : overallMaxLevel;
-    const requestedLevel = Number(level) || state.defenseLevelOverrides?.[defenseKey] || zq.defenseLevel || maxAllowedLevel;
+    const requestedLevel = Number(level) || state.defenseLevelOverrides?.[defenseKey] || maxAllowedLevel;
     const currentLevel = snapDefenseLevel(defenseKey, requestedLevel, maxAllowedLevel);
     const activeSupercharge = superchargeTier !== undefined
         ? superchargeTier

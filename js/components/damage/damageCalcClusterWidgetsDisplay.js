@@ -8,9 +8,14 @@ import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { getClusterPresetsForTownHall } from '../../data/clusterPresetsData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import {
+    compareDefensesForDisplay,
+    getDefaultSuperchargeTier,
+    getDefenseMaxHp,
     getMaxDefenseLevelForTownHall,
+    getMaxSuperchargeTier,
     isClusterDefenseSunsetForTownHall,
-    isDefenseInSeason
+    isDefenseInSeason,
+    snapDefenseLevel
 } from '../../domain/damage/defenseProgressionDomain.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
@@ -186,27 +191,73 @@ export function renderMobileSpellDockHtml({
 }
 
 /**
- * Resolves suggested complementary neighbors for a defense at the active Town Hall.
- * Excludes expired seasonal/crafted defenses and sunsetted buildings.
+ * Computes up to 5 recommended neighboring cluster targets ranked by effective HP.
+ * Ranks eligible permanent defenses plus Clan Castle using the player's configured levels
+ * and supercharge tiers (falling back to Town Hall defaults when uncustomized).
+ * Always reserves the 5th slot for Clan Castle when not already ranked in spots 1–5.
  *
- * @param {string} defenseKey - Selected defense key.
+ * @param {string} defenseKey - Selected primary defense key to exclude.
  * @param {number} activeTh - Active Town Hall level.
  * @param {Date|string|number} [referenceDate=new Date()] - Reference date for seasonal filtering.
- * @returns {Array<string>} Array of up to 3 candidate defense keys.
+ * @param {Object} [options={}] - Optional player configuration overrides.
+ * @param {Object | null} [options.defenseLevelOverrides=null] - Per-building level overrides.
+ * @param {Object | null} [options.defenseSuperchargeOverrides=null] - Per-building supercharge tier overrides.
+ * @param {number | undefined} [options.globalSuperchargeTier=undefined] - Global supercharge tier cap/default.
+ * @returns {Array<string>} Array of up to 5 recommended defense keys.
  */
-export function getSuggestedNeighborsForDefense(defenseKey, activeTh, referenceDate = new Date()) {
-    const candidates = ['monolith', 'eagle_artillery', 'scattershot', 'inferno_tower', 'spell_tower', 'air_defense', 'clan_castle', 'cake_a_pult'];
+export function getSuggestedNeighborsForDefense(defenseKey, activeTh, referenceDate = new Date(), options = {}) {
+    const {
+        defenseLevelOverrides = null,
+        defenseSuperchargeOverrides = null,
+        globalSuperchargeTier = undefined
+    } = options;
     const defs = getDefensesData();
-    return candidates
-        .filter(k => {
-            if (k === defenseKey) return false;
-            const def = defs[k];
-            if (!def) return false;
-            if (def.minTH && activeTh < def.minTH) return false;
-            if (isClusterDefenseSunsetForTownHall(k, activeTh)) return false;
-            return isDefenseInSeason(def, referenceDate);
-        })
-        .slice(0, 3);
+    const ranked = [];
+
+    for (const [k, def] of Object.entries(defs)) {
+        if (!def || k === defenseKey) continue;
+        if (def.subCategory !== 'defense' && def.subCategory !== 'cc') continue;
+        if (def.minTH && activeTh < def.minTH) continue;
+        if (isClusterDefenseSunsetForTownHall(k, activeTh)) continue;
+        if (!isDefenseInSeason(def, referenceDate)) continue;
+
+        const maxThLvl = getMaxDefenseLevelForTownHall(k, activeTh).level;
+        const defaultLvl = maxThLvl > 0 ? maxThLvl : (def.maxLevel || 1);
+        const customLvl = Number(defenseLevelOverrides?.[k]);
+        const effectiveLvl = Number.isFinite(customLvl) && customLvl > 0
+            ? snapDefenseLevel(k, customLvl)
+            : defaultLvl;
+
+        const defaultTier = getDefaultSuperchargeTier(k, effectiveLvl, activeTh);
+        const maxSc = getMaxSuperchargeTier(k, effectiveLvl);
+        const effectiveGlobalSc = globalSuperchargeTier !== undefined
+            ? Math.min(Math.max(0, Math.floor(Number(globalSuperchargeTier) || 0)), maxSc)
+            : defaultTier;
+        const superchargeTier = defenseSuperchargeOverrides?.[k] !== undefined
+            ? Math.min(Math.max(0, Math.floor(Number(defenseSuperchargeOverrides[k]) || 0)), maxSc)
+            : effectiveGlobalSc;
+
+        const hp = getDefenseMaxHp(k, effectiveLvl, { superchargeTier });
+        if (hp > 0) {
+            ranked.push({ key: k, hp });
+        }
+    }
+
+    ranked.sort((a, b) => (
+        b.hp - a.hp || compareDefensesForDisplay(a.key, defs[a.key], b.key, defs[b.key], activeTh)
+    ));
+
+    const topKeys = ranked.slice(0, 5).map(entry => entry.key);
+    if (
+        defenseKey !== 'clan_castle'
+        && topKeys.length === 5
+        && !topKeys.includes('clan_castle')
+        && ranked.some(entry => entry.key === 'clan_castle')
+    ) {
+        topKeys[4] = 'clan_castle';
+    }
+
+    return topKeys;
 }
 
 /**

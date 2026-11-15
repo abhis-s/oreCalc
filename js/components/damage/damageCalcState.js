@@ -95,7 +95,6 @@ function createDefaultState() {
             adjacentPairs: [],
             clusterEquipment: [],
             clusterEquipmentSharing: {},
-            multiSelectMode: true,
             viewMode: 'compact',
             combosExpanded: false,
             isRemainingExpanded: false,
@@ -137,6 +136,18 @@ function createDefaultState() {
  * Active in-memory state.
  */
 export const damageCalcState = createDefaultState();
+
+/**
+ * Removes retired single-select properties from a zapQuake state object.
+ *
+ * @param {Record<string, any>} zq - Target zapQuake state map.
+ */
+function stripLegacyZapQuakeKeys(zq) {
+    if (!zq || typeof zq !== 'object') return;
+    delete zq.multiSelectMode;
+    delete zq.defenseKey;
+    delete zq.defenseLevel;
+}
 
 /**
  * Loads persisted damage calculator state from local storage.
@@ -183,6 +194,7 @@ export function loadPersistedState() {
         if (parsed.zapQuake) {
             Object.assign(damageCalcState.zapQuake, parsed.zapQuake);
             damageCalcState.zapQuake.mobileDockExpanded = false;
+            stripLegacyZapQuakeKeys(damageCalcState.zapQuake);
             if (!['all', 'defenses', 'heroes', 'guardians', 'other'].includes(damageCalcState.zapQuake.buildingFilter)) {
                 damageCalcState.zapQuake.buildingFilter = 'all';
             }
@@ -271,7 +283,9 @@ export function loadPersistedState() {
  */
 export function persistState() {
     try {
-        const { mobileDockExpanded, ...persistedZapQuake } = damageCalcState.zapQuake;
+        const persistedZapQuake = { ...damageCalcState.zapQuake };
+        delete persistedZapQuake.mobileDockExpanded;
+        stripLegacyZapQuakeKeys(persistedZapQuake);
 
         const payload = JSON.stringify({
             activeTab: damageCalcState.activeTab,

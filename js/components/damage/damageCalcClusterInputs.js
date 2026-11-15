@@ -117,7 +117,7 @@ export function resetMobileDockScrollState() {
 }
 
 /**
- * Attaches event listeners for the Cluster Planner (multi-select, presets, neighbors,
+ * Attaches event listeners for the Cluster Planner (presets, neighbors,
  * adjacency, equipment toggles, sharing pills, and mobile spell dock).
  *
  * @param {Object} state - Reactive damage calculator state.
@@ -126,16 +126,6 @@ export function resetMobileDockScrollState() {
  */
 export function attachClusterPlannerListeners(state, rootContainer, onStateChange) {
     initMobileDockScrollListener(state);
-
-    // Multi-Select Toggle Button (ZapQuake)
-    const multiToggleBtn = rootContainer.querySelector('#zq-multi-switch');
-    if (multiToggleBtn) {
-        multiToggleBtn.addEventListener('click', () => {
-            state.zapQuake.multiSelectMode = !state.zapQuake.multiSelectMode;
-            persistState();
-            onStateChange();
-        });
-    }
 
     const clearClusterBtns = rootContainer.querySelectorAll('#zq-cluster-clear, [data-action="clear-cluster"]');
     clearClusterBtns.forEach(btn => {

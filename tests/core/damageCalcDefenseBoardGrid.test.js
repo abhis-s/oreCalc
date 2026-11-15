@@ -33,7 +33,6 @@ import { getClusterTargetPopoverContent } from '../../js/components/damage/damag
 import { damageCalcState, loadPersistedState } from '../../js/components/damage/damageCalcState.js';
 import { attachDamageCalcListeners } from '../../js/components/damage/damageCalcInputs.js';
 import { renderTownHallDropdownHtml } from '../../js/components/damage/damageCalcSourcesDisplay.js';
-import { renderTargetLevelToolbar } from '../../js/components/damage/damageCalcDisplay.js';
 await Promise.all([preloadDefensesData(), loadTranslations('en')]);
 
 if (typeof globalThis.document === 'undefined') {
@@ -71,14 +70,10 @@ test('Cluster Planner Panel - Renders visual building selection grid with search
         activeTab: 'cluster_planner',
         playerTownHall: 16,
         zapQuake: {
-            defenseKey: 'air_defense',
-            defenseLevel: 16,
-            superchargeTier: 0,
             lightningLevel: 13,
             earthquakeLevel: 8,
             selectedCluster: [{ defenseKey: 'air_defense', level: 16, superchargeTier: 0 }],
-            searchQuery: '',
-            multiSelectMode: true
+            searchQuery: ''
         }
     };
 
@@ -159,14 +154,10 @@ test('Cluster Planner Panel - Town Hall lifecycle: immediate sunset on maxTH exc
             unavailable
         },
         zapQuake: {
-            defenseKey: 'air_defense',
-            defenseLevel: 14,
-            superchargeTier: 0,
             lightningLevel: 13,
             earthquakeLevel: 8,
             selectedCluster: [{ defenseKey: 'air_defense', level: 14, superchargeTier: 0 }],
-            searchQuery: '',
-            multiSelectMode: true
+            searchQuery: ''
         }
     });
 
@@ -210,28 +201,101 @@ test('Cluster Planner Panel - Town Hall lifecycle: immediate sunset on maxTH exc
     assert.strictEqual(html19.includes('data-building-key="spiky_tower"'), true, 'Spiky tower must render on TH19');
 });
 
-test('Cluster Planner Suggested Neighbors - Eagle visible up to TH16 while scattershot disappears at TH19', () => {
+test('Cluster Planner Suggested Neighbors - Ranks top 5 by configured HP with CC reservation and TH lifecycle filtering', () => {
     const refDate = new Date('2026-11-15T00:00:00Z');
 
-    // Through TH16, Eagle Artillery appears in Suggested Neighbors unless selected itself
+    // Excludes crafted defenses and ranks top 5 permanent defenses + CC by TH effective HP
     const th16Monolith = getSuggestedNeighborsForDefense('monolith', 16, refDate);
-    assert.equal(th16Monolith.length, 3);
-    assert.strictEqual(th16Monolith.includes('eagle_artillery'), true, 'TH16 neighbors must include Eagle Artillery');
-    assert.strictEqual(getSuggestedNeighborsForDefense('air_defense', 16, refDate).includes('eagle_artillery'), true);
+    assert.deepStrictEqual(
+        th16Monolith,
+        ['eagle_artillery', 'ricochet_cannon', 'clan_castle', 'scattershot', 'multi_archer_tower'],
+        'TH16 neighbors must rank top 5 permanent targets + CC by HP'
+    );
     assert.strictEqual(getSuggestedNeighborsForDefense('eagle_artillery', 16, refDate).includes('eagle_artillery'), false, 'Must exclude active target');
     assert.strictEqual(getSuggestedNeighborsForDefense('inferno_tower', 13, refDate).includes('eagle_artillery'), true, 'TH13 neighbors must include Eagle Artillery');
 
-    // TH17 removes Eagle Artillery post-sunset while keeping Scattershot
+    // TH17 removes Eagle Artillery post-sunset while retaining Scattershot in top 5
     const th17Monolith = getSuggestedNeighborsForDefense('monolith', 17, refDate);
+    assert.equal(th17Monolith.length, 5);
     assert.strictEqual(th17Monolith.includes('eagle_artillery'), false, 'TH17 neighbors must exclude Eagle Artillery');
     assert.strictEqual(th17Monolith.includes('scattershot'), true, 'TH17 neighbors retain Scattershot');
 
-    // TH18 retains Scattershot; TH19 excludes Scattershot immediately on its sunset TH
-    assert.strictEqual(getSuggestedNeighborsForDefense('monolith', 18, refDate).includes('scattershot'), true, 'TH18 neighbors retain Scattershot');
-    const th19Monolith = getSuggestedNeighborsForDefense('monolith', 19, refDate);
-    assert.equal(th19Monolith.length, 3);
-    assert.strictEqual(th19Monolith.includes('scattershot'), false, 'TH19 neighbors must exclude sunsetting Scattershot');
-    assert.strictEqual(th19Monolith.includes('eagle_artillery'), false, 'TH19 neighbors remain excluding Eagle Artillery');
+    // TH18 retains Scattershot without crafted placeholders displacing permanent defenses
+    const th18Monolith = getSuggestedNeighborsForDefense('monolith', 18, refDate);
+    assert.deepStrictEqual(
+        th18Monolith,
+        ['super_wizard_tower', 'revenge_tower', 'ricochet_cannon', 'clan_castle', 'scattershot'],
+        'TH18 neighbors must exclude crafted defenses and include CC and Scattershot'
+    );
+
+    // TH19 excludes Scattershot on sunset TH and reflects default tier-2 supercharges
+    const th19Firecracker = getSuggestedNeighborsForDefense('firecracker_tower', 19, refDate);
+    assert.deepStrictEqual(
+        th19Firecracker,
+        ['ricochet_cannon', 'super_wizard_tower', 'spiky_tower', 'revenge_tower', 'clan_castle'],
+        'TH19 Firecracker Tower neighbors must rank top 5 threats including supercharged tiers'
+    );
+    assert.strictEqual(th19Firecracker.includes('scattershot'), false, 'TH19 neighbors must exclude sunsetting Scattershot');
+
+    // CC exception: when CC ranks below #5 (e.g. Air Defense selected on supercharged TH19 or CC Lvl 1), it displaces #5
+    const th19AirDef = getSuggestedNeighborsForDefense('air_defense', 19, refDate);
+    assert.deepStrictEqual(
+        th19AirDef,
+        ['firecracker_tower', 'ricochet_cannon', 'super_wizard_tower', 'spiky_tower', 'clan_castle'],
+        'Clan Castle must displace the #5 defense when ranked outside the top 5'
+    );
+    assert.strictEqual(th19AirDef.includes('revenge_tower'), false, 'Displaced #5 threat must step out when CC takes #5');
+
+    const th19LowCc = getSuggestedNeighborsForDefense('air_defense', 19, refDate, {
+        defenseLevelOverrides: { clan_castle: 1 }
+    });
+    assert.strictEqual(th19LowCc.length, 5);
+    assert.strictEqual(th19LowCc[4], 'clan_castle', 'Low-level Clan Castle must still take spot #5');
+
+    // Selecting Clan Castle itself excludes CC and shows all top 5 threats
+    assert.deepStrictEqual(
+        getSuggestedNeighborsForDefense('clan_castle', 19, refDate),
+        ['firecracker_tower', 'ricochet_cannon', 'super_wizard_tower', 'spiky_tower', 'revenge_tower'],
+        'Selecting Clan Castle must omit CC and surface the 5 highest-HP defenses'
+    );
+
+    // Player overrides (disabling supercharges & lowering building level) reorder suggestions dynamically
+    const th19NoSupercharge = getSuggestedNeighborsForDefense('air_defense', 19, refDate, {
+        globalSuperchargeTier: 0
+    });
+    assert.deepStrictEqual(
+        th19NoSupercharge,
+        ['firecracker_tower', 'ricochet_cannon', 'spiky_tower', 'super_wizard_tower', 'clan_castle'],
+        'Without supercharges, Spiky Tower ranks above base Super Wizard Tower and CC reaches top 5 natively'
+    );
+
+    const th19LoweredRicochet = getSuggestedNeighborsForDefense('air_defense', 19, refDate, {
+        defenseLevelOverrides: { ricochet_cannon: 1 }
+    });
+    assert.strictEqual(th19LoweredRicochet.includes('ricochet_cannon'), false, 'Lowering Ricochet Cannon drops it below higher-HP neighbors');
+    assert.strictEqual(th19LoweredRicochet.includes('revenge_tower'), true, 'Higher-HP Revenge Tower moves into top 5 when Ricochet Cannon is lowered');
+
+    // Panel integration renders 5 suggested neighbor buttons reflecting level overrides
+    const panelContainer = createMockContainer();
+    renderDefenseBoardPanel({
+        ...damageCalcState,
+        activeTab: 'cluster_planner',
+        playerTownHall: 19,
+        defenseLevelOverrides: { clan_castle: 12 },
+        defenseSuperchargeOverrides: {},
+        zapQuake: {
+            lightningLevel: 13,
+            earthquakeLevel: 8,
+            selectedCluster: [{ defenseKey: 'firecracker_tower', level: 2, superchargeTier: 0 }],
+            adjacentPairs: []
+        }
+    }, panelContainer);
+    const suggestBtnMatches = panelContainer.innerHTML.match(/data-action="add-cluster-neighbor"/g) || [];
+    assert.equal(suggestBtnMatches.length, 5, 'Single-target view must render 5 suggested neighbor chips');
+    assert.ok(
+        panelContainer.innerHTML.includes('/assets/buildings/clan_castle/level_12.png'),
+        'Suggested neighbor chips must reflect configured defense level overrides'
+    );
 });
 
 test('Cluster Planner Panel - Renders compound cluster solution for multi-defense targets', () => {
@@ -240,17 +304,13 @@ test('Cluster Planner Panel - Renders compound cluster solution for multi-defens
         ...damageCalcState,
         activeTab: 'cluster_planner',
         zapQuake: {
-            defenseKey: 'air_defense',
-            defenseLevel: 16,
-            superchargeTier: 0,
             lightningLevel: 13,
             earthquakeLevel: 8,
             selectedCluster: [
                 { defenseKey: 'air_defense', level: 16, superchargeTier: 0 },
                 { defenseKey: 'inferno_tower', level: 12, superchargeTier: 0 }
             ],
-            adjacentPairs: [],
-            multiSelectMode: true
+            adjacentPairs: []
         }
     };
 
@@ -309,17 +369,13 @@ test('Cluster Planner Panel - Shared Lightning saves spell housing space and ren
         ...damageCalcState,
         activeTab: 'cluster_planner',
         zapQuake: {
-            defenseKey: 'air_defense',
-            defenseLevel: 14,
-            superchargeTier: 0,
             lightningLevel: 10,
             earthquakeLevel: 5,
             selectedCluster: [
                 { defenseKey: 'air_defense', level: 14, superchargeTier: 0 },
                 { defenseKey: 'air_sweeper', level: 7, superchargeTier: 0 }
             ],
-            adjacentPairs: ['0-1'],
-            multiSelectMode: true
+            adjacentPairs: ['0-1']
         }
     };
 
@@ -350,8 +406,7 @@ test('Cluster Planner Panel - Hybrid capacity handles overcapacity recipes clean
                 { defenseKey: 'inferno_tower', level: 12, superchargeTier: 0 },
                 { defenseKey: 'scattershot', level: 7, superchargeTier: 0 }
             ],
-            adjacentPairs: [],
-            multiSelectMode: true
+            adjacentPairs: []
         }
     };
 
@@ -384,14 +439,10 @@ test('Cluster Planner Panel - Search input filters defense cards', () => {
         ...damageCalcState,
         activeTab: 'cluster_planner',
         zapQuake: {
-            defenseKey: 'air_defense',
-            defenseLevel: 16,
-            superchargeTier: 0,
             lightningLevel: 13,
             earthquakeLevel: 8,
             selectedCluster: [],
-            searchQuery: 'candle',
-            multiSelectMode: true
+            searchQuery: 'candle'
         }
     };
 
@@ -410,10 +461,7 @@ test('Global Damage Sources Card - Rendered identically at top of Cluster Planne
         activeTab: 'cluster_planner',
         playerTownHall: 19,
         zapQuake: {
-            defenseKey: 'air_defense',
-            defenseLevel: 14,
-            superchargeTier: 1,
-            multiSelectMode: true
+            selectedCluster: []
         }
     };
 
@@ -462,14 +510,10 @@ test('Cluster Planner Panel - In-place DOM update preserves layout and modifier 
         activeTab: 'cluster_planner',
         playerTownHall: 19,
         zapQuake: {
-            defenseKey: 'air_defense',
-            defenseLevel: 14,
-            superchargeTier: 1,
             selectedCluster: [
                 { defenseKey: 'air_defense', level: 14, superchargeTier: 1 },
                 { defenseKey: 'inferno_tower', level: 11, superchargeTier: 0 }
-            ],
-            multiSelectMode: true
+            ]
         }
     };
 
@@ -493,8 +537,7 @@ test('Cluster Planner Panel - Equipment selector and target sharing rendering', 
                 { defenseKey: 'scattershot', level: 7, superchargeTier: 0 }
             ],
             clusterEquipment: ['spiky_ball'],
-            clusterEquipmentSharing: { spiky_ball: [0] },
-            multiSelectMode: true
+            clusterEquipmentSharing: { spiky_ball: [0] }
         }
     };
 
@@ -533,8 +576,7 @@ test('Cluster Planner Panel - Sequential flow truncation omits unneeded equipmen
                 spiky_ball: [0, 1],
                 fireball: [0, 1],
                 giant_arrow: [0, 1]
-            },
-            multiSelectMode: true
+            }
         }
     };
 
@@ -565,8 +607,7 @@ test('Cluster Planner Panel - Spells render multiplier count to the left and dam
                 { defenseKey: 'scattershot', level: 7, superchargeTier: 0 }
             ],
             clusterEquipment: [],
-            adjacentPairs: ['0-1'],
-            multiSelectMode: true
+            adjacentPairs: ['0-1']
         }
     };
 
@@ -617,8 +658,7 @@ test('Cluster Planner Panel - Terminal damage step caps at remaining HP and disp
             clusterEquipmentSharing: {
                 rocket_backpack: [0, 1]
             },
-            adjacentPairs: ['0-1'],
-            multiSelectMode: true
+            adjacentPairs: ['0-1']
         }
     };
 
@@ -644,8 +684,7 @@ test('Building Selection Grid - Defense cards omit visible names and provide com
         playerTownHall: 16,
         zapQuake: {
             ...damageCalcState.zapQuake,
-            selectedCluster: [{ defenseKey: 'air_defense', level: 14, superchargeTier: 0 }],
-            multiSelectMode: true
+            selectedCluster: [{ defenseKey: 'air_defense', level: 14, superchargeTier: 0 }]
         }
     };
 
@@ -768,14 +807,10 @@ test('Cluster Planner Panel - Enforces at most 1 crafted defense in cluster sele
         activeTab: 'cluster_planner',
         playerTownHall: 17,
         zapQuake: {
-            defenseKey: 'hot_candle',
-            defenseLevel: 1,
-            superchargeTier: 0,
             selectedCluster: [
                 { defenseKey: 'hot_candle', level: 1, superchargeTier: 0 },
                 { defenseKey: 'inferno_tower', level: 11, superchargeTier: 0 }
             ],
-            multiSelectMode: true,
             adjacentPairs: []
         }
     };
@@ -786,29 +821,28 @@ test('Cluster Planner Panel - Enforces at most 1 crafted defense in cluster sele
     // Hot candle is in cluster
     const hotCandleCard = html.match(/<button[^>]*data-building-key="hot_candle"[^>]*>/)?.[0] || '';
     assert.ok(
-        hotCandleCard.includes('is-in-cluster'),
-        'hot_candle must have is-in-cluster class'
+        hotCandleCard.includes('is-selected') && hotCandleCard.includes('aria-pressed="true"'),
+        'hot_candle must be marked selected when in cluster'
     );
 
     // Hero Hunter and Cake-A-Pult must NOT be in cluster
     const heroHunterCard = html.match(/<button[^>]*data-building-key="hero_hunter"[^>]*>/)?.[0] || '';
     assert.ok(
-        !heroHunterCard.includes('is-in-cluster'),
-        'hero_hunter must NOT have is-in-cluster class'
+        !heroHunterCard.includes('is-selected') && heroHunterCard.includes('aria-pressed="false"'),
+        'hero_hunter must NOT be marked selected'
     );
     const cakeCard = html.match(/<button[^>]*data-building-key="cake_a_pult"[^>]*>/)?.[0] || '';
     assert.ok(
-        !cakeCard.includes('is-in-cluster'),
-        'cake_a_pult must NOT have is-in-cluster class'
+        !cakeCard.includes('is-selected') && cakeCard.includes('aria-pressed="false"'),
+        'cake_a_pult must NOT be marked selected'
     );
 });
 
-test('Cluster Planner Panel - Auto-swaps crafted defenses upon selection in multiSelectMode', () => {
+test('Cluster Planner Panel - Auto-swaps crafted defenses upon selection', () => {
     function createMockCard(key) {
         const cardListeners = [];
         const card = {
             getAttribute(name) {
-                if (name === 'data-prefix') return 'zq';
                 if (name === 'data-building-key') return key;
                 return null;
             },
@@ -845,14 +879,10 @@ test('Cluster Planner Panel - Auto-swaps crafted defenses upon selection in mult
         ...damageCalcState,
         playerTownHall: 17,
         zapQuake: {
-            defenseKey: 'hot_candle',
-            defenseLevel: 1,
-            superchargeTier: 0,
             selectedCluster: [
                 { defenseKey: 'hot_candle', level: 1, superchargeTier: 0 },
                 { defenseKey: 'inferno_tower', level: 11, superchargeTier: 0 }
             ],
-            multiSelectMode: true,
             adjacentPairs: []
         }
     };
@@ -881,7 +911,7 @@ test('Cluster Planner Panel - Auto-swaps crafted defenses upon selection in mult
     assert.equal(testState.zapQuake.selectedCluster[1].defenseKey, 'hot_candle', 'hot_candle added at end');
 });
 
-test('loadPersistedState - Normalizes cluster state to at most 1 crafted defense', () => {
+test('loadPersistedState - Normalizes cluster state and strips legacy single-select zapQuake keys', () => {
     const mockStorage = new Map();
     const originalStorage = globalThis.localStorage;
     globalThis.localStorage = {
@@ -893,6 +923,9 @@ test('loadPersistedState - Normalizes cluster state to at most 1 crafted defense
     try {
         const payload = JSON.stringify({
             zapQuake: {
+                multiSelectMode: false,
+                defenseKey: 'air_defense',
+                defenseLevel: 14,
                 selectedCluster: [
                     { defenseKey: 'hot_candle', level: 1, superchargeTier: 0 },
                     { defenseKey: 'inferno_tower', level: 11, superchargeTier: 0 },
@@ -910,17 +943,19 @@ test('loadPersistedState - Normalizes cluster state to at most 1 crafted defense
         assert.equal(craftedInCluster.length, 1, 'Must normalize cluster to at most 1 crafted defense');
         assert.equal(craftedInCluster[0].defenseKey, 'hot_candle', 'First crafted defense is retained');
         assert.equal(damageCalcState.zapQuake.selectedCluster.length, 2, 'Cluster retains hot_candle and inferno_tower');
+        assert.equal(Object.hasOwn(damageCalcState.zapQuake, 'multiSelectMode'), false, 'Legacy multiSelectMode key must be stripped');
+        assert.equal(Object.hasOwn(damageCalcState.zapQuake, 'defenseKey'), false, 'Legacy defenseKey key must be stripped');
+        assert.equal(Object.hasOwn(damageCalcState.zapQuake, 'defenseLevel'), false, 'Legacy defenseLevel key must be stripped');
     } finally {
         globalThis.localStorage = originalStorage;
     }
 });
 
-test('Multi-Select Mode - Only 1 guardian allowed; selecting another guardian swaps it in place', () => {
+test('Cluster Planner - Only 1 guardian allowed; selecting another guardian swaps it in place', () => {
     function createMockCard(key) {
         const cardListeners = [];
         const card = {
             getAttribute(name) {
-                if (name === 'data-prefix') return 'zq';
                 if (name === 'data-building-key') return key;
                 return null;
             },
@@ -956,14 +991,10 @@ test('Multi-Select Mode - Only 1 guardian allowed; selecting another guardian sw
         ...damageCalcState,
         playerTownHall: 18,
         zapQuake: {
-            defenseKey: 'air_defense',
-            defenseLevel: 14,
-            superchargeTier: 0,
             selectedCluster: [
                 { defenseKey: 'air_defense', level: 14, superchargeTier: 0 },
                 { defenseKey: 'smasher', level: 5, superchargeTier: 0 }
             ],
-            multiSelectMode: true,
             adjacentPairs: []
         }
     };
@@ -987,12 +1018,11 @@ test('Multi-Select Mode - Only 1 guardian allowed; selecting another guardian sw
     assert.equal(testState.zapQuake.selectedCluster[1].defenseKey, 'smasher', 'smasher added to cluster');
 });
 
-test('Multi-Select Mode - At most 4 heroes allowed; 5th hero swaps with last numbered hero', () => {
+test('Cluster Planner - At most 4 heroes allowed; 5th hero swaps with last numbered hero', () => {
     function createMockCard(key) {
         const cardListeners = [];
         const card = {
             getAttribute(name) {
-                if (name === 'data-prefix') return 'zq';
                 if (name === 'data-building-key') return key;
                 return null;
             },
@@ -1032,9 +1062,6 @@ test('Multi-Select Mode - At most 4 heroes allowed; 5th hero swaps with last num
         ...damageCalcState,
         playerTownHall: 18,
         zapQuake: {
-            defenseKey: 'air_defense',
-            defenseLevel: 14,
-            superchargeTier: 0,
             selectedCluster: [
                 { defenseKey: 'barbarian_king', level: 95, superchargeTier: 0 },
                 { defenseKey: 'archer_queen', level: 95, superchargeTier: 0 },
@@ -1042,7 +1069,6 @@ test('Multi-Select Mode - At most 4 heroes allowed; 5th hero swaps with last num
                 { defenseKey: 'royal_champion', level: 45, superchargeTier: 0 },
                 { defenseKey: 'air_defense', level: 14, superchargeTier: 0 }
             ],
-            multiSelectMode: true,
             adjacentPairs: []
         }
     };
@@ -1063,9 +1089,6 @@ test('Multi-Select Mode - At most 4 heroes allowed; 5th hero swaps with last num
         ...damageCalcState,
         playerTownHall: 18,
         zapQuake: {
-            defenseKey: 'royal_champion',
-            defenseLevel: 45,
-            superchargeTier: 0,
             selectedCluster: [
                 { defenseKey: 'air_defense', level: 14, superchargeTier: 0 },
                 { defenseKey: 'barbarian_king', level: 95, superchargeTier: 0 },
@@ -1073,7 +1096,6 @@ test('Multi-Select Mode - At most 4 heroes allowed; 5th hero swaps with last num
                 { defenseKey: 'grand_warden', level: 70, superchargeTier: 0 },
                 { defenseKey: 'royal_champion', level: 45, superchargeTier: 0 }
             ],
-            multiSelectMode: true,
             adjacentPairs: []
         }
     };
@@ -1145,11 +1167,7 @@ test('Cluster Planner Panel - Inputs card header structures search wrapper and f
         activeTab: 'cluster_planner',
         playerTownHall: 17,
         zapQuake: {
-            defenseKey: 'air_defense',
-            defenseLevel: 14,
-            superchargeTier: 0,
             selectedCluster: [{ defenseKey: 'air_defense', level: 14, superchargeTier: 0 }],
-            multiSelectMode: true,
             adjacentPairs: []
         }
     };
@@ -1186,8 +1204,7 @@ test('Cluster Planner Panel - Solution hero card and inputs card render layout h
                 { defenseKey: 'scattershot', level: 7, superchargeTier: 0 }
             ],
             clusterEquipment: ['spiky_ball', 'giant_arrow'],
-            adjacentPairs: ['0-1'],
-            multiSelectMode: true
+            adjacentPairs: ['0-1']
         }
     };
 
@@ -1229,7 +1246,7 @@ test('Town Hall Dropdown - Starts at Town Hall 9 and excludes Town Halls 1 throu
     assert.ok(htmlFallback.includes('class="calc-th-dropdown-item is-selected" role="option" aria-selected="true" data-th="9"'), 'TH 9 item must be selected for TH < 9');
 });
 
-test('Builder\'s Hut Grid & Toolbar - Hidden at TH 13, visible at TH 14 with min level 2', () => {
+test('Builder\'s Hut Grid - Hidden at TH 13, visible at TH 14 with TH-capped level', () => {
     const container13 = createMockContainer();
     const state13 = {
         ...damageCalcState,
@@ -1255,16 +1272,6 @@ test('Builder\'s Hut Grid & Toolbar - Hidden at TH 13, visible at TH 14 with min
     };
     renderDefenseBoardPanel(state14, container14);
     assert.ok(container14.innerHTML.includes('data-building-key="builders_hut"'), 'Builder\'s Hut must appear at TH 14');
-
-    // Toolbar controls: Min level is 2, slider min is 2, min and dec buttons disabled at level 2
-    const toolbarHtml = renderTargetLevelToolbar({
-        activeKey: 'builders_hut',
-        activeLevel: 2,
-        prefix: 'zq'
-    });
-    assert.ok(toolbarHtml.includes('min="2"'), 'Slider min must be 2 for Builder\'s Hut');
-    assert.ok(toolbarHtml.includes('id="zq-level-min" data-prefix="zq" data-i18n="validation.min" disabled'), 'Min button must be disabled at level 2');
-    assert.ok(toolbarHtml.includes('id="zq-level-dec" data-prefix="zq" disabled'), 'Dec button must be disabled at level 2');
 });
 
 test('Cluster Planner Panel - When playerTownHall is < 9, renders with active TH 9 and excludes locked defenses', () => {
@@ -1648,7 +1655,6 @@ test('Cluster Planner - Individual building card selection clamps target level t
         const cardListeners = [];
         const card = {
             getAttribute(name) {
-                if (name === 'data-prefix') return 'zq';
                 if (name === 'data-building-key') return key;
                 return null;
             },
@@ -1830,4 +1836,67 @@ test('Cluster Planner - Indestructible cluster with partial equipment renders eq
     // Must also render Cannot Destroy badge and banner because Town Hall survives Fireball and cannot be zapped
     assert.ok(html.includes('Cannot Destroy'), 'Must render Cannot Destroy status badge');
     assert.ok(html.includes('calc-cluster-indestructible-banner'), 'Must render indestructible guidance banner');
+});
+
+test('Cluster Planner Panel - Empty cluster renders zero selected cards and TH-caps air_defense level', () => {
+    const container = createMockContainer();
+    const state = {
+        ...damageCalcState,
+        activeTab: 'cluster_planner',
+        playerTownHall: 11,
+        defenseLevelOverrides: {},
+        defenseSuperchargeOverrides: {},
+        zapQuake: {
+            ...damageCalcState.zapQuake,
+            selectedCluster: []
+        }
+    };
+
+    renderDefenseBoardPanel(state, container);
+    const html = container.innerHTML;
+
+    assert.equal(html.includes('calc-building-card is-selected'), false, 'Empty cluster must mark zero cards selected');
+    assert.equal(html.includes('id="zq-multi-switch"'), false, 'Cluster toggle switch must not render');
+
+    const adCardHtml = html.match(/<button\b[^>]*data-building-key="air_defense"[\s\S]*?<\/button>/)?.[0] || '';
+    assert.ok(adCardHtml.includes('aria-pressed="false"'), 'air_defense must not be pressed when cluster is empty');
+    assert.ok(adCardHtml.includes('/assets/buildings/air_defense/level_9.png'), 'air_defense must use TH 11 level 9 asset');
+    assert.ok(adCardHtml.includes('Lvl 9') || adCardHtml.includes('Lv. 9'), 'air_defense must show TH 11 capped level');
+});
+
+test('Cluster Planner Panel - Unifies selected state and target supercharge tiers across all cluster cards', () => {
+    const container = createMockContainer();
+    const state = {
+        ...damageCalcState,
+        activeTab: 'cluster_planner',
+        playerTownHall: 18,
+        globalSuperchargeTier: 2,
+        defenseLevelOverrides: {},
+        defenseSuperchargeOverrides: {},
+        zapQuake: {
+            ...damageCalcState.zapQuake,
+            selectedCluster: [
+                { defenseKey: 'super_wizard_tower', level: 2, superchargeTier: 1 },
+                { defenseKey: 'inferno_tower', level: 12, superchargeTier: 0 }
+            ]
+        }
+    };
+
+    renderDefenseBoardPanel(state, container);
+    const html = container.innerHTML;
+
+    const swtCardHtml = html.match(/<button\b[^>]*data-building-key="super_wizard_tower"[\s\S]*?<\/button>/)?.[0] || '';
+    const infernoCardHtml = html.match(/<button\b[^>]*data-building-key="inferno_tower"[\s\S]*?<\/button>/)?.[0] || '';
+
+    assert.ok(swtCardHtml.includes('calc-building-card is-selected'), 'Cluster target #1 must use is-selected');
+    assert.ok(swtCardHtml.includes('aria-pressed="true"'), 'Cluster target #1 must set aria-pressed="true"');
+    assert.ok(swtCardHtml.includes('calc-building-card__cluster-badge">1</span>'), 'Cluster target #1 must render #1 badge');
+    const swtChargedPips = (swtCardHtml.match(/class="calc-supercharge-pip is-charged"/g) || []).length;
+    assert.equal(swtChargedPips, 1, 'Cluster target #1 must render its own superchargeTier (1), not global tier (2)');
+
+    assert.ok(infernoCardHtml.includes('calc-building-card is-selected'), 'Cluster target #2 must also use is-selected');
+    assert.ok(infernoCardHtml.includes('aria-pressed="true"'), 'Cluster target #2 must set aria-pressed="true"');
+    assert.ok(infernoCardHtml.includes('calc-building-card__cluster-badge">2</span>'), 'Cluster target #2 must render #2 badge');
+    assert.equal(html.includes('is-in-cluster'), false, 'Legacy is-in-cluster class must not render');
+    assert.equal(html.includes('is-active-target'), false, 'Legacy is-active-target class must not render');
 });

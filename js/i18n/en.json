@@ -799,7 +799,6 @@
                 "targetSlotTitle": "Target {number}"
             },
             "filters": {
-                "craftedBadge": "Crafted",
                 "craftedDefenseTooltip": "Crafted Defense (Level is tied to Town Hall Level)",
                 "craftedHpLvlShort": "HP Lvl",
                 "craftedHpModule": "HP Module",
