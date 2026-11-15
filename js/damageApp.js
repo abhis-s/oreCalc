@@ -13,6 +13,7 @@ import {
     initSharedShellChrome,
     mountWhenReady
 } from './core/shellBootstrapper.js';
+import { RouteLifecycleScope } from './core/routeLifecycleScope.js';
 import {
     normalizePlayerTag,
     getPlayerStorageKey,
@@ -54,7 +55,8 @@ import {
 
 /** @type {{ openAddPlayerModal: () => void, closeAddPlayerModal: () => void } | null} */
 let activeAddPlayerModalControls = null;
-let hasAttachedDamageListeners = false;
+/** @type {RouteLifecycleScope | null} */
+let damageLifecycleScope = null;
 let isMounted = false;
 /** @type {Promise<void> | null} */
 let activeMountPromise = null;
@@ -303,8 +305,10 @@ function renderActiveView() {
 
 /**
  * Synchronizes damage calculator active profile upon cross-tab player storage changes.
+ *
+ * @param {RouteLifecycleScope} scope
  */
-function initDamageCrossTabSync() {
+function initDamageCrossTabSync(scope) {
     const syncFromStorage = () => {
         if (!isMounted) return;
         const saved = getSavedProfiles();
@@ -327,7 +331,7 @@ function initDamageCrossTabSync() {
         }
     };
 
-    window.addEventListener('storage', (event) => {
+    scope.listen(window, 'storage', (event) => {
         if (!event.key) return;
         if (
             event.key === 'clashCalc_playerTags' ||
@@ -339,23 +343,23 @@ function initDamageCrossTabSync() {
         }
     });
 
-    document.addEventListener('app:playerDropdownSync', () => {
+    scope.listen(document, 'app:playerDropdownSync', () => {
         syncFromStorage();
     });
 
-    if (typeof document?.addEventListener === 'function') {
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                syncFromStorage();
-            }
-        });
-    }
+    scope.listen(document, 'visibilitychange', () => {
+        if (!document.hidden) {
+            syncFromStorage();
+        }
+    });
 }
 
 /**
  * Application bootstrapper.
+ *
+ * @param {RouteLifecycleScope} scope
  */
-async function initDamageApp() {
+async function initDamageApp(scope) {
     await bootstrapShellLanguageAndStorage({
         preloadPromise: preloadDefensesData()
     });
@@ -438,15 +442,12 @@ async function initDamageApp() {
     initDamageCalcTabNav(damageCalcState, renderActiveView);
     renderActiveView();
 
-    if (!hasAttachedDamageListeners) {
-        hasAttachedDamageListeners = true;
-        initDamageCrossTabSync();
-        document.addEventListener('languageChanged', () => {
-            if (!isMounted) return;
-            renderActiveView();
-            renderPlayerDropdown(damageCalcState.activeTag);
-        });
-    }
+    initDamageCrossTabSync(scope);
+    scope.listen(document, 'languageChanged', () => {
+        if (!isMounted) return;
+        renderActiveView();
+        renderPlayerDropdown(damageCalcState.activeTag);
+    });
 }
 
 /**
@@ -461,7 +462,10 @@ export async function mount(options = {}) {
 
     activeMountPromise = (async () => {
         isMounted = true;
-        await initDamageApp();
+        damageLifecycleScope?.dispose();
+        const scope = new RouteLifecycleScope();
+        damageLifecycleScope = scope;
+        await initDamageApp(scope);
         finalizeRouteMount('damage-calculator', { mount, destroy });
     })();
 
@@ -479,6 +483,8 @@ export function destroy() {
     activeMountPromise = null;
     if (!isMounted) return;
     isMounted = false;
+    damageLifecycleScope?.dispose();
+    damageLifecycleScope = null;
 }
 
 mountWhenReady(mount);

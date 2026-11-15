@@ -10,17 +10,13 @@ import { initializeSettingsPricing } from './settingsPricingInputs.js';
 import { dom } from '../../dom/domElements.js';
 import { initAppSettings } from '../common/appSettingsManager.js';
 
-let isSettingsInitialized = false;
+/** @type {WeakSet<Element>} */
+const boundEquipmentSettingControls = new WeakSet();
 
 /**
- * Initializes all application settings subsystems and event listeners.
+ * Initializes all application settings subsystems and event listeners idempotently.
  */
 export function initializeAppSettings() {
-    if (isSettingsInitialized) {
-        return;
-    }
-    isSettingsInitialized = true;
-
     initAppSettings();
     populateDropdowns();
     initializeSettingsAccount({
@@ -36,46 +32,54 @@ export function initializeAppSettings() {
     if (enableLevelInputToggle) {
         enableLevelInputToggle.checked = state.uiSettings.enableLevelInput;
 
-        enableLevelInputToggle.addEventListener('change', (e) => {
-            handleStateUpdate(() => {
-                state.uiSettings.enableLevelInput = /** @type {HTMLInputElement} */ (e.target).checked;
-            }, false, { preferencesOnly: true });
-        });
+        if (!boundEquipmentSettingControls.has(enableLevelInputToggle)) {
+            boundEquipmentSettingControls.add(enableLevelInputToggle);
+            enableLevelInputToggle.addEventListener('change', (e) => {
+                handleStateUpdate(() => {
+                    state.uiSettings.enableLevelInput = /** @type {HTMLInputElement} */ (e.target).checked;
+                }, false, { preferencesOnly: true });
+            });
+        }
     }
 
     const hideMaxedToggle = /** @type {HTMLInputElement|null} */ (dom.equipment?.hideMaxedToggle);
     if (hideMaxedToggle) {
         hideMaxedToggle.checked = state.uiSettings.hideMaxedEquipment;
 
-        hideMaxedToggle.addEventListener('change', (e) => {
-            const updateState = () => {
-                state.uiSettings.hideMaxedEquipment = /** @type {HTMLInputElement} */ (e.target).checked;
-            };
-            if (typeof document.startViewTransition === 'function' && !document.hidden) {
-                try {
-                    const transition = document.startViewTransition(() => {
-                        window.__FORCE_SYNC_RENDER__ = true;
-                        try {
-                            handleStateUpdate(updateState, false, { preferencesOnly: true });
-                        } finally {
-                            window.__FORCE_SYNC_RENDER__ = false;
-                        }
-                    });
-                    transition?.ready?.catch(() => {});
-                    transition?.finished?.catch(() => {});
-                } catch (_) {
+        if (!boundEquipmentSettingControls.has(hideMaxedToggle)) {
+            boundEquipmentSettingControls.add(hideMaxedToggle);
+            hideMaxedToggle.addEventListener('change', (e) => {
+                const updateState = () => {
+                    state.uiSettings.hideMaxedEquipment = /** @type {HTMLInputElement} */ (e.target).checked;
+                };
+                if (typeof document.startViewTransition === 'function' && !document.hidden) {
+                    try {
+                        const transition = document.startViewTransition(() => {
+                            window.__FORCE_SYNC_RENDER__ = true;
+                            try {
+                                handleStateUpdate(updateState, false, { preferencesOnly: true });
+                            } finally {
+                                window.__FORCE_SYNC_RENDER__ = false;
+                            }
+                        });
+                        transition?.ready?.catch(() => {});
+                        transition?.finished?.catch(() => {});
+                    } catch (_) {
+                        handleStateUpdate(updateState, false, { preferencesOnly: true });
+                    }
+                } else {
                     handleStateUpdate(updateState, false, { preferencesOnly: true });
                 }
-            } else {
-                handleStateUpdate(updateState, false, { preferencesOnly: true });
-            }
-        });
+            });
+        }
     }
 
     const emptyShowMaxedBtn = /** @type {HTMLButtonElement|null} */ (dom.equipment?.emptyShowMaxedBtn);
-    if (emptyShowMaxedBtn) {
+    if (emptyShowMaxedBtn && !boundEquipmentSettingControls.has(emptyShowMaxedBtn)) {
+        boundEquipmentSettingControls.add(emptyShowMaxedBtn);
         emptyShowMaxedBtn.addEventListener('click', () => {
-            if (hideMaxedToggle) hideMaxedToggle.checked = false;
+            const currentHideMaxedToggle = /** @type {HTMLInputElement|null} */ (dom.equipment?.hideMaxedToggle);
+            if (currentHideMaxedToggle) currentHideMaxedToggle.checked = false;
             handleStateUpdate(() => {
                 state.uiSettings.hideMaxedEquipment = false;
             }, false, { preferencesOnly: true });
@@ -86,29 +90,32 @@ export function initializeAppSettings() {
     if (hideLockedToggle) {
         hideLockedToggle.checked = state.uiSettings.hideLockedEquipment;
 
-        hideLockedToggle.addEventListener('change', (e) => {
-            const updateState = () => {
-                state.uiSettings.hideLockedEquipment = /** @type {HTMLInputElement} */ (e.target).checked;
-            };
-            if (typeof document.startViewTransition === 'function' && !document.hidden) {
-                try {
-                    const transition = document.startViewTransition(() => {
-                        window.__FORCE_SYNC_RENDER__ = true;
-                        try {
-                            handleStateUpdate(updateState, false, { preferencesOnly: true });
-                        } finally {
-                            window.__FORCE_SYNC_RENDER__ = false;
-                        }
-                    });
-                    transition?.ready?.catch(() => {});
-                    transition?.finished?.catch(() => {});
-                } catch (_) {
+        if (!boundEquipmentSettingControls.has(hideLockedToggle)) {
+            boundEquipmentSettingControls.add(hideLockedToggle);
+            hideLockedToggle.addEventListener('change', (e) => {
+                const updateState = () => {
+                    state.uiSettings.hideLockedEquipment = /** @type {HTMLInputElement} */ (e.target).checked;
+                };
+                if (typeof document.startViewTransition === 'function' && !document.hidden) {
+                    try {
+                        const transition = document.startViewTransition(() => {
+                            window.__FORCE_SYNC_RENDER__ = true;
+                            try {
+                                handleStateUpdate(updateState, false, { preferencesOnly: true });
+                            } finally {
+                                window.__FORCE_SYNC_RENDER__ = false;
+                            }
+                        });
+                        transition?.ready?.catch(() => {});
+                        transition?.finished?.catch(() => {});
+                    } catch (_) {
+                        handleStateUpdate(updateState, false, { preferencesOnly: true });
+                    }
+                } else {
                     handleStateUpdate(updateState, false, { preferencesOnly: true });
                 }
-            } else {
-                handleStateUpdate(updateState, false, { preferencesOnly: true });
-            }
-        });
+            });
+        }
     }
 
     document.dispatchEvent(new CustomEvent('app:translate'));

@@ -5,7 +5,8 @@
  */
 
 import { resolveAppRoute } from '../../core/appShellNavigator.js';
-import { getLanguageFromPath } from '../../core/languageRouter.js';
+import { APP_ROUTES } from '../../data/appRoutesData.js';
+import { getLanguageFromPath, buildLocalizedRouteHref } from '../../core/languageRouter.js';
 import { getPlayerTagFromUrl } from '../../core/playerUrlRouter.js';
 import { getSavedProfiles } from '../../core/playerStorage.js';
 import { isRunningStandalone } from '../../services/pwaService.js';
@@ -27,56 +28,21 @@ const BRAND_PILL_COOLDOWN_MS = 400;
 
 /**
  * Canonical registry of primary tools accessible via the brand pill dropdown.
- * @type {BrandToolDescriptor[]}
+ * @type {readonly BrandToolDescriptor[]}
  */
-export const BRAND_TOOLS_REGISTRY = [
-    {
-        id: 'hub',
-        path: '/',
-        labelKey: 'nav.dock.hub',
-        defaultLabel: 'Hub',
-        icon: 'home-filled'
-    },
-    {
-        id: 'ore-calculator',
-        path: '/ore-calculator/',
-        labelKey: 'app.brandToolName',
-        defaultLabel: 'OreCalc',
-        icon: 'equipment-filled',
-        supportsTag: true
-    },
-    {
-        id: 'hero-journey',
-        path: '/hero-journey/',
-        labelKey: 'views.heroJourney.widget.title',
-        defaultLabel: "Hero's Journey",
-        icon: 'timeline',
-        supportsTag: true
-    },
-    {
-        id: 'damage-calculator',
-        path: '/damage-calculator/',
-        labelKey: 'views.damageCalc.brandToolName',
-        defaultLabel: 'DamageCalc',
-        icon: 'swords-filled',
-        supportsTag: true
-    },
-    {
-        id: 'account',
-        path: '/account/',
-        labelKey: 'auth.account',
-        defaultLabel: 'Account',
-        icon: 'user-filled'
-    },
-    {
-        id: 'app-management',
-        path: '/app-management/',
-        labelKey: 'views.appManagement.title',
-        defaultLabel: 'App Management',
-        icon: 'devices',
-        requiresStandalone: true
-    }
-];
+export const BRAND_TOOLS_REGISTRY = Object.freeze(
+    APP_ROUTES
+        .filter(route => route.showInBrandMenu)
+        .map(route => Object.freeze({
+            id: route.id,
+            path: route.path,
+            labelKey: route.brandLabelKey,
+            defaultLabel: route.brandDefaultLabel,
+            icon: route.brandIcon,
+            supportsTag: route.supportsTag,
+            requiresStandalone: route.requiresStandalone
+        }))
+);
 
 /**
  * Builds localized href destination with optional active player tag parameter.
@@ -87,15 +53,11 @@ export const BRAND_TOOLS_REGISTRY = [
  * @returns {string}
  */
 export function buildBrandToolHref(tool, currentLang = 'en', playerTag = '') {
-    const langPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
-    const cleanTag = playerTag ? playerTag.replace(/^#/, '').trim() : '';
-    const tagQuery = (tool.supportsTag && cleanTag) ? `?tag=${encodeURIComponent(cleanTag)}` : '';
-
-    if (tool.path === '/') {
-        return langPrefix ? `${langPrefix}/` : '/';
-    }
-
-    return `${langPrefix}${tool.path}${tagQuery}`;
+    return buildLocalizedRouteHref(tool.path, {
+        lang: currentLang,
+        playerTag,
+        preserveTag: Boolean(tool.supportsTag)
+    });
 }
 
 /**

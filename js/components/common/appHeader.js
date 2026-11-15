@@ -1,6 +1,6 @@
 import { initNavigationDrawer } from './navigationDrawer.js';
 import { initBrandToolsDropdown } from './brandToolsDropdown.js';
-import { getLanguageFromPath } from '../../core/languageRouter.js';
+import { getLanguageFromPath, buildLocalizedRouteHref } from '../../core/languageRouter.js';
 import {
     HEADER_BREAKPOINT_DESKTOP,
     HEADER_DROPDOWN_COMFORTABLE_WIDTH,
@@ -390,13 +390,26 @@ export function initAppHeader(options = {}) {
     }
 
     const brandLink = /** @type {HTMLAnchorElement | null} */ (header.querySelector('.brand-title-link, .landing-brand'));
-    if (brandLink) {
-        const currentLang = getLanguageFromPath() || 'en';
-        brandLink.href = currentLang === 'en' ? '/' : `/${currentLang}/`;
-    }
+    const syncBrandLinkHref = () => {
+        if (!brandLink) return;
+        brandLink.href = buildLocalizedRouteHref('/', { lang: getLanguageFromPath() || 'en' });
+    };
+    syncBrandLinkHref();
 
     const headerCleanups = [];
     const cleanups = [];
+
+    if (brandLink && typeof document.addEventListener === 'function') {
+        const handleBrandLanguageChange = () => syncBrandLinkHref();
+        document.addEventListener('languageChanged', handleBrandLanguageChange);
+        const cleanupBrandLanguageSync = () => {
+            if (typeof document.removeEventListener === 'function') {
+                document.removeEventListener('languageChanged', handleBrandLanguageChange);
+            }
+        };
+        headerCleanups.push(cleanupBrandLanguageSync);
+        cleanups.push(cleanupBrandLanguageSync);
+    }
 
     // Off-main-thread scroll sentinel elevation
     const cleanupScroll = initAppHeaderScrollObserver(/** @type {HTMLElement} */ (header));

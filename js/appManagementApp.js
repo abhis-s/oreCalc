@@ -11,6 +11,7 @@ import {
     initSharedShellChrome,
     mountWhenReady
 } from './core/shellBootstrapper.js';
+import { RouteLifecycleScope } from './core/routeLifecycleScope.js';
 import {
     getAppStorageUsage,
     getStartupRoutePreference,
@@ -26,6 +27,8 @@ import './utils/imageManager.js';
 import './console.js';
 
 let isMounted = false;
+/** @type {RouteLifecycleScope | null} */
+let managementLifecycleScope = null;
 /** @type {Promise<void> | null} */
 let activeMountPromise = null;
 
@@ -52,8 +55,10 @@ function renderDrawer() {
 
 /**
  * Main application initialization sequence.
+ *
+ * @param {RouteLifecycleScope} scope
  */
-async function initAppManagementApp() {
+async function initAppManagementApp(scope) {
     window.isAppStartingUp = true;
     await bootstrapShellLanguageAndStorage({ hydrateState: true });
 
@@ -73,6 +78,8 @@ async function initAppManagementApp() {
     });
 
     renderDrawer();
+    scope.listen(document, 'languageChanged', renderDrawer);
+    scope.listen(document, 'app:playerDropdownSync', renderDrawer);
 
     const startupSelect = /** @type {HTMLSelectElement|null} */ (document.getElementById('app-startup-select'));
     if (startupSelect) {
@@ -82,7 +89,7 @@ async function initAppManagementApp() {
     const storageUsageText = document.getElementById('app-storage-usage-text');
     if (storageUsageText) {
         getAppStorageUsage().then(size => {
-            if (!isMounted) return;
+            if (!isMounted || !scope.active) return;
             renderStorageUsage(storageUsageText, size);
         }).catch(() => {});
     }
@@ -107,7 +114,10 @@ export async function mount(options = {}) {
 
     activeMountPromise = (async () => {
         isMounted = true;
-        await initAppManagementApp();
+        managementLifecycleScope?.dispose();
+        const scope = new RouteLifecycleScope();
+        managementLifecycleScope = scope;
+        await initAppManagementApp(scope);
         finalizeRouteMount('app-management', { mount, destroy });
     })();
 
@@ -125,6 +135,8 @@ export function destroy() {
     activeMountPromise = null;
     if (!isMounted) return;
     isMounted = false;
+    managementLifecycleScope?.dispose();
+    managementLifecycleScope = null;
 }
 
 mountWhenReady(mount);

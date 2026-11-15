@@ -227,22 +227,25 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
         }
 
         buildingGroupsHtml += `
-            <details class="calc-building-group" data-group-id="${grp.id}" ${isExpanded ? 'open' : ''}>
-                <summary class="calc-building-group__summary">
-                    <span class="calc-building-group__title">
-                        <span data-i18n="${grp.titleKey}">${escapeHTML(translate(grp.titleKey))}</span>
-                        <span class="calc-building-group__count">(${items.length})</span>
-                    </span>
+            <div class="calc-building-group${isExpanded ? ' is-open' : ''}" data-group-id="${grp.id}">
+                <div class="calc-building-group__header">
+                    <button type="button" class="calc-building-group__summary" aria-expanded="${isExpanded}">
+                        <span class="calc-building-group__title">
+                            <span data-i18n="${grp.titleKey}">${escapeHTML(translate(grp.titleKey))}</span>
+                            <span class="calc-building-group__count">(${items.length})</span>
+                        </span>
+                        <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="calc-building-group__chevron" aria-hidden="true"></clashcalc-assets-svg>
+                    </button>
+                    ${toggleHtml ? `
                     <div class="calc-building-group__summary-actions">
+                        <span class="calc-building-group__divider" aria-hidden="true"></span>
                         ${toggleHtml}
-                        ${toggleHtml ? '<span class="calc-building-group__divider" aria-hidden="true"></span>' : ''}
-                        <clashcalc-assets-svg name="chevron-down" width="14" height="14" class="calc-building-group__chevron"></clashcalc-assets-svg>
-                    </div>
-                </summary>
-                <div class="calc-building-group__content">
+                    </div>` : ''}
+                </div>
+                <div class="calc-building-group__content"${isExpanded ? '' : ' hidden'}>
                     ${groupRowsHtml}
                 </div>
-            </details>
+            </div>
         `;
     }
 

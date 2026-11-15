@@ -49,6 +49,7 @@ import { showAddPlayerModal } from './components/player/playerModalInputs.js';
 import { resetPlayerDropdownState } from './components/player/playerDropdownInputs.js';
 import { markUserMigrated } from './services/apiService.js';
 import { finalizeRouteMount, mountWhenReady } from './core/shellBootstrapper.js';
+import { RouteLifecycleScope } from './core/routeLifecycleScope.js';
 import { resetRenderState } from './components/home/homeProfileAnimations.js';
 import './console.js';
 
@@ -56,7 +57,8 @@ setThemeRenderCallback(renderApp);
 registerGlobalErrorBoundaries();
 
 let isMounted = false;
-let hasAttachedAppListeners = false;
+/** @type {RouteLifecycleScope | null} */
+let appLifecycleScope = null;
 /** @type {Promise<void> | null} */
 let activeMountPromise = null;
 /** @type {ReturnType<typeof setTimeout> | null} */
@@ -80,6 +82,9 @@ export async function mount(options = {}) {
 
     activeMountPromise = (async () => {
         isMounted = true;
+        appLifecycleScope?.dispose();
+        const lifecycleScope = new RouteLifecycleScope();
+        appLifecycleScope = lifecycleScope;
 
         const urlParams = new URLSearchParams(window.location.search);
         let userIdFromUrl = urlParams.get('userId');
@@ -385,34 +390,30 @@ export async function mount(options = {}) {
             }
         });
 
-        if (!hasAttachedAppListeners) {
-            hasAttachedAppListeners = true;
+        lifecycleScope.listen(document, 'app:theme-change', (e) => {
+            const customEvent = /** @type {CustomEvent} */ (e);
+            applyTheme(customEvent.detail.theme, customEvent.detail.origin);
+        });
 
-            document.addEventListener('app:theme-change', (e) => {
-                const customEvent = /** @type {CustomEvent} */ (e);
-                applyTheme(customEvent.detail.theme, customEvent.detail.origin);
-            });
+        lifecycleScope.listen(document, 'app:translate', () => {
+            updateUIWithTranslations();
+            renderApp(state);
+        });
 
-            document.addEventListener('app:translate', () => {
-                updateUIWithTranslations();
-                renderApp(state);
-            });
+        lifecycleScope.listen(document, 'tour:close', () => {
+            triggerPendingModals();
+        });
 
-            document.addEventListener('tour:close', () => {
-                triggerPendingModals();
-            });
+        lifecycleScope.listen(document, 'app:accountSynced', async () => {
+            if (!isMounted) return;
+            recalculateAll(state);
+            renderApp(state);
 
-            document.addEventListener('app:accountSynced', async () => {
-                if (!isMounted) return;
-                recalculateAll(state);
-                renderApp(state);
-
-                const hasRealTags = Boolean(state.savedPlayerTags?.some(t => t && normalizePlayerTag(t) !== 'DEFAULT0'));
-                if (!hasRealTags) {
-                    showAddPlayerModal();
-                }
-            });
-        }
+            const hasRealTags = Boolean(state.savedPlayerTags?.some(t => t && normalizePlayerTag(t) !== 'DEFAULT0'));
+            if (!hasRealTags) {
+                showAddPlayerModal();
+            }
+        });
 
         initializeDOMElements();
         initMainAppCrossTabSync();
@@ -444,14 +445,14 @@ export async function mount(options = {}) {
         }
 
         if (isPreloaderEnabled) {
-            setTimeout(async () => {
-                await bootstrapUIComponents(initialLang);
+            lifecycleScope.setTimeout(async () => {
+                await bootstrapUIComponents(initialLang, lifecycleScope);
             }, 1900);
         } else {
-            await bootstrapUIComponents(initialLang);
+            await bootstrapUIComponents(initialLang, lifecycleScope);
         }
 
-        handlePreloaderTeardown(isPreloaderEnabled ? preloader : null);
+        handlePreloaderTeardown(isPreloaderEnabled ? preloader : null, lifecycleScope);
         initializePwaService();
 
         if (appDataInitTimeout) {
@@ -524,6 +525,8 @@ export function destroy() {
     if (!isMounted) return;
     isMounted = false;
     activeMountPromise = null;
+    appLifecycleScope?.dispose();
+    appLifecycleScope = null;
     if (appDataInitTimeout) {
         clearTimeout(appDataInitTimeout);
         appDataInitTimeout = null;

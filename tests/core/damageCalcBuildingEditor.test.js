@@ -442,12 +442,13 @@ test('Building Edit Modal - Renders 5 collapsible groups with only Defenses open
     renderBuildingEditModal(state, container);
     const html = container.innerHTML;
 
-    // Must render collapsible details for groups
-    assert.ok(html.includes('<details class="calc-building-group" data-group-id="defenses" open>'), 'Defenses group must be open by default');
-    assert.ok(html.includes('<details class="calc-building-group" data-group-id="heroes" >'), 'Heroes group must be collapsed by default');
-    assert.ok(html.includes('<details class="calc-building-group" data-group-id="guardians" >'), 'Guardians group must be collapsed by default');
-    assert.ok(html.includes('<details class="calc-building-group" data-group-id="other" >'), 'Other group must be collapsed by default');
-    assert.ok(html.includes('<details class="calc-building-group" data-group-id="unavailable" >'), 'Unavailable group must be collapsed by default');
+    // Must render collapsible groups without nesting controls inside <summary>
+    assert.ok(!html.includes('<details class="calc-building-group"'), 'Building groups must not use <details> with nested controls');
+    assert.ok(!html.includes('<summary class="calc-building-group__summary"'), 'Building groups must not nest switches inside <summary>');
+    assert.ok(html.includes('class="calc-building-group is-open" data-group-id="defenses"'), 'Defenses group must be open by default');
+    for (const collapsedGroup of ['heroes', 'guardians', 'other', 'unavailable']) {
+        assert.ok(html.includes(`class="calc-building-group" data-group-id="${collapsedGroup}"`), `${collapsedGroup} group must be collapsed by default`);
+    }
 
     // Must render localized titles and item counts
     assert.ok(html.includes('Defenses'), 'Must display Defenses section title');
@@ -465,7 +466,10 @@ test('Building Edit Modal - Renders 5 collapsible groups with only Defenses open
     setBuildingGroupSessionPreference('heroes', true);
     renderBuildingEditModal(state, container);
     const updatedHtml = container.innerHTML;
-    assert.ok(updatedHtml.includes('<details class="calc-building-group" data-group-id="heroes" open>'), 'Heroes group must be open when session preference is true');
+    assert.ok(
+        updatedHtml.includes('class="calc-building-group is-open" data-group-id="heroes"'),
+        'Heroes group must be open when session preference is true'
+    );
 
     // Reset back to default
     setBuildingGroupSessionPreference('heroes', false);
@@ -518,14 +522,7 @@ test('Building Group Visibility - Defenses invariant: defenses group has no swit
         'Unavailable switch must NOT be active by default'
     );
 
-    // Header integration: switches reside inside summary-actions
-    assert.match(
-        html,
-        /<div class="calc-building-group__summary-actions">\s*<button[^>]*data-group-switch="heroes"/,
-        'Switch must reside directly inside summary-actions in the group header'
-    );
-
-    // Label-first and divider: label must precede track, and divider must separate switch from chevron
+    // Label-first and divider: label precedes track, divider separates switch, chevron lives in summary button
     assert.match(
         html,
         /<button[^>]*data-group-switch="heroes"[^>]*>[\s\S]*?<span class="calc-building-group-switch__label">[\s\S]*?<\/span>[\s\S]*?<span class="calc-building-group-switch__track">/,
@@ -533,8 +530,8 @@ test('Building Group Visibility - Defenses invariant: defenses group has no swit
     );
     assert.match(
         html,
-        /<span class="calc-building-group__divider"[^>]*><\/span>\s*<(?:orecalc|clashcalc)-assets-svg name="chevron-down"/,
-        'Divider must separate the switch from the chevron in summary-actions'
+        /<span class="calc-building-group__divider"[^>]*><\/span>\s*<button[^>]*data-group-switch="heroes"/,
+        'Divider must precede the switch inside summary-actions'
     );
 });
 

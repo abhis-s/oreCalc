@@ -16,6 +16,7 @@ import {
     initSharedShellChrome,
     mountWhenReady
 } from './core/shellBootstrapper.js';
+import { RouteLifecycleScope } from './core/routeLifecycleScope.js';
 import { fetchAccountDetails, getAuthenticatedUser, isAuthenticated, initCrossTabAuthSync } from './services/authClientService.js';
 import { initializeAppData } from './services/cloudSaveService.js';
 import { renderAccountPageShell } from './components/account/accountPageDisplay.js';
@@ -24,7 +25,8 @@ import { loadAndRenderSessions } from './components/account/accountPageSessions.
 import './utils/imageManager.js';
 import './console.js';
 
-let hasAttachedAccountListeners = false;
+/** @type {RouteLifecycleScope | null} */
+let accountLifecycleScope = null;
 let isMounted = false;
 /** @type {Promise<void> | null} */
 let activeMountPromise = null;
@@ -52,8 +54,12 @@ function renderDrawer() {
 
 /**
  * Main application initialization sequence.
+/**
+ * Main application initialization sequence.
+ *
+ * @param {RouteLifecycleScope} scope
  */
-async function initAccountApp() {
+async function initAccountApp(scope) {
     window.isAppStartingUp = true;
     await bootstrapShellLanguageAndStorage({ hydrateState: true });
 
@@ -111,41 +117,38 @@ async function initAccountApp() {
         }).catch(() => {});
     }
 
-    if (!hasAttachedAccountListeners) {
-        hasAttachedAccountListeners = true;
-        document.addEventListener('auth:state-change', () => {
-            if (!isMounted) return;
-            const authed = isAuthenticated();
-            renderAccountPageShell(authed, getAuthenticatedUser());
-            if (authed) {
-                loadAndRenderSessions();
-            }
-            renderDrawer();
-        });
+    scope.listen(document, 'auth:state-change', () => {
+        if (!isMounted) return;
+        const authed = isAuthenticated();
+        renderAccountPageShell(authed, getAuthenticatedUser());
+        if (authed) {
+            loadAndRenderSessions();
+        }
+        renderDrawer();
+    });
 
-        document.addEventListener('languageChanged', () => {
-            if (!isMounted) return;
-            const authed = isAuthenticated();
-            renderAccountPageShell(authed, getAuthenticatedUser());
-            if (authed) {
-                loadAndRenderSessions();
-            }
-            renderDrawer();
-        });
+    scope.listen(document, 'languageChanged', () => {
+        if (!isMounted) return;
+        const authed = isAuthenticated();
+        renderAccountPageShell(authed, getAuthenticatedUser());
+        if (authed) {
+            loadAndRenderSessions();
+        }
+        renderDrawer();
+    });
 
-        document.addEventListener('app:playerDropdownSync', () => {
-            if (!isMounted) return;
-            const currentProfiles = getSavedProfiles();
-            if (Array.isArray(currentProfiles) && currentProfiles.length > 0) {
-                handleStateUpdate(() => {
-                    state.savedPlayerTags = currentProfiles.map(p => p.cleanTag);
-                }, true);
-            }
-            const authed = isAuthenticated();
-            renderAccountPageShell(authed, getAuthenticatedUser());
-            renderDrawer();
-        });
-    }
+    scope.listen(document, 'app:playerDropdownSync', () => {
+        if (!isMounted) return;
+        const currentProfiles = getSavedProfiles();
+        if (Array.isArray(currentProfiles) && currentProfiles.length > 0) {
+            handleStateUpdate(() => {
+                state.savedPlayerTags = currentProfiles.map(p => p.cleanTag);
+            }, true);
+        }
+        const authed = isAuthenticated();
+        renderAccountPageShell(authed, getAuthenticatedUser());
+        renderDrawer();
+    });
 }
 
 /**
@@ -160,7 +163,10 @@ export async function mount(options = {}) {
 
     activeMountPromise = (async () => {
         isMounted = true;
-        await initAccountApp();
+        accountLifecycleScope?.dispose();
+        const scope = new RouteLifecycleScope();
+        accountLifecycleScope = scope;
+        await initAccountApp(scope);
         finalizeRouteMount('account', { mount, destroy });
     })();
 
@@ -178,6 +184,8 @@ export function destroy() {
     activeMountPromise = null;
     if (!isMounted) return;
     isMounted = false;
+    accountLifecycleScope?.dispose();
+    accountLifecycleScope = null;
 }
 
 mountWhenReady(mount);

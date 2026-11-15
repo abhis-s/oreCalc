@@ -28,6 +28,24 @@ import {
 } from '../../domain/damage/defenseProgressionDomain.js';
 
 /**
+ * Synchronizes expanded CSS state, trigger ARIA attributes, and panel visibility for a building group.
+ *
+ * @param {Element} groupEl - Building group container element.
+ * @param {boolean} isExpanded - Whether the group panel should be expanded.
+ */
+function setBuildingGroupExpanded(groupEl, isExpanded) {
+    groupEl.classList.toggle('is-open', isExpanded);
+    const summaryBtn = /** @type {HTMLButtonElement | null} */ (groupEl.querySelector('.calc-building-group__summary'));
+    if (summaryBtn) {
+        summaryBtn.setAttribute('aria-expanded', String(isExpanded));
+    }
+    const contentEl = /** @type {HTMLElement | null} */ (groupEl.querySelector('.calc-building-group__content'));
+    if (contentEl) {
+        contentEl.hidden = !isExpanded;
+    }
+}
+
+/**
  * Attaches event listeners for the building editor toolbar (TH preset, reset, group toggles, search).
  *
  * @param {Object} state - Damage calculator state.
@@ -202,18 +220,22 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
         });
     }
 
+    const searchInput = /** @type {HTMLInputElement | null} */ (modalBody.querySelector('#calc-building-search'));
+
     // Collapsible building groups toggle persistence
     const buildingGroups = modalBody.querySelectorAll('.calc-building-group');
     buildingGroups.forEach(groupEl => {
-        const details = /** @type {HTMLDetailsElement} */ (groupEl);
-        if (details.dataset.hasToggleListener) return;
-        details.dataset.hasToggleListener = 'true';
-        details.addEventListener('toggle', () => {
+        const summaryBtn = /** @type {HTMLButtonElement | null} */ (groupEl.querySelector('.calc-building-group__summary'));
+        if (!summaryBtn || summaryBtn.dataset.hasToggleListener) return;
+        summaryBtn.dataset.hasToggleListener = 'true';
+        summaryBtn.addEventListener('click', () => {
+            const nextExpanded = !groupEl.classList.contains('is-open');
+            setBuildingGroupExpanded(groupEl, nextExpanded);
             const currentQuery = searchInput ? searchInput.value.trim() : '';
             if (!currentQuery) {
-                const groupId = details.getAttribute('data-group-id');
+                const groupId = groupEl.getAttribute('data-group-id');
                 if (groupId) {
-                    setBuildingGroupSessionPreference(groupId, details.open);
+                    setBuildingGroupSessionPreference(groupId, nextExpanded);
                 }
             }
         });
@@ -226,10 +248,7 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
         if (switchBtn.dataset.hasSwitchListener) return;
         switchBtn.dataset.hasSwitchListener = 'true';
 
-        switchBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
+        switchBtn.addEventListener('click', () => {
             const groupId = switchBtn.getAttribute('data-group-switch');
             if (!groupId || groupId === 'defenses') return;
 
@@ -262,9 +281,9 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
             switchBtn.setAttribute('aria-checked', String(nextVal));
 
             // In-place update of rows inside this group
-            const groupDetails = switchBtn.closest('.calc-building-group');
-            if (groupDetails) {
-                const rows = groupDetails.querySelectorAll('.calc-building-modal-row');
+            const groupEl = switchBtn.closest('.calc-building-group');
+            if (groupEl) {
+                const rows = groupEl.querySelectorAll('.calc-building-modal-row');
                 rows.forEach(row => {
                     const isRowUnavailable = row.classList.contains('is-unavailable');
                     const isRestricted = isRowUnavailable || !nextVal;
@@ -294,7 +313,6 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
     });
 
     // Instant Search Input
-    const searchInput = /** @type {HTMLInputElement | null} */ (modalBody.querySelector('#calc-building-search'));
     const clearInputBtn = modalBody.querySelector('#calc-building-search-clear-btn, [data-action="clear-defense-search-input"]');
     const emptyNotice = modalBody.querySelector('#calc-building-empty-search');
     if (searchInput && !searchInput.dataset.hasSearchListener) {
@@ -309,9 +327,9 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
             let totalVisibleCount = 0;
 
             if (query) {
-                groups.forEach(groupEl => {
-                    const details = /** @type {HTMLDetailsElement} */ (groupEl);
-                    const rows = details.querySelectorAll('.calc-building-modal-row');
+                groups.forEach(groupNode => {
+                    const groupEl = /** @type {HTMLElement} */ (groupNode);
+                    const rows = groupEl.querySelectorAll('.calc-building-modal-row');
                     let groupVisibleCount = 0;
 
                     rows.forEach(row => {
@@ -326,22 +344,22 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
                     });
 
                     if (groupVisibleCount > 0) {
-                        details.style.display = '';
-                        details.open = true;
+                        groupEl.hidden = false;
+                        setBuildingGroupExpanded(groupEl, true);
                     } else {
-                        details.style.display = 'none';
+                        groupEl.hidden = true;
                     }
                 });
             } else {
-                groups.forEach(groupEl => {
-                    const details = /** @type {HTMLDetailsElement} */ (groupEl);
-                    const groupId = details.getAttribute('data-group-id');
-                    details.style.display = '';
+                groups.forEach(groupNode => {
+                    const groupEl = /** @type {HTMLElement} */ (groupNode);
+                    const groupId = groupEl.getAttribute('data-group-id');
+                    groupEl.hidden = false;
                     if (groupId) {
-                        details.open = Boolean(groupPrefs[groupId]);
+                        setBuildingGroupExpanded(groupEl, Boolean(groupPrefs[groupId]));
                     }
 
-                    const rows = details.querySelectorAll('.calc-building-modal-row');
+                    const rows = groupEl.querySelectorAll('.calc-building-modal-row');
                     rows.forEach(row => {
                         /** @type {HTMLElement} */ (row).style.display = '';
                         totalVisibleCount++;

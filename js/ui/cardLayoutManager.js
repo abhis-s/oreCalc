@@ -26,6 +26,8 @@ let isCompact = false;
 let currentMode = 'cozy'; // 'cozy', 'compact0', 'compact1'
 let windowResizeTimeout = null;
 let resizeTimer = null;
+/** @type {AbortController | null} */
+let cardLayoutAbortController = null;
 
 /**
  * Window resize handler - rebuilds layout or resets based on screen width.
@@ -129,13 +131,44 @@ export function initCardLayoutManager() {
         observeContainers(layout);
     }
 
-    window.addEventListener('resize', onWindowResize);
-    window.addEventListener('orientationchange', onWindowResize);
+    cardLayoutAbortController?.abort();
+    cardLayoutAbortController = new AbortController();
+    const { signal } = cardLayoutAbortController;
+
+    window.addEventListener('resize', onWindowResize, { signal });
+    window.addEventListener('orientationchange', onWindowResize, { signal });
     if (typeof screen !== 'undefined' && screen?.orientation?.addEventListener) {
-        screen.orientation.addEventListener('change', onWindowResize);
+        screen.orientation.addEventListener('change', onWindowResize, { signal });
     }
 
     logger.debug('CardLayoutManager: initialized');
+}
+
+/**
+ * Tears down active card layout observers, timers, drag state, and window listeners.
+ */
+export function destroyCardLayoutManager() {
+    cardLayoutAbortController?.abort();
+    cardLayoutAbortController = null;
+
+    if (windowResizeTimeout !== null) {
+        clearTimeout(windowResizeTimeout);
+        windowResizeTimeout = null;
+    }
+    if (resizeTimer !== null) {
+        clearTimeout(resizeTimer);
+        resizeTimer = null;
+    }
+
+    cleanupActiveCardDrag();
+
+    for (const layout of layouts) {
+        layout.resizeObserver?.disconnect();
+        layout.resizeObserver = null;
+        layout.gridEl = null;
+        layout.originalCards = [];
+        layout.originalIndices.clear();
+    }
 }
 
 /**

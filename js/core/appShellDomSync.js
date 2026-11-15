@@ -1,9 +1,201 @@
 /**
  * ClashCalc App Shell DOM Synchronization Helpers.
- * Handles head metadata, stylesheet preloading, header tabs/dropdowns, and modal synchronization
- * during soft view transitions across primary tool routes.
+ * Handles head metadata, stylesheet lifecycle management, header tabs/dropdowns,
+ * and modal synchronization during soft view transitions across primary tool routes.
  * Tier 3: Core Routing & Lifecycle Engine.
  */
+
+import { APP_ROUTES, APP_SHELL_STYLESHEET, APP_PERSISTENT_MODAL_IDS } from '../data/appRoutesData.js';
+import { findRouteById } from './languageRouter.js';
+
+const ROUTE_STYLESHEET_PATHS = new Set(APP_ROUTES.flatMap(route => route.stylesheets));
+const PERSISTENT_MODAL_ID_SET = new Set(APP_PERSISTENT_MODAL_IDS);
+
+/**
+ * Normalizes a stylesheet href to its pathname without query/hash parameters.
+ *
+ * @param {string} href
+ * @returns {string}
+ */
+function normalizeStylesheetPath(href) {
+    if (!href || typeof href !== 'string') return '';
+    try {
+        const origin = (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null')
+            ? window.location.origin
+            : 'https://clashcalc.com';
+        return new URL(href, origin).pathname;
+    } catch (_) {
+        return href.split(/[?#]/)[0];
+    }
+}
+
+/**
+ * Manages route-scoped stylesheet preloading, cached re-activation, and disabling on exit.
+ */
+class ShellStylesheetManager {
+    /**
+     * Collects normalized stylesheet pathnames declared on a document.
+     *
+     * @param {Document} targetDoc
+     * @returns {Set<string>}
+     */
+    #collectNormalizedPaths(targetDoc) {
+        const links = Array.from(targetDoc.querySelectorAll?.('link[rel="stylesheet"]') || []);
+        const paths = new Set();
+        for (const link of links) {
+            const rawHref = link.getAttribute?.('href');
+            const normalized = normalizeStylesheetPath(rawHref || '');
+            if (normalized) paths.add(normalized);
+        }
+        return paths;
+    }
+
+    /**
+     * Preloads destination stylesheets missing from document.head and re-enables cached route sheets.
+     *
+     * @param {Document} newDoc
+     * @returns {Promise<void>}
+     */
+    async preloadForDestination(newDoc) {
+        if (typeof document === 'undefined' || !document.head) return;
+
+        const newStylesheets = Array.from(newDoc.querySelectorAll?.('link[rel="stylesheet"]') || []);
+        const pendingPromises = [];
+        /** @type {Map<string, HTMLLinkElement>} */
+        const existingByPath = new Map();
+
+        const headLinks = Array.from(document.head.querySelectorAll?.('link[rel="stylesheet"]') || []);
+        for (const link of headLinks) {
+            const normalized = normalizeStylesheetPath(link.getAttribute?.('href') || '');
+            if (normalized && !existingByPath.has(normalized)) {
+                existingByPath.set(normalized, /** @type {HTMLLinkElement} */ (link));
+            }
+        }
+
+        for (const link of newStylesheets) {
+            const rawHref = link.getAttribute?.('href');
+            if (!rawHref) continue;
+
+            const normalized = normalizeStylesheetPath(rawHref);
+            if (!normalized) continue;
+
+            const existingLink = existingByPath.get(normalized);
+            if (existingLink) {
+                existingLink.disabled = false;
+                continue;
+            }
+
+            const newLink = /** @type {HTMLLinkElement} */ (document.createElement('link'));
+            newLink.rel = 'stylesheet';
+            newLink.href = rawHref;
+            newLink.disabled = false;
+            if (ROUTE_STYLESHEET_PATHS.has(normalized)) {
+                newLink.setAttribute?.('data-route-stylesheet', 'true');
+            }
+
+            const loadPromise = new Promise((resolve) => {
+                newLink.onload = () => resolve(undefined);
+                newLink.onerror = () => resolve(undefined);
+                // Timeout safeguard prevents hanging on slow connections
+                setTimeout(() => resolve(undefined), 250);
+            });
+
+            pendingPromises.push(loadPromise);
+            existingByPath.set(normalized, newLink);
+            document.head.appendChild(newLink);
+        }
+
+        if (pendingPromises.length > 0) {
+            await Promise.all(pendingPromises);
+        }
+    }
+
+    /**
+     * Disables exited route stylesheets no longer referenced by the destination document
+     * while permanently preserving the core shell stylesheet.
+     *
+     * @param {Document} newDoc
+     */
+    deactivateExited(newDoc) {
+        if (typeof document === 'undefined' || !document.head) return;
+
+        const desiredPaths = this.#collectNormalizedPaths(newDoc);
+        const headLinks = Array.from(document.head.querySelectorAll?.('link[rel="stylesheet"]') || []);
+
+        for (const link of headLinks) {
+            const stylesheet = /** @type {HTMLLinkElement} */ (link);
+            const normalized = normalizeStylesheetPath(stylesheet.getAttribute?.('href') || '');
+            if (!normalized) continue;
+
+            if (normalized === APP_SHELL_STYLESHEET) {
+                stylesheet.disabled = false;
+                continue;
+            }
+
+            const isRouteOwned = ROUTE_STYLESHEET_PATHS.has(normalized)
+                || stylesheet.getAttribute?.('data-route-stylesheet') === 'true'
+                || stylesheet.dataset?.routeStylesheet === 'true';
+
+            if (!isRouteOwned) continue;
+
+            stylesheet.disabled = !desiredPaths.has(normalized);
+        }
+    }
+}
+
+/**
+ * Reconciles top-level route dialogs across soft navigations while keeping persistent shell dialogs intact.
+ */
+class ShellModalManager {
+    /**
+     * Synchronizes dialogs from the destination document and closes/removes exited route dialogs.
+     *
+     * @param {Document} newDoc
+     * @param {import('./appShellNavigator.js').NavigatorUiHooks} [uiHooks={}]
+     */
+    sync(newDoc, uiHooks = {}) {
+        if (typeof document === 'undefined') return;
+
+        const destinationModalIds = new Set();
+        const newModals = Array.from(newDoc.querySelectorAll?.('dialog.modal, .modal[id]') || []);
+
+        for (const newModal of newModals) {
+            if (!newModal.id) continue;
+            if (typeof newModal.closest === 'function' && newModal.closest('#tool-extras')) continue;
+
+            destinationModalIds.add(newModal.id);
+            const currentModal = document.getElementById(newModal.id);
+            if (!currentModal) {
+                const clone = /** @type {HTMLElement} */ (newModal.cloneNode(true));
+                if (!PERSISTENT_MODAL_ID_SET.has(newModal.id)) {
+                    clone.setAttribute?.('data-route-modal', 'true');
+                }
+                document.body.appendChild(clone);
+            } else if (newModal.id === 'add-player-modal') {
+                currentModal.replaceWith(newModal.cloneNode(true));
+            }
+        }
+
+        const mountedModals = Array.from(document.querySelectorAll?.('dialog.modal, .modal[id]') || []);
+        for (const existingModal of mountedModals) {
+            if (!existingModal.id) continue;
+            if (typeof existingModal.closest === 'function' && existingModal.closest('#tool-extras')) continue;
+            if (PERSISTENT_MODAL_ID_SET.has(existingModal.id)) continue;
+            if (destinationModalIds.has(existingModal.id)) continue;
+
+            const dialog = /** @type {HTMLDialogElement} */ (existingModal);
+            if (dialog.open && typeof dialog.close === 'function') {
+                try { dialog.close(); } catch (_) {}
+            }
+            dialog.remove?.();
+        }
+
+        uiHooks.onResetPlayerModal?.();
+    }
+}
+
+const stylesheetManager = new ShellStylesheetManager();
+const modalManager = new ShellModalManager();
 
 /**
  * Computes synchronized document.body className across view transitions.
@@ -18,10 +210,10 @@ export function computeSynchronizedBodyClasses(currentClassName, nextRoute, hasP
     const isLight = currentClassName.includes('light-mode');
     const classes = [isLight ? 'light-mode' : 'dark-mode'];
 
-    if (nextRoute === 'hub') classes.push('landing-page');
-    else if (nextRoute === 'hero-journey') classes.push('hero-journey-page');
-    else if (nextRoute === 'damage-calculator') classes.push('damage-calc-page');
-    else if (nextRoute === 'account') classes.push('account-page');
+    const routeBodyClass = findRouteById(nextRoute)?.bodyClass;
+    if (routeBodyClass) {
+        classes.push(routeBodyClass);
+    }
 
     if (hasPlayer || currentClassName.includes('has-player')) {
         classes.push('has-player');
@@ -31,57 +223,23 @@ export function computeSynchronizedBodyClasses(currentClassName, nextRoute, hasP
 }
 
 /**
- * Injects and preloads any destination stylesheets missing from the current document head.
+ * Injects and preloads any destination stylesheets missing from the current document head,
+ * and re-enables cached destination route stylesheets.
  *
  * @param {Document} newDoc
  * @returns {Promise<void>}
  */
 export async function ensureStylesheets(newDoc) {
-    if (typeof document === 'undefined') return;
+    await stylesheetManager.preloadForDestination(newDoc);
+}
 
-    const newStylesheets = Array.from(newDoc.querySelectorAll('link[rel="stylesheet"]'));
-    const pendingPromises = [];
-
-    const normalizeHref = (href) => {
-        try {
-            return new URL(href, window.location.origin).pathname;
-        } catch (_) {
-            return href;
-        }
-    };
-
-    const loadedPathnames = new Set(
-        Array.from(document.head.querySelectorAll('link[rel="stylesheet"]'))
-            .map(link => normalizeHref(link.getAttribute('href') || ''))
-            .filter(Boolean)
-    );
-
-    for (const link of newStylesheets) {
-        const rawHref = link.getAttribute('href');
-        if (!rawHref) continue;
-
-        const normalized = normalizeHref(rawHref);
-        if (!loadedPathnames.has(normalized)) {
-            loadedPathnames.add(normalized);
-            const newLink = document.createElement('link');
-            newLink.rel = 'stylesheet';
-            newLink.href = rawHref;
-
-            const loadPromise = new Promise((resolve) => {
-                newLink.onload = () => resolve(undefined);
-                newLink.onerror = () => resolve(undefined);
-                // Timeout safeguard prevents hanging on slow connections
-                setTimeout(() => resolve(undefined), 250);
-            });
-
-            pendingPromises.push(loadPromise);
-            document.head.appendChild(newLink);
-        }
-    }
-
-    if (pendingPromises.length > 0) {
-        await Promise.all(pendingPromises);
-    }
+/**
+ * Disables exited route stylesheets no longer used by the destination document.
+ *
+ * @param {Document} newDoc
+ */
+export function syncRouteStylesheets(newDoc) {
+    stylesheetManager.deactivateExited(newDoc);
 }
 
 /**
@@ -249,18 +407,5 @@ export function syncHeaderForRoute(newDoc, uiHooks = {}) {
  * @param {import('./appShellNavigator.js').NavigatorUiHooks} [uiHooks={}]
  */
 export function syncModalsForRoute(newDoc, uiHooks = {}) {
-    if (typeof document === 'undefined') return;
-
-    const newModals = newDoc.querySelectorAll('dialog.modal, .modal[id]');
-    for (const newModal of newModals) {
-        if (!newModal.id) continue;
-        if (typeof newModal.closest === 'function' && newModal.closest('#tool-extras')) continue;
-        const currentModal = document.getElementById(newModal.id);
-        if (!currentModal) {
-            document.body.appendChild(newModal.cloneNode(true));
-        } else if (newModal.id === 'add-player-modal') {
-            currentModal.replaceWith(newModal.cloneNode(true));
-        }
-    }
-    uiHooks.onResetPlayerModal?.();
+    modalManager.sync(newDoc, uiHooks);
 }

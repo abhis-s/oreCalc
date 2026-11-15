@@ -40,6 +40,7 @@ import {
     initSharedShellChrome,
     mountWhenReady
 } from './core/shellBootstrapper.js';
+import { RouteLifecycleScope } from './core/routeLifecycleScope.js';
 import { renderHeroJourneyPlayerDropdown } from './components/heroJourney/heroJourneyHeaderDisplay.js';
 import { initHeroJourneyPlayerDropdown, initHeroJourneyAddPlayerModal } from './components/heroJourney/heroJourneyHeaderInputs.js';
 import { renderPlayerSummary, resetHjRenderState } from './components/heroJourney/heroJourneyPlayerDisplay.js';
@@ -61,9 +62,10 @@ import { renderNavigationDrawerContent } from './components/common/navigationDra
 
 const resetFilters = () => handleResetFilters(hjState, renderUI);
 let isMounted = false;
+/** @type {RouteLifecycleScope | null} */
+let hjLifecycleScope = null;
 /** @type {Promise<void> | null} */
 let activeMountPromise = null;
-let hasAttachedHjListeners = false;
 
 /**
  * Fetches player data from backend and updates page state.
@@ -322,8 +324,10 @@ function clearActivePlayerToGuest() {
 
 /**
  * Initializes interactive controls and event listeners.
+ *
+ * @param {RouteLifecycleScope} scope
  */
-function initControls() {
+function initControls(scope) {
     const modalControls = initHeroJourneyAddPlayerModal({
         onLoadPlayer: async (cleanedTag) => {
             const data = await fetchPlayerData(cleanedTag);
@@ -364,50 +368,49 @@ function initControls() {
     initHeroJourneyTableTooltips(() => buildStateFromPlayerData(hjState.playerData, hjState));
     setupMountainClusterTouchInteractions();
 
-    if (!hasAttachedHjListeners) {
-        hasAttachedHjListeners = true;
-        window.addEventListener('resize', () => {
-            if (!isMounted) return;
-            updateFilterRowLayout();
-            updateTableFilterRowLayout();
-            syncClaimSwitchPill();
-            syncTableTheadHeight();
-        }, { passive: true });
+    scope.listen(window, 'resize', () => {
+        if (!isMounted) return;
+        updateFilterRowLayout();
+        updateTableFilterRowLayout();
+        syncClaimSwitchPill();
+        syncTableTheadHeight();
+    }, { passive: true });
 
-        window.addEventListener('hashchange', () => {
-            if (!isMounted) return;
-            if (window.location.hash === '#hero-journey-table') {
-                if (!hjState.showTable) {
-                    hjState.showTable = true;
-                    renderUI();
-                }
-                const targetEl = document.getElementById('hero-journey-table');
-                if (targetEl) {
-                    targetEl.scrollIntoView({ behavior: 'smooth' });
-                }
-            } else if (window.location.hash) {
-                const targetEl = document.getElementById(window.location.hash.substring(1));
-                if (targetEl) {
-                    targetEl.scrollIntoView({ behavior: 'smooth' });
-                }
+    scope.listen(window, 'hashchange', () => {
+        if (!isMounted) return;
+        if (window.location.hash === '#hero-journey-table') {
+            if (!hjState.showTable) {
+                hjState.showTable = true;
+                renderUI();
             }
-        }, { passive: true });
+            const targetEl = document.getElementById('hero-journey-table');
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth' });
+            }
+        } else if (window.location.hash) {
+            const targetEl = document.getElementById(window.location.hash.substring(1));
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    }, { passive: true });
 
-        const handleLanguageUpdate = () => {
-            if (!isMounted) return;
-            renderUI();
-            updateHeroJourneyDrawer();
-        };
-        document.addEventListener('languageChanged', handleLanguageUpdate);
-        document.addEventListener('app:translate', handleLanguageUpdate);
-        initHjSpecificSync();
-    }
+    const handleLanguageUpdate = () => {
+        if (!isMounted) return;
+        renderUI();
+        updateHeroJourneyDrawer();
+    };
+    scope.listen(document, 'languageChanged', handleLanguageUpdate);
+    scope.listen(document, 'app:translate', handleLanguageUpdate);
+    initHjSpecificSync(scope);
 }
 
 /**
  * Initializes the standalone Hero Journey app.
+ *
+ * @param {RouteLifecycleScope} scope
  */
-async function init() {
+async function init(scope) {
     if (typeof window !== 'undefined' && window.location.hash === '#hero-journey-table') {
         hjState.showTable = true;
     }
@@ -420,7 +423,7 @@ async function init() {
             hasTabs: false,
             hasPlayerDropdown: true,
             hasPill: true,
-            bindDrawer: true
+            bindDrawer: false
         },
         footerOptions: { version: state.appVersion }
     });
@@ -443,7 +446,7 @@ async function init() {
         } catch (_) {}
     }
 
-    initControls();
+    initControls(scope);
     const hasUrlTagParam = urlParams.has('tag') || urlParams.has('p') || urlParams.has('player');
     const rawUrlTag = urlParams.get('tag') || urlParams.get('p') || urlParams.get('player');
     let initialTag = getTagFromUrl();
@@ -505,7 +508,7 @@ async function init() {
         const targetId = window.location.hash.substring(1);
         const targetEl = document.getElementById(targetId);
         if (targetEl) {
-            requestAnimationFrame(() => {
+            scope.requestAnimationFrame(() => {
                 targetEl.scrollIntoView({ behavior: 'smooth' });
             });
         }
@@ -559,7 +562,10 @@ export async function mount(options = {}) {
 
     activeMountPromise = (async () => {
         isMounted = true;
-        await init();
+        hjLifecycleScope?.dispose();
+        const scope = new RouteLifecycleScope();
+        hjLifecycleScope = scope;
+        await init(scope);
         finalizeRouteMount('hero-journey', { mount, destroy });
     })();
 
@@ -578,6 +584,8 @@ export function destroy() {
     if (!isMounted) return;
     isMounted = false;
 
+    hjLifecycleScope?.dispose();
+    hjLifecycleScope = null;
     resetHjRenderState();
     hjDrawerInstance?.destroy?.();
     hjDrawerInstance = null;
@@ -632,9 +640,11 @@ function syncHjFromStorage() {
 
 /**
  * Listens for cross-tab storage changes specific to Hero Journey.
+ *
+ * @param {RouteLifecycleScope} scope
  */
-function initHjSpecificSync() {
-    window.addEventListener('storage', (event) => {
+function initHjSpecificSync(scope) {
+    scope.listen(window, 'storage', (event) => {
         if (!event.key || !event.newValue) return;
         if (
             event.key === 'clashCalc_playerTags' ||
@@ -645,10 +655,10 @@ function initHjSpecificSync() {
             syncHjFromStorage();
         }
     });
-    document.addEventListener('app:playerDropdownSync', () => {
+    scope.listen(document, 'app:playerDropdownSync', () => {
         syncHjFromStorage();
     });
-    document.addEventListener('visibilitychange', () => {
+    scope.listen(document, 'visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             syncHjFromStorage();
         }
