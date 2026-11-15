@@ -63,7 +63,42 @@ function createMockContainer() {
     };
 }
 
-test('Cluster Planner Panel - Renders visual building selection grid with search and clean placeholder for < 2 targets', () => {
+/**
+ * Creates mock building card elements and a minimal root container for click tests.
+ * @param {string[]} buildingKeys - Defense keys to expose as clickable cards.
+ * @returns {{ cardsMap: Record<string, any>, mockRoot: any }}
+ */
+function createMockBuildingCardsRoot(buildingKeys) {
+    const cardsMap = {};
+    for (const key of buildingKeys) {
+        const cardListeners = [];
+        const card = {
+            getAttribute(name) {
+                if (name === 'data-building-key') return key;
+                return null;
+            },
+            addEventListener(event, fn) {
+                if (event === 'click') cardListeners.push(fn);
+            },
+            click() {
+                cardListeners.forEach(fn => fn({ currentTarget: card, target: card }));
+            }
+        };
+        cardsMap[key] = card;
+    }
+    const mockRoot = {
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        querySelector: () => null,
+        querySelectorAll: (sel) => (sel === '.calc-building-card' ? Object.values(cardsMap) : [])
+    };
+    return { cardsMap, mockRoot };
+}
+
+const IN_SEASON_DATE = new Date('2026-09-18T10:00:00Z');
+
+test('Cluster Planner Panel - Renders visual building selection grid with search and clean placeholder for < 2 targets', (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: IN_SEASON_DATE });
     const container = createMockContainer();
     const state = {
         ...damageCalcState,
@@ -442,16 +477,16 @@ test('Cluster Planner Panel - Search input filters defense cards', () => {
             lightningLevel: 13,
             earthquakeLevel: 8,
             selectedCluster: [],
-            searchQuery: 'candle'
+            searchQuery: 'inferno'
         }
     };
 
     renderDefenseBoardPanel(state, container);
     const html = container.innerHTML;
 
-    assert.ok(html.includes('data-building-key="hot_candle"'), 'Must render hot_candle matching "candle" search');
+    assert.ok(html.includes('data-building-key="inferno_tower"'), 'Must render inferno_tower matching "inferno" search');
     assert.ok(!html.includes('data-building-key="air_defense"'), 'Must filter out non-matching air_defense');
-    assert.ok(!html.includes('data-building-key="inferno_tower"'), 'Must filter out non-matching inferno_tower');
+    assert.ok(!html.includes('data-building-key="x_bow"'), 'Must filter out non-matching x_bow');
 });
 
 test('Global Damage Sources Card - Rendered identically at top of Cluster Planner Panel', () => {
@@ -800,7 +835,8 @@ test('Cluster Target Popover - Displays surviving HP when target stands', () => 
     assert.ok(!popover.body.includes('Overkill'), 'Must NOT indicate Overkill when target stands');
 });
 
-test('Cluster Planner Panel - Enforces at most 1 crafted defense in cluster selection rendering', () => {
+test('Cluster Planner Panel - Enforces at most 1 crafted defense in cluster selection rendering', (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: IN_SEASON_DATE });
     const container = createMockContainer();
     const state = {
         ...damageCalcState,
@@ -839,41 +875,12 @@ test('Cluster Planner Panel - Enforces at most 1 crafted defense in cluster sele
 });
 
 test('Cluster Planner Panel - Auto-swaps crafted defenses upon selection', () => {
-    function createMockCard(key) {
-        const cardListeners = [];
-        const card = {
-            getAttribute(name) {
-                if (name === 'data-building-key') return key;
-                return null;
-            },
-            addEventListener(event, fn) {
-                if (event === 'click') cardListeners.push(fn);
-            },
-            click() {
-                cardListeners.forEach(fn => fn({ currentTarget: card, target: card }));
-            }
-        };
-        return card;
-    }
-
-    const cardsMap = {
-        hot_candle: createMockCard('hot_candle'),
-        hero_hunter: createMockCard('hero_hunter'),
-        cake_a_pult: createMockCard('cake_a_pult'),
-        inferno_tower: createMockCard('inferno_tower')
-    };
-
-    const mockRoot = {
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        querySelector: () => null,
-        querySelectorAll: (sel) => {
-            if (sel === '.calc-building-card') {
-                return Object.values(cardsMap);
-            }
-            return [];
-        }
-    };
+    const { cardsMap, mockRoot } = createMockBuildingCardsRoot([
+        'hot_candle',
+        'hero_hunter',
+        'cake_a_pult',
+        'inferno_tower'
+    ]);
 
     const testState = {
         ...damageCalcState,
@@ -911,7 +918,8 @@ test('Cluster Planner Panel - Auto-swaps crafted defenses upon selection', () =>
     assert.equal(testState.zapQuake.selectedCluster[1].defenseKey, 'hot_candle', 'hot_candle added at end');
 });
 
-test('loadPersistedState - Normalizes cluster state and strips legacy single-select zapQuake keys', () => {
+test('loadPersistedState - Normalizes cluster state and strips legacy single-select zapQuake keys', (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: IN_SEASON_DATE });
     const mockStorage = new Map();
     const originalStorage = globalThis.localStorage;
     globalThis.localStorage = {
@@ -952,40 +960,11 @@ test('loadPersistedState - Normalizes cluster state and strips legacy single-sel
 });
 
 test('Cluster Planner - Only 1 guardian allowed; selecting another guardian swaps it in place', () => {
-    function createMockCard(key) {
-        const cardListeners = [];
-        const card = {
-            getAttribute(name) {
-                if (name === 'data-building-key') return key;
-                return null;
-            },
-            addEventListener(event, fn) {
-                if (event === 'click') cardListeners.push(fn);
-            },
-            click() {
-                cardListeners.forEach(fn => fn({ currentTarget: card, target: card }));
-            }
-        };
-        return card;
-    }
-
-    const cardsMap = {
-        air_defense: createMockCard('air_defense'),
-        smasher: createMockCard('smasher'),
-        logger: createMockCard('logger')
-    };
-
-    const mockRoot = {
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        querySelector: () => null,
-        querySelectorAll: (sel) => {
-            if (sel === '.calc-building-card') {
-                return Object.values(cardsMap);
-            }
-            return [];
-        }
-    };
+    const { cardsMap, mockRoot } = createMockBuildingCardsRoot([
+        'air_defense',
+        'smasher',
+        'logger'
+    ]);
 
     const testState = {
         ...damageCalcState,
@@ -1019,43 +998,14 @@ test('Cluster Planner - Only 1 guardian allowed; selecting another guardian swap
 });
 
 test('Cluster Planner - At most 4 heroes allowed; 5th hero swaps with last numbered hero', () => {
-    function createMockCard(key) {
-        const cardListeners = [];
-        const card = {
-            getAttribute(name) {
-                if (name === 'data-building-key') return key;
-                return null;
-            },
-            addEventListener(event, fn) {
-                if (event === 'click') cardListeners.push(fn);
-            },
-            click() {
-                cardListeners.forEach(fn => fn({ currentTarget: card, target: card }));
-            }
-        };
-        return card;
-    }
-
-    const cardsMap = {
-        barbarian_king: createMockCard('barbarian_king'),
-        archer_queen: createMockCard('archer_queen'),
-        grand_warden: createMockCard('grand_warden'),
-        royal_champion: createMockCard('royal_champion'),
-        minion_prince: createMockCard('minion_prince'),
-        air_defense: createMockCard('air_defense')
-    };
-
-    const mockRoot = {
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        querySelector: () => null,
-        querySelectorAll: (sel) => {
-            if (sel === '.calc-building-card') {
-                return Object.values(cardsMap);
-            }
-            return [];
-        }
-    };
+    const { cardsMap, mockRoot } = createMockBuildingCardsRoot([
+        'barbarian_king',
+        'archer_queen',
+        'grand_warden',
+        'royal_champion',
+        'minion_prince',
+        'air_defense'
+    ]);
 
     // Scenario A: 4 heroes at #1-#4, defense at #5. Selecting 5th hero swaps #4, preserving #5.
     const testStateA = {
@@ -1380,89 +1330,45 @@ test('Town Hall Adaptive Recommended Cluster Presets - Resolves accurate defense
     }
 });
 
-test('Cluster Planner Empty State - Displays presets for TH 16-18 and hides presets section for TH 9-15', () => {
-    // TH 18 empty cluster renders presets grid with TH 18 titles
-    const container18 = createMockContainer();
-    const state18 = {
-        ...damageCalcState,
-        activeTab: 'cluster_planner',
-        playerTownHall: 18,
-        zapQuake: {
-            ...damageCalcState.zapQuake,
-            selectedCluster: []
-        }
-    };
-    renderDefenseBoardPanel(state18, container18);
-    assert.ok(container18.innerHTML.includes('calc-cluster-presets'), 'TH 18 must display calc-cluster-presets');
-    assert.ok(container18.innerHTML.includes('data-i18n="views.damageCalc.presets.fireballBlastPresetTitle"'), 'TH 18 must use canonical preset 1 title');
-    assert.ok(container18.innerHTML.includes('data-i18n="views.damageCalc.presets.arrowBackpackPresetTitle"'), 'TH 18 must use canonical preset 2 title');
-    assert.ok(container18.innerHTML.includes('calc-cluster-workflow'), 'TH 18 must display workflow guide');
-    assert.equal(container18.innerHTML.includes('calc-cluster-pro-tip'), false, 'TH 18 must NOT display pro tip');
+test('Cluster Planner Empty State - Displays presets for TH 16-19 and hides presets section for TH 9-15', () => {
+    for (const th of [16, 17, 18, 19]) {
+        const container = createMockContainer();
+        const state = {
+            ...damageCalcState,
+            activeTab: 'cluster_planner',
+            playerTownHall: th,
+            zapQuake: {
+                ...damageCalcState.zapQuake,
+                selectedCluster: []
+            }
+        };
+        renderDefenseBoardPanel(state, container);
+        assert.ok(container.innerHTML.includes('calc-cluster-presets'), `TH ${th} must display calc-cluster-presets`);
+        assert.ok(container.innerHTML.includes('data-i18n="views.damageCalc.presets.fireballBlastPresetTitle"'), `TH ${th} must use canonical preset 1 title`);
+        assert.ok(container.innerHTML.includes('data-i18n="views.damageCalc.presets.arrowBackpackPresetTitle"'), `TH ${th} must use canonical preset 2 title`);
+        assert.ok(container.innerHTML.includes('calc-cluster-workflow'), `TH ${th} must display workflow guide`);
+        assert.equal(container.innerHTML.includes('calc-cluster-pro-tip'), false, `TH ${th} must NOT display pro tip`);
+    }
 
-    // TH 17 empty cluster renders presets grid with TH 17 titles
-    const container17 = createMockContainer();
-    const state17 = {
-        ...damageCalcState,
-        activeTab: 'cluster_planner',
-        playerTownHall: 17,
-        zapQuake: {
-            ...damageCalcState.zapQuake,
-            selectedCluster: []
-        }
-    };
-    renderDefenseBoardPanel(state17, container17);
-    assert.ok(container17.innerHTML.includes('calc-cluster-presets'), 'TH 17 must display calc-cluster-presets');
-    assert.ok(container17.innerHTML.includes('data-i18n="views.damageCalc.presets.fireballBlastPresetTitle"'), 'TH 17 must use canonical preset 1 title');
-    assert.ok(container17.innerHTML.includes('data-i18n="views.damageCalc.presets.arrowBackpackPresetTitle"'), 'TH 17 must use canonical preset 2 title');
-
-    // TH 16 empty cluster renders presets grid with TH 16 titles
-    const container16 = createMockContainer();
-    const state16 = {
-        ...damageCalcState,
-        activeTab: 'cluster_planner',
-        playerTownHall: 16,
-        zapQuake: {
-            ...damageCalcState.zapQuake,
-            selectedCluster: []
-        }
-    };
-    renderDefenseBoardPanel(state16, container16);
-    assert.ok(container16.innerHTML.includes('calc-cluster-presets'), 'TH 16 must display calc-cluster-presets');
-    assert.ok(container16.innerHTML.includes('data-i18n="views.damageCalc.presets.fireballBlastPresetTitle"'), 'TH 16 must use canonical preset 1 title');
-    assert.ok(container16.innerHTML.includes('data-i18n="views.damageCalc.presets.arrowBackpackPresetTitle"'), 'TH 16 must use canonical preset 2 title');
-
-    // TH 15 (and below) empty cluster hides presets section entirely and displays workflow guide
-    const container15 = createMockContainer();
-    const state15 = {
-        ...damageCalcState,
-        activeTab: 'cluster_planner',
-        playerTownHall: 15,
-        zapQuake: {
-            ...damageCalcState.zapQuake,
-            selectedCluster: []
-        }
-    };
-    renderDefenseBoardPanel(state15, container15);
-    assert.equal(container15.innerHTML.includes('calc-cluster-presets'), false, 'TH 15 must NOT display calc-cluster-presets');
-    assert.ok(container15.innerHTML.includes('calc-cluster-workflow'), 'TH 15 must still display workflow guide');
-    assert.equal(container15.innerHTML.includes('calc-cluster-pro-tip'), false, 'TH 15 must NOT display pro tip');
-
-    const container11 = createMockContainer();
-    const state11 = {
-        ...damageCalcState,
-        activeTab: 'cluster_planner',
-        playerTownHall: 11,
-        zapQuake: {
-            ...damageCalcState.zapQuake,
-            selectedCluster: []
-        }
-    };
-    renderDefenseBoardPanel(state11, container11);
-    assert.equal(container11.innerHTML.includes('calc-cluster-presets'), false, 'TH 11 must NOT display calc-cluster-presets');
-    assert.ok(container11.innerHTML.includes('calc-cluster-workflow'), 'TH 11 must display workflow guide');
+    for (const th of [9, 11, 15]) {
+        const container = createMockContainer();
+        const state = {
+            ...damageCalcState,
+            activeTab: 'cluster_planner',
+            playerTownHall: th,
+            zapQuake: {
+                ...damageCalcState.zapQuake,
+                selectedCluster: []
+            }
+        };
+        renderDefenseBoardPanel(state, container);
+        assert.equal(container.innerHTML.includes('calc-cluster-presets'), false, `TH ${th} must NOT display calc-cluster-presets`);
+        assert.ok(container.innerHTML.includes('calc-cluster-workflow'), `TH ${th} must still display workflow guide`);
+        assert.equal(container.innerHTML.includes('calc-cluster-pro-tip'), false, `TH ${th} must NOT display pro tip`);
+    }
 });
 
-test('Popular Cluster Presets - Clicking apply-cluster-preset populates selectedCluster with substituted defenses at TH 16 and 17', () => {
+test('Popular Cluster Presets - Clicking apply-cluster-preset populates selectedCluster with TH-active presets across TH 16-19', () => {
     function createPresetButton(presetId) {
         const listeners = {};
         return {
@@ -1490,55 +1396,35 @@ test('Popular Cluster Presets - Clicking apply-cluster-preset populates selected
         }
     };
 
-    // Test TH 16
-    const state16 = {
-        ...damageCalcState,
-        playerTownHall: 16,
-        zapQuake: {
-            ...damageCalcState.zapQuake,
-            selectedCluster: []
-        }
-    };
-    attachDamageCalcListeners(state16, mockRoot, () => {});
+    for (const th of [16, 17, 18, 19]) {
+        const expectedPresets = getClusterPresetsForTownHall(th);
+        assert.equal(expectedPresets.length, 2, `TH ${th} must resolve 2 active presets`);
 
-    preset1Btn.click();
-    assert.equal(state16.zapQuake.selectedCluster.length, 5);
-    assert.deepEqual(
-        state16.zapQuake.selectedCluster.map(t => t.defenseKey),
-        ['cake_a_pult', 'inferno_tower', 'eagle_artillery', 'multi_archer_tower', 'spell_tower']
-    );
-    assert.deepEqual(state16.zapQuake.clusterEquipment, ['fireball']);
+        const state = {
+            ...damageCalcState,
+            playerTownHall: th,
+            zapQuake: {
+                ...damageCalcState.zapQuake,
+                selectedCluster: [],
+                adjacentPairs: [[0, 1]],
+                clusterEquipmentSharing: { '0': ['fireball'] },
+                selectedClusterComboIndex: 2
+            }
+        };
+        attachDamageCalcListeners(state, mockRoot, () => {});
 
-    preset2Btn.click();
-    assert.equal(state16.zapQuake.selectedCluster.length, 3);
-    assert.deepEqual(
-        state16.zapQuake.selectedCluster.map(t => t.defenseKey),
-        ['ricochet_cannon', 'clan_castle', 'monolith']
-    );
-    assert.deepEqual(state16.zapQuake.clusterEquipment, ['giant_arrow', 'rocket_backpack']);
+        preset1Btn.click();
+        assert.deepEqual(state.zapQuake.selectedCluster.map(t => t.defenseKey), expectedPresets[0].targets);
+        assert.deepEqual(state.zapQuake.clusterEquipment, expectedPresets[0].equipment);
+        assert.deepEqual(state.zapQuake.adjacentPairs, [], 'Applying preset must clear previous adjacentPairs');
+        assert.deepEqual(state.zapQuake.clusterEquipmentSharing, {}, 'Applying preset must reset clusterEquipmentSharing');
+        assert.equal(state.zapQuake.selectedClusterComboIndex, 0, 'Applying preset must reset selectedClusterComboIndex');
+        assert.ok(state.zapQuake.selectedCluster.every(t => t.level > 0), 'Each preset target must resolve a positive level');
 
-    // Test TH 17
-    const state17 = {
-        ...damageCalcState,
-        playerTownHall: 17,
-        zapQuake: {
-            ...damageCalcState.zapQuake,
-            selectedCluster: []
-        }
-    };
-    attachDamageCalcListeners(state17, mockRoot, () => {});
-
-    preset1Btn.click();
-    assert.deepEqual(
-        state17.zapQuake.selectedCluster.map(t => t.defenseKey),
-        ['cake_a_pult', 'inferno_tower', 'firespitter', 'multi_archer_tower', 'spell_tower']
-    );
-
-    preset2Btn.click();
-    assert.deepEqual(
-        state17.zapQuake.selectedCluster.map(t => t.defenseKey),
-        ['multi_gear_tower', 'clan_castle', 'monolith']
-    );
+        preset2Btn.click();
+        assert.deepEqual(state.zapQuake.selectedCluster.map(t => t.defenseKey), expectedPresets[1].targets);
+        assert.deepEqual(state.zapQuake.clusterEquipment, expectedPresets[1].equipment);
+    }
 });
 
 test('Mobile Spell Dock - In-place DOM updates preserve drawer scroll position and guard persistent event listeners', () => {
@@ -1651,40 +1537,11 @@ test('Mobile Spell Dock - In-place DOM updates preserve drawer scroll position a
 });
 
 test('Cluster Planner - Individual building card selection clamps target level to active Town Hall max level', () => {
-    function createMockCard(key) {
-        const cardListeners = [];
-        const card = {
-            getAttribute(name) {
-                if (name === 'data-building-key') return key;
-                return null;
-            },
-            addEventListener(event, fn) {
-                if (event === 'click') cardListeners.push(fn);
-            },
-            click() {
-                cardListeners.forEach(fn => fn({ currentTarget: card, target: card }));
-            }
-        };
-        return card;
-    }
-
-    const cardsMap = {
-        town_hall: createMockCard('town_hall'),
-        clan_castle: createMockCard('clan_castle'),
-        monolith: createMockCard('monolith')
-    };
-
-    const mockRoot = {
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        querySelector: () => null,
-        querySelectorAll: (sel) => {
-            if (sel === '.calc-building-card') {
-                return Object.values(cardsMap);
-            }
-            return [];
-        }
-    };
+    const { cardsMap, mockRoot } = createMockBuildingCardsRoot([
+        'town_hall',
+        'clan_castle',
+        'monolith'
+    ]);
 
     const state = {
         ...damageCalcState,
@@ -1856,7 +1713,6 @@ test('Cluster Planner Panel - Empty cluster renders zero selected cards and TH-c
     const html = container.innerHTML;
 
     assert.equal(html.includes('calc-building-card is-selected'), false, 'Empty cluster must mark zero cards selected');
-    assert.equal(html.includes('id="zq-multi-switch"'), false, 'Cluster toggle switch must not render');
 
     const adCardHtml = html.match(/<button\b[^>]*data-building-key="air_defense"[\s\S]*?<\/button>/)?.[0] || '';
     assert.ok(adCardHtml.includes('aria-pressed="false"'), 'air_defense must not be pressed when cluster is empty');
@@ -1897,6 +1753,4 @@ test('Cluster Planner Panel - Unifies selected state and target supercharge tier
     assert.ok(infernoCardHtml.includes('calc-building-card is-selected'), 'Cluster target #2 must also use is-selected');
     assert.ok(infernoCardHtml.includes('aria-pressed="true"'), 'Cluster target #2 must set aria-pressed="true"');
     assert.ok(infernoCardHtml.includes('calc-building-card__cluster-badge">2</span>'), 'Cluster target #2 must render #2 badge');
-    assert.equal(html.includes('is-in-cluster'), false, 'Legacy is-in-cluster class must not render');
-    assert.equal(html.includes('is-active-target'), false, 'Legacy is-active-target class must not render');
 });

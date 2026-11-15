@@ -20,7 +20,7 @@ let selectedRarity = 'epic';
 let activeOnAdded = null;
 /** @type {(() => void) | null} */
 let activeOnCancel = null;
-let isInitialized = false;
+const boundAddComingSoonModals = new WeakSet();
 let isConfirmed = false;
 
 /**
@@ -87,9 +87,10 @@ function renderHeroOptions(modal, selectedKey) {
  * Initializes DOM listeners for the Add Coming Soon equipment modal.
  */
 function initModalListeners() {
-    if (isInitialized || typeof document === 'undefined') return;
+    if (typeof document === 'undefined') return;
     const modal = document.getElementById('add-coming-soon-modal');
-    if (!modal) return;
+    if (!modal || boundAddComingSoonModals.has(modal)) return;
+    boundAddComingSoonModals.add(modal);
 
     const closeBtn = document.getElementById('close-add-coming-soon-modal-btn');
     const cancelBtn = document.getElementById('cancel-add-coming-soon-modal-btn');
@@ -159,8 +160,6 @@ function initModalListeners() {
             }
         });
     });
-
-    isInitialized = true;
 }
 
 /**

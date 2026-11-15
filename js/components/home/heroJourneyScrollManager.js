@@ -526,9 +526,18 @@ export function updateCustomScrollbar(isDraggingThumb = false, stateOverride = n
     }
 }
 
-if (typeof window !== 'undefined') {
+const boundHeroJourneyResizeWindows = new WeakSet();
+const boundHeroJourneyResizeScopes = new WeakSet();
+
+/**
+ * Registers the responsive layout resize listener for Hero's Journey.
+ * @param {any} [scope=null] - Optional route lifecycle scope for automatic cleanup.
+ */
+export function initHeroJourneyResizeListener(scope = null) {
+    if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
+
     let heroJourneyResizeFrame = null;
-    window.addEventListener('resize', () => {
+    const onResize = () => {
         if (heroJourneyResizeFrame !== null) return;
         heroJourneyResizeFrame = window.requestAnimationFrame(() => {
             updateCustomScrollbar();
@@ -536,5 +545,20 @@ if (typeof window !== 'undefined') {
             updateClaimSwitchPillPosition();
             heroJourneyResizeFrame = null;
         });
-    }, { passive: true });
+    };
+
+    if (scope && typeof scope.listen === 'function') {
+        if (boundHeroJourneyResizeScopes.has(scope)) return;
+        boundHeroJourneyResizeScopes.add(scope);
+        scope.listen(window, 'resize', onResize, { passive: true });
+        scope.track?.(() => {
+            if (heroJourneyResizeFrame !== null) {
+                window.cancelAnimationFrame(heroJourneyResizeFrame);
+                heroJourneyResizeFrame = null;
+            }
+        });
+    } else if (!boundHeroJourneyResizeWindows.has(window)) {
+        boundHeroJourneyResizeWindows.add(window);
+        window.addEventListener('resize', onResize, { passive: true });
+    }
 }

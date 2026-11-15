@@ -2,6 +2,8 @@ import { translate } from '../../i18n/translator.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 
 const boundLinkCatcherRoots = new WeakSet();
+const handledLinkEvents = new WeakSet();
+let isPromptOpen = false;
 
 /**
  * Initializes external link interception for a document or root container.
@@ -20,7 +22,9 @@ export function initExternalLinkCatcher(root = document) {
     boundLinkCatcherRoots.add(root);
 
     const handleClick = async (e) => {
-        const link = /** @type {HTMLElement} */ (e.target).closest('a');
+        if (!e || handledLinkEvents.has(e)) return;
+
+        const link = /** @type {HTMLElement | null} */ (e.target)?.closest?.('a');
         if (!link) return;
 
         const href = link.getAttribute('href');
@@ -33,26 +37,34 @@ export function initExternalLinkCatcher(root = document) {
         if (link.classList.contains('domain-notice-cta') || link.closest('.domain-notice')) return;
 
         const isMailto = href.startsWith('mailto:');
-        if (isMailto) {
-            e.preventDefault();
-            const confirmed = await showConfirm(translate('confirms.mailtoLink'));
-            if (confirmed) {
-                window.location.href = href;
-            }
-            return;
-        }
-
         const currentHost = typeof window !== 'undefined' ? window.location.host : '';
-        const isHttpExternal = (href.startsWith('http://') || href.startsWith('https://')) && !href.includes(currentHost);
+        const isHttpExternal = !isMailto && (href.startsWith('http://') || href.startsWith('https://')) && !href.includes(currentHost);
 
-        if (isHttpExternal) {
-            e.preventDefault();
+        if (!isMailto && !isHttpExternal) return;
+
+        handledLinkEvents.add(e);
+        e.preventDefault();
+
+        if (isPromptOpen) return;
+        isPromptOpen = true;
+
+        try {
+            if (isMailto) {
+                const confirmed = await showConfirm(translate('confirms.mailtoLink'));
+                if (confirmed) {
+                    window.location.href = href;
+                }
+                return;
+            }
+
             const confirmed = await showConfirm(
                 `${translate('confirms.externalLink')}<br><code class="external-link-display">${href}</code><br><br>${translate('confirms.externalLinkConfirm')}`
             );
             if (confirmed) {
                 window.open(href, '_blank', 'noopener,noreferrer');
             }
+        } finally {
+            isPromptOpen = false;
         }
     };
 

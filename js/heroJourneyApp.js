@@ -10,6 +10,7 @@ import { initHeroJourneyTooltips, initHeroJourneyTableTooltips } from './compone
 import { setupMountainClusterTouchInteractions } from './components/home/heroJourneyInputs.js';
 import {
     autoScrollToCompletedNode,
+    initHeroJourneyResizeListener,
     resetHeroJourneyScrollPositions,
     setHeroJourneyStateProvider,
     updateFilterRowLayout,
@@ -329,6 +330,7 @@ function clearActivePlayerToGuest() {
  */
 function initControls(scope) {
     const modalControls = initHeroJourneyAddPlayerModal({
+        scope,
         onLoadPlayer: async (cleanedTag) => {
             const data = await fetchPlayerData(cleanedTag);
             if (!data || !data.tag) {
@@ -363,6 +365,7 @@ function initControls(scope) {
         }
     });
     initHeroJourneyControls(hjState, renderUI, resetFilters);
+    initHeroJourneyResizeListener(scope);
     initCustomScrollbar();
     initHeroJourneyTooltips(() => buildStateFromPlayerData(hjState.playerData, hjState));
     initHeroJourneyTableTooltips(() => buildStateFromPlayerData(hjState.playerData, hjState));

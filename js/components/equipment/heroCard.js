@@ -22,7 +22,9 @@ import { showConfirm } from '../../ui/noticeModal.js';
 
 const temporarilyVisibleMaxed = new Set();
 const activeTimeouts = new Map();
-let isHeroContainerBound = false;
+const boundHeroContainers = new WeakSet();
+const boundComingSoonSwitches = new WeakSet();
+const boundEmptyComingSoonButtons = new WeakSet();
 
 /**
  * Marks an equipment item as manually maxed to preserve visibility for a 5-second grace period.
@@ -117,9 +119,10 @@ function triggerDeleteComingSoon(heroLookup, heroName) {
  * @param {Record<string, any>} heroesState
  * @param {Object} [uiSettings]
  * @param {Object} [plannerMaxLevels]
+ * @param {any} [scope=null] - Optional route lifecycle scope for keyboard listeners.
  */
-export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
-    initializeEquipmentDetailsModal();
+export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels, scope = null) {
+    initializeEquipmentDetailsModal(scope);
 
     const container = dom.equipment.heroesContainer;
     if (!container) return;
@@ -225,56 +228,12 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
 
     const comingSoonSwitch = /** @type {HTMLInputElement|null} */ (dom.equipment?.comingSoonSwitch);
     const emptyAddComingSoonBtn = /** @type {HTMLButtonElement|null} */ (dom.equipment?.emptyAddComingSoonBtn);
-    if (!isHeroContainerBound) {
-        if (comingSoonSwitch) {
-            comingSoonSwitch.addEventListener('change', () => {
-                const activeSoon = getActiveCustomComingSoon(state.heroes);
-                if (comingSoonSwitch.checked) {
-                    if (activeSoon) return;
-                    openAddComingSoonModal(
-                        () => {
-                            initializeHeroCards(state.heroes, state.uiSettings, state.planner);
-                            comingSoonSwitch?.focus();
-                        },
-                        'barbarianKing',
-                        () => {
-                            const stillActive = getActiveCustomComingSoon(state.heroes);
-                            comingSoonSwitch.checked = Boolean(stillActive);
-                            comingSoonSwitch?.focus();
-                        }
-                    );
-                } else {
-                    if (!activeSoon) {
-                        comingSoonSwitch.checked = false;
-                        comingSoonSwitch?.focus();
-                        return;
-                    }
-                    const heroLookup = activeSoon.heroKey;
-                    const heroDisplayName = translate(`entities.heroes.${activeSoon.heroKey}`) || activeSoon.heroName;
-                    const confirmMsg = translate('views.equipment.confirmRemoveEquipment', {
-                        name: translate('entities.equipment.comingSoon') || 'Coming Soon',
-                        hero: heroDisplayName
-                    });
-                    showConfirm(confirmMsg, 'actions.delete', 'actions.delete', 'actions.cancel').then(confirmed => {
-                        if (confirmed) {
-                            handleStateUpdate(() => {
-                                const keys = [heroLookup, activeSoon.heroName].filter(Boolean);
-                                for (const hk of keys) {
-                                    deleteComingSoonEquipment(state.heroes[hk]);
-                                }
-                                reindexGlobalPriority();
-                            });
-                            initializeHeroCards(state.heroes, state.uiSettings, state.planner);
-                        } else {
-                            comingSoonSwitch.checked = true;
-                        }
-                        comingSoonSwitch?.focus();
-                    });
-                }
-            });
-        }
-        if (emptyAddComingSoonBtn) {
-            emptyAddComingSoonBtn.addEventListener('click', () => {
+    if (comingSoonSwitch && !boundComingSoonSwitches.has(comingSoonSwitch)) {
+        boundComingSoonSwitches.add(comingSoonSwitch);
+        comingSoonSwitch.addEventListener('change', () => {
+            const activeSoon = getActiveCustomComingSoon(state.heroes);
+            if (comingSoonSwitch.checked) {
+                if (activeSoon) return;
                 openAddComingSoonModal(
                     () => {
                         initializeHeroCards(state.heroes, state.uiSettings, state.planner);
@@ -282,15 +241,59 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels) {
                     },
                     'barbarianKing',
                     () => {
+                        const stillActive = getActiveCustomComingSoon(state.heroes);
+                        comingSoonSwitch.checked = Boolean(stillActive);
                         comingSoonSwitch?.focus();
                     }
                 );
-            });
-        }
+            } else {
+                if (!activeSoon) {
+                    comingSoonSwitch.checked = false;
+                    comingSoonSwitch?.focus();
+                    return;
+                }
+                const heroLookup = activeSoon.heroKey;
+                const heroDisplayName = translate(`entities.heroes.${activeSoon.heroKey}`) || activeSoon.heroName;
+                const confirmMsg = translate('views.equipment.confirmRemoveEquipment', {
+                    name: translate('entities.equipment.comingSoon') || 'Coming Soon',
+                    hero: heroDisplayName
+                });
+                showConfirm(confirmMsg, 'actions.delete', 'actions.delete', 'actions.cancel').then(confirmed => {
+                    if (confirmed) {
+                        handleStateUpdate(() => {
+                            const keys = [heroLookup, activeSoon.heroName].filter(Boolean);
+                            for (const hk of keys) {
+                                deleteComingSoonEquipment(state.heroes[hk]);
+                            }
+                            reindexGlobalPriority();
+                        });
+                        initializeHeroCards(state.heroes, state.uiSettings, state.planner);
+                    } else {
+                        comingSoonSwitch.checked = true;
+                    }
+                    comingSoonSwitch?.focus();
+                });
+            }
+        });
+    }
+    if (emptyAddComingSoonBtn && !boundEmptyComingSoonButtons.has(emptyAddComingSoonBtn)) {
+        boundEmptyComingSoonButtons.add(emptyAddComingSoonBtn);
+        emptyAddComingSoonBtn.addEventListener('click', () => {
+            openAddComingSoonModal(
+                () => {
+                    initializeHeroCards(state.heroes, state.uiSettings, state.planner);
+                    dom.equipment?.comingSoonSwitch?.focus();
+                },
+                'barbarianKing',
+                () => {
+                    dom.equipment?.comingSoonSwitch?.focus();
+                }
+            );
+        });
     }
 
-    if (isHeroContainerBound) return;
-    isHeroContainerBound = true;
+    if (boundHeroContainers.has(container)) return;
+    boundHeroContainers.add(container);
 
     container.addEventListener('click', (event) => {
         const target = /** @type {HTMLElement | null} */ (event.target);

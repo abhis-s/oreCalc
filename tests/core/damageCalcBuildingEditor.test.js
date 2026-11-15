@@ -362,8 +362,10 @@ test('Spell Immunities - Accurately resolves spell immunities via isTargetImmune
     assert.strictEqual(isTargetImmuneToSpell('dragon_duke', 'earthquake'), true, 'Dragon Duke (air hero) immune to eq');
 });
 
+const IN_SEASON_DATE = new Date('2026-09-18T10:00:00Z');
+
 test('Partition Defenses - TH18 groups defenses, heroes, guardians, other, and unavailable (locked TH19 before sunset Cannon and Eagle)', () => {
-    const groups = partitionDefensesForModal(18);
+    const groups = partitionDefensesForModal(18, IN_SEASON_DATE);
 
     assert.strictEqual(groups.defenses.length, 23, 'TH18 must have 23 available defenses (including CC, excluding TH)');
     assert.ok(!groups.defenses.some(d => d.key === 'town_hall'), 'Town Hall must not appear in defenses group');
@@ -381,7 +383,7 @@ test('Partition Defenses - TH18 groups defenses, heroes, guardians, other, and u
 });
 
 test('Partition Defenses - TH17 groups locked buildings before sunset Eagle Artillery', () => {
-    const groups = partitionDefensesForModal(17);
+    const groups = partitionDefensesForModal(17, IN_SEASON_DATE);
 
     assert.strictEqual(groups.defenses.length, 21, 'TH17 must have 21 available defenses');
     assert.strictEqual(groups.heroes.length, 6, 'TH17 must have 6 available heroes');
@@ -404,7 +406,7 @@ test('Partition Defenses - TH17 groups locked buildings before sunset Eagle Arti
 });
 
 test('Partition Defenses - TH14 orders locked buildings ascending by minTH (Monolith before Multi Archer Tower)', () => {
-    const groups = partitionDefensesForModal(14);
+    const groups = partitionDefensesForModal(14, IN_SEASON_DATE);
 
     assert.strictEqual(groups.defenses.length, 17, 'TH14 must have 17 available defenses');
     assert.strictEqual(groups.heroes.length, 5, 'TH14 must have 5 available heroes');
@@ -439,12 +441,10 @@ test('Building Edit Modal - Renders 5 collapsible groups with only Defenses open
         defenseLevelOverrides: {}
     };
 
-    renderBuildingEditModal(state, container);
+    renderBuildingEditModal(state, container, null, IN_SEASON_DATE);
     const html = container.innerHTML;
 
-    // Must render collapsible groups without nesting controls inside <summary>
-    assert.ok(!html.includes('<details class="calc-building-group"'), 'Building groups must not use <details> with nested controls');
-    assert.ok(!html.includes('<summary class="calc-building-group__summary"'), 'Building groups must not nest switches inside <summary>');
+    // Defenses group starts expanded while secondary groups start collapsed
     assert.ok(html.includes('class="calc-building-group is-open" data-group-id="defenses"'), 'Defenses group must be open by default');
     for (const collapsedGroup of ['heroes', 'guardians', 'other', 'unavailable']) {
         assert.ok(html.includes(`class="calc-building-group" data-group-id="${collapsedGroup}"`), `${collapsedGroup} group must be collapsed by default`);

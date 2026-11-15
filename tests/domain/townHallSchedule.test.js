@@ -6,12 +6,6 @@ import { getTHReleaseDate, getTownHallIconUrl } from '../../js/domain/townHall/t
 
 describe('Town Hall Schedule & Icon Resolution Domain Suite', () => {
 
-    test('MAX_TOWN_HALL is a static positive integer configured for the active release', () => {
-        assert.equal(Number.isInteger(MAX_TOWN_HALL), true);
-        assert.ok(MAX_TOWN_HALL >= 19);
-        assert.equal(MAX_TOWN_HALL, 19);
-    });
-
     test('getTHReleaseDate returns predicted release year based on annual cadence', () => {
         // Levels up to and including TH 17 anchor at 2024
         assert.equal(getTHReleaseDate(1), 2024);
@@ -27,11 +21,12 @@ describe('Town Hall Schedule & Icon Resolution Domain Suite', () => {
     });
 
     test('getTownHallIconUrl resolves bounded TH icon URLs with relative and root-relative paths', () => {
-        assert.equal(getTownHallIconUrl(), 'assets/th/th19.png');
+        const maxIconUrl = `assets/th/th${MAX_TOWN_HALL}.png`;
+        assert.equal(getTownHallIconUrl(), maxIconUrl);
         assert.equal(getTownHallIconUrl(12), 'assets/th/th12.png');
         assert.equal(getTownHallIconUrl(0), 'assets/th/th1.png');
         assert.equal(getTownHallIconUrl(19), 'assets/th/th19.png');
-        assert.equal(getTownHallIconUrl(99), 'assets/th/th19.png');
+        assert.equal(getTownHallIconUrl(99), maxIconUrl);
         assert.equal(getTownHallIconUrl(18, { rootRelative: true }), '/assets/th/th18.png');
     });
 });

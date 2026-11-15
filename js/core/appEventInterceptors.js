@@ -1,7 +1,11 @@
 import { translate } from '../i18n/translator.js';
 
 import { logger } from '../utils/logger.js';
-import { closeModalAnimated } from '../utils/modalHistoryManager.js';
+import {
+    closeModalAnimated,
+    getTopDismissibleModal,
+    isSelfManagedModal
+} from '../utils/modalHistoryManager.js';
 
 import { showChangelogModal } from '../components/changelog/changelogModal.js';
 import { showCommitsModal } from '../components/changelog/commitsModal.js';
@@ -176,12 +180,14 @@ export function initializeGlobalInterceptors() {
         }
 
         if (target.classList.contains('modal') || target.id === 'overlay' || (target.tagName === 'DIALOG' && target.classList.contains('modal'))) {
-            const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
+            const openModals = typeof document.querySelectorAll === 'function'
+                ? Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'))
+                : [];
 
-            if (target.id === 'guided-setup-modal') {
+            if (isSelfManagedModal(target)) {
                 return;
             }
-            if (target.id === 'overlay' && openModals.some(m => m.id === 'guided-setup-modal')) {
+            if (target.id === 'overlay' && openModals.some(isSelfManagedModal)) {
                 return;
             }
 
@@ -195,7 +201,7 @@ export function initializeGlobalInterceptors() {
 
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' || event.key === 'Esc') {
-            const activeModal = document.querySelector('.modal.show:not(#guided-setup-modal), dialog.modal[open]:not(#guided-setup-modal)');
+            const activeModal = getTopDismissibleModal();
             if (activeModal && !activeModal.classList.contains('closing')) {
                 closeModalAnimated(activeModal);
                 return;
@@ -240,5 +246,5 @@ export function initializeGlobalInterceptors() {
         }
     });
 
-    initExternalLinkCatcher(document.body);
+    initExternalLinkCatcher();
 }

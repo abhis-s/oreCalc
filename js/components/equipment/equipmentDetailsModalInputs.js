@@ -7,7 +7,7 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { computeEffectiveLevels, getDefaultModifierKey, resolveModifierRecommendation } from '../../domain/equipment/modifierCalculator.js';
-import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
+import { canDismissModalOnEscape, closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 
 import { renderEmptyState, renderFooterMeta, renderModalHeader, renderModifierTabs } from './equipmentDetailsHeaderDisplay.js';
@@ -19,16 +19,71 @@ import { renderLevelTable } from './equipmentDetailsTableDisplay.js';
 import { getCurrentUnitStatsStateMap, renderUnitStatsView, updateUnitStatsHover } from './equipmentDetailsUnitStatsDisplay.js';
 
 const boundEquipmentModals = new WeakSet();
+const boundEqKeydownScopes = new WeakSet();
 let hasAttachedEqKeydownListener = false;
 let activeUpdateViewsCallback = null;
 let activeTabSelectCallback = null;
 let activeRowHoverCallback = null;
 let activeRowLeaveCallback = null;
 
+async function navigateEquipment(direction) {
+    const session = getModalSessionState();
+    if (!session.activeEquipmentName) return;
+    const pBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-prev-btn'));
+    const nBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-next-btn'));
+
+    if (direction === 'prev' && pBtn && (pBtn.disabled || pBtn.classList.contains('is-disabled'))) return;
+    if (direction === 'next' && nBtn && (nBtn.disabled || nBtn.classList.contains('is-disabled'))) return;
+
+    const list = getFlatEquipmentsList();
+    if (list.length === 0) return;
+    const targetIdLower = session.activeEquipmentName.toLowerCase();
+    const currentIdx = list.findIndex(e =>
+        (e.key && e.key.toLowerCase() === targetIdLower) ||
+        (e.name && e.name.toLowerCase() === targetIdLower) ||
+        (e.displayName && e.displayName.toLowerCase() === targetIdLower)
+    );
+    if (currentIdx === -1) return;
+
+    const targetIdx = await findValidEquipmentIndex(list, currentIdx, direction);
+    if (targetIdx !== -1) {
+        const targetEquip = list[targetIdx];
+        const targetLevel = getEquipLevel(targetEquip.key || targetEquip.name, targetEquip.heroName, targetEquip.heroKey);
+        openEquipmentDetailsModal(targetEquip.key, targetLevel);
+    }
+}
+
+function handleEquipmentModalKeydown(e) {
+    const activeModal = typeof document !== 'undefined' ? document.getElementById('equipment-details-modal') : null;
+    if (!activeModal || activeModal.isConnected === false || !activeModal.classList.contains('show')) return;
+    const target = /** @type {HTMLElement | null} */ (e.target);
+    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+
+    if (e.key === 'Escape') {
+        if (!canDismissModalOnEscape(activeModal)) return;
+        closeModalAnimated(activeModal, () => resetModalSessionState());
+        return;
+    }
+
+    if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        navigateEquipment('prev');
+    } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        navigateEquipment('next');
+    }
+}
+
 /**
  * Initializes global event handlers and keyboard listeners for equipment details modal.
+ * @param {any} [scope=null] - Optional route lifecycle scope for listener cleanup.
  */
-export function initializeEquipmentDetailsModal() {
+export function initializeEquipmentDetailsModal(scope = null) {
+    if (scope && typeof scope.listen === 'function' && !boundEqKeydownScopes.has(scope) && typeof document !== 'undefined') {
+        boundEqKeydownScopes.add(scope);
+        scope.listen(document, 'keydown', handleEquipmentModalKeydown);
+    }
+
     const modal = document.getElementById('equipment-details-modal');
     if (modal && !boundEquipmentModals.has(modal)) {
         boundEquipmentModals.add(modal);
@@ -126,33 +181,6 @@ export function initializeEquipmentDetailsModal() {
         });
     }
 
-    const navigateEquipment = async (direction) => {
-        const session = getModalSessionState();
-        if (!session.activeEquipmentName) return;
-        const pBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-prev-btn'));
-        const nBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-next-btn'));
-
-        if (direction === 'prev' && pBtn && (pBtn.disabled || pBtn.classList.contains('is-disabled'))) return;
-        if (direction === 'next' && nBtn && (nBtn.disabled || nBtn.classList.contains('is-disabled'))) return;
-
-        const list = getFlatEquipmentsList();
-        if (list.length === 0) return;
-        const targetIdLower = session.activeEquipmentName.toLowerCase();
-        const currentIdx = list.findIndex(e =>
-            (e.key && e.key.toLowerCase() === targetIdLower) ||
-            (e.name && e.name.toLowerCase() === targetIdLower) ||
-            (e.displayName && e.displayName.toLowerCase() === targetIdLower)
-        );
-        if (currentIdx === -1) return;
-
-        const targetIdx = await findValidEquipmentIndex(list, currentIdx, direction);
-        if (targetIdx !== -1) {
-            const targetEquip = list[targetIdx];
-            const targetLevel = getEquipLevel(targetEquip.key || targetEquip.name, targetEquip.heroName, targetEquip.heroKey);
-            openEquipmentDetailsModal(targetEquip.key, targetLevel);
-        }
-    };
-
     if (prevBtn) {
         prevBtn.onclick = (e) => {
             e.stopPropagation();
@@ -167,29 +195,9 @@ export function initializeEquipmentDetailsModal() {
         };
     }
 
-    if (!hasAttachedEqKeydownListener && typeof document !== 'undefined') {
+    if (!scope && !hasAttachedEqKeydownListener && typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
         hasAttachedEqKeydownListener = true;
-        document.addEventListener('keydown', (e) => {
-            const activeModal = document.getElementById('equipment-details-modal');
-            if (!activeModal || !activeModal.classList.contains('show')) return;
-            const target = /** @type {HTMLElement | null} */ (e.target);
-            if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
-
-            if (e.key === 'Escape') {
-                const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
-                if (openModals.length > 0 && openModals.at(-1) !== activeModal) return;
-                closeModalAnimated(activeModal, () => resetModalSessionState());
-                return;
-            }
-
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                navigateEquipment('prev');
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                navigateEquipment('next');
-            }
-        });
+        document.addEventListener('keydown', handleEquipmentModalKeydown);
     }
 }
 

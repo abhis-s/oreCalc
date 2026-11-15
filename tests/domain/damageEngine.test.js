@@ -463,6 +463,7 @@ test('ZapQuake Solver - Optimal Combinations for Standard Defenses', async (t) =
         assert.deepEqual(getSpellCapacities(11), { regularCapacity: 11, ccCapacity: 2, regular: 11, clanCastle: 2, totalCapacity: 13 });
         assert.deepEqual(getSpellCapacities(14), { regularCapacity: 11, ccCapacity: 3, regular: 11, clanCastle: 3, totalCapacity: 14 });
         assert.deepEqual(getSpellCapacities(18), { regularCapacity: 11, ccCapacity: 4, regular: 11, clanCastle: 4, totalCapacity: 15 });
+        assert.deepEqual(getSpellCapacities(19), { regularCapacity: 11, ccCapacity: 4, regular: 11, clanCastle: 4, totalCapacity: 15 });
         assert.deepEqual(getSpellCapacities(), getSpellCapacities(MAX_TOWN_HALL));
         assert.deepEqual(getSpellCapacities(MAX_TOWN_HALL + 1), getSpellCapacities(MAX_TOWN_HALL));
     });
@@ -486,13 +487,6 @@ test('ZapQuake Solver - Optimal Combinations for Standard Defenses', async (t) =
         assert.equal(clampSpellLevelToTownHall('lightning', 14, 18), 13);
         assert.equal(clampSpellLevelToTownHall('lightning', 14, 10), 7);
         assert.equal(clampSpellLevelToTownHall('lightning', 14, 19), 14);
-        assert.deepEqual(getSpellCapacities(19), {
-            regularCapacity: 11,
-            ccCapacity: 4,
-            regular: 11,
-            clanCastle: 4,
-            totalCapacity: 15
-        });
     });
 
     await t.test('ZapQuake solver enforces TH18 two-pool capacity limit (11 regular + 4 CC = 15 total)', () => {
@@ -843,8 +837,10 @@ test('Domain Math Purity & Exports', async (t) => {
 });
 
 test('Whole-Village ZapQuake Solutions & Combo Grouping', async (t) => {
+    const inSeasonDate = new Date('2026-09-18T10:00:00Z');
+
     await t.test('solveAllDefensesZapQuake evaluates all 40 targets when unrestricted', () => {
-        const all = solveAllDefensesZapQuake({ lightningLevel: 14, earthquakeLevel: 8 });
+        const all = solveAllDefensesZapQuake({ lightningLevel: 14, earthquakeLevel: 8, referenceDate: inSeasonDate });
         assert.equal(all.length, 40);
         const ad = all.find(d => d.defenseKey === 'air_defense');
         assert.ok(ad);
@@ -903,7 +899,7 @@ test('Whole-Village ZapQuake Solutions & Combo Grouping', async (t) => {
     });
 
     await t.test('solveAllDefensesZapQuake lifecycle: TH17 sunsets eagle artillery but retains cannon, archer tower and merged defenses', () => {
-        const th17 = solveAllDefensesZapQuake({ townHallLevel: 17, lightningLevel: 13, earthquakeLevel: 8 });
+        const th17 = solveAllDefensesZapQuake({ townHallLevel: 17, lightningLevel: 13, earthquakeLevel: 8, referenceDate: inSeasonDate });
         const keys = th17.map(d => d.defenseKey);
 
         assert.strictEqual(keys.includes('cannon'), true, 'Standard cannon must be included at TH17 (available till TH17)');
@@ -916,7 +912,7 @@ test('Whole-Village ZapQuake Solutions & Combo Grouping', async (t) => {
     });
 
     await t.test('solveAllDefensesZapQuake lifecycle: TH18 sunsets cannon and eagle artillery but includes super wizard tower', () => {
-        const th18 = solveAllDefensesZapQuake({ townHallLevel: 18, lightningLevel: 13, earthquakeLevel: 8 });
+        const th18 = solveAllDefensesZapQuake({ townHallLevel: 18, lightningLevel: 13, earthquakeLevel: 8, referenceDate: inSeasonDate });
         const keys = th18.map(d => d.defenseKey);
 
         assert.strictEqual(keys.includes('cannon'), false, 'Standard cannon must be excluded at TH18');
@@ -944,7 +940,7 @@ test('Whole-Village ZapQuake Solutions & Combo Grouping', async (t) => {
     });
 
     await t.test('solveAllDefensesZapQuake lifecycle: TH16 has both merged and unmerged defenses plus eagle artillery', () => {
-        const th16 = solveAllDefensesZapQuake({ townHallLevel: 16, lightningLevel: 13, earthquakeLevel: 8 });
+        const th16 = solveAllDefensesZapQuake({ townHallLevel: 16, lightningLevel: 13, earthquakeLevel: 8, referenceDate: inSeasonDate });
         const keys = th16.map(d => d.defenseKey);
 
         assert.strictEqual(keys.includes('cannon'), true, 'Standard cannon must be included at TH16');
@@ -984,9 +980,11 @@ test('Whole-Village ZapQuake Solutions & Combo Grouping', async (t) => {
 });
 
 test('Whole-Village Attack Sequence Simulator', async (t) => {
+    const inSeasonDate = new Date('2026-09-18T10:00:00Z');
+
     await t.test('simulateSequenceAcrossAllDefenses executes on all 40 targets when unrestricted', () => {
         const steps = [{ type: 'spell', id: 'earthquake', level: 8, count: 1 }, { type: 'spell', id: 'lightning', level: 13, count: 6 }];
-        const results = simulateSequenceAcrossAllDefenses(steps);
+        const results = simulateSequenceAcrossAllDefenses(steps, { referenceDate: inSeasonDate });
         assert.equal(results.length, 40);
         // Air defense (2000 HP) takes 1 EQ (~580) + 6 Zap (4320) -> should be destroyed
         const ad = results.find(d => d.defenseKey === 'air_defense');
@@ -997,12 +995,12 @@ test('Whole-Village Attack Sequence Simulator', async (t) => {
 
     await t.test('simulateSequenceAcrossAllDefenses respects TH17 and TH18 lifecycle filtering', () => {
         const steps = [{ type: 'spell', id: 'earthquake', level: 8, count: 1 }, { type: 'spell', id: 'lightning', level: 13, count: 6 }];
-        const results17 = simulateSequenceAcrossAllDefenses(steps, { townHallLevel: 17 });
+        const results17 = simulateSequenceAcrossAllDefenses(steps, { townHallLevel: 17, referenceDate: inSeasonDate });
         assert.equal(results17.length, 32);
         const keys17 = results17.map(d => d.defenseKey);
         assert.ok(keys17.includes('cannon') && !keys17.includes('eagle_artillery') && keys17.includes('ricochet_cannon'));
 
-        const results18 = simulateSequenceAcrossAllDefenses(steps, { townHallLevel: 18 });
+        const results18 = simulateSequenceAcrossAllDefenses(steps, { townHallLevel: 18, referenceDate: inSeasonDate });
         assert.equal(results18.length, 36);
         const keys18 = results18.map(d => d.defenseKey);
         assert.ok(!keys18.includes('cannon') && !keys18.includes('eagle_artillery') && keys18.includes('super_wizard_tower'));

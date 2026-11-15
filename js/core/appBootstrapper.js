@@ -149,9 +149,9 @@ export async function bootstrapUIComponents(initialLang, lifecycleScope = null) 
     initializeNavigation();
     initializeModalHistoryManager();
     initializeStorageInputs();
-    initializeHeroCards(state.heroes, state.uiSettings, state.planner);
+    initializeHeroCards(state.heroes, state.uiSettings, state.planner, lifecycleScope);
     initializePlayerDropdown();
-    initializePlayerModal();
+    initializePlayerModal(lifecycleScope);
     initializeGuidedSetupModal();
     initializeFab();
     initializeAppSettings();
@@ -166,7 +166,7 @@ export async function bootstrapUIComponents(initialLang, lifecycleScope = null) 
     initializeRaidMedalTrader();
     initializeGemTrader();
     initializeEventTrader();
-    initializeShopOffers();
+    initializeShopOffers(lifecycleScope);
     initializeSupercellEventsInputs();
     initializeProspector();
     initializeIncomeCardHandler();

@@ -7,6 +7,8 @@ import { addValidation } from '../../utils/inputValidator.js';
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { buildStorageInputPopoverOptions, syncStoredOreInputBounds } from '../common/storageControlsHelper.js';
 
+const boundStoredOresModals = new WeakSet();
+
 /**
  * Checks if opening the stored ores modal should be suppressed due to open welcome/consent/tour dialogs.
  * @returns {boolean}
@@ -85,7 +87,8 @@ export function closeStoredOresModal() {
  */
 export function initializeStoredOresModal() {
     const modal = document.getElementById('stored-ores-modal');
-    if (!modal) return;
+    if (!modal || boundStoredOresModals.has(modal)) return;
+    boundStoredOresModals.add(modal);
 
     let isModalOpen = modal.classList.contains('show');
     const observer = new MutationObserver((mutations) => {

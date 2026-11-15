@@ -1,5 +1,6 @@
 import { supercellEventsData } from '../../data/incomeSources/supercellEvents.js';
 import { DAYS_IN_MONTH, DAYS_IN_WEEK, MONTHS_IN_BIMONTH } from '../../data/timeConstants.js';
+import { getSupercellEventsForYear } from './supercellEventsSchedule.js';
 
 /**
  * Calculates ore income from official Supercell livestream tournaments (Monthly Finals, LCQ, World Finals).
@@ -50,7 +51,7 @@ export function calculateSupercellEventsIncome(isWorldChampionshipEnabled, scOve
 
     const now = new Date();
     const currentYear = now.getUTCFullYear();
-    const events = (supercellEventsData.events && supercellEventsData.events[currentYear]) || [];
+    const events = getSupercellEventsForYear(currentYear, supercellEventsData);
 
     const counts = {
         monthlyQualifiers: events.filter(e => e.name === 'Monthly Finals').length,

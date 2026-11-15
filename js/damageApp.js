@@ -286,7 +286,7 @@ function renderActiveView() {
         renderOffenseBar(damageCalcState, modifierBarContainer);
     }
 
-    attachDamageCalcListeners(damageCalcState, document.body, renderActiveView);
+    attachDamageCalcListeners(damageCalcState, document.body, renderActiveView, damageLifecycleScope);
     updateUIWithTranslations(true);
     renderNavigationDrawerContent({
         activeView: damageCalcState.activeTab,
@@ -389,6 +389,7 @@ async function initDamageApp(scope) {
     });
 
     activeAddPlayerModalControls = initStandaloneAddPlayerModal({
+        scope,
         onLoadPlayer: async (cleanedTag) => {
             const data = await fetchPlayerData(cleanedTag);
             if (!data || !data.tag) {

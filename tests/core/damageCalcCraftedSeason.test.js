@@ -219,8 +219,13 @@ test('pruneDefenseOverrides - Cleans up overrides for out-of-season defenses', (
         }
     };
 
-    // Prune on current date: in-season hot_candle override preserved
-    pruneDefenseOverrides(mockState);
+    // 1. In season: preserves crafted override
+    pruneDefenseOverrides(mockState, new Date('2026-09-18T10:00:00Z'));
     assert.strictEqual(mockState.defenseLevelOverrides.air_defense, 15);
     assert.strictEqual(mockState.defenseLevelOverrides.hot_candle, 8);
+
+    // 2. Expired season (2027): removes out-of-season crafted override while retaining permanent overrides
+    pruneDefenseOverrides(mockState, new Date('2027-01-02T00:00:00Z'));
+    assert.strictEqual(mockState.defenseLevelOverrides.air_defense, 15);
+    assert.strictEqual(mockState.defenseLevelOverrides.hot_candle, undefined);
 });

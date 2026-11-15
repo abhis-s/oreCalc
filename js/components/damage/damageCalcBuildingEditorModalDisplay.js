@@ -43,7 +43,7 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
     if (!container) return;
 
     const currentTH = getShownTownHall(state);
-    const activeOverridesCount = pruneDefenseOverrides(state);
+    const activeOverridesCount = pruneDefenseOverrides(state, referenceDate);
     const overrides = state.defenseLevelOverrides || {};
     const scOverrides = state.defenseSuperchargeOverrides || {};
     const hpUnit = getHpUnit();

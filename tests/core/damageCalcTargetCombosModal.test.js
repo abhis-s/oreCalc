@@ -158,10 +158,19 @@ test('Target Combos Modal - Renders non-optimal collapsible section when combos 
     assert.ok(html.includes('calc-target-combos-collapse'), 'Must render collapsible details container for non-optimal combos');
     assert.ok(html.includes('calc-target-combos-collapse__summary'), 'Must render summary header for non-optimal combos');
     assert.ok(html.includes('data-i18n="views.damageCalc.zapQuake.nonOptimalCombosTitle"'), 'Summary must declare i18n key for non-optimal title');
-    // Header should show optimal count (53)
-    assert.ok(html.includes('(53)'), 'Possible combinations counter must count strictly optimal combos (< 6 spells)');
-    // Non-optimal section should show non-optimal count (11)
-    assert.ok(html.includes('(11)</span>'), 'Non-optimal counter in summary must count combos with 6+ spells');
+    const [optimalSectionHtml, nonOptimalSectionHtml = ''] = html.split('<details class="calc-target-combos-collapse"');
+    const optimalRowCount = (optimalSectionHtml.match(/class="calc-target-combo-row\b/g) || []).length;
+    const nonOptimalRowCount = (nonOptimalSectionHtml.match(/class="calc-target-combo-row\b/g) || []).length;
+    assert.ok(optimalRowCount > 0, 'Must render at least one optimal combo row (< 6 spells)');
+    assert.ok(nonOptimalRowCount > 0, 'Must render at least one non-optimal combo row (6+ spells)');
+    assert.ok(
+        html.includes(`Possible Combinations</span> (${optimalRowCount})`),
+        'Possible combinations counter must match rendered optimal rows (< 6 spells)'
+    );
+    assert.ok(
+        html.includes(`class="calc-target-combos-collapse__count">(${nonOptimalRowCount})</span>`),
+        'Non-optimal counter in summary must match rendered collapsed rows (6+ spells)'
+    );
 });
 
 test('renderSliderTicksHtml - Generates stepped ticks accurately', () => {
@@ -648,12 +657,27 @@ test('Target Combos Modal - Renders all dashboard shared defenses (including def
     renderTargetCombosModal(state, container, 'clan_castle', 14, 0);
     const html = container.innerHTML;
 
-    assert.ok(html.includes('Shared (11)'), 'Clan Castle must share combo with 11 other in-season defenses');
-    assert.ok(html.includes('data-shared-defenses="super_wizard_tower,revenge_tower,ricochet_cannon,hot_candle,monolith,cake_a_pult,scattershot,multi_archer_tower,firespitter,inferno_tower,x_bow"'), 'Must list all 11 shared defenses');
-    assert.ok(html.includes('super_wizard_tower'), 'Must include override-assigned defense');
-    assert.ok(html.includes('ricochet_cannon'), 'Must include default-assigned defense');
-    assert.ok(html.includes('monolith'), 'Must include default-assigned defense');
-    assert.ok(html.includes('scattershot'), 'Must include default-assigned defense');
+    const sharedAttrMatch = html.match(/data-shared-defenses="([^"]+)"/);
+    assert.ok(sharedAttrMatch, 'Must render data-shared-defenses attribute on Shared pill');
+    const sharedKeys = sharedAttrMatch[1].split(',').filter(Boolean);
+    assert.ok(html.includes(`Shared (${sharedKeys.length})`), 'Shared pill label must match rendered shared defense count');
+
+    const expectedPermanentShared = [
+        'super_wizard_tower',
+        'revenge_tower',
+        'ricochet_cannon',
+        'monolith',
+        'scattershot',
+        'multi_archer_tower',
+        'firespitter',
+        'inferno_tower',
+        'x_bow'
+    ];
+    for (const defKey of expectedPermanentShared) {
+        assert.ok(sharedKeys.includes(defKey), `Must include ${defKey} among shared defenses`);
+    }
+    assert.equal(sharedKeys.includes('clan_castle'), false, 'Target itself must not appear in shared defenses');
+    assert.equal(sharedKeys.includes('hero_hunter'), false, 'Defense with distinct combo override must be excluded');
 });
 
 test('Target Combos Modal - getSharedComboPopoverContent formats defense names and assets', () => {

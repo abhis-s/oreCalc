@@ -333,9 +333,10 @@ export function resetDamageCalcState() {
  * or belongs to a locked building is wiped out of the state.
  *
  * @param {Object} [state=damageCalcState] - Target damage calculator state.
+ * @param {Date|string|number} [referenceDate=new Date()] - Reference date for seasonal filtering.
  * @returns {number} Active pruned overrides count.
  */
-export function pruneDefenseOverrides(state = damageCalcState) {
+export function pruneDefenseOverrides(state = damageCalcState, referenceDate = new Date()) {
     if (!state) return 0;
 
     const currentTH = getShownTownHall(state);
@@ -344,7 +345,7 @@ export function pruneDefenseOverrides(state = damageCalcState) {
         for (const [key, level] of Object.entries(state.defenseLevelOverrides)) {
             const def = getDefensesData()[key];
             const info = getMaxDefenseLevelForTownHall(key, currentTH);
-            if (key === 'town_hall' || !def || !info || info.status === 'locked' || info.level === 0 || !isDefenseInSeason(def)) {
+            if (key === 'town_hall' || !def || !info || info.status === 'locked' || info.level === 0 || !isDefenseInSeason(def, referenceDate)) {
                 delete state.defenseLevelOverrides[key];
                 continue;
             }
@@ -365,7 +366,7 @@ export function pruneDefenseOverrides(state = damageCalcState) {
         for (const [key, tier] of Object.entries(state.defenseSuperchargeOverrides)) {
             const def = getDefensesData()[key];
             const info = getMaxDefenseLevelForTownHall(key, currentTH);
-            if (!def || !info || info.status === 'locked' || !isDefenseInSeason(def)) {
+            if (!def || !info || info.status === 'locked' || !isDefenseInSeason(def, referenceDate)) {
                 delete state.defenseSuperchargeOverrides[key];
                 continue;
             }

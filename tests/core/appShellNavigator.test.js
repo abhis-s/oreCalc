@@ -10,9 +10,7 @@ import {
     ROUTE_SCRIPT_MAP,
     NAVIGATION_TIMEOUT_MS
 } from '../../js/core/appShellNavigator.js';
-import {
-    computeSynchronizedBodyClasses
-} from '../../js/core/appShellDomSync.js';
+import { computeSynchronizedBodyClasses } from '../../js/core/appShellDomSync.js';
 import { renderNavigationDrawerContent } from '../../js/components/common/navigationDrawerDisplay.js';
 
 describe('Persistent App Shell Navigator Suite', () => {

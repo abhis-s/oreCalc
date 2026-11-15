@@ -86,10 +86,11 @@ function initSourcesThOutsideClick() {
  * @param {any} state - Damage calculator state.
  * @param {HTMLElement} rootContainer - Root container element.
  * @param {() => void} onStateChange - Re-render callback.
+ * @param {any} [scope=null] - Optional route lifecycle scope for listener cleanup.
  */
-export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
+export function attachDamageCalcListeners(state, rootContainer, onStateChange, scope = null) {
     if (!rootContainer || typeof onStateChange !== 'function') return;
-    attachDamageCalcPopoverListeners(rootContainer, state);
+    attachDamageCalcPopoverListeners(rootContainer, state, scope);
 
     // Offense Bar modifier tabs
     const modifierTabs = /** @type {HTMLElement | null} */ (rootContainer.querySelector('.calc-modifier-tabs'));
@@ -413,6 +414,6 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
         });
     });
 
-    attachDamageCalcFilterListeners(state, rootContainer, onStateChange);
-    attachClusterPlannerListeners(state, rootContainer, onStateChange);
+    attachDamageCalcFilterListeners(state, rootContainer, onStateChange, scope);
+    attachClusterPlannerListeners(state, rootContainer, onStateChange, scope);
 }

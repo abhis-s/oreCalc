@@ -620,7 +620,7 @@ test('Battle Modifier & League Rules Popover', async (t) => {
     });
 
     await t.test('getActionInfoPopoverContent returns structured stats for damage sources', () => {
-        assert.equal(getActionInfoPopoverContent('builder_repair'), null);
+        assert.equal(getActionInfoPopoverContent('unknown_action'), null);
 
         const fireballAction = getActionInfoPopoverContent('fireball');
         assert.ok(fireballAction);
