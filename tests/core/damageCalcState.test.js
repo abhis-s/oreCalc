@@ -15,6 +15,7 @@ globalThis.fetch = (url) => {
     const data = JSON.parse(readFileSync(path.resolve(_targetsDir, file), 'utf8'));
     return Promise.resolve({ json: () => Promise.resolve(data) });
 };
+import { MAX_TOWN_HALL } from '../../js/core/constants.js';
 import { preloadDefensesData } from '../../js/data/defenseTargetsData.js';
 import {
     damageCalcState,
@@ -43,13 +44,13 @@ test('Damage Calculator State Management', async (t) => {
     await t.test('Initializes with canonical default state', () => {
         resetDamageCalcState();
         assert.equal(damageCalcState.activeTab, 'zapquake');
-        assert.equal(damageCalcState.playerTownHall, 18);
+        assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
         assert.equal(damageCalcState.leagueId, 'standard');
         assert.equal(damageCalcState.globalSuperchargeTier, 2);
         assert.equal(damageCalcState.zapQuake.buildingFilter, 'all');
         assert.equal(damageCalcState.simulator.targetDefenseKey, 'scattershot');
         assert.equal(damageCalcState.simulator.targetDefenseLevel, 7);
-        assert.equal(damageCalcState.simulator.superchargeTier, getDefaultSuperchargeTier('scattershot', 7, 18));
+        assert.equal(damageCalcState.simulator.superchargeTier, getDefaultSuperchargeTier('scattershot', 7, MAX_TOWN_HALL));
         assert.equal(damageCalcState.offense.enabledSources.lightning, true);
         assert.equal(damageCalcState.offense.enabledSources.giant_arrow, true);
         assert.equal(damageCalcState.simulator.steps.length, 3);
@@ -233,7 +234,7 @@ test('Damage Calculator State Management', async (t) => {
         resetDamageCalcState();
 
         assert.equal(damageCalcState.activeTab, 'zapquake');
-        assert.equal(damageCalcState.playerTownHall, 18);
+        assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
         assert.equal(damageCalcState.modifier, 'standard');
         assert.equal(damageCalcState.leagueId, 'standard');
         assert.equal(damageCalcState.isModifierExplicit, false);
@@ -251,7 +252,7 @@ test('Damage Calculator State Management', async (t) => {
 
     await t.test('Profile switching with same Town Hall preserves defense overrides and cluster planner', () => {
         resetDamageCalcState();
-        assert.equal(damageCalcState.playerTownHall, 18);
+        assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
 
         // Set user overrides on player A
         damageCalcState.defenseLevelOverrides = { air_defense: 15 };
@@ -274,7 +275,7 @@ test('Damage Calculator State Management', async (t) => {
 
     await t.test('Profile switching with different Town Hall resets defense overrides, clusters, and global supercharge', () => {
         resetDamageCalcState();
-        assert.equal(damageCalcState.playerTownHall, 18);
+        assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
 
         damageCalcState.defenseLevelOverrides = { air_defense: 15 };
         damageCalcState.defenseSuperchargeOverrides = { air_defense: 1 };

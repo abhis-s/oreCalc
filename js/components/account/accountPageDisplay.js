@@ -3,9 +3,11 @@
  * Tier 4: UI Renderer (Pure DOM generation, zero direct event listeners).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { getSavedProfiles } from '../../core/playerStorage.js';
 import { state } from '../../core/state.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { translate } from '../../i18n/translator.js';
 import { fetchPasskeys } from '../../services/authPasskeyClientService.js';
 import { formatDate, getDefaultDateLocale } from '../../utils/dateUtils.js';
@@ -177,12 +179,12 @@ export function renderAccountVillagesSummary(customProfiles = null) {
 
     if (count > 0) {
         // Sort descending by townHallLevel (highest level first) and cap at top 5
-        const sorted = [...profiles].sort((a, b) => (Number(b.townHallLevel) || 18) - (Number(a.townHallLevel) || 18));
+        const sorted = [...profiles].sort((a, b) => (Number(b.townHallLevel) || MAX_TOWN_HALL) - (Number(a.townHallLevel) || MAX_TOWN_HALL));
         const topFive = sorted.slice(0, 5);
 
         stackEl.innerHTML = topFive.map((p) => {
-            const th = Math.max(1, Math.min(18, Number(p.townHallLevel) || 18));
-            return `<clashcalc-assets-image src="/assets/th/th${th}.png" alt="TH${th}" class="account-village-stack-th" size="thumbnail"></clashcalc-assets-image>`;
+            const th = Math.max(1, Math.min(MAX_TOWN_HALL, Number(p.townHallLevel) || MAX_TOWN_HALL));
+            return `<clashcalc-assets-image src="${getTownHallIconUrl(th, { rootRelative: true })}" alt="TH${th}" class="account-village-stack-th" size="thumbnail"></clashcalc-assets-image>`;
         }).join('');
     }
 }

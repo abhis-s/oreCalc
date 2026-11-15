@@ -4,6 +4,7 @@
  * Tier 4: User Inputs & Search Controller.
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getSavedProfiles } from '../../core/playerStorage.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 import { translate } from '../../i18n/translator.js';
@@ -294,7 +295,7 @@ export function initLandingSearchForm({
                 const newProfile = refreshedProfiles.find(p => p.cleanTag === canonicalTag) || {
                     cleanTag: canonicalTag,
                     name: result.playerData?.name || canonicalTag,
-                    townHallLevel: Number(result.playerData?.townHallLevel) || 18
+                    townHallLevel: Number(result.playerData?.townHallLevel) || MAX_TOWN_HALL
                 };
 
                 const accountsSection = document.getElementById('landing-saved-accounts');

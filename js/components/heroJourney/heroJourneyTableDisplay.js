@@ -3,6 +3,7 @@ import { formatNumber } from '../../utils/numberFormatter.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { getSVG } from '../../utils/svgManager.js';
 import { getNodeTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { getEffectiveQuestNodeTH, getQuestChestReward } from '../../domain/income/heroJourneyIncome.js';
 import { getResolvedEquipmentReward, resolveHeroJourneyTrack } from '../../domain/income/heroJourneyResolution.js';
 import { getTranslatedEquipmentName, getResourceKey } from '../home/heroJourneyPopovers.js';
@@ -162,7 +163,7 @@ export function renderTableView() {
                 <tr class="th-header-row">
                     <td colspan="3">
                         <div class="th-header-cell">
-                            <clashcalc-assets-image src="assets/th/th${nodeTH}.png" alt="TH ${nodeTH}" class="th-header-img" size="thumbnail"></clashcalc-assets-image>
+                            <clashcalc-assets-image src="${getTownHallIconUrl(nodeTH)}" alt="TH ${nodeTH}" class="th-header-img" size="thumbnail"></clashcalc-assets-image>
                             <span data-i18n="views.heroJourney.page.thMilestonesHeader" data-i18n-th="${nodeTH}">${translate('views.heroJourney.page.thMilestonesHeader', { th: nodeTH })}</span>
                         </div>
                     </td>

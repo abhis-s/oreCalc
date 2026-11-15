@@ -4,8 +4,18 @@
  */
 
 import { safeJsonParse } from '../../utils/jsonUtils.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
-import { getDefaultSuperchargeTier, getMaxSuperchargeTier, getMaxDefenseLevelForTownHall, isDefenseInSeason, snapDefenseLevel } from '../../domain/damage/defenseProgressionDomain.js';
+import { getMaxSpellLevel } from '../../domain/damage/damageFormulas.js';
+import {
+    getDefaultSuperchargeTier,
+    getMaxDefenseLevelForTownHall,
+    getMaxSuperchargeTier,
+    getMaxSuperchargeTierForTownHall,
+    isDefenseInSeason,
+    isSuperchargeAvailableForTownHall,
+    snapDefenseLevel
+} from '../../domain/damage/defenseProgressionDomain.js';
 import { state as appGlobalState } from '../../core/state.js';
 
 const STORAGE_KEY = 'clashCalc_damageCalcState';
@@ -14,16 +24,23 @@ const STORAGE_KEY = 'clashCalc_damageCalcState';
  * Default state snapshot for Damage Calculator.
  */
 function createDefaultState() {
-    const defaultTh = 18;
+    const defaultTh = MAX_TOWN_HALL;
+    const defaultZapLevel = getMaxSpellLevel('lightning');
+    const defaultEqLevel = getMaxSpellLevel('earthquake');
+    const defenses = getDefensesData();
+    // Leave null before preloadDefensesData() resolves so getGlobalSuperchargeTier derives dynamically once loaded.
+    const defaultGlobalScTier = Object.keys(defenses).length > 0
+        ? getMaxSuperchargeTierForTownHall(defaultTh)
+        : null;
     const defaultSimDefKey = 'scattershot';
     /** @type {number} */
-    const defaultSimMaxLvl = getDefensesData()?.[defaultSimDefKey]?.maxLevel || 7;
+    const defaultSimMaxLvl = defenses?.[defaultSimDefKey]?.maxLevel || 7;
 
     const stateObj = {
         activeTab: 'zapquake',
         activeTag: null,
         playerTownHall: defaultTh,
-        globalSuperchargeTier: 2,
+        globalSuperchargeTier: defaultGlobalScTier,
         modifier: 'standard',
         isModifierExplicit: false,
         modalActiveTab: 'offense',
@@ -38,12 +55,12 @@ function createDefaultState() {
         defenseSuperchargeOverrides: {},
         offense: {
             spells: {
-                lightning: 13,
-                earthquake: 8
+                lightning: defaultZapLevel,
+                earthquake: defaultEqLevel
             },
             ccSpells: {
-                lightning: 13,
-                earthquake: 8
+                lightning: defaultZapLevel,
+                earthquake: defaultEqLevel
             },
             equipment: {
                 spiky_ball: 27,
@@ -69,8 +86,8 @@ function createDefaultState() {
         zapQuake: {
             searchQuery: '',
             buildingFilter: 'all',
-            lightningLevel: 13,
-            earthquakeLevel: 8,
+            lightningLevel: defaultZapLevel,
+            earthquakeLevel: defaultEqLevel,
             selectedCluster: [],
             adjacentPairs: [],
             clusterEquipment: [],
@@ -93,8 +110,8 @@ function createDefaultState() {
             searchQuery: '',
             steps: [
                 { type: 'equipment', id: 'fireball', level: 27 },
-                { type: 'spell', id: 'earthquake', level: 8, count: 1 },
-                { type: 'spell', id: 'lightning', level: 13, count: 2 }
+                { type: 'spell', id: 'earthquake', level: defaultEqLevel, count: 1 },
+                { type: 'spell', id: 'lightning', level: defaultZapLevel, count: 2 }
             ]
         }
     };
@@ -140,7 +157,9 @@ export function loadPersistedState() {
         } else if (appGlobalState.uiSettings?.leagueModifier) {
             damageCalcState.modifier = appGlobalState.uiSettings.leagueModifier;
         }
-        if (parsed.playerTownHall) damageCalcState.playerTownHall = Math.max(1, Math.min(18, Number(parsed.playerTownHall) || 18));
+        if (parsed.playerTownHall) {
+            damageCalcState.playerTownHall = Math.max(1, Math.min(MAX_TOWN_HALL, Number(parsed.playerTownHall) || MAX_TOWN_HALL));
+        }
         if (parsed.enabledBuildingGroups && typeof parsed.enabledBuildingGroups === 'object') {
             damageCalcState.enabledBuildingGroups = {
                 defenses: true,
@@ -233,7 +252,10 @@ export function loadPersistedState() {
         }
 
         if (typeof parsed.globalSuperchargeTier === 'number' && Number.isInteger(parsed.globalSuperchargeTier)) {
-            damageCalcState.globalSuperchargeTier = Math.max(0, Math.min(2, parsed.globalSuperchargeTier));
+            const maxLoadedScTier = getMaxSuperchargeTierForTownHall(getShownTownHall(damageCalcState));
+            damageCalcState.globalSuperchargeTier = Math.max(0, Math.min(maxLoadedScTier, parsed.globalSuperchargeTier));
+        } else if (damageCalcState.globalSuperchargeTier === null) {
+            damageCalcState.globalSuperchargeTier = getMaxSuperchargeTierForTownHall(getShownTownHall(damageCalcState));
         }
 
         if (parsed.modalActiveTab === 'offense' || parsed.modalActiveTab === 'defense' || parsed.modalActiveTab === 'buildings') {
@@ -364,12 +386,12 @@ export function pruneDefenseOverrides(state = damageCalcState) {
                 : (info.level || def.maxLevel || 1);
 
             const maxSc = getMaxSuperchargeTier(key, currentLvl);
-            if (maxSc === 0 || currentTH < 18) {
+            if (maxSc === 0 || !isSuperchargeAvailableForTownHall(currentTH)) {
                 delete state.defenseSuperchargeOverrides[key];
                 continue;
             }
 
-            const defaultSc = (currentTH >= 18 && currentLvl >= (def.maxLevel || 1))
+            const defaultSc = (isSuperchargeAvailableForTownHall(currentTH) && currentLvl >= (def.maxLevel || 1))
                 ? getDefaultSuperchargeTier(key, currentLvl, currentTH)
                 : 0;
 
@@ -387,10 +409,10 @@ export function pruneDefenseOverrides(state = damageCalcState) {
         }
     }
 
-    if (currentTH < 18) {
+    if (!isSuperchargeAvailableForTownHall(currentTH)) {
         state.globalSuperchargeTier = 0;
     } else if (state.globalSuperchargeTier === undefined || state.globalSuperchargeTier === null) {
-        state.globalSuperchargeTier = 2;
+        state.globalSuperchargeTier = getMaxSuperchargeTierForTownHall(currentTH);
     }
 
     const levelCount = Object.keys(state.defenseLevelOverrides || {}).length;
@@ -404,46 +426,47 @@ export function pruneDefenseOverrides(state = damageCalcState) {
  * while preserving the actual playerTownHall in state without mutating it.
  *
  * @param {Object} [state=damageCalcState] - Target damage calculator state.
- * @returns {number} Shown Town Hall level (9 to 18).
+ * @returns {number} Shown Town Hall level (9 to MAX_TOWN_HALL).
  */
 export function getShownTownHall(state = damageCalcState) {
     const raw = state?.playerTownHall;
-    const th = Number(raw) || 18;
-    return Math.max(9, Math.min(18, Math.floor(th)));
+    const th = Number(raw) || MAX_TOWN_HALL;
+    return Math.max(9, Math.min(MAX_TOWN_HALL, Math.floor(th)));
 }
 
 /**
  * Resolves the active global supercharge tier from damage calculator state.
- * At Town Hall levels below 18, supercharge is unavailable and returns 0.
- * At Town Hall 18, returns state.globalSuperchargeTier (defaulting to 2).
+ * Below the current max Town Hall, supercharge is unavailable and returns 0.
+ * At the max Town Hall, returns state.globalSuperchargeTier (defaulting to max available tier).
  *
  * @param {Object} [state=damageCalcState] - Target damage calculator state.
- * @returns {number} Active supercharge tier (0, 1, or 2).
+ * @returns {number} Active supercharge tier.
  */
 export function getGlobalSuperchargeTier(state = damageCalcState) {
     const currentTH = getShownTownHall(state);
-    if (currentTH < 18) return 0;
+    if (!isSuperchargeAvailableForTownHall(currentTH)) return 0;
+    const maxScTier = getMaxSuperchargeTierForTownHall(currentTH);
     const tier = state?.globalSuperchargeTier;
     if (tier !== undefined && tier !== null) {
-        return Math.max(0, Math.min(2, Math.floor(Number(tier)) || 0));
+        return Math.max(0, Math.min(maxScTier, Math.floor(Number(tier)) || 0));
     }
-    return 2;
+    return maxScTier;
 }
 
 /**
  * Sets the active player Town Hall level and actively prunes overrides that match
  * the new Town Hall baseline defaults.
  *
- * @param {number} townHallLevel - Town Hall level (1 to 18).
+ * @param {number} townHallLevel - Town Hall level (1 to MAX_TOWN_HALL).
  */
 export function setPlayerTownHall(townHallLevel) {
-    const th = Math.max(1, Math.min(Math.floor(Number(townHallLevel) || 18), 18));
+    const th = Math.max(1, Math.min(Math.floor(Number(townHallLevel) || MAX_TOWN_HALL), MAX_TOWN_HALL));
     const prevTh = damageCalcState.playerTownHall;
     damageCalcState.playerTownHall = th;
     const shownTh = getShownTownHall(damageCalcState);
     const prevShownTh = getShownTownHall({ playerTownHall: prevTh });
-    if (shownTh >= 18 && (prevShownTh < 18 || damageCalcState.globalSuperchargeTier === undefined || damageCalcState.globalSuperchargeTier === 0)) {
-        setGlobalSuperchargeTier(2);
+    if (isSuperchargeAvailableForTownHall(shownTh) && (!isSuperchargeAvailableForTownHall(prevShownTh) || damageCalcState.globalSuperchargeTier == null || damageCalcState.globalSuperchargeTier === 0)) {
+        setGlobalSuperchargeTier(getMaxSuperchargeTierForTownHall(shownTh));
     }
     pruneDefenseOverrides(damageCalcState);
     if (Array.isArray(damageCalcState.zapQuake.selectedCluster)) {
@@ -474,13 +497,13 @@ export function setPlayerTownHall(townHallLevel) {
  * @param {number} townHallLevel - Town Hall level (1 to 18).
  */
 export function applyTownHallPreset(townHallLevel) {
-    const th = Math.max(1, Math.min(Math.floor(Number(townHallLevel) || 18), 18));
+    const th = Math.max(1, Math.min(Math.floor(Number(townHallLevel) || MAX_TOWN_HALL), MAX_TOWN_HALL));
     damageCalcState.playerTownHall = th;
     damageCalcState.defenseLevelOverrides = {};
     damageCalcState.defenseSuperchargeOverrides = {};
     const shownTh = getShownTownHall(damageCalcState);
-    if (shownTh >= 18) {
-        setGlobalSuperchargeTier(2);
+    if (isSuperchargeAvailableForTownHall(shownTh)) {
+        setGlobalSuperchargeTier(getMaxSuperchargeTierForTownHall(shownTh));
     } else {
         damageCalcState.globalSuperchargeTier = 0;
     }
@@ -514,8 +537,8 @@ export function resetDefenseOverrides() {
     damageCalcState.defenseLevelOverrides = {};
     damageCalcState.defenseSuperchargeOverrides = {};
     const shownTh = getShownTownHall(damageCalcState);
-    if (shownTh >= 18) {
-        setGlobalSuperchargeTier(2);
+    if (isSuperchargeAvailableForTownHall(shownTh)) {
+        setGlobalSuperchargeTier(getMaxSuperchargeTierForTownHall(shownTh));
     }
     if (Array.isArray(damageCalcState.zapQuake.selectedCluster)) {
         damageCalcState.zapQuake.selectedCluster.forEach(item => {

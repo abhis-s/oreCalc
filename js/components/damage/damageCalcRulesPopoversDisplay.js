@@ -3,7 +3,9 @@
  * Tier 4: UI Presentation (Dedicated exclusively to popover HTML generation, 0 event listeners).
  */
 
+import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
+import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { getActiveModifier } from './damageCalcState.js';
@@ -49,9 +51,11 @@ export function getGenericInfoPopoverContent(infoKey) {
         };
     }
     if (infoKey === 'cc_spells') {
+        const ccMaxLvl = getDefensesData().clan_castle?.maxLevel || 1;
+        const ccAssetUrl = getBuildingAssetUrl('clan_castle', ccMaxLvl);
         return {
             header: `
-                <clashcalc-assets-image src="/assets/buildings/clan_castle/level_14.png" alt="Clan Castle" class="popover-img"></clashcalc-assets-image>
+                <clashcalc-assets-image src="${ccAssetUrl}" alt="Clan Castle" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.offense.clanCastleDonatedSpellsTitle') || 'Clan Castle Spells')}</span>
                     <span class="popover-badge">${escapeHTML(translate('views.damageCalc.offense.donatedSpellBadge') || 'Donation')}</span>

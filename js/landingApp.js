@@ -4,6 +4,7 @@
  * Tier 4: UI Application Entry.
  */
 
+import { MAX_TOWN_HALL } from './core/constants.js';
 import { getLanguageFromPath } from './core/languageRouter.js';
 import { formatDisplayTag } from './core/storageKeys.js';
 import { getSavedProfiles } from './core/playerStorage.js';
@@ -104,7 +105,7 @@ function updateLandingDrawer(activeAction = '') {
         profileData: activeLandingProfile ? {
             name: activeLandingProfile.name,
             tag: activeLandingProfile.tag || formatDisplayTag(activeLandingProfile.cleanTag),
-            townHallLevel: activeLandingProfile.townHallLevel || 18,
+            townHallLevel: activeLandingProfile.townHallLevel || MAX_TOWN_HALL,
             trophies: activeLandingProfile.cachedData?.trophies || 0,
             leagueIcon: activeLandingProfile.cachedData?.league?.iconUrls?.small || '',
             leagueName: activeLandingProfile.cachedData?.league?.name || '',
@@ -137,7 +138,7 @@ async function initCommandCenter() {
      */
     const openLaunchModal = (village) => {
         if (!launchModal) return;
-        const thLevel = Math.max(1, Math.min(18, Number(village.townHallLevel) || 18));
+        const thLevel = Math.max(1, Math.min(MAX_TOWN_HALL, Number(village.townHallLevel) || MAX_TOWN_HALL));
         const activeLaunchThEl = document.getElementById('landing-launch-th');
         if (activeLaunchThEl) {
             activeLaunchThEl.outerHTML = renderTownHallBadge({

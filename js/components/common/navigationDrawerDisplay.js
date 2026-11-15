@@ -4,10 +4,12 @@
  */
 
 import { translate } from '../../i18n/translator.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { navigationRegistry } from '../../data/navigationRegistry.js';
 import { getSavedProfiles } from '../../core/playerStorage.js';
 import { resolvePlayerSummaryStats } from '../../core/playerSummaryResolver.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { symbolExists } from '../../utils/svgManager.js';
 import { initAppFooter } from './appFooter.js';
@@ -205,7 +207,7 @@ function buildDrawerMetricsHtml(statsList, profileSummary) {
             label = translate('entities.defenses.townHall') || 'Town Hall';
             value = `TH${profileSummary.thLevel}`;
             iconType = 'image';
-            iconSrc = `assets/th/th${profileSummary.thLevel}.png`;
+            iconSrc = getTownHallIconUrl(profileSummary.thLevel);
         } else {
             label = stat.label || '';
             value = stat.value || '';
@@ -394,11 +396,11 @@ export function renderNavigationDrawerContent(options = {}) {
                     <div class="navigation-drawer__context-switcher-menu" hidden>
                         ${savedProfiles.map(p => {
                             const isCurrent = p.cleanTag === cleanTag;
-                            const pTh = Math.max(1, Math.min(18, Number(p.townHallLevel) || 18));
+                            const pTh = Math.max(1, Math.min(MAX_TOWN_HALL, Number(p.townHallLevel) || MAX_TOWN_HALL));
                             return `
                                 <button type="button" class="navigation-drawer__context-switcher-item ${isCurrent ? 'is-active' : ''}" data-tag="${escapeHtml(p.cleanTag)}">
                                     <div class="navigation-drawer__context-switcher-item-left">
-                                        <clashcalc-assets-image class="navigation-drawer__context-switcher-th" src="assets/th/th${pTh}.png" alt="TH${pTh}" size="thumbnail"></clashcalc-assets-image>
+                                        <clashcalc-assets-image class="navigation-drawer__context-switcher-th" src="${getTownHallIconUrl(pTh)}" alt="TH${pTh}" size="thumbnail"></clashcalc-assets-image>
                                         <span class="navigation-drawer__context-switcher-name">${escapeHtml(p.name)}</span>
                                     </div>
                                     <span class="navigation-drawer__context-switcher-tag">${escapeHtml(p.tag)}</span>

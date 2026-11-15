@@ -3,8 +3,20 @@
  * Tier 2: Pure Domain Math (0 side effects, 0 DOM references, 0 browser globals).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { battleModifiersData } from '../../data/battleModifiersData.js';
+
+/**
+ * Evaluates whether Supercharges are unlocked for a given Town Hall level.
+ * Supercharges are restricted to the current maximum Town Hall level.
+ *
+ * @param {number} [townHallLevel=MAX_TOWN_HALL] - Town Hall level.
+ * @returns {boolean} True when Supercharges are available at this Town Hall level.
+ */
+export function isSuperchargeAvailableForTownHall(townHallLevel = MAX_TOWN_HALL) {
+    return (Number(townHallLevel) || 0) >= MAX_TOWN_HALL;
+}
 
 /**
  * Evaluates whether a specific Town Hall level functions as an active defense.
@@ -175,7 +187,8 @@ export function getMaxSuperchargeTier(defenseKey, level) {
  * @param {number} [townHallLevel=18] - Town Hall level.
  * @returns {number} Highest supercharge tier found across available defenses for this Town Hall.
  */
-export function getMaxSuperchargeTierForTownHall(townHallLevel = 18) {
+export function getMaxSuperchargeTierForTownHall(townHallLevel = MAX_TOWN_HALL) {
+    if (townHallLevel != null && !isSuperchargeAvailableForTownHall(townHallLevel)) return 0;
     let maxTier = 0;
 
     for (const def of Object.values(getDefensesData())) {
@@ -207,7 +220,7 @@ export function getMaxSuperchargeTierForTownHall(townHallLevel = 18) {
  * @param {number} [townHallLevel=18] - Target Town Hall level.
  * @returns {{ level: number, status: 'available' | 'locked' | 'sunset', minTH?: number, maxTH?: number } | null}
  */
-export function getMaxDefenseLevelForTownHall(defenseKey, townHallLevel = 18) {
+export function getMaxDefenseLevelForTownHall(defenseKey, townHallLevel = MAX_TOWN_HALL) {
     const def = getDefensesData()[defenseKey];
     if (!def || !def.levels) return { level: 0, status: 'locked' };
 
@@ -286,8 +299,8 @@ export function isDefenseInSeason(defenseOrKey, referenceDate = new Date()) {
  * @param {number} [townHallLevel=18] - Target Town Hall level.
  * @returns {number} Default supercharge tier.
  */
-export function getDefaultSuperchargeTier(defenseKey, level, townHallLevel = 18) {
-    if (townHallLevel < 18) return 0;
+export function getDefaultSuperchargeTier(defenseKey, level, townHallLevel = MAX_TOWN_HALL) {
+    if (!isSuperchargeAvailableForTownHall(townHallLevel)) return 0;
 
     if (defenseKey) {
         return getMaxSuperchargeTier(defenseKey, level);
@@ -463,7 +476,7 @@ export function getDefenseCategoryTier(key, def = getDefensesData()[key]) {
  * @param {number} [townHallLevel=18] - Target Town Hall level.
  * @returns {'defenses' | 'heroes' | 'guardians' | 'other' | 'unavailable'} Group identifier.
  */
-export function getBuildingGroupId(key, townHallLevel = 18) {
+export function getBuildingGroupId(key, townHallLevel = MAX_TOWN_HALL) {
     const info = getMaxDefenseLevelForTownHall(key, townHallLevel);
     if (info?.status === 'locked' || info?.status === 'sunset') {
         return 'unavailable';
@@ -490,7 +503,7 @@ export function getBuildingGroupId(key, townHallLevel = 18) {
  *   unavailable: Array<{ key: string, def: Object, info: Object }>
  * }} Partitioned and sorted building groups.
  */
-export function partitionDefensesForModal(currentTH = 18, referenceDate = new Date()) {
+export function partitionDefensesForModal(currentTH = MAX_TOWN_HALL, referenceDate = new Date()) {
     const groups = {
         defenses: [],
         heroes: [],
@@ -554,7 +567,7 @@ export function partitionDefensesForModal(currentTH = 18, referenceDate = new Da
  * @param {number} [currentTH=18]
  * @returns {number}
  */
-export function compareDefensesForDisplay(keyA, defA, keyB, defB, currentTH = 18) {
+export function compareDefensesForDisplay(keyA, defA, keyB, defB, currentTH = MAX_TOWN_HALL) {
     const dA = defA || getDefensesData()[keyA] || {};
     const dB = defB || getDefensesData()[keyB] || {};
     const infoA = getMaxDefenseLevelForTownHall(keyA, currentTH);

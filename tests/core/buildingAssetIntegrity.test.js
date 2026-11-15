@@ -110,3 +110,25 @@ test('Hero & Guardian Assets - All hero and guardian assets exist with non-zero 
         assert.ok(fs.statSync(fullPath).size > 0, `Guardian asset must be non-zero size`);
     }
 });
+
+test('Building Assets - Fallback placeholders and clamped level overrides resolve to valid non-zero files', () => {
+    for (const [key, lvl] of [['firecracker_tower', 1], ['spiky_tower', 2]]) {
+        const fallbackUrl = getBuildingAssetUrl(key, lvl);
+        assert.strictEqual(fallbackUrl, '/assets/equipment/equip_placeholder.png');
+        const fallbackPath = path.join(REPO_ROOT, fallbackUrl.replace(/^\//, ''));
+        assert.ok(fs.existsSync(fallbackPath), `Placeholder asset must exist at ${fallbackPath}`);
+        assert.ok(fs.statSync(fallbackPath).size > 0, 'Placeholder asset must be non-zero size');
+    }
+
+    const thClampedUrl = getBuildingAssetUrl('town_hall', 19);
+    assert.strictEqual(thClampedUrl, '/assets/buildings/town_hall/level_18.png');
+    const thClampedPath = path.join(REPO_ROOT, thClampedUrl.replace(/^\//, ''));
+    assert.ok(fs.existsSync(thClampedPath), `Clamped Town Hall asset must exist at ${thClampedPath}`);
+    assert.ok(fs.statSync(thClampedPath).size > 0);
+
+    const ccClampedUrl = getBuildingAssetUrl('clan_castle', 15);
+    assert.strictEqual(ccClampedUrl, '/assets/buildings/clan_castle/level_14.png');
+    const ccClampedPath = path.join(REPO_ROOT, ccClampedUrl.replace(/^\//, ''));
+    assert.ok(fs.existsSync(ccClampedPath), `Clamped Clan Castle asset must exist at ${ccClampedPath}`);
+    assert.ok(fs.statSync(ccClampedPath).size > 0);
+});

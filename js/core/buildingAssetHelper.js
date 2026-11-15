@@ -14,6 +14,26 @@ const HERO_ASSET_MAP = Object.freeze({
     dragon_duke: 'dragonDuke'
 });
 
+const FALLBACK_BUILDING_ASSETS = Object.freeze({
+    firecracker_tower: '/assets/equipment/equip_placeholder.png',
+    spiky_tower: '/assets/equipment/equip_placeholder.png'
+});
+
+const ASSET_MAX_LEVEL_OVERRIDES = Object.freeze({
+    town_hall: 18,
+    clan_castle: 14,
+    air_defense: 16,
+    hidden_tesla: 17,
+    x_bow: 13,
+    multi_archer_tower: 4,
+    multi_gear_tower: 3,
+    ricochet_cannon: 4,
+    builders_hut: 8,
+    gold_storage: 19,
+    elixir_storage: 19,
+    dark_elixir_storage: 13
+});
+
 /**
  * Returns the absolute asset URL for a given target entity key and level.
  *
@@ -23,6 +43,9 @@ const HERO_ASSET_MAP = Object.freeze({
  */
 export function getBuildingAssetUrl(buildingKey, level = 1) {
     if (!buildingKey) return '';
+    if (FALLBACK_BUILDING_ASSETS[buildingKey]) {
+        return FALLBACK_BUILDING_ASSETS[buildingKey];
+    }
 
     const def = getDefensesData()[buildingKey];
     if (!def) return '';
@@ -36,7 +59,9 @@ export function getBuildingAssetUrl(buildingKey, level = 1) {
         return `/assets/guardians/${buildingKey}.png`;
     }
 
-    const maxLvl = def.maxLevel || 1;
+    const assetCap = ASSET_MAX_LEVEL_OVERRIDES[buildingKey];
+    const dataMaxLvl = def.maxLevel || assetCap || 1;
+    const maxLvl = assetCap ? Math.min(dataMaxLvl, assetCap) : dataMaxLvl;
     const clampedLevel = Math.max(1, Math.min(Math.floor(Number(level) || 1), maxLvl));
 
     if (def.subCategory === 'crafted') {

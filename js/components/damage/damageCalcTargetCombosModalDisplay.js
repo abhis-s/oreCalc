@@ -5,10 +5,13 @@
 
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
+import { getMaxSpellLevel } from '../../domain/damage/damageFormulas.js';
 import {
     getDefenseMaxHp,
     getMaxSuperchargeTier,
+    isSuperchargeAvailableForTownHall,
     getMaxDefenseLevelForTownHall,
     snapDefenseLevel,
     getValidDefenseLevels,
@@ -204,14 +207,16 @@ export function renderTargetCombosListHtml(state, defenseKey, currentLevel, acti
     const def = getDefensesData()[defenseKey];
     if (!def) return { listHtml: '', targetHp: 0, optimalCount: 0, optimalSig: '', selectedSig: undefined };
 
+    const maxLightning = getMaxSpellLevel('lightning');
+    const maxEq = getMaxSpellLevel('earthquake');
     const zq = state.zapQuake || {};
-    const spells = state.offense?.spells || { lightning: 13, earthquake: 8 };
-    const zapLvl = spells.lightning || zq.lightningLevel || 13;
-    const eqLvl = spells.earthquake || zq.earthquakeLevel || 8;
+    const spells = state.offense?.spells || { lightning: maxLightning, earthquake: maxEq };
+    const zapLvl = spells.lightning || zq.lightningLevel || maxLightning;
+    const eqLvl = spells.earthquake || zq.earthquakeLevel || maxEq;
     const enabledSources = state.offense?.enabledSources || {};
-    const ccSpells = state.offense?.ccSpells || { lightning: 13, earthquake: 8 };
-    const ccZapLvl = ccSpells.lightning || 13;
-    const ccEqLvl = ccSpells.earthquake || 8;
+    const ccSpells = state.offense?.ccSpells || { lightning: maxLightning, earthquake: maxEq };
+    const ccZapLvl = ccSpells.lightning || maxLightning;
+    const ccEqLvl = ccSpells.earthquake || maxEq;
     const isCcZapEnabled = enabledSources.cc_lightning !== false;
     const isCcEqEnabled = enabledSources.cc_earthquake !== false;
     const enabledEquipment = getEnabledEquipmentList(state);
@@ -335,7 +340,7 @@ export function renderTargetCombosModal(state, container, defenseKey, level, sup
         : (state.defenseSuperchargeOverrides?.[defenseKey] !== undefined ? state.defenseSuperchargeOverrides[defenseKey] : getGlobalSuperchargeTier(state));
 
     const maxSupercharge = getMaxSuperchargeTier(defenseKey, def.maxLevel || 1);
-    const isScDisabled = currentLevel < (def.maxLevel || 1) || currentTH < 18;
+    const isScDisabled = currentLevel < (def.maxLevel || 1) || !isSuperchargeAvailableForTownHall(currentTH);
     const effectiveSupercharge = isScDisabled ? 0 : activeSupercharge;
 
     const defDisplayName = getDefenseDisplayName(defenseKey);
@@ -444,7 +449,7 @@ export function renderTargetCombosModal(state, container, defenseKey, level, sup
                                     </span>
                                 ` : ''}
                             </span>
-                            ${currentTH < 18 && isAtMax ? `<span class="calc-target-combos-overview__th-max" id="calc-target-modal-th-max">${escapeHTML(thTagText)}</span>` : ''}
+                            ${currentTH < MAX_TOWN_HALL && isAtMax ? `<span class="calc-target-combos-overview__th-max" id="calc-target-modal-th-max">${escapeHTML(thTagText)}</span>` : ''}
                         </div>
                         <div class="calc-target-combos-overview__level-control">
                             <div class="calc-stepper-track">

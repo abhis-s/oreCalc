@@ -3,10 +3,12 @@
  * Tier 2: Pure Domain Math (0 side effects, 0 DOM references, 0 browser globals).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
-import { spellsData } from '../../data/spellsData.js';
 import {
     getSpellCapacities,
+    getMaxSpellLevel,
+    getLightningDamage,
     calculateEarthquakeDamageWithCc,
     calculateRequiredZaps,
     isSameHeroEquipment,
@@ -105,8 +107,17 @@ function getConnectedTargetGroups(numTargets, pairs = []) {
  *   maxArmyCapacity: number
  * }}
  */
-export function solveClusteredZapQuake(targets, lightningLevel = 13, eqLevel = 8, options = {}) {
+export function solveClusteredZapQuake(
+    targets,
+    lightningLevel = getMaxSpellLevel('lightning'),
+    eqLevel = getMaxSpellLevel('earthquake'),
+    options = {}
+) {
     if (!Array.isArray(targets) || targets.length === 0) {
+        const defaultTh = options.townHallLevel ?? (/** @type {any} */ (options)).playerTownHall ?? MAX_TOWN_HALL;
+        const defaultCaps = getSpellCapacities(defaultTh);
+        const defaultRegCap = options.regularSpellCapacity ?? options.spellCapacity ?? defaultCaps.regularCapacity;
+        const defaultCcCap = options.ccSpellCapacity ?? defaultCaps.ccCapacity;
         return {
             targets: [],
             totalHousingSpace: 0,
@@ -118,17 +129,17 @@ export function solveClusteredZapQuake(targets, lightningLevel = 13, eqLevel = 8
             optimalCombination: null,
             allDestroyed: false,
             equipment: [],
-            maxArmyCapacity: 15
+            maxArmyCapacity: defaultRegCap + defaultCcCap
         };
     }
 
-    const zapDmg = spellsData.spells.lightning.levels[lightningLevel]?.damage || 720;
+    const zapDmg = getLightningDamage(lightningLevel);
     const maxEqToTest = options.maxEq ?? 4;
     const ccEqLevel = options.ccSpells?.earthquake != null ? Number(options.ccSpells.earthquake) : eqLevel;
     const ccLightningLevel = options.ccSpells?.lightning != null ? Number(options.ccSpells.lightning) : lightningLevel;
-    const ccZapDmg = spellsData.spells.lightning.levels[ccLightningLevel]?.damage || zapDmg;
+    const ccZapDmg = options.ccSpells?.lightning != null ? getLightningDamage(ccLightningLevel) : zapDmg;
 
-    const townHall = options.townHallLevel ?? (/** @type {any} */ (options)).playerTownHall ?? 18;
+    const townHall = options.townHallLevel ?? (/** @type {any} */ (options)).playerTownHall ?? MAX_TOWN_HALL;
     const capacities = getSpellCapacities(townHall);
     const regCap = options.regularSpellCapacity ?? options.spellCapacity ?? capacities.regularCapacity;
     const ccCap = options.ccSpellCapacity ?? capacities.ccCapacity;
@@ -334,8 +345,8 @@ export function solveClusteredZapQuake(targets, lightningLevel = 13, eqLevel = 8
  * @returns {Array<Object>} List of evaluated defenses with their best and all combinations.
  */
 export function solveAllDefensesZapQuake(options = {}) {
-    const lightningLevel = options.lightningLevel ?? 13;
-    const eqLevel = options.earthquakeLevel ?? 8;
+    const lightningLevel = options.lightningLevel ?? getMaxSpellLevel('lightning');
+    const eqLevel = options.earthquakeLevel ?? getMaxSpellLevel('earthquake');
     const townHall = options.townHallLevel ?? (/** @type {any} */ (options)).playerTownHall;
     const overrides = options.defenseLevelOverrides || {};
     const enabledGroups = options.enabledBuildingGroups;
@@ -349,7 +360,7 @@ export function solveAllDefensesZapQuake(options = {}) {
         const isUnavailable = info.status === 'locked' || info.status === 'sunset';
 
         if (enabledGroups) {
-            const groupId = getBuildingGroupId(key, townHall != null ? townHall : 18);
+            const groupId = getBuildingGroupId(key, townHall != null ? townHall : MAX_TOWN_HALL);
             // Defenses invariant: defenses group is always enabled
             const isGroupEnabled = groupId === 'defenses'
                 ? true
@@ -377,7 +388,7 @@ export function solveAllDefensesZapQuake(options = {}) {
             ? (hasSupercharge ? Math.min(options.defenseSuperchargeOverrides[key] || 0, getMaxSuperchargeTier(key, level)) : 0)
             : (options.superchargeTier !== undefined
                 ? (hasSupercharge ? Math.min(options.superchargeTier || 0, getMaxSuperchargeTier(key, level)) : 0)
-                : getDefaultSuperchargeTier(key, level, townHall != null ? townHall : 18));
+                : getDefaultSuperchargeTier(key, level, townHall != null ? townHall : MAX_TOWN_HALL));
 
         const solverOpts = {
             superchargeTier: activeSupercharge,
@@ -434,10 +445,10 @@ const MAX_CACHE_SIZE = 25;
  * @returns {string} Cache key string.
  */
 function getGroupDefensesCacheKey(options = {}) {
-    const th = options.townHallLevel ?? (/** @type {any} */ (options)).playerTownHall ?? 18;
+    const th = options.townHallLevel ?? (/** @type {any} */ (options)).playerTownHall ?? MAX_TOWN_HALL;
     const mod = options.modifier || options.leagueId || 'standard';
-    const zap = options.lightningLevel ?? 13;
-    const eq = options.earthquakeLevel ?? 8;
+    const zap = options.lightningLevel ?? getMaxSpellLevel('lightning');
+    const eq = options.earthquakeLevel ?? getMaxSpellLevel('earthquake');
     const sc = options.superchargeTier ?? 0;
     const rem = options.includeRemaining !== false ? '1' : '0';
 

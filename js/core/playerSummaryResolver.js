@@ -3,7 +3,7 @@
  * Tier 3: Core Service (Player Profile Summary Resolution).
  */
 
-import { UNRANKED_LEAGUE_ID } from './constants.js';
+import { MAX_TOWN_HALL, UNRANKED_LEAGUE_ID } from './constants.js';
 import { state } from './state.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
 import { escapeHTML } from '../utils/stringUtils.js';
@@ -11,7 +11,7 @@ import { translate } from '../i18n/translator.js';
 import { getPlayerStorageKey } from './storageKeys.js';
 import { getSavedProfiles } from './playerStorage.js';
 import { calculateEquipmentProgress } from '../domain/equipment/equipmentProgressDomain.js';
-import { getCumulativeHeroLevel } from '../domain/income/heroJourneyLevels.js';
+import { getCumulativeHeroLevel, getMaxCumulativeHeroLevel } from '../domain/income/heroJourneyLevels.js';
 import { heroJourneyNodes } from '../data/heroJourneyData.js';
 import { leagueTiers } from '../data/leagueTiers.js';
 import { heroData } from '../data/heroData.js';
@@ -156,14 +156,14 @@ export function resolvePlayerSummaryStats(cleanTag = '', explicitProfile = null)
 
     const cleanName = (name === 'DEFAULT0' || name === '#DEFAULT0') ? '' : name;
     const hasProfile = Boolean(cleanName);
-    const thLevel = Math.max(1, Math.min(18, Number(townHallLevel) || 18));
+    const thLevel = Math.max(1, Math.min(MAX_TOWN_HALL, Number(townHallLevel) || MAX_TOWN_HALL));
     const orePct = typeof oreProgressPct === 'number' ? Math.round(Math.max(0, Math.min(100, oreProgressPct))) : 0;
     const oresDoneText = translate('nav.context.oresDone', { percent: orePct }) || `${orePct}% Ores Done`;
 
     let nextNodeText = '';
     if (heroLevel === null || heroLevel === undefined) {
         nextNodeText = `TH${thLevel}`;
-    } else if (heroLevel >= 480) {
+    } else if (heroLevel >= getMaxCumulativeHeroLevel()) {
         nextNodeText = translate('views.home.profile.maxed') || 'Maxed';
     } else {
         const nextNode = heroJourneyNodes.find(n => n.level > heroLevel);

@@ -4,6 +4,7 @@
  * Tier 4: User Inputs (Dedicated exclusively to event listener attachments inside modal dialogs).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import {
     damageCalcState,
     persistState,
@@ -21,7 +22,9 @@ import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { renderBuildingEditModal } from './damageCalcBuildingEditorModalDisplay.js';
 import {
     getMaxSuperchargeTier,
-    getMinDefenseLevel
+    getMaxSuperchargeTierForTownHall,
+    getMinDefenseLevel,
+    isSuperchargeAvailableForTownHall
 } from '../../domain/damage/defenseProgressionDomain.js';
 
 /**
@@ -80,7 +83,7 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
                 e.stopPropagation();
                 closeThMenu();
                 buildingEditSuperchargeMemory.clear();
-                const selectedTh = Number(item.getAttribute('data-th')) || 18;
+                const selectedTh = Number(item.getAttribute('data-th')) || MAX_TOWN_HALL;
                 const prevTh = getShownTownHall(state);
                 setPlayerTownHall(selectedTh);
                 if (state !== damageCalcState) {
@@ -89,10 +92,11 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
                 if (thSelect) {
                     thSelect.value = String(selectedTh);
                 }
-                if (selectedTh >= 18 && (prevTh < 18 || state.globalSuperchargeTier === undefined || state.globalSuperchargeTier === 0)) {
-                    setGlobalSuperchargeTier(2);
+                if (isSuperchargeAvailableForTownHall(selectedTh) && (!isSuperchargeAvailableForTownHall(prevTh) || state.globalSuperchargeTier == null || state.globalSuperchargeTier === 0)) {
+                    const maxScTier = getMaxSuperchargeTierForTownHall(selectedTh);
+                    setGlobalSuperchargeTier(maxScTier);
                     if (state !== damageCalcState) {
-                        state.globalSuperchargeTier = 2;
+                        state.globalSuperchargeTier = maxScTier;
                     }
                 }
                 pruneDefenseOverrides(state);
@@ -109,16 +113,17 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
     if (thSelect) {
         thSelect.addEventListener('change', () => {
             buildingEditSuperchargeMemory.clear();
-            const selectedTh = Number(thSelect.value) || 18;
+            const selectedTh = Number(thSelect.value) || MAX_TOWN_HALL;
             const prevTh = getShownTownHall(state);
             setPlayerTownHall(selectedTh);
             if (state !== damageCalcState) {
                 state.playerTownHall = selectedTh;
             }
-            if (selectedTh >= 18 && (prevTh < 18 || state.globalSuperchargeTier === undefined || state.globalSuperchargeTier === 0)) {
-                setGlobalSuperchargeTier(2);
+            if (isSuperchargeAvailableForTownHall(selectedTh) && (!isSuperchargeAvailableForTownHall(prevTh) || state.globalSuperchargeTier == null || state.globalSuperchargeTier === 0)) {
+                const maxScTier = getMaxSuperchargeTierForTownHall(selectedTh);
+                setGlobalSuperchargeTier(maxScTier);
                 if (state !== damageCalcState) {
-                    state.globalSuperchargeTier = 2;
+                    state.globalSuperchargeTier = maxScTier;
                 }
             }
             pruneDefenseOverrides(state);
@@ -133,13 +138,15 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
     if (applyThBtn && thSelect) {
         applyThBtn.addEventListener('click', () => {
             buildingEditSuperchargeMemory.clear();
-            const selectedTh = Number(thSelect.value) || 18;
+            const selectedTh = Number(thSelect.value) || MAX_TOWN_HALL;
             applyTownHallPreset(selectedTh);
             if (state !== damageCalcState) {
                 state.playerTownHall = selectedTh;
                 state.defenseLevelOverrides = {};
                 state.defenseSuperchargeOverrides = {};
-                state.globalSuperchargeTier = selectedTh >= 18 ? 2 : 0;
+                state.globalSuperchargeTier = isSuperchargeAvailableForTownHall(selectedTh)
+                    ? getMaxSuperchargeTierForTownHall(selectedTh)
+                    : 0;
             }
             pruneDefenseOverrides(state);
             onStateChange();
@@ -182,8 +189,9 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
             if (state !== damageCalcState) {
                 state.defenseLevelOverrides = {};
                 state.defenseSuperchargeOverrides = {};
-                if (getShownTownHall(state) >= 18) {
-                    state.globalSuperchargeTier = 2;
+                const shownTh = getShownTownHall(state);
+                if (isSuperchargeAvailableForTownHall(shownTh)) {
+                    state.globalSuperchargeTier = getMaxSuperchargeTierForTownHall(shownTh);
                 }
             }
             onStateChange();

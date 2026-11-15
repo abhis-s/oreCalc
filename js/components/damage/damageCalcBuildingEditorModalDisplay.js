@@ -3,11 +3,14 @@
  * Tier 4: UI Presentation (Dedicated exclusively to modal dialog DOM rendering, 0 event listeners).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import {
     getDefenseMaxHp,
     getMaxSuperchargeTier,
+    getMaxSuperchargeTierForTownHall,
     getDefaultSuperchargeTier,
+    isSuperchargeAvailableForTownHall,
     snapDefenseLevel,
     getValidDefenseLevels,
     isHeroDefense,
@@ -66,7 +69,7 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
 
         const currentSupercharge = scOverrides[key] !== undefined
             ? scOverrides[key]
-            : (clampedLvl >= maxLvl && currentTH >= 18 ? getDefaultSuperchargeTier(key, clampedLvl, currentTH) : 0);
+            : (clampedLvl >= maxLvl && isSuperchargeAvailableForTownHall(currentTH) ? getDefaultSuperchargeTier(key, clampedLvl, currentTH) : 0);
 
         const maxSupercharge = getMaxSuperchargeTier(key, maxLvl);
         const currentHp = getDefenseMaxHp(key, clampedLvl, { superchargeTier: currentSupercharge });
@@ -77,7 +80,7 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
             statusBadge = `<span class="calc-building-status-tag is-sunset" data-i18n="views.damageCalc.offense.sunsetTag" data-i18n-args='{"th":${currentTH}}'>${escapeHTML(translate('views.damageCalc.offense.sunsetTag', { th: currentTH }))}</span>`;
         } else if (isLocked) {
             statusBadge = `<span class="calc-building-status-tag is-locked">${escapeHTML(translate('views.home.profile.locked'))}</span>`;
-        } else if (currentTH < 18 && maxAllowedLevel < maxLvl) {
+        } else if (currentTH < MAX_TOWN_HALL && maxAllowedLevel < maxLvl) {
             const isAtMax = clampedLvl >= maxAllowedLevel;
             if (isAtMax) {
                 const tagText = translate('views.damageCalc.offense.thMaxTag', { th: currentTH }) || `TH ${currentTH} Max`;
@@ -244,10 +247,11 @@ export function renderBuildingEditModal(state, container, controlsContainer = nu
     }
 
     let superchargeToolbarHtml = '';
-    if (currentTH >= 18) {
-        const activeGlobalSc = state.globalSuperchargeTier ?? (currentTH >= 18 ? 2 : 0);
+    if (isSuperchargeAvailableForTownHall(currentTH)) {
+        const maxGlobalSc = getMaxSuperchargeTierForTownHall(currentTH);
+        const activeGlobalSc = state.globalSuperchargeTier ?? maxGlobalSc;
         let scPillsHtml = '';
-        for (let tier = 0; tier <= 2; tier++) {
+        for (let tier = 0; tier <= maxGlobalSc; tier++) {
             const isActive = activeGlobalSc === tier;
             const tierLabel = tier === 0
                 ? `${translate('views.damageCalc.offense.superchargeLabel')}: ${translate('app.none')}`

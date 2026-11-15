@@ -22,11 +22,13 @@ globalThis.fetch = (url) => {
     return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
 };
 
+import { MAX_TOWN_HALL } from '../../js/core/constants.js';
 import { loadTranslations } from '../../js/i18n/translator.js';
 import { preloadDefensesData, getDefensesData } from '../../js/data/defenseTargetsData.js';
 import {
     getMaxSuperchargeTier,
     getMaxSuperchargeTierForTownHall,
+    isSuperchargeAvailableForTownHall,
     getDefaultSuperchargeTier,
     getDefenseMaxHp
 } from '../../js/domain/damage/defenseProgressionDomain.js';
@@ -71,8 +73,10 @@ test('Dynamic Supercharge Derivation & Defaults', async (t) => {
     });
 
     await t.test('getMaxSuperchargeTierForTownHall derives max tier across all structures for a given Town Hall', () => {
-        const th18MaxTier = getMaxSuperchargeTierForTownHall(18);
-        assert.ok(th18MaxTier > 0, 'TH18 must have supercharge tiers > 0');
+        const thMaxTier = getMaxSuperchargeTierForTownHall(MAX_TOWN_HALL);
+        assert.ok(thMaxTier > 0, `TH${MAX_TOWN_HALL} must have supercharge tiers > 0`);
+        assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL), true);
+        assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL - 1), false);
 
         // Town Hall 17 and below have 0 supercharges
         assert.equal(getMaxSuperchargeTierForTownHall(17), 0);
@@ -80,49 +84,49 @@ test('Dynamic Supercharge Derivation & Defaults', async (t) => {
         assert.equal(getMaxSuperchargeTierForTownHall(15), 0);
     });
 
-    await t.test('getDefaultSuperchargeTier returns max tier at TH18 and 0 at TH17 or below', () => {
+    await t.test('getDefaultSuperchargeTier returns max tier at active max TH and 0 at lower Town Halls', () => {
         const adMaxLvl = getDefensesData().air_defense.maxLevel;
-        const expectedTh18Tier = getMaxSuperchargeTier('air_defense', adMaxLvl);
+        const expectedMaxTier = getMaxSuperchargeTier('air_defense', adMaxLvl);
 
-        // TH18: superchargeable structure defaults to its max tier
-        assert.equal(getDefaultSuperchargeTier('air_defense', adMaxLvl, 18), expectedTh18Tier);
+        // Max TH: superchargeable structure defaults to its max tier
+        assert.equal(getDefaultSuperchargeTier('air_defense', adMaxLvl, MAX_TOWN_HALL), expectedMaxTier);
 
-        // TH18: non-superchargeable structure defaults to 0
+        // Max TH: non-superchargeable structure defaults to 0
         const asMaxLvl = getDefensesData().air_sweeper.maxLevel;
-        assert.equal(getDefaultSuperchargeTier('air_sweeper', asMaxLvl, 18), 0);
+        assert.equal(getDefaultSuperchargeTier('air_sweeper', asMaxLvl, MAX_TOWN_HALL), 0);
 
-        // TH17: defaults to 0 even for Air Defense
-        assert.equal(getDefaultSuperchargeTier('air_defense', adMaxLvl, 17), 0);
+        // Lower TH: defaults to 0 even for Air Defense
+        assert.equal(getDefaultSuperchargeTier('air_defense', adMaxLvl, MAX_TOWN_HALL - 1), 0);
         assert.equal(getDefaultSuperchargeTier('air_defense', adMaxLvl, 16), 0);
     });
 
-    await t.test('solveAllDefensesZapQuake defaults to max supercharge tier at TH18 when superchargeTier is undefined', () => {
+    await t.test('solveAllDefensesZapQuake defaults to max supercharge tier at active max TH when superchargeTier is undefined', () => {
         const results = solveAllDefensesZapQuake({
             lightningLevel: 13,
             earthquakeLevel: 8,
-            townHall: 18,
+            townHall: MAX_TOWN_HALL,
             leagueId: 'standard'
         });
 
         const adResult = results.find(r => r.defenseKey === 'air_defense');
-        assert.ok(adResult, 'Air Defense must be present in TH18 results');
+        assert.ok(adResult, `Air Defense must be present in TH${MAX_TOWN_HALL} results`);
 
         const adMaxLvl = getDefensesData().air_defense.maxLevel;
-        const expectedTier = getDefaultSuperchargeTier('air_defense', adMaxLvl, 18);
+        const expectedTier = getDefaultSuperchargeTier('air_defense', adMaxLvl, MAX_TOWN_HALL);
         const expectedHp = getDefenseMaxHp('air_defense', adMaxLvl, { superchargeTier: expectedTier });
 
         assert.equal(adResult.superchargeTier, expectedTier, 'Supercharge tier must default to max tier');
         assert.equal(adResult.maxHp, expectedHp, 'Max HP must reflect supercharged hitpoints');
     });
 
-    await t.test('damageCalcState initializes with TH18 and max supercharge tier defaults', () => {
+    await t.test('damageCalcState initializes with active max TH and max supercharge tier defaults', () => {
         resetDamageCalcState();
-        assert.equal(damageCalcState.playerTownHall, 18);
-        assert.equal(damageCalcState.globalSuperchargeTier, 2);
+        assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
+        assert.equal(damageCalcState.globalSuperchargeTier, getMaxSuperchargeTierForTownHall(MAX_TOWN_HALL));
 
         const simKey = damageCalcState.simulator.targetDefenseKey;
         const simLvl = damageCalcState.simulator.targetDefenseLevel;
-        const expectedSimTier = getDefaultSuperchargeTier(simKey, simLvl, 18);
+        const expectedSimTier = getDefaultSuperchargeTier(simKey, simLvl, MAX_TOWN_HALL);
         assert.equal(damageCalcState.simulator.superchargeTier, expectedSimTier);
     });
 

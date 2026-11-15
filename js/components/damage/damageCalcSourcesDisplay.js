@@ -3,9 +3,13 @@
  * Tier 4: UI Presentation (Dedicated exclusively to DOM rendering, 0 event listeners).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
+import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
+import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import {
-    getEffectiveEquipmentLevel
+    getEffectiveEquipmentLevel,
+    getMaxSpellLevel
 } from '../../domain/damage/damageFormulas.js';
 import {
     getMaxSuperchargeTierForTownHall
@@ -27,9 +31,11 @@ import {
  */
 export function getDamageSourcesGridHtml(state) {
     const zq = state.zapQuake || {};
-    const spells = state.offense?.spells || { lightning: 13, earthquake: 8 };
-    const zapLvl = spells.lightning || zq.lightningLevel || 13;
-    const eqLvl = spells.earthquake || zq.earthquakeLevel || 8;
+    const maxZapLevel = getMaxSpellLevel('lightning');
+    const maxEqLevel = getMaxSpellLevel('earthquake');
+    const spells = state.offense?.spells || { lightning: maxZapLevel, earthquake: maxEqLevel };
+    const zapLvl = spells.lightning || zq.lightningLevel || maxZapLevel;
+    const eqLvl = spells.earthquake || zq.earthquakeLevel || maxEqLevel;
     const enabledSources = state.offense?.enabledSources || {};
     const leagueId = getActiveModifier(state);
 
@@ -96,9 +102,11 @@ export function getDamageSourcesGridHtml(state) {
         `;
     }
 
-    const ccSpells = state.offense?.ccSpells || { lightning: 13, earthquake: 8 };
-    const ccZapLvl = ccSpells.lightning || 13;
-    const ccEqLvl = ccSpells.earthquake || 8;
+    const ccSpells = state.offense?.ccSpells || { lightning: maxZapLevel, earthquake: maxEqLevel };
+    const ccZapLvl = ccSpells.lightning || maxZapLevel;
+    const ccEqLvl = ccSpells.earthquake || maxEqLevel;
+    const ccMaxLvl = getDefensesData().clan_castle?.maxLevel || 14;
+    const ccAssetUrl = getBuildingAssetUrl('clan_castle', ccMaxLvl);
     const isCcZapEnabled = enabledSources.cc_lightning !== false;
     const isCcEqEnabled = enabledSources.cc_earthquake !== false;
     const ccZapName = translate('views.damageCalc.offense.donatedLightningLabel');
@@ -115,7 +123,7 @@ export function getDamageSourcesGridHtml(state) {
                 data-calc-info="cc_spells"
                 aria-label="${escapeHTML(translate('views.damageCalc.offense.clanCastleAbbr'))}: ${escapeHTML(ccSpellsTitle)}">
                 <clashcalc-assets-image
-                    src="/assets/buildings/clan_castle/level_14.png"
+                    src="${ccAssetUrl}"
                     alt="Clan Castle"
                     size="thumbnail"
                     class="calc-source-toggle-btn__icon">
@@ -236,18 +244,19 @@ export function renderTownHallDropdownHtml(currentTH, {
     selectId = 'calc-building-th-select',
     includeHiddenSelect = true
 } = {}) {
-    const safeTH = Math.max(9, Math.min(18, Number(currentTH) || 18));
+    const safeTH = Math.max(9, Math.min(MAX_TOWN_HALL, Number(currentTH) || MAX_TOWN_HALL));
     let thOptionsHtml = '';
     let customThItemsHtml = '';
-    for (let th = 18; th >= 9; th--) {
+    for (let th = MAX_TOWN_HALL; th >= 9; th--) {
         const isSelected = th === safeTH;
         const thLabel = escapeHTML(translate('views.equipment.thShort', { level: th }));
+        const thAssetUrl = getBuildingAssetUrl('town_hall', th);
         if (includeHiddenSelect) {
             thOptionsHtml += `<option value="${th}" ${isSelected ? 'selected' : ''}>${thLabel}</option>`;
         }
         customThItemsHtml += `
             <button type="button" class="calc-th-dropdown-item ${isSelected ? 'is-selected' : ''}" role="option" aria-selected="${isSelected}" data-th="${th}">
-                <clashcalc-assets-image src="/assets/buildings/town_hall/level_${th}.png" alt="${thLabel}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${th}}' class="calc-th-dropdown-item-icon" size="thumbnail"></clashcalc-assets-image>
+                <clashcalc-assets-image src="${thAssetUrl}" alt="${thLabel}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${th}}' class="calc-th-dropdown-item-icon" size="thumbnail"></clashcalc-assets-image>
                 <span class="calc-th-dropdown-item-label" data-i18n="views.equipment.thShort" data-i18n-args='{"level":${th}}'>${thLabel}</span>
             </button>
         `;
@@ -260,10 +269,11 @@ export function renderTownHallDropdownHtml(currentTH, {
         : '';
 
     const safeThLabel = escapeHTML(translate('views.equipment.thShort', { level: safeTH }));
+    const safeThAssetUrl = getBuildingAssetUrl('town_hall', safeTH);
     return `
         <div class="calc-th-dropdown" id="${dropdownId}">
             <button type="button" class="calc-th-dropdown-trigger" id="${triggerId}" aria-haspopup="listbox" aria-expanded="false" aria-label="${escapeHTML(translate('entities.defenses.townHall'))}: ${safeThLabel}">
-                <clashcalc-assets-image src="/assets/buildings/town_hall/level_${safeTH}.png" alt="${safeThLabel}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${safeTH}}' class="calc-th-dropdown-icon" size="thumbnail"></clashcalc-assets-image>
+                <clashcalc-assets-image src="${safeThAssetUrl}" alt="${safeThLabel}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${safeTH}}' class="calc-th-dropdown-icon" size="thumbnail"></clashcalc-assets-image>
                 <span data-i18n="views.equipment.thShort" data-i18n-args='{"level":${safeTH}}' class="calc-th-dropdown-value">${safeThLabel}</span>
                 <clashcalc-assets-svg name="chevron-down" class="calc-th-dropdown-arrow"></clashcalc-assets-svg>
             </button>

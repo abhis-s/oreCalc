@@ -6,6 +6,7 @@
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
+import { getMaxSpellLevel } from '../../domain/damage/damageFormulas.js';
 import {
     getMaxSuperchargeTier,
     isDefenseInSeason,
@@ -184,15 +185,17 @@ function renderComboDefensesHtml(filteredDefenses, combo, viewMode, context) {
 export function renderZapQuakePanel(state, container) {
     if (!container) return;
 
+    const maxLightning = getMaxSpellLevel('lightning');
+    const maxEq = getMaxSpellLevel('earthquake');
     const zq = state.zapQuake;
-    const spells = state.offense?.spells || { lightning: 13, earthquake: 8 };
-    const zapLvl = spells.lightning || zq.lightningLevel || 13;
-    const eqLvl = spells.earthquake || zq.earthquakeLevel || 8;
+    const spells = state.offense?.spells || { lightning: maxLightning, earthquake: maxEq };
+    const zapLvl = spells.lightning || zq.lightningLevel || maxLightning;
+    const eqLvl = spells.earthquake || zq.earthquakeLevel || maxEq;
     const enabledSources = state.offense?.enabledSources || {};
 
-    const ccSpells = state.offense?.ccSpells || { lightning: 13, earthquake: 8 };
-    const ccZapLvl = ccSpells.lightning || 13;
-    const ccEqLvl = ccSpells.earthquake || 8;
+    const ccSpells = state.offense?.ccSpells || { lightning: maxLightning, earthquake: maxEq };
+    const ccZapLvl = ccSpells.lightning || maxLightning;
+    const ccEqLvl = ccSpells.earthquake || maxEq;
     const isCcZapEnabled = enabledSources.cc_lightning !== false;
     const isCcEqEnabled = enabledSources.cc_earthquake !== false;
     const hpUnit = getHpUnit();

@@ -20,6 +20,7 @@ globalThis.fetch = (url) => {
     return Promise.resolve({ json: () => Promise.resolve(data) });
 };
 
+import { MAX_TOWN_HALL } from '../../js/core/constants.js';
 import { preloadDefensesData, getDefensesData } from '../../js/data/defenseTargetsData.js';
 import {
     isTownHallDefenseLevel,
@@ -29,6 +30,7 @@ import {
     getDefenseMaxHp,
     getMaxSuperchargeTier,
     getMaxSuperchargeTierForTownHall,
+    isSuperchargeAvailableForTownHall,
     getMaxDefenseLevelForTownHall,
     isDefenseInSeason,
     getDefaultSuperchargeTier,
@@ -144,4 +146,12 @@ test('Target Capability & Structure Predicates', () => {
     assert.equal(isHeroDefense('barbarian_king'), true);
     assert.equal(isHeroDefense('air_defense'), false);
     assert.ok(getMinDefenseLevel('air_defense') >= 1);
+});
+
+test('Supercharge Town Hall Availability (isSuperchargeAvailableForTownHall)', () => {
+    assert.equal(isSuperchargeAvailableForTownHall(), true);
+    assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL), true);
+    assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL + 1), true);
+    assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL - 1), false);
+    assert.equal(isSuperchargeAvailableForTownHall(17), false);
 });

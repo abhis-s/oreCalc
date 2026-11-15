@@ -1,3 +1,4 @@
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { heroData } from '../../data/heroData.js';
 import { heroMaxLevelsPerTH } from '../../data/heroJourneyData.js';
 
@@ -64,7 +65,18 @@ export function getMaxCumulativeLevelsByTH() {
 export function getMaxTownHallLevel() {
     const levelsMap = getMaxCumulativeLevelsByTH();
     const thKeys = Object.keys(levelsMap).map(Number);
-    return thKeys.length > 0 ? Math.max(...thKeys) : 18;
+    return thKeys.length > 0 ? Math.max(...thKeys) : MAX_TOWN_HALL;
+}
+
+/**
+ * Resolves maximum cumulative hero level defined across all heroes at the highest configured Town Hall.
+ *
+ * @returns {number} Maximum cumulative hero level.
+ */
+export function getMaxCumulativeHeroLevel() {
+    const levelsMap = getMaxCumulativeLevelsByTH();
+    const vals = Object.values(levelsMap).map(Number).filter(n => Number.isFinite(n) && n > 0);
+    return vals.length > 0 ? Math.max(...vals) : 480;
 }
 
 /**
@@ -171,13 +183,14 @@ export function getCumulativeHeroLevel(state) {
  */
 export function getNodeTownHallLevel(nodeLevel) {
     const maxLevelsByTH = getMaxCumulativeLevelsByTH();
+    const maxTH = getMaxTownHallLevel();
     const sortedTHs = Object.keys(maxLevelsByTH).map(Number).sort((a, b) => a - b);
     for (const th of sortedTHs) {
         if (maxLevelsByTH[th] >= nodeLevel) {
-            return Math.max(7, Math.min(18, th));
+            return Math.max(7, Math.min(maxTH, th));
         }
     }
-    return 18;
+    return maxTH;
 }
 
 /**

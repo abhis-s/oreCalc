@@ -3,6 +3,7 @@
  * Tier 4: UI Presentation (Dedicated exclusively to building grid DOM rendering, 0 event listeners).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import {
@@ -87,7 +88,7 @@ export function renderBuildingGridCardsHtml({
         const isUnavailable = info.status === 'locked' || info.status === 'sunset';
 
         if (enabledBuildingGroups) {
-            const groupId = getBuildingGroupId(k, townHallLevel != null ? townHallLevel : 18);
+            const groupId = getBuildingGroupId(k, townHallLevel != null ? townHallLevel : MAX_TOWN_HALL);
             // Defenses invariant: defenses group is always enabled
             const isGroupEnabled = groupId === 'defenses'
                 ? true
@@ -127,7 +128,7 @@ export function renderBuildingGridCardsHtml({
             : ((k === activeKey) ? activeLevel : (defenseLevelOverrides?.[k] ?? maxLvl));
         const isSelected = (k === activeKey);
         const isCrafted = d.subCategory === 'crafted';
-        const defaultCardTier = getDefaultSuperchargeTier(k, cardLevel, townHallLevel != null ? townHallLevel : 18);
+        const defaultCardTier = getDefaultSuperchargeTier(k, cardLevel, townHallLevel != null ? townHallLevel : MAX_TOWN_HALL);
         const maxSc = getMaxSuperchargeTier(k, cardLevel);
         const effectiveGlobalSc = superchargeTier !== undefined ? Math.min(superchargeTier, maxSc) : defaultCardTier;
         const cardSupercharge = isSelected

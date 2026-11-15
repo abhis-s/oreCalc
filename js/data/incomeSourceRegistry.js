@@ -1,3 +1,4 @@
+import { MAX_TOWN_HALL } from '../core/constants.js';
 import { supercellEventsData } from './incomeSources/supercellEvents.js';
 import { currencyData } from './pricingData.js';
 import { translate } from '../i18n/translator.js';
@@ -6,6 +7,7 @@ import { selectDerivedSourceIncome, ZERO_ORES } from '../core/selectors.js';
 
 import { getProspectorIncomeForDate } from '../domain/income/prospectorManager.js';
 import { getSupercellEventsForYear } from '../domain/income/supercellEventsSchedule.js';
+import { getTownHallIconUrl } from '../domain/townHall/townHallSchedule.js';
 import { getStarBonus2xWindow, isStarBonusEventMonth } from '../utils/dateUtils.js';
 import { formatCurrency } from '../utils/numberFormatter.js';
 
@@ -91,11 +93,11 @@ export const incomeData = {
         getIncome: (state) => selectDerivedSourceIncome(state, 'starBonus', 'daily'),
         getBaseIncome: (state) => selectDerivedSourceIncome(state, 'starBonus', 'baseDaily'),
         getSVGUrl: (state) => {
-            const thLevel = Math.max(1, Number(state.playerProfile?.townHallLevel) || 18);
-            return `assets/th/th${Math.min(thLevel, 18)}.png`;
+            const thLevel = Math.max(1, Number(state.playerProfile?.townHallLevel) || MAX_TOWN_HALL);
+            return getTownHallIconUrl(thLevel);
         },
         getResourceString: (state) => {
-            const thLevel = Math.max(1, Number(state.playerProfile?.townHallLevel) || 18);
+            const thLevel = Math.max(1, Number(state.playerProfile?.townHallLevel) || MAX_TOWN_HALL);
             return translate('views.equipment.thShort', { level: thLevel });
         },
         subCategories: [

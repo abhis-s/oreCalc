@@ -3,6 +3,7 @@
  * Tier 4: User Inputs (Dedicated exclusively to event listener attachments and state dispatching).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import {
     damageCalcState,
     persistState,
@@ -269,7 +270,7 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
             item.addEventListener('click', (e) => {
                 e.stopPropagation();
                 closeSourcesThMenu();
-                const selectedTh = Number(item.getAttribute('data-th')) || 18;
+                const selectedTh = Number(item.getAttribute('data-th')) || MAX_TOWN_HALL;
                 setPlayerTownHall(selectedTh);
                 if (state && state !== damageCalcState) {
                     state.playerTownHall = selectedTh;
@@ -286,7 +287,7 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
 
     if (sourcesThSelect) {
         sourcesThSelect.addEventListener('change', () => {
-            const selectedTh = Number(sourcesThSelect.value) || 18;
+            const selectedTh = Number(sourcesThSelect.value) || MAX_TOWN_HALL;
             setPlayerTownHall(selectedTh);
             if (state && state !== damageCalcState) {
                 state.playerTownHall = selectedTh;

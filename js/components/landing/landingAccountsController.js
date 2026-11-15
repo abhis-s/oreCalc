@@ -5,6 +5,7 @@
  */
 
 import { safeJsonParse } from '../../utils/jsonUtils.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getSavedProfiles, removePlayerTag, setActivePlayerTag } from '../../core/playerStorage.js';
 import { getStaleTagsForRefresh } from '../../core/playerRefreshThrottler.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
@@ -181,7 +182,7 @@ export function initLandingAccountsManager({
         const playerData = loadPlayerData(cleanTag);
         const { ownedEquipment, ownedHeroes } = extractEquipmentAndHeroes(playerData, summary.cachedData);
         const oreProgress = calculateEquipmentProgress(ownedEquipment, ownedHeroes);
-        const thLevel = Math.max(1, Math.min(18, Number(summary.townHallLevel || summary.cachedData?.townHallLevel || playerData?.townHallLevel) || 18));
+        const thLevel = Math.max(1, Math.min(MAX_TOWN_HALL, Number(summary.townHallLevel || summary.cachedData?.townHallLevel || playerData?.townHallLevel) || MAX_TOWN_HALL));
         const { maxedCount, totalCount } = calculateMaxedEquipmentCount(ownedEquipment);
         const hjProgress = calculateHeroJourneyProgress(playerData, summary.cachedData, thLevel);
 
@@ -410,7 +411,7 @@ export function initLandingAccountsManager({
                             const newProfile = savedProfiles.find(p => p.cleanTag === canonicalTag) || {
                                 cleanTag: canonicalTag,
                                 name: result.playerData?.name || canonicalTag,
-                                townHallLevel: Number(result.playerData?.townHallLevel) || 18
+                                townHallLevel: Number(result.playerData?.townHallLevel) || MAX_TOWN_HALL
                             };
                             syncPlayerTagToUrl(canonicalTag);
                             const accountsSection = document.getElementById('landing-saved-accounts');

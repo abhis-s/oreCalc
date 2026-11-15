@@ -1,11 +1,10 @@
 import { translate } from '../../i18n/translator.js';
 
-import { STAR_BONUS_2X_DEFAULTS } from '../../core/constants.js';
+import { MAX_TOWN_HALL, STAR_BONUS_2X_DEFAULTS } from '../../core/constants.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
-import { getMaxTownHall } from '../../domain/townHall/townHallSchedule.js';
 
 import { bindNumericInput, bindSelectInput } from '../common/formBindingUtils.js';
 import { dom } from '../../dom/domElements.js';
@@ -232,7 +231,7 @@ export function initializeStarBonusSelector() {
                 if (state.playerProfile && state.playerProfile.townHallLevel) {
                     currentTH = Number(state.playerProfile.townHallLevel) || 1;
                 }
-                const maxTH = getMaxTownHall();
+                const maxTH = MAX_TOWN_HALL;
                 const thLimit = (currentTH >= maxTH - 1) ? maxTH + 2 : maxTH + 1;
                 handleTHUpgradeChange(th, offset, currentMonthBase, thLimit);
             }

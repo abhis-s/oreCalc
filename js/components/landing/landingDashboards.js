@@ -1,4 +1,5 @@
 import { getOverallGradient } from '../../domain/equipment/equipmentProgressDomain.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { heroData } from '../../data/heroData.js';
 import { heroJourneyNodes } from '../../data/heroJourneyData.js';
 import { translate } from '../../i18n/translator.js';
@@ -203,7 +204,7 @@ export function renderLiveDashboards(oreProgress, hjProgress, thLevel = 18) {
 
             const thImg = /** @type {HTMLElement | null} */ (landingHjProgress.querySelector('[data-live-hj="milestone"] .stat-pill-icon'));
             if (thImg) {
-                thImg.setAttribute('src', `assets/th/th${thLevel}.png`);
+                thImg.setAttribute('src', getTownHallIconUrl(thLevel));
                 thImg.setAttribute('alt', translate('views.equipment.thShort', { level: thLevel }));
                 thImg.setAttribute('data-i18n-alt', 'views.equipment.thShort');
                 thImg.setAttribute('data-i18n-alt-args', JSON.stringify({ level: thLevel }));
@@ -318,7 +319,7 @@ export function renderLiveDashboards(oreProgress, hjProgress, thLevel = 18) {
                             </div>
                         </div>
                         <div class="live-stat-pill" data-live-hj="milestone">
-                            <clashcalc-assets-image class="stat-pill-icon" src="assets/th/th${thLevel}.png" alt="${translate('views.equipment.thShort', { level: thLevel })}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${thLevel}}' size="standard"></clashcalc-assets-image>
+                            <clashcalc-assets-image class="stat-pill-icon" src="${getTownHallIconUrl(thLevel)}" alt="${translate('views.equipment.thShort', { level: thLevel })}" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":${thLevel}}' size="standard"></clashcalc-assets-image>
                             <div class="stat-pill-text">
                                 <span class="stat-pill-name" data-i18n="views.landing.milestoneStatus">${translate('views.landing.milestoneStatus')}</span>
                                 <span class="stat-pill-val" data-live-hj-val="milestone" title="${milestoneText}">${compactMilestoneText}</span>

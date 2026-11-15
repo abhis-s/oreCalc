@@ -2,6 +2,7 @@ import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
@@ -309,7 +310,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
 
     const activeTag = state.savedPlayerTags?.[0] || 'DEFAULT0';
     const playerData = state.allPlayersData?.[activeTag];
-    const userTH = Number(state.playerProfile?.townHallLevel || state.playerProfile?.townHall || playerData?.playerProfile?.townHallLevel || playerData?.townHallLevel || 16);
+    const userTH = Number(state.playerProfile?.townHallLevel || state.playerProfile?.townHall || playerData?.playerProfile?.townHallLevel || playerData?.townHallLevel || MAX_TOWN_HALL);
     const calculatedMaxLevel = getEquipmentMaxLevel(data.rarity || equipmentRarity);
     const isEquipmentMaxed = currentLevel >= calculatedMaxLevel;
 

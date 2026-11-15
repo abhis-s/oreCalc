@@ -5,7 +5,11 @@
 
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { spellsData } from '../../data/spellsData.js';
-import { getEffectiveEquipmentLevel } from '../../domain/damage/damageFormulas.js';
+import {
+    getEffectiveEquipmentLevel,
+    getLightningDamage,
+    getMaxSpellLevel
+} from '../../domain/damage/damageFormulas.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { formatFloat, formatNumber } from '../../utils/numberFormatter.js';
@@ -136,7 +140,7 @@ export function getEquipmentStatsPopoverContent(equipmentId, level, options = {}
  * Builds contextual stats popover for Earthquake spell.
  *
  * @param {Object} options
- * @param {number} [options.level=8]
+ * @param {number} [options.level]
  * @param {number} [options.count=1]
  * @param {boolean} [options.isCombo=false]
  * @param {number|null} [options.ccLevel=null]
@@ -144,12 +148,13 @@ export function getEquipmentStatsPopoverContent(equipmentId, level, options = {}
  * @param {'buildings'|'troops'|'both'} [options.targetScope='buildings']
  * @returns {{ header: string, body: string } | null}
  */
-export function getEarthquakeStatsPopoverContent({ level = 8, count = 1, isCombo = false, ccLevel = null, isCc = false, targetScope = 'buildings' } = {}) {
+export function getEarthquakeStatsPopoverContent({ level, count = 1, isCombo = false, ccLevel = null, isCc = false, targetScope = 'buildings' } = {}) {
     const eqConfig = spellsData.spells?.earthquake;
     if (!eqConfig) return null;
 
-    const safeLvl = Math.min(Math.max(1, level || 8), 8);
-    const levelInfo = eqConfig.levels[safeLvl] || eqConfig.levels[8];
+    const maxEqLvl = getMaxSpellLevel('earthquake');
+    const safeLvl = Math.min(Math.max(1, level || maxEqLvl), maxEqLvl);
+    const levelInfo = eqConfig.levels[safeLvl] || eqConfig.levels[maxEqLvl];
     const basePct = (levelInfo.damagePct || 0.29) * 100;
     const troopBasePct = (levelInfo.troopDamagePct ?? 0) * 100;
     const radius = levelInfo.radius || 4.7;
@@ -338,13 +343,14 @@ export function getEarthquakeStatsPopoverContent({ level = 8, count = 1, isCombo
  * @param {boolean} [options.isCc=false]
  * @returns {{ header: string, body: string } | null}
  */
-export function getLightningStatsPopoverContent({ level = 13, count = 1, isCombo = false, ccLevel = null, isCc = false } = {}) {
+export function getLightningStatsPopoverContent({ level, count = 1, isCombo = false, ccLevel = null, isCc = false } = {}) {
     const zapConfig = spellsData.spells?.lightning;
     if (!zapConfig) return null;
 
-    const safeLvl = Math.min(Math.max(1, level || 13), 13);
-    const levelInfo = zapConfig.levels[safeLvl] || zapConfig.levels[13];
-    const zapDmg = levelInfo.damage || 720;
+    const maxZapLvl = getMaxSpellLevel('lightning');
+    const safeLvl = Math.min(Math.max(1, level || maxZapLvl), maxZapLvl);
+    const levelInfo = zapConfig.levels[safeLvl] || zapConfig.levels[maxZapLvl];
+    const zapDmg = levelInfo.damage || getLightningDamage(safeLvl);
     const radius = zapConfig.radius || 2.0;
     const damageLabel = translate('entities.stats.damage');
     const damageRadiusLabel = translate('entities.stats.damageRadius');
@@ -391,7 +397,7 @@ export function getLightningStatsPopoverContent({ level = 13, count = 1, isCombo
     }
 
     const hasCc = (ccLevel != null && ccLevel > safeLvl);
-    const ccZapDmg = hasCc ? (zapConfig.levels[ccLevel]?.damage || 720) : null;
+    const ccZapDmg = hasCc ? (zapConfig.levels[ccLevel]?.damage || getLightningDamage(ccLevel)) : null;
     const totalZapDmg = hasCc
         ? (ccZapDmg + (count - 1) * zapDmg)
         : (count * zapDmg);
@@ -459,19 +465,19 @@ export function getDamageSourcePopoverContent(sourceKey, level, state) {
     if (!sourceKey) return null;
 
     if (sourceKey === 'lightning') {
-        const zapLvl = level || state?.offense?.spells?.lightning || 13;
+        const zapLvl = level || state?.offense?.spells?.lightning || getMaxSpellLevel('lightning');
         return getLightningStatsPopoverContent({ level: zapLvl, count: 1, isCombo: false });
     }
     if (sourceKey === 'cc_lightning') {
-        const ccZapLvl = level || state?.offense?.ccSpells?.lightning || 13;
+        const ccZapLvl = level || state?.offense?.ccSpells?.lightning || getMaxSpellLevel('lightning');
         return getLightningStatsPopoverContent({ level: ccZapLvl, count: 1, isCombo: false, isCc: true });
     }
     if (sourceKey === 'earthquake') {
-        const eqLvl = level || state?.offense?.spells?.earthquake || 8;
+        const eqLvl = level || state?.offense?.spells?.earthquake || getMaxSpellLevel('earthquake');
         return getEarthquakeStatsPopoverContent({ level: eqLvl, count: 1, isCombo: false });
     }
     if (sourceKey === 'cc_earthquake') {
-        const ccEqLvl = level || state?.offense?.ccSpells?.earthquake || 8;
+        const ccEqLvl = level || state?.offense?.ccSpells?.earthquake || getMaxSpellLevel('earthquake');
         return getEarthquakeStatsPopoverContent({ level: ccEqLvl, count: 1, isCombo: false, isCc: true });
     }
     if (equipmentDamageData[sourceKey]) {

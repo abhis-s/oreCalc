@@ -6,6 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+import { MAX_TOWN_HALL } from '../../js/core/constants.js';
 import { solveZapQuakeCombinations, filterDominatedCombos, getComboSignature } from '../../js/domain/damage/zapQuakeSolver.js';
 import {
     solveClusteredZapQuake,
@@ -19,6 +20,8 @@ import {
     calculateEarthquakeDamageWithPools,
     calculateRequiredZapsTwoPools,
     getSpellCapacities,
+    getMaxSpellLevel,
+    getLightningDamage,
     getEffectiveEquipmentLevel,
     isSameHeroEquipment,
     calculateEquipmentTargetDamage,
@@ -459,6 +462,19 @@ test('ZapQuake Solver - Optimal Combinations for Standard Defenses', async (t) =
         assert.deepEqual(getSpellCapacities(11), { regularCapacity: 11, ccCapacity: 2, regular: 11, clanCastle: 2, totalCapacity: 13 });
         assert.deepEqual(getSpellCapacities(14), { regularCapacity: 11, ccCapacity: 3, regular: 11, clanCastle: 3, totalCapacity: 14 });
         assert.deepEqual(getSpellCapacities(18), { regularCapacity: 11, ccCapacity: 4, regular: 11, clanCastle: 4, totalCapacity: 15 });
+        assert.deepEqual(getSpellCapacities(), getSpellCapacities(MAX_TOWN_HALL));
+        assert.deepEqual(getSpellCapacities(MAX_TOWN_HALL + 1), getSpellCapacities(MAX_TOWN_HALL));
+    });
+
+    await t.test('getMaxSpellLevel and getLightningDamage derive dynamic spell ceilings and values', () => {
+        const maxZap = getMaxSpellLevel('lightning');
+        const maxEq = getMaxSpellLevel('earthquake');
+        assert.equal(maxZap, 13);
+        assert.equal(maxEq, 8);
+        assert.equal(getLightningDamage(maxZap), 720);
+        assert.equal(getLightningDamage(), getLightningDamage(maxZap));
+        assert.equal(getLightningDamage(999), getLightningDamage(maxZap));
+        assert.ok(getLightningDamage(1) > 0 && getLightningDamage(1) < getLightningDamage(maxZap));
     });
 
     await t.test('ZapQuake solver enforces TH18 two-pool capacity limit (11 regular + 4 CC = 15 total)', () => {

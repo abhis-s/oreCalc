@@ -5,6 +5,7 @@
 
 import { persistState, getActiveModifier } from './damageCalcState.js';
 import { formatOffenseModalValue } from './damageCalcOffenseModalDisplay.js';
+import { getMaxSpellLevel } from '../../domain/damage/damageFormulas.js';
 
 /**
  * Attaches event listeners for the Offense editor section of the Edit Levels modal.
@@ -38,7 +39,7 @@ export function attachOffenseModalListeners(state, modalBody, onStateChange) {
                 if (readout) readout.textContent = formatOffenseModalValue('spell', 'earthquake', clamped);
             }
         } else if (type === 'cc_spell') {
-            if (!state.offense.ccSpells) state.offense.ccSpells = { lightning: 13, earthquake: 8 };
+            if (!state.offense.ccSpells) state.offense.ccSpells = { lightning: getMaxSpellLevel('lightning'), earthquake: getMaxSpellLevel('earthquake') };
             state.offense.ccSpells[id] = clamped;
             const readout = modalBody.querySelector(`#modal-val-cc-${id}`);
             if (readout) readout.textContent = formatOffenseModalValue('spell', id, clamped);

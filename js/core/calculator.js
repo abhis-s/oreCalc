@@ -1,5 +1,6 @@
 import { currencyData } from '../data/pricingData.js';
 
+import { MAX_TOWN_HALL } from './constants.js';
 import { getDefaultPlayerState, getDefaultState } from './state.js';
 import { calculateRequiredOres } from './oreCalculator.js';
 import { calculateRemainingTime } from './timeCalculator.js';
@@ -66,7 +67,7 @@ export function recalculateAll(state) {
     // for the assisted-conversion context when calculating prospector income.
     const baseIncomeSources = {
         starBonus: calculateStarBonusIncome(
-            Number(state.playerProfile?.townHallLevel) || 18,
+            Number(state.playerProfile?.townHallLevel) || MAX_TOWN_HALL,
             state.income?.starBonus || {}
         ),
         supercellEvents: calculateSupercellEventsIncome(

@@ -1,6 +1,7 @@
 import { resolveBestMatchShopOfferSet } from '../../data/incomeSources/shopOffers.js';
 import { getWarOreValue } from '../../data/incomeSources/warOres.js';
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { isProfileOnboarded, state } from '../../core/state.js';
 
 /**
@@ -16,7 +17,7 @@ export const guidedSetupState = {
     wasAlreadyOnboarded: false,
 
     // Village identity
-    selectedTH: 16,
+    selectedTH: MAX_TOWN_HALL,
     selectedLeague: 105000000,
 
     // Stored ores & guidance
@@ -363,7 +364,7 @@ export function syncPreferencesFromProfile(tag) {
     guidedSetupState.wasAlreadyOnboarded = isProfileOnboarded(playerObj);
 
     const profile = playerObj.playerProfile || playerObj.playerData || {};
-    guidedSetupState.selectedTH = profile.townHallLevel || 16;
+    guidedSetupState.selectedTH = profile.townHallLevel || MAX_TOWN_HALL;
     guidedSetupState.selectedLeague = profile.leagueTier?.id || profile.league?.id || 105000000;
 
     if (playerObj.storedOres) {

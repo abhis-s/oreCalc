@@ -3,10 +3,15 @@
  * Tier 3: Core State & Services.
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { getDefaultModifierKey } from '../../domain/equipment/modifierCalculator.js';
-import { getDefaultSuperchargeTier } from '../../domain/damage/defenseProgressionDomain.js';
+import {
+    getDefaultSuperchargeTier,
+    getMaxSuperchargeTierForTownHall,
+    isSuperchargeAvailableForTownHall
+} from '../../domain/damage/defenseProgressionDomain.js';
 import { state as appGlobalState } from '../../core/state.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
 import {
@@ -45,7 +50,7 @@ export function syncPlayerVillageData(playerData, options = {}) {
     const prevTh = damageCalcState.playerTownHall;
     let targetTh = prevTh;
     if (playerData.townHallLevel) {
-        targetTh = Math.max(1, Math.min(18, Number(playerData.townHallLevel) || 18));
+        targetTh = Math.max(1, Math.min(MAX_TOWN_HALL, Number(playerData.townHallLevel) || MAX_TOWN_HALL));
         damageCalcState.playerTownHall = targetTh;
     }
 
@@ -191,7 +196,9 @@ export function syncPlayerVillageData(playerData, options = {}) {
     if (shouldResetUI) {
         damageCalcState.defenseLevelOverrides = {};
         damageCalcState.defenseSuperchargeOverrides = {};
-        damageCalcState.globalSuperchargeTier = shownTH >= 18 ? 2 : 0;
+        damageCalcState.globalSuperchargeTier = isSuperchargeAvailableForTownHall(shownTH)
+            ? getMaxSuperchargeTierForTownHall(shownTH)
+            : 0;
         damageCalcState.zapQuake.selectedCluster = [];
         damageCalcState.zapQuake.adjacentPairs = [];
         damageCalcState.zapQuake.clusterEquipment = [];

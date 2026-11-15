@@ -13,6 +13,7 @@ import {
 } from '../../domain/income/heroJourneyResolution.js';
 import {
     getMaxCumulativeLevelsByTH,
+    getMaxTownHallLevel,
     getNodeTownHallLevel,
     getTownHallStartLevel,
     hasSyncedHeroInfo,
@@ -277,7 +278,8 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
             }
         });
 
-        const isTrueMax = isTrueMaxPlayer || (isGuest && thLevel >= 18);
+        const maxTH = getMaxTownHallLevel();
+        const isTrueMax = isTrueMaxPlayer || (isGuest && thLevel >= maxTH);
         const hasNodesBeyond = filteredNodes.some(node => node.level > playerMaxLevel);
         const shouldHaveBlockCard = isTrueMax || hasNodesBeyond;
         const existingBlockCard = track.querySelector('.th-limit-block-card');
@@ -291,7 +293,7 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
                 }
             }
         } else {
-            const nextTH = Math.min(18, thLevel + 1);
+            const nextTH = Math.min(maxTH, thLevel + 1);
             const nextTHStartLvl = playerMaxLevel + 1;
             const newBlockCard = createTHLimitBlockCard({
                 isTrueMax,
@@ -367,11 +369,12 @@ export function renderNodesTrack(state, cumulativeLevel, thLevel) {
         track.appendChild(chip);
     });
 
-    const isTrueMax = isTrueMaxPlayer || (isGuest && thLevel >= 18);
+    const maxTH = getMaxTownHallLevel();
+    const isTrueMax = isTrueMaxPlayer || (isGuest && thLevel >= maxTH);
     const hasNodesBeyond = filteredNodes.some(node => node.level > playerMaxLevel);
 
     if (isTrueMax || hasNodesBeyond) {
-        const nextTH = Math.min(18, thLevel + 1);
+        const nextTH = Math.min(maxTH, thLevel + 1);
         const nextTHStartLvl = playerMaxLevel + 1;
 
         const blockCard = createTHLimitBlockCard({

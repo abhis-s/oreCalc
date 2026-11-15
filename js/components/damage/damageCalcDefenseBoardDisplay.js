@@ -7,7 +7,10 @@ import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import { solveClusteredZapQuake } from '../../domain/damage/zapQuakeBatchSolver.js';
-import { getEffectiveEquipmentLevel } from '../../domain/damage/damageFormulas.js';
+import {
+    getEffectiveEquipmentLevel,
+    getMaxSpellLevel
+} from '../../domain/damage/damageFormulas.js';
 import {
     getMaxSuperchargeTier,
     getMaxDefenseLevelForTownHall
@@ -49,9 +52,11 @@ export function renderDefenseBoardPanel(state, container) {
 
     const zq = state.zapQuake;
     const buildingFilter = zq.buildingFilter || 'all';
-    const spells = state.offense?.spells || { lightning: 13, earthquake: 8 };
-    const zapLvl = spells.lightning || zq.lightningLevel || 13;
-    const eqLvl = spells.earthquake || zq.earthquakeLevel || 8;
+    const maxLightning = getMaxSpellLevel('lightning');
+    const maxEq = getMaxSpellLevel('earthquake');
+    const spells = state.offense?.spells || { lightning: maxLightning, earthquake: maxEq };
+    const zapLvl = spells.lightning || zq.lightningLevel || maxLightning;
+    const eqLvl = spells.earthquake || zq.earthquakeLevel || maxEq;
 
     const activeTh = getShownTownHall(state);
     let currentDefense = getDefensesData()[zq.defenseKey];
@@ -63,9 +68,9 @@ export function renderDefenseBoardPanel(state, container) {
     const defaultLevel = state.defenseLevelOverrides?.[zq.defenseKey] || maxLvl;
     const currentLvl = Math.min(zq.defenseLevel || defaultLevel, maxLvl);
 
-    const ccSpellsState = state.offense?.ccSpells || { lightning: 13, earthquake: 8 };
-    const ccZapLvl = ccSpellsState.lightning || 13;
-    const ccEqLvl = ccSpellsState.earthquake || 8;
+    const ccSpellsState = state.offense?.ccSpells || { lightning: maxLightning, earthquake: maxEq };
+    const ccZapLvl = ccSpellsState.lightning || maxLightning;
+    const ccEqLvl = ccSpellsState.earthquake || maxEq;
     const isCcZapEnabled = state.offense?.enabledSources?.cc_lightning !== false;
     const isCcEqEnabled = state.offense?.enabledSources?.cc_earthquake !== false;
 

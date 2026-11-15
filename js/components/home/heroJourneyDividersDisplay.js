@@ -1,5 +1,6 @@
 import { translate } from '../../i18n/translator.js';
 import { getMaxTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 
 /**
  * Creates the initial Town Hall start divider at the beginning of the track.
@@ -21,7 +22,7 @@ export function createTHStartDivider(startTH, startLvl, isCurrentTH) {
     const pill = document.createElement('div');
     pill.className = 'th-max-pill';
     pill.innerHTML = `
-        <clashcalc-assets-image src="assets/th/th${startTH}.png" alt="TH${startTH}" class="th-max-img"></clashcalc-assets-image>
+        <clashcalc-assets-image src="${getTownHallIconUrl(startTH)}" alt="TH${startTH}" class="th-max-img"></clashcalc-assets-image>
         <div class="th-max-pill-content">
             <span class="th-max-tag" data-i18n="views.heroJourney.nodes.thStartTag" data-i18n-args='{"th":${startTH}}'>${translate('views.heroJourney.nodes.thStartTag', { th: startTH })}</span>
             <span class="th-max-lvl" data-i18n="views.heroJourney.nodes.thStartLvl" data-i18n-args='{"lvl":${startLvl}}'>${translate('views.heroJourney.nodes.thStartLvl', { lvl: startLvl })}</span>
@@ -52,7 +53,7 @@ export function createTHBoundaryDivider(highestNextTH, startLvlVal, isCurrentTHD
     pill.className = 'th-max-pill';
 
     pill.innerHTML = `
-        <clashcalc-assets-image src="assets/th/th${highestNextTH}.png" alt="TH${highestNextTH}" class="th-max-img"></clashcalc-assets-image>
+        <clashcalc-assets-image src="${getTownHallIconUrl(highestNextTH)}" alt="TH${highestNextTH}" class="th-max-img"></clashcalc-assets-image>
         <div class="th-max-pill-content">
             <span class="th-max-tag" data-i18n="views.heroJourney.nodes.thStartTag" data-i18n-args='{"th":${highestNextTH}}'>${translate('views.heroJourney.nodes.thStartTag', { th: highestNextTH })}</span>
             <span class="th-max-lvl" data-i18n="views.heroJourney.nodes.thStartLvl" data-i18n-args='{"lvl":${startLvlVal}}'>${translate('views.heroJourney.nodes.thStartLvl', { lvl: startLvlVal })}</span>
@@ -85,7 +86,7 @@ export function createTHLimitBlockCard({ isTrueMax, isGuest, thLevel, revealBeyo
             : `<button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn" data-i18n="views.heroJourney.track.hideTrack">${translate('views.heroJourney.track.hideTrack')}</button>`;
 
         blockCard.innerHTML = `
-            <clashcalc-assets-image src="assets/th/th${maxTH}.png" alt="TH${maxTH}" class="th-limit-img"></clashcalc-assets-image>
+            <clashcalc-assets-image src="${getTownHallIconUrl(maxTH)}" alt="TH${maxTH}" class="th-limit-img"></clashcalc-assets-image>
             <div class="th-limit-text"><span data-i18n="views.heroJourney.nodes.trueMaxTitle">${translate('views.heroJourney.nodes.trueMaxTitle')}</span><br><span data-i18n="views.heroJourney.nodes.trueMaxDesc">${translate('views.heroJourney.nodes.trueMaxDesc')}</span></div>
             ${actionBtnHtml}
         `;
@@ -105,7 +106,7 @@ export function createTHLimitBlockCard({ isTrueMax, isGuest, thLevel, revealBeyo
         if (isGuest && !isDedicatedPage) {
             const hideBtnHtml = `<button class="th-limit-reveal-btn btn-active" id="home-hj-hide-btn" data-i18n="views.heroJourney.track.hideTrack">${translate('views.heroJourney.track.hideTrack')}</button>`;
             blockCard.innerHTML = `
-                <clashcalc-assets-image src="assets/th/th${displayNextTH}.png" alt="TH${displayNextTH}" class="th-limit-img"></clashcalc-assets-image>
+                <clashcalc-assets-image src="${getTownHallIconUrl(displayNextTH)}" alt="TH${displayNextTH}" class="th-limit-img"></clashcalc-assets-image>
                 <div class="th-limit-text" data-i18n="${limitTextI18n}" data-i18n-args='${limitTextArgs}'>${limitText}</div>
                 <div class="th-limit-buttons-group">
                     ${previewBtnHtml}
@@ -114,7 +115,7 @@ export function createTHLimitBlockCard({ isTrueMax, isGuest, thLevel, revealBeyo
             `;
         } else {
             blockCard.innerHTML = `
-                <clashcalc-assets-image src="assets/th/th${displayNextTH}.png" alt="TH${displayNextTH}" class="th-limit-img"></clashcalc-assets-image>
+                <clashcalc-assets-image src="${getTownHallIconUrl(displayNextTH)}" alt="TH${displayNextTH}" class="th-limit-img"></clashcalc-assets-image>
                 <div class="th-limit-text" data-i18n="${limitTextI18n}" data-i18n-args='${limitTextArgs}'>${limitText}</div>
                 ${previewBtnHtml}
             `;

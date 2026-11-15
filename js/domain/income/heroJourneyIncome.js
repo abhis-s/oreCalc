@@ -1,3 +1,4 @@
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { heroJourneyNodes, oreChestRewardsAccelerated, oreChestRewardsNormal } from '../../data/heroJourneyData.js';
 import {
     getCumulativeHeroLevel,
@@ -44,10 +45,11 @@ export function getEffectiveQuestNodeTH(node, state) {
  * @returns {import('../../core/types.js').OreQuantity & Record<string, number>} Average and min/max ore rewards.
  */
 export function getQuestChestReward(thLevel, mode = 'normal') {
-    // TH must be between 8 and 18
-    const thClamped = Math.max(8, Math.min(18, thLevel || 16));
     const table = mode === 'accelerated' ? oreChestRewardsAccelerated : oreChestRewardsNormal;
-    const rewards = table[thClamped] || table[16];
+    const thKeys = Object.keys(table).map(Number).filter(n => Number.isFinite(n) && n > 0);
+    const maxChestTH = thKeys.length > 0 ? Math.max(...thKeys) : MAX_TOWN_HALL;
+    const thClamped = Math.max(8, Math.min(maxChestTH, Number(thLevel) || MAX_TOWN_HALL));
+    const rewards = table[thClamped] || table[maxChestTH];
 
     // Each quest grants 3 Ore Chests (1 Shiny, 1 Glowy, 1 Starry)
     return {

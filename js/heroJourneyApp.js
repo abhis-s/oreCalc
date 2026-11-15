@@ -3,7 +3,7 @@ import { fetchPlayerData, markUserMigrated } from './services/apiService.js';
 import { safeJsonParse } from './utils/jsonUtils.js';
 import { showApiErrorToast, showToast } from './ui/toast.js';
 import { state } from './core/state.js';
-import { STORAGE_KEY_MAP } from './core/constants.js';
+import { MAX_TOWN_HALL, STORAGE_KEY_MAP } from './core/constants.js';
 import './utils/imageManager.js';
 import './console.js';
 import { initHeroJourneyTooltips, initHeroJourneyTableTooltips } from './components/home/heroJourneyPopovers.js';
@@ -532,7 +532,7 @@ function updateHeroJourneyDrawer(activeView = 'track') {
         profileData: isRealPlayer ? {
             name: hjState.playerData?.name,
             tag: cleanTag ? `#${cleanTag}` : '',
-            townHallLevel: hjState.thLevel || hjState.playerData?.townHallLevel || 18,
+            townHallLevel: hjState.thLevel || hjState.playerData?.townHallLevel || MAX_TOWN_HALL,
             trophies: hjState.playerData?.trophies,
             heroLevel: hjState.cumulativeLevel,
             cachedData: hjState.playerData

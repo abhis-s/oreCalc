@@ -3,11 +3,41 @@
  * Tier 2: Pure Domain Math (0 side effects, 0 DOM references, 0 browser globals).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { spellsData } from '../../data/spellsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { battleModifiersData } from '../../data/battleModifiersData.js';
 import { canEquipmentTarget, isUnitTarget } from './defenseProgressionDomain.js';
+
+/**
+ * Resolves the maximum available level for a spell from spellsData.
+ *
+ * @param {string} spellId - Spell identifier ('lightning', 'earthquake').
+ * @returns {number} Maximum spell level.
+ */
+export function getMaxSpellLevel(spellId) {
+    const spell = spellsData.spells?.[spellId];
+    if (!spell) return 1;
+    if (typeof spell.maxLevel === 'number' && spell.maxLevel > 0) {
+        return spell.maxLevel;
+    }
+    const levelKeys = Object.keys(spell.levels || {}).map(Number).filter(n => Number.isFinite(n) && n > 0);
+    return levelKeys.length > 0 ? Math.max(...levelKeys) : 1;
+}
+
+/**
+ * Resolves Lightning Spell damage for a given level (clamped to valid configured levels).
+ *
+ * @param {number} [level] - Lightning Spell level (defaults to max configured level).
+ * @returns {number} Damage per Lightning Spell strike.
+ */
+export function getLightningDamage(level) {
+    const maxLevel = getMaxSpellLevel('lightning');
+    const resolved = level == null ? maxLevel : Math.min(Math.max(1, Math.floor(Number(level) || maxLevel)), maxLevel);
+    const levels = spellsData.spells?.lightning?.levels || {};
+    return levels[resolved]?.damage ?? levels[maxLevel]?.damage ?? 0;
+}
 
 /**
  * Resolves the effective equipment level taking competitive modifier level loss into account (Esports Mode).
@@ -89,7 +119,8 @@ export function calculateEarthquakeDamage(maxHp, eqLevel, strikeIndex = 1, targe
     }
 
     const eqConfig = spellsData.spells.earthquake;
-    const levelInfo = eqConfig.levels[eqLevel] || eqConfig.levels[8];
+    const maxEqLevel = getMaxSpellLevel('earthquake');
+    const levelInfo = eqConfig.levels[eqLevel] || eqConfig.levels[maxEqLevel];
     const isHeroOrUnit = isUnitTarget(targetDefOrKey);
     const basePct = isHeroOrUnit ? (levelInfo.troopDamagePct ?? 0) : levelInfo.damagePct;
 
@@ -129,11 +160,13 @@ export function calculateCumulativeEarthquakeDamage(maxHp, eqLevel, count = 1, t
 /**
  * Resolves regular army spell capacity and donated Clan Castle spell capacity for a Town Hall level.
  *
- * @param {number} [townHallLevel=18] - Player Town Hall level (1-18).
+ * @param {number} [townHallLevel=MAX_TOWN_HALL] - Player Town Hall level.
  * @returns {{ regularCapacity: number, ccCapacity: number, totalCapacity: number, regular: number, clanCastle: number }}
  */
-export function getSpellCapacities(townHallLevel = 18) {
-    const th = Math.min(Math.max(1, Number(townHallLevel) || 18), 18);
+export function getSpellCapacities(townHallLevel = MAX_TOWN_HALL) {
+    const capacityKeys = Object.keys(spellsData.spellCapacitiesByTH || {}).map(Number).filter(n => Number.isFinite(n) && n > 0);
+    const maxCapacityTH = capacityKeys.length > 0 ? Math.max(...capacityKeys) : MAX_TOWN_HALL;
+    const th = Math.min(Math.max(1, Number(townHallLevel) || MAX_TOWN_HALL), maxCapacityTH);
     const regularCapacity = spellsData.spellCapacitiesByTH[th] ?? 11;
     const ccCapacity = spellsData.ccSpellCapacitiesByTH[th] ?? 4;
     return {
@@ -158,10 +191,11 @@ export function getSpellCapacities(townHallLevel = 18) {
  * @param {string|Object} [targetDefOrKey=null] - Optional canonical defense key or target definition.
  * @returns {number} Hitpoints damage dealt.
  */
-export function calculateEarthquakeDamageWithPools(maxHp, eqRegCount = 0, eqLevel = 8, eqCcCount = 0, ccEqLevel = 8, targetDefOrKey = null) {
+export function calculateEarthquakeDamageWithPools(maxHp, eqRegCount = 0, eqLevel = getMaxSpellLevel('earthquake'), eqCcCount = 0, ccEqLevel = getMaxSpellLevel('earthquake'), targetDefOrKey = null) {
     if (maxHp <= 0 || (eqRegCount <= 0 && eqCcCount <= 0)) return 0;
-    const safeEqLevel = Math.min(Math.max(1, Number(eqLevel) || 8), 8);
-    const safeCcEqLevel = Math.min(Math.max(1, Number(ccEqLevel) || safeEqLevel), 8);
+    const maxEqLevel = getMaxSpellLevel('earthquake');
+    const safeEqLevel = Math.min(Math.max(1, Number(eqLevel) || maxEqLevel), maxEqLevel);
+    const safeCcEqLevel = Math.min(Math.max(1, Number(ccEqLevel) || safeEqLevel), maxEqLevel);
 
     const strikes = [];
     if (safeCcEqLevel > safeEqLevel) {

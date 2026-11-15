@@ -9,6 +9,7 @@ import {
 } from '../../domain/equipment/modifierCalculator.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 
 import { computeStatDelta } from './equipmentDetailsModalData.js';
 
@@ -210,7 +211,7 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
                 ${starryCellHTML}
                 <td>
                     <div class="th-req-cell">
-                        <clashcalc-assets-image src="assets/th/th${reqTH}.png" alt="${thText}" class="th-cell-img"></clashcalc-assets-image>
+                        <clashcalc-assets-image src="${getTownHallIconUrl(reqTH)}" alt="${thText}" class="th-cell-img"></clashcalc-assets-image>
                         <span>${thText}</span>
                     </div>
                 </td>

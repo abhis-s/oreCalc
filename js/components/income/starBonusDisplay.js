@@ -1,6 +1,7 @@
 import { translate } from '../../i18n/translator.js';
 
-import { getMaxTownHall, getTHReleaseDate } from '../../domain/townHall/townHallSchedule.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
+import { getTHReleaseDate, getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { formatDate } from '../../utils/dateUtils.js';
 import { updateCalculatedValue } from '../../utils/numberFormatter.js';
 
@@ -29,8 +30,8 @@ export function renderStarBonusDisplay(starBonusIncome, league = 0, playerData =
     const thIcon = dom.income.starBonus.thIcon || document.getElementById('inc-star-bonus-th-icon');
     if (thIcon) {
         const rawTH = (/** @type {any} */ (playerData))?.townHallLevel || (/** @type {any} */ (playerData))?.playerProfile?.townHallLevel;
-        const thLevel = Math.max(1, Number(rawTH) || 18);
-        const iconSrc = `assets/th/th${Math.min(thLevel, 18)}.png`;
+        const thLevel = Math.max(1, Number(rawTH) || MAX_TOWN_HALL);
+        const iconSrc = getTownHallIconUrl(thLevel);
         if (thIcon.getAttribute('src') !== iconSrc) {
             thIcon.setAttribute('src', iconSrc);
         }
@@ -101,18 +102,18 @@ export function renderTHPlanningSection(state) {
     const outerBox = dom.income?.starBonus?.multiplierModal?.querySelector('#star-bonus-4x-section');
     const separator = dom.income?.starBonus?.multiplierModal?.querySelector('.separator');
 
-    let currentTH = 18;
+    let currentTH = MAX_TOWN_HALL;
     if (state.playerProfile && state.playerProfile.townHallLevel) {
-        currentTH = Number(state.playerProfile.townHallLevel) || 18;
+        currentTH = Number(state.playerProfile.townHallLevel) || MAX_TOWN_HALL;
     } else {
         const activeTag = state.savedPlayerTags?.[0];
         const activePlayer = state.allPlayersData?.[activeTag];
         if (activePlayer && activePlayer.playerProfile && activePlayer.playerProfile.townHallLevel) {
-            currentTH = Number(activePlayer.playerProfile.townHallLevel) || 18;
+            currentTH = Number(activePlayer.playerProfile.townHallLevel) || MAX_TOWN_HALL;
         }
     }
 
-    const maxTH = getMaxTownHall();
+    const maxTH = MAX_TOWN_HALL;
     const planningFloor = maxTH - 8;
     const thLimit = (currentTH >= maxTH - 1) ? maxTH + 2 : maxTH + 1;
 

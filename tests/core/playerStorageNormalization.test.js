@@ -1,6 +1,7 @@
 import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 
+import { MAX_TOWN_HALL } from '../../js/core/constants.js';
 import {
     normalizePlayerTag,
     formatDisplayTag,
@@ -737,14 +738,14 @@ describe('Player Storage Normalization & Anti-Hashed Keys Suite', () => {
             damageCalcState.activeTag = '8PJYGUJC';
             resetDamageCalcState();
             assert.equal(damageCalcState.activeTag, null);
-            assert.equal(damageCalcState.playerTownHall, 18);
+            assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
         });
     });
 
     describe('14. League Icon Resolution & Town Hall Level Inference', () => {
         it('inferTownHallLevel resolves correct thresholds from hero and war performance data', () => {
-            assert.equal(inferTownHallLevel(null), 18);
-            assert.equal(inferTownHallLevel({}), 18);
+            assert.equal(inferTownHallLevel(null), MAX_TOWN_HALL);
+            assert.equal(inferTownHallLevel({}), MAX_TOWN_HALL);
             assert.equal(inferTownHallLevel({ heroes: { 'Dragon Duke': { level: 1 } } }), 18);
             assert.equal(inferTownHallLevel({ heroes: { 'Royal Champion': { level: 1 } } }), 13);
             assert.equal(inferTownHallLevel({ heroes: { 'Grand Warden': { level: 1 } } }), 11);

@@ -6,6 +6,7 @@
 import { updateUIWithTranslations } from './i18n/uiTranslator.js';
 import { renderNavigationDrawerContent } from './components/common/navigationDrawerDisplay.js';
 import { renderBottomNavBar } from './components/common/bottomNavBar.js';
+import { MAX_TOWN_HALL } from './core/constants.js';
 import {
     bootstrapShellLanguageAndStorage,
     finalizeRouteMount,
@@ -195,7 +196,7 @@ function switchPlayer(tag) {
 
     const savedProfiles = getSavedProfiles();
     const prevProfile = savedProfiles.find(p => p.cleanTag === damageCalcState.activeTag);
-    const prevTh = prevProfile?.townHallLevel || prevProfile?.cachedData?.townHallLevel || damageCalcState.playerTownHall || 18;
+    const prevTh = prevProfile?.townHallLevel || prevProfile?.cachedData?.townHallLevel || damageCalcState.playerTownHall || MAX_TOWN_HALL;
 
     damageCalcState.activeTag = cleanTag;
     syncPlayerTagToUrl(cleanTag);
@@ -203,7 +204,7 @@ function switchPlayer(tag) {
     const targetProfile = savedProfiles.find(p => p.cleanTag === cleanTag);
     let hadCachedData = false;
     if (targetProfile) {
-        const nextTh = targetProfile.townHallLevel || targetProfile.cachedData?.townHallLevel || 18;
+        const nextTh = targetProfile.townHallLevel || targetProfile.cachedData?.townHallLevel || MAX_TOWN_HALL;
         const fullData = getPlayerDataFromStorage(cleanTag);
         syncPlayerVillageData(fullData || targetProfile.cachedData || targetProfile, { resetUI: prevTh !== nextTh });
         hadCachedData = Boolean(targetProfile.cachedData || targetProfile.name);
@@ -393,8 +394,8 @@ async function initDamageApp() {
             const savedProfiles = getSavedProfiles();
             const isFirstPlayer = savedProfiles.length === 0;
             const prevProfile = savedProfiles.find(p => p.cleanTag === damageCalcState.activeTag);
-            const prevTh = prevProfile?.townHallLevel || prevProfile?.cachedData?.townHallLevel || damageCalcState.playerTownHall || 18;
-            const nextTh = data.townHallLevel || 18;
+            const prevTh = prevProfile?.townHallLevel || prevProfile?.cachedData?.townHallLevel || damageCalcState.playerTownHall || MAX_TOWN_HALL;
+            const nextTh = data.townHallLevel || MAX_TOWN_HALL;
 
             const serverTag = savePlayerProfileToStorage(data);
             damageCalcState.activeTag = serverTag;

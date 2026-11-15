@@ -3,10 +3,13 @@
  * Tier 2: Pure Domain Math (0 side effects, 0 DOM references, 0 browser globals).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { spellsData } from '../../data/spellsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import {
+    getMaxSpellLevel,
+    getLightningDamage,
     calculateEarthquakeDamage,
     isTargetImmuneToSpell
 } from './damageFormulas.js';
@@ -113,7 +116,7 @@ export function simulateAttackSequence(targetDefenseKey, targetLevel, sequenceSt
                         break;
                     }
 
-                    const zapDmg = spellsData.spells.lightning.levels[step.level || 13]?.damage || 720;
+                    const zapDmg = getLightningDamage(step.level);
                     const count = Math.max(1, step.count || 1);
 
                     for (let c = 0; c < count; c++) {
@@ -153,7 +156,7 @@ export function simulateAttackSequence(targetDefenseKey, targetLevel, sequenceSt
                         continue;
                     }
 
-                    const eqLevel = step.level || 8;
+                    const eqLevel = step.level || getMaxSpellLevel('earthquake');
                     const count = Math.max(1, step.count || 1);
 
                     for (let c = 0; c < count; c++) {
@@ -265,7 +268,7 @@ export function simulateSequenceAcrossAllDefenses(sequenceSteps = [], options = 
         const isUnavailable = info.status === 'locked' || info.status === 'sunset';
 
         if (enabledGroups) {
-            const groupId = getBuildingGroupId(key, townHall != null ? townHall : 18);
+            const groupId = getBuildingGroupId(key, townHall != null ? townHall : MAX_TOWN_HALL);
             // Defenses invariant: defenses group is always enabled
             const isGroupEnabled = groupId === 'defenses'
                 ? true

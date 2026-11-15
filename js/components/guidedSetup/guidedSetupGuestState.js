@@ -2,6 +2,7 @@ import { getEquipmentMaxLevel, heroUnlockTownHallMap } from '../../data/equipmen
 import { heroData } from '../../data/heroData.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefaultPlayerState, state } from '../../core/state.js';
 import { attachHeroStateAliases } from '../../core/stateCleanup.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
@@ -9,12 +10,12 @@ import { guidedSetupState } from './guidedSetupState.js';
 
 /**
  * Generates fallback player profile data for guest mode based on Town Hall and League ID.
- * @param {number} [thLevel=16] - Target Town Hall level.
+ * @param {number} [thLevel=MAX_TOWN_HALL] - Target Town Hall level.
  * @param {number} [leagueId=105000000] - Selected League tier ID.
  * @returns {import('../../core/types.js').PlayerProfile} Synthetic Clash of Clans player profile object.
  */
 export function generateGuestPlayerData(thLevel, leagueId) {
-    const defaultTH = thLevel || 16;
+    const defaultTH = thLevel || MAX_TOWN_HALL;
     const defaultLeagueId = leagueId !== undefined ? leagueId : 105000000;
     const leagueObj = leagueTiers.items.find(l => l.id === defaultLeagueId) || {
         id: defaultLeagueId,
