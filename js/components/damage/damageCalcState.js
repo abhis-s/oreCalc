@@ -6,7 +6,7 @@
 import { safeJsonParse } from '../../utils/jsonUtils.js';
 import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
-import { getMaxSpellLevel } from '../../domain/damage/damageFormulas.js';
+import { clampSpellLevelToTownHall, getMaxSpellLevel } from '../../domain/damage/damageFormulas.js';
 import {
     getDefaultSuperchargeTier,
     getMaxDefenseLevelForTownHall,
@@ -25,8 +25,10 @@ const STORAGE_KEY = 'clashCalc_damageCalcState';
  */
 function createDefaultState() {
     const defaultTh = MAX_TOWN_HALL;
-    const defaultZapLevel = getMaxSpellLevel('lightning');
-    const defaultEqLevel = getMaxSpellLevel('earthquake');
+    const defaultZapLevel = getMaxSpellLevel('lightning', defaultTh);
+    const defaultEqLevel = getMaxSpellLevel('earthquake', defaultTh);
+    const defaultCcZapLevel = getMaxSpellLevel('lightning');
+    const defaultCcEqLevel = getMaxSpellLevel('earthquake');
     const defenses = getDefensesData();
     // Leave null before preloadDefensesData() resolves so getGlobalSuperchargeTier derives dynamically once loaded.
     const defaultGlobalScTier = Object.keys(defenses).length > 0
@@ -59,8 +61,8 @@ function createDefaultState() {
                 earthquake: defaultEqLevel
             },
             ccSpells: {
-                lightning: defaultZapLevel,
-                earthquake: defaultEqLevel
+                lightning: defaultCcZapLevel,
+                earthquake: defaultCcEqLevel
             },
             equipment: {
                 spiky_ball: 27,
@@ -199,6 +201,7 @@ export function loadPersistedState() {
                 damageCalcState.zapQuake.clusterEquipmentSharing = {};
             }
         }
+        syncStateSpellCaps(damageCalcState, false);
 
         if (parsed.simulator) {
             Object.assign(damageCalcState.simulator, parsed.simulator);
@@ -454,6 +457,38 @@ export function getGlobalSuperchargeTier(state = damageCalcState) {
 }
 
 /**
+ * Synchronizes own and Clan Castle spell levels in damage calculator state to valid bounds.
+ * Own spells are capped to the player Town Hall cap (or set to that TH max when usePreset is true).
+ * Donated Clan Castle spells remain uncapped by Town Hall and clamp only to global spell maximums.
+ *
+ * @param {Object} [targetState=damageCalcState] - Target damage calculator state.
+ * @param {boolean} [usePreset=false] - Whether to set own spells to the TH unlocked maximum.
+ */
+export function syncStateSpellCaps(targetState = damageCalcState, usePreset = false) {
+    if (!targetState) return;
+    const th = Number(targetState.playerTownHall) || MAX_TOWN_HALL;
+    if (!targetState.offense) targetState.offense = {};
+    if (!targetState.offense.spells) targetState.offense.spells = {};
+    if (!targetState.offense.ccSpells) targetState.offense.ccSpells = {};
+    if (!targetState.zapQuake) targetState.zapQuake = {};
+
+    const nextZap = usePreset
+        ? getMaxSpellLevel('lightning', th)
+        : clampSpellLevelToTownHall('lightning', targetState.offense.spells.lightning ?? targetState.zapQuake.lightningLevel, th);
+    const nextEq = usePreset
+        ? getMaxSpellLevel('earthquake', th)
+        : clampSpellLevelToTownHall('earthquake', targetState.offense.spells.earthquake ?? targetState.zapQuake.earthquakeLevel, th);
+
+    targetState.offense.spells.lightning = nextZap;
+    targetState.offense.spells.earthquake = nextEq;
+    targetState.zapQuake.lightningLevel = nextZap;
+    targetState.zapQuake.earthquakeLevel = nextEq;
+
+    targetState.offense.ccSpells.lightning = clampSpellLevelToTownHall('lightning', targetState.offense.ccSpells.lightning, null);
+    targetState.offense.ccSpells.earthquake = clampSpellLevelToTownHall('earthquake', targetState.offense.ccSpells.earthquake, null);
+}
+
+/**
  * Sets the active player Town Hall level and actively prunes overrides that match
  * the new Town Hall baseline defaults.
  *
@@ -463,6 +498,7 @@ export function setPlayerTownHall(townHallLevel) {
     const th = Math.max(1, Math.min(Math.floor(Number(townHallLevel) || MAX_TOWN_HALL), MAX_TOWN_HALL));
     const prevTh = damageCalcState.playerTownHall;
     damageCalcState.playerTownHall = th;
+    syncStateSpellCaps(damageCalcState, false);
     const shownTh = getShownTownHall(damageCalcState);
     const prevShownTh = getShownTownHall({ playerTownHall: prevTh });
     if (isSuperchargeAvailableForTownHall(shownTh) && (!isSuperchargeAvailableForTownHall(prevShownTh) || damageCalcState.globalSuperchargeTier == null || damageCalcState.globalSuperchargeTier === 0)) {
@@ -499,6 +535,7 @@ export function setPlayerTownHall(townHallLevel) {
 export function applyTownHallPreset(townHallLevel) {
     const th = Math.max(1, Math.min(Math.floor(Number(townHallLevel) || MAX_TOWN_HALL), MAX_TOWN_HALL));
     damageCalcState.playerTownHall = th;
+    syncStateSpellCaps(damageCalcState, true);
     damageCalcState.defenseLevelOverrides = {};
     damageCalcState.defenseSuperchargeOverrides = {};
     const shownTh = getShownTownHall(damageCalcState);

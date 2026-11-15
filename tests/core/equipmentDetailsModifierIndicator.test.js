@@ -219,9 +219,9 @@ describe('Equipment Details Modifier Tab Indicator Suite', () => {
         assert.ok(container.innerHTML.includes('120'));
         assert.ok(!container.innerHTML.includes('stat-val-modified'));
 
-        // Legend modifier: heroBoost scaled (120 * 0.95 = 114), ability unadjusted (6 == 6)
+        // Legend modifier: heroBoost scaled (120 * 0.90 = 108), ability unadjusted (6 == 6)
         renderStatsProgressList(/** @type {any} */ (container), mockData, levelsArray, 3, 3, 'common', 'legend3');
-        assert.ok(container.innerHTML.includes('114'));
+        assert.ok(container.innerHTML.includes('108'));
         assert.ok(container.innerHTML.includes('stat-val-modified'));
         const match = container.innerHTML.match(/data-stat-idx="1"[\s\S]*?<\/div>/);
         assert.ok(match && !match[0].includes('stat-val-modified'));
@@ -340,17 +340,17 @@ describe('Equipment Details Modifier Tab Indicator Suite', () => {
         const stdMap = getCurrentStatsStateMap(mockData, levelsArray, 27, 27, 'epic', 'standard');
         assert.strictEqual(stdMap.damagePerSecondIncrease.pct, 100);
 
-        // Legend 3 multiplier 0.95 (95%)
+        // Legend 3 multiplier 0.90 (90%)
         const l3Map = getCurrentStatsStateMap(mockData, levelsArray, 27, 27, 'epic', 'legend3');
-        assert.strictEqual(l3Map.damagePerSecondIncrease.pct, 95);
+        assert.strictEqual(l3Map.damagePerSecondIncrease.pct, 90);
 
         // Legend 1 multiplier 0.80 (80%)
         const l1Map = getCurrentStatsStateMap(mockData, levelsArray, 27, 27, 'epic', 'legend1');
         assert.strictEqual(l1Map.damagePerSecondIncrease.pct, 80);
 
-        // Esports mode (0.80 multiplier + level downgrade to 21)
+        // Esports mode (0.75 multiplier + level downgrade to 21)
         const esportsMap = getCurrentStatsStateMap(mockData, levelsArray, 27, 27, 'epic', 'esports');
-        assert.ok(esportsMap.damagePerSecondIncrease.pct < 80);
+        assert.ok(esportsMap.damagePerSecondIncrease.pct < 75);
         assert.ok(esportsMap.damagePerSecondIncrease.pct > 50);
 
         // Target width DOM attribute assertion

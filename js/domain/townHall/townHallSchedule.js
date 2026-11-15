@@ -1,6 +1,6 @@
 import { MAX_TOWN_HALL } from '../../core/constants.js';
 
-const MAX_TH_ICON_LEVEL = 18;
+const MAX_TH_ICON_LEVEL = 19;
 
 /**
  * Returns the predicted release year for a given Town Hall level.

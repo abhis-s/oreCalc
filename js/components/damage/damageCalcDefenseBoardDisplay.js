@@ -9,7 +9,8 @@ import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import { solveClusteredZapQuake } from '../../domain/damage/zapQuakeBatchSolver.js';
 import {
     getEffectiveEquipmentLevel,
-    getMaxSpellLevel
+    getMaxSpellLevel,
+    resolveOwnSpellLevels
 } from '../../domain/damage/damageFormulas.js';
 import {
     getMaxSuperchargeTier,
@@ -54,9 +55,9 @@ export function renderDefenseBoardPanel(state, container) {
     const buildingFilter = zq.buildingFilter || 'all';
     const maxLightning = getMaxSpellLevel('lightning');
     const maxEq = getMaxSpellLevel('earthquake');
-    const spells = state.offense?.spells || { lightning: maxLightning, earthquake: maxEq };
-    const zapLvl = spells.lightning || zq.lightningLevel || maxLightning;
-    const eqLvl = spells.earthquake || zq.earthquakeLevel || maxEq;
+    const ownSpells = resolveOwnSpellLevels(state);
+    const zapLvl = ownSpells.lightning;
+    const eqLvl = ownSpells.earthquake;
 
     const activeTh = getShownTownHall(state);
     let currentDefense = getDefensesData()[zq.defenseKey];

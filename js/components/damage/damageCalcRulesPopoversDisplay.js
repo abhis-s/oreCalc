@@ -3,11 +3,13 @@
  * Tier 4: UI Presentation (Dedicated exclusively to popover HTML generation, 0 event listeners).
  */
 
+import { battleModifiersData } from '../../data/battleModifiersData.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
+import { getModifierLabel } from '../common/battleModifierSwitcher.js';
 import { getActiveModifier } from './damageCalcState.js';
 import {
     getEquipmentStatsPopoverContent,
@@ -21,12 +23,33 @@ import {
  */
 export function getGenericInfoPopoverContent(infoKey) {
     if (infoKey === 'modifier') {
-        const bullets = [
-            `<li><strong>${escapeHTML(translate('views.equipment.modifiers.legend3') || 'Legend III')} (+10%):</strong> ${escapeHTML(translate('views.damageCalc.popovers.modifierLegend3') || 'Def. DPS +10%, heroes +10%, guardians +5%; atk. heroes -5%.')}</li>`,
-            `<li><strong>${escapeHTML(translate('views.equipment.modifiers.legend2') || 'Legend II')} (+15%):</strong> ${escapeHTML(translate('views.damageCalc.popovers.modifierLegend2') || 'Def. DPS +15%, heroes +15%, guardians +10%; atk. heroes -10%.')}</li>`,
-            `<li><strong>${escapeHTML(translate('views.equipment.modifiers.legend1') || 'Legend I')} (+20%):</strong> ${escapeHTML(translate('views.damageCalc.popovers.modifierLegend1') || 'Def. DPS +20%, heroes +20%, guardians +20%; atk. heroes -20%.')}</li>`,
-            `<li><strong>${escapeHTML(translate('views.equipment.modifiers.esports') || 'Esports')} Mode:</strong> ${escapeHTML(translate('views.damageCalc.popovers.modifierEsports') || 'Legend I bonuses; Common eq. -3 lvls, Epic eq. -6 lvls.')}</li>`
-        ];
+        const modifierOrder = ['legend3', 'legend2', 'legend1', 'esports'];
+        const leagues = battleModifiersData.leagues || {};
+        const bullets = modifierOrder.map(modKey => {
+            const cfg = leagues[modKey];
+            if (!cfg) return '';
+            const defDps = Math.round((cfg.defDpsBonus || 0) * 100);
+            const defHero = Math.round((cfg.defHeroBonus || 0) * 100);
+            const defGuardian = Math.round((cfg.defGuardianBonus || 0) * 100);
+            const atkHero = Math.round((1 - (cfg.atkHeroMultiplier ?? 1)) * 100);
+            const label = getModifierLabel(modKey, true);
+            const desc = (cfg.equipLevelLossCommon > 0 || cfg.equipLevelLossEpic > 0)
+                ? translate('views.damageCalc.popovers.modifierEsportsRules', {
+                    defDps,
+                    defHero,
+                    defGuardian,
+                    atkHero,
+                    commonLoss: cfg.equipLevelLossCommon || 0,
+                    epicLoss: cfg.equipLevelLossEpic || 0
+                })
+                : translate('views.damageCalc.popovers.modifierLeagueRules', {
+                    defDps,
+                    defHero,
+                    defGuardian,
+                    atkHero
+                });
+            return `<li><strong>${escapeHTML(label)}:</strong> ${escapeHTML(desc)}</li>`;
+        }).filter(Boolean);
         return {
             header: `
                 <clashcalc-assets-svg name="info" width="18" height="18" class="popover-img"></clashcalc-assets-svg>

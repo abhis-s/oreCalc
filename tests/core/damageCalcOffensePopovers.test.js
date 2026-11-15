@@ -566,19 +566,20 @@ test('Battle Modifier & League Rules Popover', async (t) => {
         // Body must use standard popover stat list
         assert.ok(popover.body.includes('<ul class="calc-popover-stat-list">'), 'Must use calc-popover-stat-list');
 
-        assert.ok(popover.body.includes('Legend III (+10%):'), 'Legend III must be present');
-        assert.ok(popover.body.includes('Def. DPS +10%'), 'Legend III Def. DPS');
-        assert.ok(popover.body.includes('-5%'), 'Legend III -5% hero stats');
+        assert.ok(popover.body.includes('Legend III (+15%):'), 'Legend III must be present');
+        assert.ok(popover.body.includes('Def. DPS +15%'), 'Legend III Def. DPS');
+        assert.ok(popover.body.includes('-10%'), 'Legend III -10% hero stats');
 
-        assert.ok(popover.body.includes('Legend II (+15%):'), 'Legend II must be present');
-        assert.ok(popover.body.includes('Def. DPS +15%'), 'Legend II Def. DPS');
-        assert.ok(popover.body.includes('-10%'), 'Legend II -10% hero stats');
+        assert.ok(popover.body.includes('Legend II (+20%):'), 'Legend II must be present');
+        assert.ok(popover.body.includes('Def. DPS +20%'), 'Legend II Def. DPS');
+        assert.ok(popover.body.includes('-15%'), 'Legend II -15% hero stats');
 
-        assert.ok(popover.body.includes('Legend I (+20%):'), 'Legend I must be present');
-        assert.ok(popover.body.includes('Def. DPS +20%'), 'Legend I Def. DPS');
+        assert.ok(popover.body.includes('Legend I (+25%):'), 'Legend I must be present');
+        assert.ok(popover.body.includes('Def. DPS +25%'), 'Legend I Def. DPS');
         assert.ok(popover.body.includes('-20%'), 'Legend I -20% hero stats');
 
-        assert.ok(popover.body.includes('Esports Mode:'), 'Esports Mode must be present');
+        assert.ok(popover.body.includes('Esports (+30%):'), 'Esports (+30%) must be present');
+        assert.ok(popover.body.includes('Def. DPS +30%'), 'Esports Def. DPS');
         assert.ok(popover.body.includes('Common eq. -3 lvls'), 'Esports Common downgrade');
         assert.ok(popover.body.includes('Epic eq. -6 lvls'), 'Esports Epic downgrade');
     });

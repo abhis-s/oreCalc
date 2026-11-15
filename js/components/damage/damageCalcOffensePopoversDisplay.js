@@ -8,7 +8,8 @@ import { spellsData } from '../../data/spellsData.js';
 import {
     getEffectiveEquipmentLevel,
     getLightningDamage,
-    getMaxSpellLevel
+    getMaxSpellLevel,
+    resolveOwnSpellLevels
 } from '../../domain/damage/damageFormulas.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
@@ -465,7 +466,7 @@ export function getDamageSourcePopoverContent(sourceKey, level, state) {
     if (!sourceKey) return null;
 
     if (sourceKey === 'lightning') {
-        const zapLvl = level || state?.offense?.spells?.lightning || getMaxSpellLevel('lightning');
+        const zapLvl = level || resolveOwnSpellLevels(state).lightning;
         return getLightningStatsPopoverContent({ level: zapLvl, count: 1, isCombo: false });
     }
     if (sourceKey === 'cc_lightning') {
@@ -473,7 +474,7 @@ export function getDamageSourcePopoverContent(sourceKey, level, state) {
         return getLightningStatsPopoverContent({ level: ccZapLvl, count: 1, isCombo: false, isCc: true });
     }
     if (sourceKey === 'earthquake') {
-        const eqLvl = level || state?.offense?.spells?.earthquake || getMaxSpellLevel('earthquake');
+        const eqLvl = level || resolveOwnSpellLevels(state).earthquake;
         return getEarthquakeStatsPopoverContent({ level: eqLvl, count: 1, isCombo: false });
     }
     if (sourceKey === 'cc_earthquake') {

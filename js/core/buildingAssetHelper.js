@@ -15,12 +15,11 @@ const HERO_ASSET_MAP = Object.freeze({
 });
 
 const FALLBACK_BUILDING_ASSETS = Object.freeze({
-    firecracker_tower: '/assets/equipment/equip_placeholder.png',
-    spiky_tower: '/assets/equipment/equip_placeholder.png'
+    firecracker_tower: '/assets/buildings/firecracker_tower_placeholder.png',
+    spiky_tower: '/assets/buildings/spiky_tower_placeholder.png'
 });
 
 const ASSET_MAX_LEVEL_OVERRIDES = Object.freeze({
-    town_hall: 18,
     clan_castle: 14,
     air_defense: 16,
     hidden_tesla: 17,

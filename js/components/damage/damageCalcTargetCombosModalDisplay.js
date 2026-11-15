@@ -7,7 +7,7 @@ import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
-import { getMaxSpellLevel } from '../../domain/damage/damageFormulas.js';
+import { getMaxSpellLevel, resolveOwnSpellLevels } from '../../domain/damage/damageFormulas.js';
 import {
     getDefenseMaxHp,
     getMaxSuperchargeTier,
@@ -210,9 +210,9 @@ export function renderTargetCombosListHtml(state, defenseKey, currentLevel, acti
     const maxLightning = getMaxSpellLevel('lightning');
     const maxEq = getMaxSpellLevel('earthquake');
     const zq = state.zapQuake || {};
-    const spells = state.offense?.spells || { lightning: maxLightning, earthquake: maxEq };
-    const zapLvl = spells.lightning || zq.lightningLevel || maxLightning;
-    const eqLvl = spells.earthquake || zq.earthquakeLevel || maxEq;
+    const ownSpells = resolveOwnSpellLevels(state);
+    const zapLvl = ownSpells.lightning;
+    const eqLvl = ownSpells.earthquake;
     const enabledSources = state.offense?.enabledSources || {};
     const ccSpells = state.offense?.ccSpells || { lightning: maxLightning, earthquake: maxEq };
     const ccZapLvl = ccSpells.lightning || maxLightning;

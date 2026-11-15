@@ -136,3 +136,40 @@ test('getResolvedEquipmentReward resolves exact canonical equipment and unlock l
     assert.equal(getDefaultEquipmentUnlockLevel('barbarianKing', 'giantGauntlet'), 1);
     assert.equal(getDefaultEquipmentUnlockLevel('grandWarden', 'lavaloonPuppet'), 15);
 });
+
+test('getCumulativeHeroLevel walks down from TH19 without 100-level fallback clamping on BK and AQ', () => {
+    const th19OwnedHeroesState = {
+        playerProfile: {
+            townHallLevel: 19,
+            ownedHeroes: {
+                'Barbarian King': { level: 110 },
+                'Archer Queen': { level: 110 },
+                'Minion Prince': { level: 95 },
+                'Grand Warden': { level: 85 },
+                'Royal Champion': { level: 55 },
+                'Dragon Duke': { level: 25 }
+            }
+        }
+    };
+    assert.equal(getCumulativeHeroLevel(th19OwnedHeroesState), 480);
+
+    const th19ApiHeroesState = {
+        playerProfile: {
+            townHallLevel: 19,
+            heroes: [
+                { name: 'Barbarian King', level: 110, village: 'home' },
+                { name: 'Archer Queen', level: 110, village: 'home' }
+            ]
+        }
+    };
+    assert.equal(getCumulativeHeroLevel(th19ApiHeroesState), 220);
+
+    const th19FallbackGuestState = {
+        playerProfile: { townHallLevel: 19 },
+        heroes: {
+            'Barbarian King': { level: 110, enabled: true },
+            'Archer Queen': { level: 110, enabled: true }
+        }
+    };
+    assert.equal(getCumulativeHeroLevel(th19FallbackGuestState), 220);
+});

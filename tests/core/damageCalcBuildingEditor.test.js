@@ -155,11 +155,11 @@ test('Building Edit Modal - Disables decrement button at minimum level (Lvl 1)',
     );
 });
 
-test('Building Edit Modal - At max Town Hall (TH18), all levels up to absolute max are available without locked tracks', () => {
+test('Building Edit Modal - At max Town Hall (TH19), all levels up to absolute max are available without locked tracks', () => {
     const container = createMockContainer();
     const state = {
         ...damageCalcState,
-        playerTownHall: 18,
+        playerTownHall: 19,
         defenseLevelOverrides: {}
     };
 
@@ -168,12 +168,12 @@ test('Building Edit Modal - At max Town Hall (TH18), all levels up to absolute m
 
     const adRowHtml = html.split('<div class="calc-building-modal-row ').find(chunk => chunk.includes('data-building-key="air_defense"')) || '';
 
-    // At TH18, Air Defense cap is 16 (overall max level), so no locked track or is-th-max tag
-    assert.doesNotMatch(adRowHtml, /is-th-max/, 'Must not render is-th-max tag at TH18');
+    // At TH19, Air Defense cap is 17 (overall max level), so no locked track or is-th-max tag
+    assert.doesNotMatch(adRowHtml, /is-th-max/, 'Must not render is-th-max tag at TH19');
     assert.match(
         adRowHtml,
         /<button[^>]*data-action="increment"[^>]*data-building-key="air_defense"[^>]*disabled/,
-        'Increment button must be disabled at overall max (level 16)'
+        'Increment button must be disabled at overall max (level 17)'
     );
 });
 
@@ -264,17 +264,17 @@ test('Building Edit Modal - Search input renders search icon and clear (x) butto
     assert.ok(html.includes('calc-search-clear-btn is-hidden'), 'Clear button must be hidden initially');
 });
 
-test('Two-Tier Category Schema - Validates category and subCategory across all 38 entities', () => {
+test('Two-Tier Category Schema - Validates category and subCategory across all 40 entities', () => {
     const keys = Object.keys(getDefensesData());
-    assert.strictEqual(keys.length, 38, 'Must have exactly 38 defense and structure entities');
+    assert.strictEqual(keys.length, 40, 'Must have exactly 40 defense and structure entities');
 
-    // 1. Buildings (29 entities)
+    // 1. Buildings (31 entities)
     const buildings = Object.entries(getDefensesData()).filter(([_, d]) => d.category === 'building');
-    assert.strictEqual(buildings.length, 29, 'Must have 29 building entities');
+    assert.strictEqual(buildings.length, 31, 'Must have 31 building entities');
 
-    // 2. Standard defenses (21 entities)
+    // 2. Standard defenses (23 entities)
     const defenses = buildings.filter(([_, d]) => d.subCategory === 'defense');
-    assert.strictEqual(defenses.length, 21, 'Must have 21 standard defenses');
+    assert.strictEqual(defenses.length, 23, 'Must have 23 standard defenses');
     assert.ok(defenses.some(([k]) => k === 'air_defense'));
     assert.ok(defenses.some(([k]) => k === 'monolith'));
 
@@ -362,7 +362,7 @@ test('Spell Immunities - Accurately resolves spell immunities via isTargetImmune
     assert.strictEqual(isTargetImmuneToSpell('dragon_duke', 'earthquake'), true, 'Dragon Duke (air hero) immune to eq');
 });
 
-test('Partition Defenses - TH18 groups defenses, heroes, guardians, other, and sunset (Cannon before Eagle)', () => {
+test('Partition Defenses - TH18 groups defenses, heroes, guardians, other, and unavailable (locked TH19 before sunset Cannon and Eagle)', () => {
     const groups = partitionDefensesForModal(18);
 
     assert.strictEqual(groups.defenses.length, 23, 'TH18 must have 23 available defenses (including CC, excluding TH)');
@@ -373,10 +373,11 @@ test('Partition Defenses - TH18 groups defenses, heroes, guardians, other, and s
     assert.strictEqual(groups.guardians.length, 3, 'TH18 must have 3 available guardians');
     assert.strictEqual(groups.other.length, 3, 'TH18 must have 3 available storages');
 
-    // Unavailable at TH18: 2 sunset buildings (Cannon and Eagle Artillery)
-    assert.strictEqual(groups.unavailable.length, 2, 'TH18 must have 2 unavailable (sunset) buildings');
-    assert.strictEqual(groups.unavailable[0].key, 'cannon', 'Cannon (sunset at TH18) must appear before Eagle Artillery');
-    assert.strictEqual(groups.unavailable[1].key, 'eagle_artillery', 'Eagle Artillery (sunset at TH17) must appear after Cannon');
+    // Unavailable at TH18: 2 locked TH19 buildings + 2 sunset buildings (Cannon and Eagle Artillery)
+    assert.strictEqual(groups.unavailable.length, 4, 'TH18 must have 4 unavailable buildings (2 locked TH19, 2 sunset)');
+    const unavailableKeys = groups.unavailable.map(u => u.key);
+    assert.ok(unavailableKeys.indexOf('cannon') > unavailableKeys.indexOf('firecracker_tower'), 'Locked TH19 Firecracker Tower must precede sunset Cannon');
+    assert.ok(unavailableKeys.indexOf('eagle_artillery') > unavailableKeys.indexOf('cannon'), 'Cannon (sunset at TH18) must appear before Eagle Artillery (sunset at TH17)');
 });
 
 test('Partition Defenses - TH17 groups locked buildings before sunset Eagle Artillery', () => {
@@ -387,19 +388,19 @@ test('Partition Defenses - TH17 groups locked buildings before sunset Eagle Arti
     assert.strictEqual(groups.guardians.length, 0, 'TH17 must have 0 available guardians');
     assert.strictEqual(groups.other.length, 3, 'TH17 must have 3 available storages');
 
-    // Unavailable at TH17: 6 locked (TH18) before 1 sunset (Eagle Artillery)
-    assert.strictEqual(groups.unavailable.length, 7, 'TH17 must have 7 unavailable buildings');
+    // Unavailable at TH17: 8 locked (TH18 + TH19) before 1 sunset (Eagle Artillery)
+    assert.strictEqual(groups.unavailable.length, 9, 'TH17 must have 9 unavailable buildings');
     const unavailableKeys = groups.unavailable.map(u => u.key);
 
-    // Locked buildings (Super Wizard Tower, Multi Gear Tower, Revenge Tower, Smasher, Logger, Longshot)
+    // Locked buildings (Super Wizard Tower, Multi Gear Tower, Revenge Tower, Smasher, Logger, Longshot, Firecracker Tower, Spiky Tower)
     const lockedCount = groups.unavailable.filter(u => u.info.status === 'locked').length;
     const sunsetCount = groups.unavailable.filter(u => u.info.status === 'sunset').length;
-    assert.strictEqual(lockedCount, 6, 'TH17 must have 6 locked buildings');
+    assert.strictEqual(lockedCount, 8, 'TH17 must have 8 locked buildings');
     assert.strictEqual(sunsetCount, 1, 'TH17 must have 1 sunset building');
 
     // All locked buildings must precede sunset buildings
     const firstSunsetIndex = unavailableKeys.indexOf('eagle_artillery');
-    assert.strictEqual(firstSunsetIndex, 6, 'Sunset Eagle Artillery must appear after all 6 locked buildings');
+    assert.strictEqual(firstSunsetIndex, 8, 'Sunset Eagle Artillery must appear after all 8 locked buildings');
 });
 
 test('Partition Defenses - TH14 orders locked buildings ascending by minTH (Monolith before Multi Archer Tower)', () => {
@@ -458,7 +459,7 @@ test('Building Edit Modal - Renders 5 collapsible groups with only Defenses open
     assert.ok(html.includes('(3)'), 'Must display Guardians count (3)');
     assert.ok(html.includes('Other'), 'Must display Other section title');
     assert.ok(html.includes('Unavailable'), 'Must display Unavailable umbrella section title');
-    assert.ok(html.includes('(2)'), 'Must display Unavailable count (2) at TH18');
+    assert.ok(html.includes('(4)'), 'Must display Unavailable count (4) at TH18');
 
     // Dynamic preference: when user expands Heroes in session, it re-renders open
     setBuildingGroupSessionPreference('heroes', true);

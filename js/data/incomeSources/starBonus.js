@@ -3,7 +3,7 @@ import { deepFreeze } from '../../utils/objectUtils.js';
 /**
  * Town Hall based daily Star Bonus ore reward specifications.
  * TH1-7 provide zero ores (ores unlock at Town Hall 8 in Clash of Clans).
- * Values for TH8 through TH18 represent canonical Supercell daily star bonus rewards.
+ * Values for TH8 through TH19 represent canonical Supercell daily star bonus rewards.
  * @type {Readonly<Record<number, Readonly<{ shiny: number, glowy: number, starry: number }>>>}
  */
 export const townHallStarBonusData = deepFreeze({
@@ -24,14 +24,15 @@ export const townHallStarBonusData = deepFreeze({
     15: { shiny: 1200, glowy: 66, starry: 2 },
     16: { shiny: 1300, glowy: 69, starry: 2 },
     17: { shiny: 1400, glowy: 78, starry: 2 },
-    18: { shiny: 1500, glowy: 81, starry: 2 }
+    18: { shiny: 1500, glowy: 81, starry: 2 },
+    19: { shiny: 1600, glowy: 87, starry: 3 }
 });
 
-const MAX_SUPPORTED_TH = 18;
+const MAX_SUPPORTED_TH = 19;
 
 /**
  * Retrieves the base Star Bonus ore rewards for a given Town Hall level.
- * Falls back to maximum supported Town Hall (TH18) rewards for future unreleased Town Halls.
+ * Falls back to maximum supported Town Hall (TH19) rewards for future unreleased Town Halls.
  *
  * @param {number | string} townHallLevel - Town Hall level.
  * @returns {Readonly<{ shiny: number, glowy: number, starry: number }>}

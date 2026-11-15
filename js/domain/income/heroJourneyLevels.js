@@ -5,6 +5,26 @@ import { heroMaxLevelsPerTH } from '../../data/heroJourneyData.js';
 let cachedMaxCumulativeLevelsByTH = null;
 
 /**
+ * Resolves a hero's max level at a given Town Hall by walking down to the highest defined TH cap.
+ *
+ * @param {string} heroKey - Canonical hero key in heroMaxLevelsPerTH.
+ * @param {number} thLevel - Target Town Hall level.
+ * @returns {number} Maximum hero level unlocked at or below thLevel.
+ */
+function getHeroMaxLevelForTH(heroKey, thLevel) {
+    const thObj = heroMaxLevelsPerTH[heroKey];
+    if (!thObj) return 0;
+
+    const targetTH = Math.floor(Number(thLevel) || 0);
+    for (let currentTH = targetTH; currentTH >= 1; currentTH--) {
+        if (thObj[currentTH] !== undefined && thObj[currentTH] !== null) {
+            return Number(thObj[currentTH]) || 0;
+        }
+    }
+    return 0;
+}
+
+/**
  * Calculates max cumulative hero levels reachable for each Town Hall level (minTH to maxTH).
  * Dynamically determines minTH and maxTH from dataset and supports fallback lookup down to minTH.
  *
@@ -33,23 +53,11 @@ export function getMaxCumulativeLevelsByTH() {
 
     if (minTH === Infinity) minTH = 1;
 
-    const getHeroMaxLevelWithFallback = (heroKey, th) => {
-        const thObj = heroMaxLevelsPerTH[heroKey];
-        if (!thObj) return 0;
-
-        for (let currentTH = th; currentTH >= minTH; currentTH--) {
-            if (thObj[currentTH] !== undefined && thObj[currentTH] !== null) {
-                return Number(thObj[currentTH]) || 0;
-            }
-        }
-        return 0;
-    };
-
     const result = {};
     for (let th = minTH; th <= maxTH; th++) {
         let sum = 0;
         for (const heroKey in heroMaxLevelsPerTH) {
-            sum += getHeroMaxLevelWithFallback(heroKey, th);
+            sum += getHeroMaxLevelForTH(heroKey, th);
         }
         result[th] = sum;
     }
@@ -119,7 +127,7 @@ function getHeroLevels(state) {
             else if (heroName === "Dragon Duke") key = "dragonDuke";
 
             if (key) {
-                const maxAllowed = heroMaxLevelsPerTH[key]?.[thLevel] ?? 100;
+                const maxAllowed = getHeroMaxLevelForTH(key, thLevel);
                 heroLevels[key] = Math.min(hero.level || 0, maxAllowed);
             }
         }
@@ -135,7 +143,7 @@ function getHeroLevels(state) {
             else if (hero.name === "Dragon Duke") key = "dragonDuke";
 
             if (key) {
-                const maxAllowed = heroMaxLevelsPerTH[key]?.[thLevel] ?? 100;
+                const maxAllowed = getHeroMaxLevelForTH(key, thLevel);
                 heroLevels[key] = Math.min(hero.level || 0, maxAllowed);
             }
         }
@@ -145,7 +153,7 @@ function getHeroLevels(state) {
             const heroState = state.heroes[heroInfo.name];
             if (heroState && heroState.enabled !== false) {
                 const levelInState = state.heroLevels?.[heroKey] ?? heroState.level ?? 1;
-                const maxAllowed = heroMaxLevelsPerTH[heroKey]?.[thLevel] ?? 100;
+                const maxAllowed = getHeroMaxLevelForTH(heroKey, thLevel);
                 heroLevels[heroKey] = Math.min(levelInState, maxAllowed);
             }
         }
@@ -154,7 +162,7 @@ function getHeroLevels(state) {
     if (state?.heroLevels) {
         for (const key in heroLevels) {
             if (state.heroLevels[key] !== undefined) {
-                const maxAllowed = heroMaxLevelsPerTH[key]?.[thLevel] ?? 100;
+                const maxAllowed = getHeroMaxLevelForTH(key, thLevel);
                 heroLevels[key] = Math.min(Number(state.heroLevels[key]) || 0, maxAllowed);
             }
         }

@@ -8,7 +8,8 @@ import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { groupDefensesBySpellCombo } from './zapQuakeBatchSolver.js';
 import {
     getMaxSpellLevel,
-    isSameHeroEquipment
+    isSameHeroEquipment,
+    resolveOwnSpellLevels
 } from './damageFormulas.js';
 import {
     getDefenseCategoryTier,
@@ -29,9 +30,9 @@ export function getDashboardComboBuckets(state) {
     const maxZapLevel = getMaxSpellLevel('lightning');
     const maxEqLevel = getMaxSpellLevel('earthquake');
     const zq = state.zapQuake || {};
-    const spells = state.offense?.spells || { lightning: maxZapLevel, earthquake: maxEqLevel };
-    const zapLvl = spells.lightning || zq.lightningLevel || maxZapLevel;
-    const eqLvl = spells.earthquake || zq.earthquakeLevel || maxEqLevel;
+    const ownSpells = resolveOwnSpellLevels(state);
+    const zapLvl = ownSpells.lightning;
+    const eqLvl = ownSpells.earthquake;
     const enabledSources = state.offense?.enabledSources || {};
 
     const rawTh = Number(state.playerTownHall) || MAX_TOWN_HALL;

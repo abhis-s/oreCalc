@@ -21,6 +21,7 @@ import {
     calculateRequiredZapsTwoPools,
     getSpellCapacities,
     getMaxSpellLevel,
+    clampSpellLevelToTownHall,
     getLightningDamage,
     getEffectiveEquipmentLevel,
     isSameHeroEquipment,
@@ -466,15 +467,32 @@ test('ZapQuake Solver - Optimal Combinations for Standard Defenses', async (t) =
         assert.deepEqual(getSpellCapacities(MAX_TOWN_HALL + 1), getSpellCapacities(MAX_TOWN_HALL));
     });
 
-    await t.test('getMaxSpellLevel and getLightningDamage derive dynamic spell ceilings and values', () => {
+    await t.test('getMaxSpellLevel, clampSpellLevelToTownHall, and getLightningDamage derive dynamic spell ceilings and TH caps', () => {
         const maxZap = getMaxSpellLevel('lightning');
         const maxEq = getMaxSpellLevel('earthquake');
-        assert.equal(maxZap, 13);
+        assert.equal(maxZap, 14);
         assert.equal(maxEq, 8);
-        assert.equal(getLightningDamage(maxZap), 720);
+        assert.equal(getLightningDamage(maxZap), 760);
+        assert.equal(getLightningDamage(13), 720);
         assert.equal(getLightningDamage(), getLightningDamage(maxZap));
         assert.equal(getLightningDamage(999), getLightningDamage(maxZap));
         assert.ok(getLightningDamage(1) > 0 && getLightningDamage(1) < getLightningDamage(maxZap));
+
+        // Own spell Town Hall hard caps
+        assert.equal(getMaxSpellLevel('lightning', 10), 7);
+        assert.equal(getMaxSpellLevel('lightning', 18), 13);
+        assert.equal(getMaxSpellLevel('lightning', 19), 14);
+        assert.equal(getMaxSpellLevel('earthquake', 19), 8);
+        assert.equal(clampSpellLevelToTownHall('lightning', 14, 18), 13);
+        assert.equal(clampSpellLevelToTownHall('lightning', 14, 10), 7);
+        assert.equal(clampSpellLevelToTownHall('lightning', 14, 19), 14);
+        assert.deepEqual(getSpellCapacities(19), {
+            regularCapacity: 11,
+            ccCapacity: 4,
+            regular: 11,
+            clanCastle: 4,
+            totalCapacity: 15
+        });
     });
 
     await t.test('ZapQuake solver enforces TH18 two-pool capacity limit (11 regular + 4 CC = 15 total)', () => {
@@ -825,13 +843,15 @@ test('Domain Math Purity & Exports', async (t) => {
 });
 
 test('Whole-Village ZapQuake Solutions & Combo Grouping', async (t) => {
-    await t.test('solveAllDefensesZapQuake evaluates all 38 targets when unrestricted', () => {
-        const all = solveAllDefensesZapQuake({ lightningLevel: 13, earthquakeLevel: 8 });
-        assert.equal(all.length, 38);
+    await t.test('solveAllDefensesZapQuake evaluates all 40 targets when unrestricted', () => {
+        const all = solveAllDefensesZapQuake({ lightningLevel: 14, earthquakeLevel: 8 });
+        assert.equal(all.length, 40);
         const ad = all.find(d => d.defenseKey === 'air_defense');
         assert.ok(ad);
         assert.equal(ad.bestCombo.isDestroyed, true);
         assert.ok(ad.bestCombo.housingSpace <= 4);
+        assert.ok(all.some(d => d.defenseKey === 'firecracker_tower'));
+        assert.ok(all.some(d => d.defenseKey === 'spiky_tower'));
     });
 
     await t.test('groupDefensesBySpellCombo correctly groups by housing space', () => {
@@ -946,10 +966,10 @@ test('Whole-Village ZapQuake Solutions & Combo Grouping', async (t) => {
 });
 
 test('Whole-Village Attack Sequence Simulator', async (t) => {
-    await t.test('simulateSequenceAcrossAllDefenses executes on all 38 targets when unrestricted', () => {
+    await t.test('simulateSequenceAcrossAllDefenses executes on all 40 targets when unrestricted', () => {
         const steps = [{ type: 'spell', id: 'earthquake', level: 8, count: 1 }, { type: 'spell', id: 'lightning', level: 13, count: 6 }];
         const results = simulateSequenceAcrossAllDefenses(steps);
-        assert.equal(results.length, 38);
+        assert.equal(results.length, 40);
         // Air defense (2000 HP) takes 1 EQ (~580) + 6 Zap (4320) -> should be destroyed
         const ad = results.find(d => d.defenseKey === 'air_defense');
         assert.ok(ad);
@@ -1054,29 +1074,45 @@ test('Whole-Village Attack Sequence Simulator', async (t) => {
         assert.equal(getDefenseMaxHp('firespitter', 3, { superchargeTier: 1 }), 5300);
         assert.equal(getDefenseMaxHp('firespitter', 3, { superchargeTier: 2 }), 5550);
 
-        // Multi Gear Tower
+        // Multi Gear Tower (supercharges retired upon TH19 Lvl 4 release)
         assert.equal(getDefenseMaxHp('multi_gear_tower', 1), 4000);
         assert.equal(getDefenseMaxHp('multi_gear_tower', 3), 4350);
-        assert.equal(getDefenseMaxHp('multi_gear_tower', 3, { superchargeTier: 1 }), 4350);
-        assert.equal(getDefenseMaxHp('multi_gear_tower', 3, { superchargeTier: 2 }), 4500);
+        assert.equal(getDefenseMaxHp('multi_gear_tower', 3, { superchargeTier: 2 }), 4350);
+        assert.equal(getDefenseMaxHp('multi_gear_tower', 4), 4700);
 
         // Revenge Tower
         assert.equal(getDefenseMaxHp('revenge_tower', 1), 5800);
         assert.equal(getDefenseMaxHp('revenge_tower', 2), 6200);
         assert.equal(getDefenseMaxHp('revenge_tower', 2, { superchargeTier: 1 }), 6200);
         assert.equal(getDefenseMaxHp('revenge_tower', 2, { superchargeTier: 2 }), 6300);
+
+        // TH19 Defenses & Structures
+        assert.equal(getDefenseMaxHp('firecracker_tower', 1), 6500);
+        assert.equal(getDefenseMaxHp('firecracker_tower', 2), 6700);
+        assert.equal(getDefenseMaxHp('spiky_tower', 1), 5959);
+        assert.equal(getDefenseMaxHp('spiky_tower', 2), 6363);
+        assert.equal(getDefenseMaxHp('town_hall', 19), 11200);
+        assert.equal(getDefenseMaxHp('clan_castle', 15), 6200);
     });
 
     await t.test('Defending heroes and guardians have accurate hitpoints', () => {
         assert.equal(getDefenseMaxHp('barbarian_king', 110), 13350);
+        assert.equal(getDefenseMaxHp('barbarian_king', 115), 13975);
         assert.equal(getDefenseMaxHp('archer_queen', 110), 3576);
+        assert.equal(getDefenseMaxHp('archer_queen', 115), 3696);
         assert.equal(getDefenseMaxHp('grand_warden', 85), 2669);
+        assert.equal(getDefenseMaxHp('grand_warden', 90), 2754);
         assert.equal(getDefenseMaxHp('royal_champion', 55), 4298);
+        assert.equal(getDefenseMaxHp('royal_champion', 60), 4428);
         assert.equal(getDefenseMaxHp('minion_prince', 95), 4510);
+        assert.equal(getDefenseMaxHp('minion_prince', 100), 4660);
         assert.equal(getDefenseMaxHp('dragon_duke', 25), 10900);
+        assert.equal(getDefenseMaxHp('dragon_duke', 30), 11275);
 
         assert.equal(getDefenseMaxHp('smasher', 1), 12000);
         assert.equal(getDefenseMaxHp('smasher', 5), 16000);
+        assert.equal(getDefenseMaxHp('smasher', 6), 17000);
+        assert.equal(getDefenseMaxHp('smasher', 10), 21000);
         assert.equal(getDefenseMaxHp('logger', 5), 12000);
         assert.equal(getDefenseMaxHp('longshot', 5), 11000);
     });
@@ -1088,26 +1124,29 @@ test('Whole-Village Attack Sequence Simulator', async (t) => {
         // Standard: 0% boost
         assert.equal(getDefenseMaxHp('barbarian_king', bkLvl, { modifier: 'standard' }), baseHp);
 
-        // Legend III: +10% hero, +5% guardian
+        // Legend III: +15% hero, +10% guardian
         const l3Hero = getDefenseMaxHp('barbarian_king', bkLvl, { modifier: 'legend3' });
-        assert.equal(l3Hero, Math.round(baseHp * 1.10));
+        assert.equal(l3Hero, Math.round(baseHp * 1.15));
         const l3Guardian = getDefenseMaxHp('smasher', 5, { modifier: 'legend3' });
-        assert.equal(l3Guardian, Math.round(16000 * 1.05)); // 16800
+        assert.equal(l3Guardian, Math.round(16000 * 1.10)); // 17600
 
-        // Legend II: +15% hero, +10% guardian
+        // Legend II: +20% hero, +15% guardian
         const l2Hero = getDefenseMaxHp('barbarian_king', bkLvl, { modifier: 'legend2' });
-        assert.equal(l2Hero, Math.round(baseHp * 1.15));
+        assert.equal(l2Hero, Math.round(baseHp * 1.20));
         const l2Guardian = getDefenseMaxHp('smasher', 5, { modifier: 'legend2' });
-        assert.equal(l2Guardian, Math.round(16000 * 1.10)); // 17600
+        assert.equal(l2Guardian, Math.round(16000 * 1.15)); // 18400
 
-        // Legend I & Esports: +20% hero, +20% guardian
+        // Legend I: +25% hero, +25% guardian
         const l1Hero = getDefenseMaxHp('barbarian_king', bkLvl, { modifier: 'legend1' });
-        assert.equal(l1Hero, Math.round(baseHp * 1.20));
+        assert.equal(l1Hero, Math.round(baseHp * 1.25));
         const l1Guardian = getDefenseMaxHp('smasher', 5, { modifier: 'legend1' });
-        assert.equal(l1Guardian, Math.round(16000 * 1.20)); // 19200
+        assert.equal(l1Guardian, Math.round(16000 * 1.25)); // 20000
 
+        // Esports: +30% hero, +25% guardian
         const esportsHero = getDefenseMaxHp('barbarian_king', bkLvl, { modifier: 'esports' });
-        assert.equal(esportsHero, Math.round(baseHp * 1.20));
+        assert.equal(esportsHero, Math.round(baseHp * 1.30));
+        const esportsGuardian = getDefenseMaxHp('smasher', 5, { modifier: 'esports' });
+        assert.equal(esportsGuardian, Math.round(16000 * 1.25)); // 20000
 
         // Standard defenses do NOT receive HP boosts in any league
         const adBase = getDefenseMaxHp('air_defense', 14);
@@ -1486,7 +1525,7 @@ test('Equipment Targeting Validation - Seeking Shield, Spiky Ball, and Category 
             assert.equal(snapDefenseLevel('builders_hut', 0), 2);
             assert.equal(snapDefenseLevel('builders_hut', -5), 2);
             assert.equal(snapDefenseLevel('builders_hut', 3), 3);
-            assert.equal(snapDefenseLevel('builders_hut', 10), 8);
+            assert.equal(snapDefenseLevel('builders_hut', 10), 9);
         });
 
         await st.test('getPrevDefenseLevel stops at level 2 for builders_hut', () => {
@@ -1496,8 +1535,8 @@ test('Equipment Targeting Validation - Seeking Shield, Spiky Ball, and Category 
         });
 
         await st.test('getValidDefenseLevels starts at level 2 for builders_hut', () => {
-            const valid = getValidDefenseLevels('builders_hut', 8);
-            assert.deepEqual(valid, [2, 3, 4, 5, 6, 7, 8]);
+            const valid = getValidDefenseLevels('builders_hut', 9);
+            assert.deepEqual(valid, [2, 3, 4, 5, 6, 7, 8, 9]);
             assert.equal(valid.includes(1), false, 'Level 1 must not be in valid levels for builders_hut');
         });
     });

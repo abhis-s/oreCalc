@@ -256,20 +256,20 @@ test('Damage Calculator State Management', async (t) => {
 
         // Set user overrides on player A
         damageCalcState.defenseLevelOverrides = { air_defense: 15 };
-        damageCalcState.defenseSuperchargeOverrides = { scattershot: 1 };
+        damageCalcState.defenseSuperchargeOverrides = { inferno_tower: 1 };
         damageCalcState.zapQuake.selectedCluster = [{ defenseKey: 'air_defense', level: 15, superchargeTier: 0 }];
 
-        // Switch to player B (same TH18)
+        // Switch to player B (same TH19 max TH)
         syncPlayerVillageData({
             tag: '#PLAYER_B',
-            townHallLevel: 18,
+            townHallLevel: MAX_TOWN_HALL,
             heroEquipment: [{ name: 'Giant Arrow', level: 18 }]
         }, { resetUI: false });
 
         assert.equal(damageCalcState.activeTag, 'PLAYER_B');
-        assert.equal(damageCalcState.playerTownHall, 18);
+        assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
         assert.equal(damageCalcState.defenseLevelOverrides.air_defense, 15, 'Defense level override must be preserved');
-        assert.equal(damageCalcState.defenseSuperchargeOverrides.scattershot, 1, 'Supercharge override must be preserved');
+        assert.equal(damageCalcState.defenseSuperchargeOverrides.inferno_tower, 1, 'Supercharge override must be preserved');
         assert.equal(damageCalcState.zapQuake.selectedCluster.length, 1, 'Cluster selection must be preserved');
     });
 
@@ -408,5 +408,50 @@ test('Damage Calculator State Management', async (t) => {
         assert.equal(damageCalcState.zapQuake.selectedCluster[0].level, 15);
         assert.equal(damageCalcState.zapQuake.selectedCluster[1].level, 11);
         assert.equal(damageCalcState.zapQuake.selectedCluster[2].level, 2);
+    });
+
+    await t.test('Own spells hard-cap to player Town Hall while guest mode and CC spells stay maxed', () => {
+        resetDamageCalcState();
+        assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
+        assert.equal(damageCalcState.offense.spells.lightning, 14);
+        assert.equal(damageCalcState.offense.spells.earthquake, 8);
+        assert.equal(damageCalcState.offense.ccSpells.lightning, 14);
+        assert.equal(damageCalcState.offense.ccSpells.earthquake, 8);
+
+        // Lowering Town Hall caps own spells down, keeping CC spells uncapped
+        setPlayerTownHall(10);
+        assert.equal(damageCalcState.offense.spells.lightning, 7);
+        assert.equal(damageCalcState.zapQuake.lightningLevel, 7);
+        assert.equal(damageCalcState.offense.spells.earthquake, 4);
+        assert.equal(damageCalcState.zapQuake.earthquakeLevel, 4);
+        assert.equal(damageCalcState.offense.ccSpells.lightning, 14);
+        assert.equal(damageCalcState.offense.ccSpells.earthquake, 8);
+
+        // Applying TH preset sets own spells to that Town Hall's unlocked max
+        applyTownHallPreset(18);
+        assert.equal(damageCalcState.offense.spells.lightning, 13);
+        assert.equal(damageCalcState.offense.spells.earthquake, 8);
+        assert.equal(damageCalcState.offense.ccSpells.lightning, 14);
+
+        applyTownHallPreset(19);
+        assert.equal(damageCalcState.offense.spells.lightning, 14);
+        assert.equal(damageCalcState.offense.spells.earthquake, 8);
+
+        // Reloading persisted state clamps stale over-TH own spells while preserving CC spells
+        mockStorage.set('clashCalc_damageCalcState', JSON.stringify({
+            playerTownHall: 18,
+            offense: {
+                spells: { lightning: 14, earthquake: 8 },
+                ccSpells: { lightning: 14, earthquake: 8 }
+            },
+            zapQuake: {
+                lightningLevel: 14,
+                earthquakeLevel: 8
+            }
+        }));
+        loadPersistedState();
+        assert.equal(damageCalcState.offense.spells.lightning, 13);
+        assert.equal(damageCalcState.zapQuake.lightningLevel, 13);
+        assert.equal(damageCalcState.offense.ccSpells.lightning, 14);
     });
 });

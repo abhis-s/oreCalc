@@ -6,7 +6,7 @@
             4
         ],
         "minTH": 1,
-        "maxLevel": 18,
+        "maxLevel": 19,
         "category": "building",
         "subCategory": "townhall",
         "immunities": {
@@ -119,6 +119,11 @@
                 "hp": 10800,
                 "th": 18,
                 "weapon": "Guardians"
+            },
+            "19": {
+                "hp": 11200,
+                "th": 19,
+                "weapon": "Guardians"
             }
         }
     },
@@ -129,7 +134,7 @@
             3
         ],
         "minTH": 1,
-        "maxLevel": 14,
+        "maxLevel": 15,
         "category": "building",
         "subCategory": "cc",
         "immunities": {
@@ -205,6 +210,11 @@
             "14": {
                 "hp": 6000,
                 "th": 18,
+                "spellSpace": 4
+            },
+            "15": {
+                "hp": 6200,
+                "th": 19,
                 "spellSpace": 4
             }
         }
@@ -386,6 +396,56 @@
             }
         }
     },
+    "firecracker_tower": {
+        "id": "firecracker_tower",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 19,
+        "maxLevel": 2,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 6500,
+                "th": 19
+            },
+            "2": {
+                "hp": 6700,
+                "th": 19
+            }
+        }
+    },
+    "spiky_tower": {
+        "id": "spiky_tower",
+        "size": [
+            3,
+            3
+        ],
+        "minTH": 19,
+        "maxLevel": 2,
+        "category": "building",
+        "subCategory": "defense",
+        "immunities": {
+            "lightning": false,
+            "earthquake": false
+        },
+        "levels": {
+            "1": {
+                "hp": 5959,
+                "th": 19
+            },
+            "2": {
+                "hp": 6363,
+                "th": 19
+            }
+        }
+    },
     "revenge_tower": {
         "id": "revenge_tower",
         "size": [
@@ -496,7 +556,7 @@
             3
         ],
         "minTH": 17,
-        "maxLevel": 3,
+        "maxLevel": 4,
         "category": "building",
         "subCategory": "defense",
         "immunities": {
@@ -514,15 +574,11 @@
             },
             "3": {
                 "hp": 4350,
-                "th": 18,
-                "supercharges": {
-                    "tier1": {
-                        "hp": 4350
-                    },
-                    "tier2": {
-                        "hp": 4500
-                    }
-                }
+                "th": 18
+            },
+            "4": {
+                "hp": 4700,
+                "th": 19
             }
         }
     },
@@ -533,7 +589,7 @@
             3
         ],
         "minTH": 16,
-        "maxLevel": 4,
+        "maxLevel": 5,
         "category": "building",
         "subCategory": "defense",
         "immunities": {
@@ -555,15 +611,11 @@
             },
             "4": {
                 "hp": 5500,
-                "th": 18,
-                "supercharges": {
-                    "tier1": {
-                        "hp": 5500
-                    },
-                    "tier2": {
-                        "hp": 5600
-                    }
-                }
+                "th": 18
+            },
+            "5": {
+                "hp": 5900,
+                "th": 19
             }
         }
     },
@@ -574,7 +626,7 @@
             3
         ],
         "minTH": 16,
-        "maxLevel": 4,
+        "maxLevel": 5,
         "category": "building",
         "subCategory": "defense",
         "immunities": {
@@ -596,15 +648,11 @@
             },
             "4": {
                 "hp": 6100,
-                "th": 18,
-                "supercharges": {
-                    "tier1": {
-                        "hp": 6100
-                    },
-                    "tier2": {
-                        "hp": 6250
-                    }
-                }
+                "th": 18
+            },
+            "5": {
+                "hp": 6500,
+                "th": 19
             }
         }
     },
@@ -702,7 +750,7 @@
             2
         ],
         "minTH": 14,
-        "maxLevel": 8,
+        "maxLevel": 9,
         "category": "building",
         "subCategory": "defense",
         "immunities": {
@@ -748,15 +796,12 @@
             "8": {
                 "hp": 2100,
                 "th": 18,
-                "isWeaponized": true,
-                "supercharges": {
-                    "tier1": {
-                        "hp": 2100
-                    },
-                    "tier2": {
-                        "hp": 2150
-                    }
-                }
+                "isWeaponized": true
+            },
+            "9": {
+                "hp": 2200,
+                "th": 19,
+                "isWeaponized": true
             }
         }
     },
@@ -767,6 +812,7 @@
             3
         ],
         "minTH": 13,
+        "maxTH": 19,
         "maxLevel": 7,
         "category": "building",
         "subCategory": "defense",
@@ -801,15 +847,7 @@
             },
             "7": {
                 "hp": 5800,
-                "th": 18,
-                "supercharges": {
-                    "tier1": {
-                        "hp": 5800
-                    },
-                    "tier2": {
-                        "hp": 5950
-                    }
-                }
+                "th": 18
             }
         }
     },
@@ -939,7 +977,7 @@
             3
         ],
         "minTH": 9,
-        "maxLevel": 13,
+        "maxLevel": 14,
         "category": "building",
         "subCategory": "defense",
         "immunities": {
@@ -997,15 +1035,11 @@
             },
             "13": {
                 "hp": 5000,
-                "th": 18,
-                "supercharges": {
-                    "tier1": {
-                        "hp": 5000
-                    },
-                    "tier2": {
-                        "hp": 5100
-                    }
-                }
+                "th": 18
+            },
+            "14": {
+                "hp": 5450,
+                "th": 19
             }
         }
     },
@@ -1093,7 +1127,7 @@
             2
         ],
         "minTH": 7,
-        "maxLevel": 17,
+        "maxLevel": 18,
         "category": "building",
         "subCategory": "defense",
         "immunities": {
@@ -1167,15 +1201,11 @@
             },
             "17": {
                 "hp": 1750,
-                "th": 18,
-                "supercharges": {
-                    "tier1": {
-                        "hp": 1750
-                    },
-                    "tier2": {
-                        "hp": 1800
-                    }
-                }
+                "th": 18
+            },
+            "18": {
+                "hp": 1950,
+                "th": 19
             }
         }
     },
@@ -1316,7 +1346,7 @@
             3
         ],
         "minTH": 4,
-        "maxLevel": 16,
+        "maxLevel": 17,
         "category": "building",
         "subCategory": "defense",
         "immunities": {
@@ -1388,18 +1418,12 @@
                 "th": 17
             },
             "16": {
-                "hp": 2000,
-                "th": 18,
-                "supercharges": {
-                    "tier1": {
-                        "hp": 2000,
-                        "dps": 720
-                    },
-                    "tier2": {
-                        "hp": 2000,
-                        "dps": 740
-                    }
-                }
+                "hp": 2050,
+                "th": 18
+            },
+            "17": {
+                "hp": 2150,
+                "th": 19
             }
         }
     },
@@ -1507,6 +1531,7 @@
             3
         ],
         "minTH": 2,
+        "maxTH": 19,
         "maxLevel": 21,
         "category": "building",
         "subCategory": "defense",
@@ -1710,7 +1735,7 @@
             3
         ],
         "minTH": 1,
-        "maxLevel": 19,
+        "maxLevel": 20,
         "category": "building",
         "subCategory": "resource",
         "immunities": {
@@ -1793,6 +1818,10 @@
             "19": {
                 "hp": 4300,
                 "th": 18
+            },
+            "20": {
+                "hp": 4400,
+                "th": 19
             }
         }
     },
@@ -1803,7 +1832,7 @@
             3
         ],
         "minTH": 1,
-        "maxLevel": 19,
+        "maxLevel": 20,
         "category": "building",
         "subCategory": "resource",
         "immunities": {
@@ -1886,6 +1915,10 @@
             "19": {
                 "hp": 4300,
                 "th": 18
+            },
+            "20": {
+                "hp": 4400,
+                "th": 19
             }
         }
     },
@@ -1896,7 +1929,7 @@
             3
         ],
         "minTH": 7,
-        "maxLevel": 13,
+        "maxLevel": 14,
         "category": "building",
         "subCategory": "resource",
         "immunities": {
@@ -1955,6 +1988,10 @@
             "13": {
                 "hp": 4800,
                 "th": 18
+            },
+            "14": {
+                "hp": 4900,
+                "th": 19
             }
         }
     }

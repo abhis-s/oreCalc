@@ -1,8 +1,10 @@
 /**
  * Configuration and resolver for recommended ZapQuake / Fireball cluster presets.
- * Presets are bracketed by Town Hall level (TH 16 to TH 18) to ensure only valid unlocked
+ * Presets are bracketed by Town Hall level (TH 16+) to ensure only valid unlocked
  * defenses are presented to the user.
  */
+
+import { MAX_TOWN_HALL } from '../core/constants.js';
 
 /**
  * @typedef {Object} ClusterPreset
@@ -17,13 +19,13 @@
 
 /**
  * Resolves available recommended cluster presets for a specific Town Hall level.
- * Gated exclusively to Town Hall 16 through 18 where merged and high-density defenses exist.
+ * Gated to Town Hall 16 and above where merged and high-density defenses exist.
  *
  * @param {number|string} townHallLevel - Active Town Hall level.
  * @returns {Array<ClusterPreset>} Array of available presets, or empty array if TH < 16.
  */
 export function getClusterPresetsForTownHall(townHallLevel) {
-    const th = Math.max(1, Math.min(18, Math.floor(Number(townHallLevel) || 18)));
+    const th = Math.max(1, Math.min(MAX_TOWN_HALL, Math.floor(Number(townHallLevel) || MAX_TOWN_HALL)));
 
     if (th >= 18) {
         return [

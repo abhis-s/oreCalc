@@ -11,9 +11,10 @@ import { solveZapQuakeCombinations } from '../../domain/damage/zapQuakeSolver.js
 import { calculateEquipmentDamage } from '../../domain/damage/equipmentDamage.js';
 import {
     calculateEarthquakeDamage,
+    clampSpellLevelToTownHall,
     getEffectiveEquipmentLevel,
     getLightningDamage,
-    getMaxSpellLevel
+    resolveOwnSpellLevels
 } from '../../domain/damage/damageFormulas.js';
 import {
     getMaxSuperchargeTier,
@@ -61,10 +62,11 @@ export function getComboBreakdownPopoverContent(elem, state) {
     if (!def) return null;
 
     const defName = getDefenseDisplayName(buildingKey);
-    const maxLightning = getMaxSpellLevel('lightning');
-    const maxEq = getMaxSpellLevel('earthquake');
-    const zapLvl = Number(card.dataset?.zapLevel ?? card.getAttribute?.('data-zap-level')) || (state.offense?.spells?.lightning || maxLightning);
-    const eqLvl = Number(card.dataset?.eqLevel ?? card.getAttribute?.('data-eq-level')) || (state.offense?.spells?.earthquake || maxEq);
+    const ownSpells = resolveOwnSpellLevels(state);
+    const rawCardZap = Number(card.dataset?.zapLevel ?? card.getAttribute?.('data-zap-level'));
+    const rawCardEq = Number(card.dataset?.eqLevel ?? card.getAttribute?.('data-eq-level'));
+    const zapLvl = rawCardZap > 0 ? clampSpellLevelToTownHall('lightning', rawCardZap, ownSpells.townHallLevel) : ownSpells.lightning;
+    const eqLvl = rawCardEq > 0 ? clampSpellLevelToTownHall('earthquake', rawCardEq, ownSpells.townHallLevel) : ownSpells.earthquake;
     const ccZapLvl = Number(card.dataset?.ccZapLevel ?? card.getAttribute?.('data-cc-zap-level')) || (state.offense?.ccSpells?.lightning || zapLvl);
     const ccEqLvl = Number(card.dataset?.ccEqLevel ?? card.getAttribute?.('data-cc-eq-level')) || (state.offense?.ccSpells?.earthquake || eqLvl);
     const zapDmg = getLightningDamage(zapLvl);

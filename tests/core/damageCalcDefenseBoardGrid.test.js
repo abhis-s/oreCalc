@@ -360,7 +360,7 @@ test('Global Damage Sources Card - Rendered identically at top of Cluster Planne
     const state = {
         ...damageCalcState,
         activeTab: 'cluster_planner',
-        playerTownHall: 18,
+        playerTownHall: 19,
         zapQuake: {
             defenseKey: 'air_defense',
             defenseLevel: 14,
@@ -412,7 +412,7 @@ test('Cluster Planner Panel - In-place DOM update preserves layout and modifier 
     const state = {
         ...damageCalcState,
         activeTab: 'cluster_planner',
-        playerTownHall: 18,
+        playerTownHall: 19,
         zapQuake: {
             defenseKey: 'air_defense',
             defenseLevel: 14,
@@ -543,8 +543,17 @@ test('Cluster Planner Panel - Terminal damage step caps at remaining HP and disp
     const state = {
         ...damageCalcState,
         activeTab: 'cluster_planner',
+        playerTownHall: 18,
         offense: {
             ...damageCalcState.offense,
+            spells: {
+                lightning: 13,
+                earthquake: 8
+            },
+            ccSpells: {
+                lightning: 13,
+                earthquake: 8
+            },
             equipment: {
                 ...damageCalcState.offense?.equipment,
                 rocket_backpack: 21

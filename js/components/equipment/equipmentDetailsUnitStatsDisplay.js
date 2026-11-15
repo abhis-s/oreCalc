@@ -1,12 +1,37 @@
 import { translate } from '../../i18n/translator.js';
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { state } from '../../core/state.js';
+import { getMaxLabTroopLevelForTownHall } from '../../data/labTroopsData.js';
 
 import {
     computeEffectiveLevels,
     formatDiffVal
 } from '../../domain/equipment/modifierCalculator.js';
 import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
+
+/**
+ * Resolves effective laboratory troop level using synced profile data or Town Hall fallback.
+ *
+ * @param {Object} sp - Equipment spawnedUnits block.
+ * @param {Object | null | undefined} playerProfile - Active player profile.
+ * @returns {number} Effective troop level.
+ */
+function resolveLaboratoryUnitLevel(sp, playerProfile) {
+    const labTroops = playerProfile?.labTroops || {};
+    const val = labTroops[sp.unitType];
+    if (typeof val === 'number') return val;
+    if (val && typeof val === 'object' && val.level) return val.level;
+
+    const availableLevels = Object.keys(sp.levels || {}).map(Number).filter(n => Number.isFinite(n) && n > 0).sort((a, b) => a - b);
+    const maxDataLevel = availableLevels.length > 0 ? (availableLevels.at(-1) ?? 1) : 1;
+    const playerTH = Number(playerProfile?.townHallLevel || playerProfile?.townHall) || MAX_TOWN_HALL;
+    const thMaxLevel = getMaxLabTroopLevelForTownHall(sp.unitType, playerTH);
+    if (thMaxLevel !== null) {
+        return Math.min(thMaxLevel, maxDataLevel);
+    }
+    return maxDataLevel;
+}
 
 /**
  * Returns map of spawned unit stat values and percentages for mode animation.
@@ -28,14 +53,7 @@ export function getCurrentUnitStatsStateMap(data, levelsArray, currentLevel, cal
         let unitLevel = targetLevel;
 
         if (sp.scalingType === 'laboratoryLevel') {
-            const labTroops = state.playerProfile?.labTroops || {};
-            const val = labTroops[sp.unitType];
-            if (typeof val === 'number') unitLevel = val;
-            else if (val && val.level) unitLevel = val.level;
-            else {
-                const availableLevels = Object.keys(sp.levels || {}).map(Number).sort((a, b) => a - b);
-                unitLevel = availableLevels.length > 0 ? (availableLevels.at(-1) ?? 1) : 1;
-            }
+            unitLevel = resolveLaboratoryUnitLevel(sp, state.playerProfile);
         } else {
             let summonedLevelIdx = -1;
             if (data.statsMeta) summonedLevelIdx = data.statsMeta.findIndex(m => m.key === 'summonedUnitsLevel');
@@ -90,16 +108,7 @@ export function renderUnitStatsView(unitStatsContent, data, levelsArray, current
 
     let standardUnitLevel = currentLevel;
     if (sp.scalingType === 'laboratoryLevel') {
-        const labTroops = state.playerProfile?.labTroops || {};
-        const val = labTroops[unitTypeKey];
-        if (typeof val === 'number') {
-            unitLevel = val;
-        } else if (val && typeof val === 'object' && val.level) {
-            unitLevel = val.level;
-        } else {
-            const availableLevels = Object.keys(sp.levels || {}).map(Number).sort((a, b) => a - b);
-            unitLevel = availableLevels.length > 0 ? (availableLevels.at(-1) ?? 1) : 1;
-        }
+        unitLevel = resolveLaboratoryUnitLevel(sp, state.playerProfile);
         standardUnitLevel = unitLevel;
     } else {
         let summonedLevelIdx = -1;
@@ -277,12 +286,7 @@ export function updateUnitStatsHover(unitStatsContent, data, levelsArray, curren
 
     const getUnitLevelFromEquipmentLevel = (eqLvl) => {
         if (sp.scalingType === 'laboratoryLevel') {
-            const labTroops = state.playerProfile?.labTroops || {};
-            const val = labTroops[sp.unitType];
-            if (typeof val === 'number') return val;
-            if (val && val.level) return val.level;
-            const availableLevels = Object.keys(sp.levels || {}).map(Number).sort((a, b) => a - b);
-            return availableLevels.length > 0 ? (availableLevels.at(-1) ?? 1) : 1;
+            return resolveLaboratoryUnitLevel(sp, state.playerProfile);
         }
         let summonedLevelIdx = -1;
         if (data.statsMeta) summonedLevelIdx = data.statsMeta.findIndex(m => m.key === 'summonedUnitsLevel');

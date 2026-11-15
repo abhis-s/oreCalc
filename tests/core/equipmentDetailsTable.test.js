@@ -1,6 +1,12 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { renderLevelTable } from '../../js/components/equipment/equipmentDetailsTableDisplay.js';
+import { getMaxLabTroopLevelForTownHall } from '../../js/data/labTroopsData.js';
+import { getCurrentUnitStatsStateMap } from '../../js/components/equipment/equipmentDetailsUnitStatsDisplay.js';
+import { state } from '../../js/core/state.js';
+
+const barbarianPuppetData = JSON.parse(readFileSync(new URL('../../js/data/equipment/barbarian_puppet.json', import.meta.url), 'utf8'));
 
 describe('Equipment Details Table Display & Data Contracts', () => {
     test('renderLevelTable sets data-level attribute on each level row matching level index', () => {
@@ -101,5 +107,44 @@ describe('Equipment Details Table Display & Data Contracts', () => {
         assert.doesNotThrow(() => {
             renderLevelTable(null, null, {}, [], 1, 18, 'common', 'barbarianKing', 16, 'standard', null);
         });
+    });
+
+    test('getMaxLabTroopLevelForTownHall and getCurrentUnitStatsStateMap resolve TH18 and TH19 laboratory troop fallbacks', () => {
+        assert.equal(getMaxLabTroopLevelForTownHall('barbarian', 10), 7);
+        assert.equal(getMaxLabTroopLevelForTownHall('barbarian', 18), 13);
+        assert.equal(getMaxLabTroopLevelForTownHall('barbarian', 19), 14);
+        assert.equal(getMaxLabTroopLevelForTownHall('archer', 18), 14);
+        assert.equal(getMaxLabTroopLevelForTownHall('archer', 19), 15);
+        assert.equal(getMaxLabTroopLevelForTownHall('nonexistent_troop', 19), null);
+
+        const prevProfile = state.playerProfile;
+        try {
+            // Unsynced / missing labTroops at TH18 falls back to Barbarian Lvl 13
+            state.playerProfile = { townHallLevel: 18 };
+            const th18Stats = getCurrentUnitStatsStateMap(barbarianPuppetData, barbarianPuppetData.levels, 18, 18, 'common', 'standard');
+            assert.equal(th18Stats.damagePerSecond.numVal, 51);
+            assert.equal(th18Stats.hitpoints.numVal, 310);
+            assert.ok(th18Stats.hitpoints.pct < 100);
+
+            // Missing labTroops at TH19 falls back to Barbarian Lvl 14
+            state.playerProfile = { townHallLevel: 19 };
+            const th19Stats = getCurrentUnitStatsStateMap(barbarianPuppetData, barbarianPuppetData.levels, 18, 18, 'common', 'standard');
+            assert.equal(th19Stats.damagePerSecond.numVal, 54);
+            assert.equal(th19Stats.hitpoints.numVal, 330);
+            assert.equal(th19Stats.hitpoints.pct, 100);
+
+            // Guest / null profile defaults to max TH (TH19 -> Barbarian Lvl 14)
+            state.playerProfile = null;
+            const guestStats = getCurrentUnitStatsStateMap(barbarianPuppetData, barbarianPuppetData.levels, 18, 18, 'common', 'standard');
+            assert.equal(guestStats.hitpoints.numVal, 330);
+
+            // Synced labTroops value overrides TH fallback
+            state.playerProfile = { townHallLevel: 19, labTroops: { barbarian: 12 } };
+            const syncedStats = getCurrentUnitStatsStateMap(barbarianPuppetData, barbarianPuppetData.levels, 18, 18, 'common', 'standard');
+            assert.equal(syncedStats.damagePerSecond.numVal, 48);
+            assert.equal(syncedStats.hitpoints.numVal, 290);
+        } finally {
+            state.playerProfile = prevProfile;
+        }
     });
 });

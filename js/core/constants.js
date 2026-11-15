@@ -3,7 +3,7 @@
  * Centralized, frozen gameplay constants and application boundaries.
  */
 
-export const MAX_TOWN_HALL = 18;
+export const MAX_TOWN_HALL = 19;
 export const MAX_SAVED_PLAYERS = 12;
 export const MAX_RECENT_SEARCHES = 5;
 export const UNRANKED_LEAGUE_ID = 105000000;

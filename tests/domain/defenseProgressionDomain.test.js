@@ -65,21 +65,22 @@ test('Defense Hitpoints Resolution (getDefenseMaxHp)', () => {
 });
 
 test('Supercharge Tier Calculations (getMaxSuperchargeTier & getDefaultSuperchargeTier)', () => {
-    // Supercharge max tier for town hall 17/18
-    assert.equal(getMaxSuperchargeTierForTownHall(18), 2, 'TH18 supports up to Tier 2 supercharges');
+    // Supercharge max tier at active max TH vs lower TH
+    assert.equal(getMaxSuperchargeTierForTownHall(MAX_TOWN_HALL), 2, `TH${MAX_TOWN_HALL} supports up to Tier 2 supercharges`);
+    assert.equal(getMaxSuperchargeTierForTownHall(MAX_TOWN_HALL - 1), 0, `TH${MAX_TOWN_HALL - 1} does not support supercharges`);
     assert.equal(getMaxSuperchargeTierForTownHall(16), 0, 'TH16 does not support supercharges');
 
     // Max level defense vs non-max level defense
     const defs = getDefensesData();
-    const adMaxLvl = defs.air_defense.maxLevel;
-    assert.equal(getMaxSuperchargeTier('air_defense', adMaxLvl - 1), 0, 'Non-max level defense has 0 supercharge tiers');
+    const infMaxLvl = defs.inferno_tower.maxLevel;
+    assert.equal(getMaxSuperchargeTier('inferno_tower', infMaxLvl - 1), 0, 'Non-max level defense has 0 supercharge tiers');
 
-    // Default supercharge tier for TH18
-    const defaultTier = getDefaultSuperchargeTier('air_defense', adMaxLvl, 18);
+    // Default supercharge tier for active max TH
+    const defaultTier = getDefaultSuperchargeTier('inferno_tower', infMaxLvl, MAX_TOWN_HALL);
     assert.ok(defaultTier >= 0 && defaultTier <= 3, 'Default supercharge tier is bounded between 0 and 3');
 
-    // Below TH18 defaults to 0
-    assert.equal(getDefaultSuperchargeTier('air_defense', adMaxLvl, 16), 0, 'TH16 default supercharge tier is 0');
+    // Below max TH defaults to 0
+    assert.equal(getDefaultSuperchargeTier('inferno_tower', infMaxLvl, 16), 0, 'TH16 default supercharge tier is 0');
 });
 
 test('Town Hall Level Progression Caps (getMaxDefenseLevelForTownHall)', () => {

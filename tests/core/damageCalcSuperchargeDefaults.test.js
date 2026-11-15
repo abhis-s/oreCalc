@@ -47,21 +47,21 @@ await Promise.all([preloadDefensesData(), loadTranslations('en')]);
 
 test('Dynamic Supercharge Derivation & Defaults', async (t) => {
     await t.test('getMaxSuperchargeTier dynamically extracts max tier from getDefensesData()', () => {
-        // Air defense level 16 has supercharges in data
-        const adMaxLvl = getDefensesData().air_defense.maxLevel;
-        const adMaxTier = getMaxSuperchargeTier('air_defense', adMaxLvl);
-        assert.ok(adMaxTier > 0, 'Air defense max level must have supercharge tiers > 0');
+        // Inferno tower level 12 has supercharges in data
+        const infMaxLvl = getDefensesData().inferno_tower.maxLevel;
+        const infMaxTier = getMaxSuperchargeTier('inferno_tower', infMaxLvl);
+        assert.ok(infMaxTier > 0, 'Inferno tower max level must have supercharge tiers > 0');
 
         // Verify it matches dynamically calculated keys from raw data
-        const rawSupercharges = getDefensesData().air_defense.levels[adMaxLvl]?.supercharges || {};
+        const rawSupercharges = getDefensesData().inferno_tower.levels[infMaxLvl]?.supercharges || {};
         const expectedTier = Object.keys(rawSupercharges).reduce((max, key) => {
             const m = key.match(/tier(\d+)/i);
             return m ? Math.max(max, Number(m[1]) || 0) : max;
         }, 0);
-        assert.equal(adMaxTier, expectedTier, 'Derived tier must match raw data max tier');
+        assert.equal(infMaxTier, expectedTier, 'Derived tier must match raw data max tier');
 
         // Below max level must return 0
-        assert.equal(getMaxSuperchargeTier('air_defense', adMaxLvl - 1), 0);
+        assert.equal(getMaxSuperchargeTier('inferno_tower', infMaxLvl - 1), 0);
 
         // Non-superchargeable structures (Air Sweeper) must return 0
         const asMaxLvl = getDefensesData().air_sweeper.maxLevel;
@@ -69,7 +69,7 @@ test('Dynamic Supercharge Derivation & Defaults', async (t) => {
 
         // Non-existent building or level must return 0 safely
         assert.equal(getMaxSuperchargeTier('non_existent_defense', 1), 0);
-        assert.equal(getMaxSuperchargeTier('air_defense', 999), 0);
+        assert.equal(getMaxSuperchargeTier('inferno_tower', 999), 0);
     });
 
     await t.test('getMaxSuperchargeTierForTownHall derives max tier across all structures for a given Town Hall', () => {
@@ -78,45 +78,46 @@ test('Dynamic Supercharge Derivation & Defaults', async (t) => {
         assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL), true);
         assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL - 1), false);
 
-        // Town Hall 17 and below have 0 supercharges
+        // Town Hall 18 and below have 0 supercharges
+        assert.equal(getMaxSuperchargeTierForTownHall(18), 0);
         assert.equal(getMaxSuperchargeTierForTownHall(17), 0);
         assert.equal(getMaxSuperchargeTierForTownHall(16), 0);
         assert.equal(getMaxSuperchargeTierForTownHall(15), 0);
     });
 
     await t.test('getDefaultSuperchargeTier returns max tier at active max TH and 0 at lower Town Halls', () => {
-        const adMaxLvl = getDefensesData().air_defense.maxLevel;
-        const expectedMaxTier = getMaxSuperchargeTier('air_defense', adMaxLvl);
+        const infMaxLvl = getDefensesData().inferno_tower.maxLevel;
+        const expectedMaxTier = getMaxSuperchargeTier('inferno_tower', infMaxLvl);
 
         // Max TH: superchargeable structure defaults to its max tier
-        assert.equal(getDefaultSuperchargeTier('air_defense', adMaxLvl, MAX_TOWN_HALL), expectedMaxTier);
+        assert.equal(getDefaultSuperchargeTier('inferno_tower', infMaxLvl, MAX_TOWN_HALL), expectedMaxTier);
 
         // Max TH: non-superchargeable structure defaults to 0
         const asMaxLvl = getDefensesData().air_sweeper.maxLevel;
         assert.equal(getDefaultSuperchargeTier('air_sweeper', asMaxLvl, MAX_TOWN_HALL), 0);
 
-        // Lower TH: defaults to 0 even for Air Defense
-        assert.equal(getDefaultSuperchargeTier('air_defense', adMaxLvl, MAX_TOWN_HALL - 1), 0);
-        assert.equal(getDefaultSuperchargeTier('air_defense', adMaxLvl, 16), 0);
+        // Lower TH: defaults to 0 even for Inferno Tower
+        assert.equal(getDefaultSuperchargeTier('inferno_tower', infMaxLvl, MAX_TOWN_HALL - 1), 0);
+        assert.equal(getDefaultSuperchargeTier('inferno_tower', infMaxLvl, 16), 0);
     });
 
     await t.test('solveAllDefensesZapQuake defaults to max supercharge tier at active max TH when superchargeTier is undefined', () => {
         const results = solveAllDefensesZapQuake({
-            lightningLevel: 13,
+            lightningLevel: 14,
             earthquakeLevel: 8,
             townHall: MAX_TOWN_HALL,
             leagueId: 'standard'
         });
 
-        const adResult = results.find(r => r.defenseKey === 'air_defense');
-        assert.ok(adResult, `Air Defense must be present in TH${MAX_TOWN_HALL} results`);
+        const infResult = results.find(r => r.defenseKey === 'inferno_tower');
+        assert.ok(infResult, `Inferno Tower must be present in TH${MAX_TOWN_HALL} results`);
 
-        const adMaxLvl = getDefensesData().air_defense.maxLevel;
-        const expectedTier = getDefaultSuperchargeTier('air_defense', adMaxLvl, MAX_TOWN_HALL);
-        const expectedHp = getDefenseMaxHp('air_defense', adMaxLvl, { superchargeTier: expectedTier });
+        const infMaxLvl = getDefensesData().inferno_tower.maxLevel;
+        const expectedTier = getDefaultSuperchargeTier('inferno_tower', infMaxLvl, MAX_TOWN_HALL);
+        const expectedHp = getDefenseMaxHp('inferno_tower', infMaxLvl, { superchargeTier: expectedTier });
 
-        assert.equal(adResult.superchargeTier, expectedTier, 'Supercharge tier must default to max tier');
-        assert.equal(adResult.maxHp, expectedHp, 'Max HP must reflect supercharged hitpoints');
+        assert.equal(infResult.superchargeTier, expectedTier, 'Supercharge tier must default to max tier');
+        assert.equal(infResult.maxHp, expectedHp, 'Max HP must reflect supercharged hitpoints');
     });
 
     await t.test('damageCalcState initializes with active max TH and max supercharge tier defaults', () => {
@@ -130,17 +131,27 @@ test('Dynamic Supercharge Derivation & Defaults', async (t) => {
         assert.equal(damageCalcState.simulator.superchargeTier, expectedSimTier);
     });
 
-    await t.test('syncPlayerVillageData updates superchargeTier dynamically for TH18 and TH17 profiles', () => {
+    await t.test('syncPlayerVillageData updates superchargeTier dynamically for TH19 and non-max profiles', () => {
         resetDamageCalcState();
 
-        // Sync a TH18 player
+        // Sync a TH19 player (active max TH -> Tier 2 supercharge)
+        syncPlayerVillageData({
+            tag: '#TH19PLAYER',
+            townHallLevel: MAX_TOWN_HALL,
+            heroEquipment: []
+        });
+        assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
+        assert.equal(damageCalcState.globalSuperchargeTier, 2);
+
+        // Sync a TH18 player (non-max TH -> 0 supercharge)
         syncPlayerVillageData({
             tag: '#TH18PLAYER',
             townHallLevel: 18,
             heroEquipment: []
         });
         assert.equal(damageCalcState.playerTownHall, 18);
-        assert.equal(damageCalcState.globalSuperchargeTier, 2);
+        assert.equal(damageCalcState.globalSuperchargeTier, 0);
+        assert.equal(damageCalcState.simulator.superchargeTier, 0);
 
         // Sync a TH17 player
         syncPlayerVillageData({
@@ -206,12 +217,12 @@ test('Dynamic Supercharge Derivation & Defaults', async (t) => {
         assert.ok(popoverMulti.body.includes('Overkill'), 'Must include Overkill text for multi-source combo');
     });
 
-    await t.test('Town Hall switching preserves supercharges at TH18 and synchronizes solver combo buckets', () => {
+    await t.test('Town Hall switching preserves supercharges at max TH and synchronizes solver combo buckets', () => {
         resetDamageCalcState();
-        setPlayerTownHall(18);
+        setPlayerTownHall(MAX_TOWN_HALL);
         setGlobalSuperchargeTier(2);
 
-        assert.equal(damageCalcState.playerTownHall, 18);
+        assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
         assert.equal(getGlobalSuperchargeTier(damageCalcState), 2);
 
         // Switch to TH17: global supercharge tier evaluates to 0
@@ -219,9 +230,9 @@ test('Dynamic Supercharge Derivation & Defaults', async (t) => {
         assert.equal(damageCalcState.playerTownHall, 17);
         assert.equal(getGlobalSuperchargeTier(damageCalcState), 0);
 
-        // Switch back to TH18: global supercharge tier returns to 2
-        setPlayerTownHall(18);
-        assert.equal(damageCalcState.playerTownHall, 18);
+        // Switch back to max TH: global supercharge tier returns to 2
+        setPlayerTownHall(MAX_TOWN_HALL);
+        assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
         assert.equal(getGlobalSuperchargeTier(damageCalcState), 2);
 
         // Verify combo buckets calculated by getDashboardComboBuckets
@@ -229,12 +240,12 @@ test('Dynamic Supercharge Derivation & Defaults', async (t) => {
         const allBuildings = buckets.flatMap(b => b.defenses);
         const firespitter = allBuildings.find(d => d.defenseKey === 'firespitter');
 
-        assert.ok(firespitter, 'Firespitter must be present in TH18 combo buckets');
-        assert.equal(firespitter.level, 3, 'Firespitter max level at TH18 is 3');
+        assert.ok(firespitter, `Firespitter must be present in TH${MAX_TOWN_HALL} combo buckets`);
+        assert.equal(firespitter.level, 3, `Firespitter max level at TH${MAX_TOWN_HALL} is 3`);
         assert.equal(firespitter.superchargeTier, 2, 'Firespitter must inherit Supercharge Tier 2');
         assert.equal(firespitter.maxHp, 5550, 'Firespitter HP must reflect Supercharge Tier 2 (5550 HP, not 5300)');
 
-        // Toggling global supercharge tier to 0 at TH18 updates solver outputs
+        // Toggling global supercharge tier to 0 at max TH updates solver outputs
         setGlobalSuperchargeTier(0);
         assert.equal(getGlobalSuperchargeTier(damageCalcState), 0);
         const bucketsSc0 = getDashboardComboBuckets(damageCalcState);
@@ -242,7 +253,7 @@ test('Dynamic Supercharge Derivation & Defaults', async (t) => {
         assert.equal(firespitterSc0.superchargeTier, 0);
         assert.equal(firespitterSc0.maxHp, 5300);
 
-        // Toggling global supercharge tier to 1 at TH18 updates solver outputs
+        // Toggling global supercharge tier to 1 at max TH updates solver outputs
         setGlobalSuperchargeTier(1);
         assert.equal(getGlobalSuperchargeTier(damageCalcState), 1);
         const bucketsSc1 = getDashboardComboBuckets(damageCalcState);

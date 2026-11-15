@@ -72,7 +72,7 @@ export function generateGuestPlayerData(thLevel, leagueId) {
  */
 export function initializeGuestHeroesState(guestPlayerState) {
     if (!guestPlayerState || !guestPlayerState.playerProfile) return;
-    const thLevel = Number(guestPlayerState.playerProfile.townHallLevel) || 16;
+    const thLevel = Number(guestPlayerState.playerProfile.townHallLevel) || MAX_TOWN_HALL;
 
     if (!guestPlayerState.heroes) {
         guestPlayerState.heroes = {};
@@ -112,7 +112,7 @@ export function initializeGuestHeroesState(guestPlayerState) {
  * @param {number} [leagueId] - Optional league ID override.
  */
 export function ensureGuestPlayerState(thLevel, leagueId) {
-    const targetTH = thLevel || guidedSetupState.selectedTH || 16;
+    const targetTH = thLevel || guidedSetupState.selectedTH || MAX_TOWN_HALL;
     const targetLeague = leagueId !== undefined ? leagueId : (guidedSetupState.selectedLeague || 105000000);
 
     if (!state.allPlayersData['DEFAULT0']) {

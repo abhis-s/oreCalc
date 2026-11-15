@@ -139,10 +139,10 @@ test('getDefaultModifierKey resolves Legends league IDs and names to correspondi
 
 test('MODIFIER_HERO_BOOST_MULTIPLIERS correctly maps league hero boost multipliers from canonical data', () => {
     assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.standard, 1.00);
-    assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.legend3, 0.95);
-    assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.legend2, 0.90);
+    assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.legend3, 0.90);
+    assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.legend2, 0.85);
     assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.legend1, 0.80);
-    assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.esports, 0.80);
+    assert.equal(MODIFIER_HERO_BOOST_MULTIPLIERS.esports, 0.75);
 });
 
 test('computeEffectiveLevels leaves levels un-downgraded across Legend tiers', () => {

@@ -9,7 +9,8 @@ import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import {
     getEffectiveEquipmentLevel,
-    getMaxSpellLevel
+    getMaxSpellLevel,
+    resolveOwnSpellLevels
 } from '../../domain/damage/damageFormulas.js';
 import {
     getMaxSuperchargeTierForTownHall
@@ -30,12 +31,11 @@ import {
  * @returns {string} HTML markup for the inner .calc-damage-sources-grid.
  */
 export function getDamageSourcesGridHtml(state) {
-    const zq = state.zapQuake || {};
     const maxZapLevel = getMaxSpellLevel('lightning');
     const maxEqLevel = getMaxSpellLevel('earthquake');
-    const spells = state.offense?.spells || { lightning: maxZapLevel, earthquake: maxEqLevel };
-    const zapLvl = spells.lightning || zq.lightningLevel || maxZapLevel;
-    const eqLvl = spells.earthquake || zq.earthquakeLevel || maxEqLevel;
+    const ownSpells = resolveOwnSpellLevels(state);
+    const zapLvl = ownSpells.lightning;
+    const eqLvl = ownSpells.earthquake;
     const enabledSources = state.offense?.enabledSources || {};
     const leagueId = getActiveModifier(state);
 

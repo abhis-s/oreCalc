@@ -18,7 +18,8 @@ import {
     damageCalcState,
     persistState,
     getShownTownHall,
-    pruneDefenseOverrides
+    pruneDefenseOverrides,
+    syncStateSpellCaps
 } from './damageCalcState.js';
 
 const ALL_HERO_EQUIPMENT_KEYS = [
@@ -94,6 +95,7 @@ export function syncPlayerVillageData(playerData, options = {}) {
             }
         }
     }
+    syncStateSpellCaps(damageCalcState, false);
 
     // Determine owned equipment set from playerData
     const ownedEquipKeys = new Set();
