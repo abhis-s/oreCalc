@@ -3,6 +3,7 @@
  * Tier 4: User Inputs (Dedicated exclusively to event listener attachments inside modal dialogs).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import {
     persistState,
     pruneDefenseOverrides,
@@ -21,6 +22,7 @@ import {
     getDefenseMaxHp,
     getMaxSuperchargeTier,
     getDefaultSuperchargeTier,
+    isSuperchargeAvailableForTownHall,
     snapDefenseLevel,
     getPrevDefenseLevel,
     getNextDefenseLevel,
@@ -87,7 +89,9 @@ export function attachBuildingEditorModalListeners(state, modalBody, onStateChan
                 buildingEditSuperchargeMemory.set(buildingKey, state.defenseSuperchargeOverrides[buildingKey]);
                 delete state.defenseSuperchargeOverrides[buildingKey];
             } else if (!buildingEditSuperchargeMemory.has(buildingKey)) {
-                const defaultSc = currentTH >= 18 ? getDefaultSuperchargeTier(buildingKey, maxLvl, currentTH) : 0;
+                const defaultSc = isSuperchargeAvailableForTownHall(currentTH)
+                    ? getDefaultSuperchargeTier(buildingKey, maxLvl, currentTH)
+                    : 0;
                 buildingEditSuperchargeMemory.set(buildingKey, defaultSc);
             }
         } else {
@@ -103,7 +107,7 @@ export function attachBuildingEditorModalListeners(state, modalBody, onStateChan
             ? 0
             : (state.defenseSuperchargeOverrides?.[buildingKey] !== undefined
                 ? state.defenseSuperchargeOverrides[buildingKey]
-                : (currentTH >= 18 ? getDefaultSuperchargeTier(buildingKey, clampedLvl, currentTH) : 0));
+                : (isSuperchargeAvailableForTownHall(currentTH) ? getDefaultSuperchargeTier(buildingKey, clampedLvl, currentTH) : 0));
 
         const row = modalBody.querySelector(`.calc-building-modal-row[data-building-key="${buildingKey}"]`);
         if (row) {
@@ -140,7 +144,7 @@ export function attachBuildingEditorModalListeners(state, modalBody, onStateChan
             // Display TH cap status tag when level reaches Town Hall maximum
             const metaContainer = row.querySelector('.calc-building-modal-row__meta');
             let statusTag = row.querySelector('.calc-building-status-tag[data-status-tag="th-cap"]');
-            if (currentTH < 18 && maxAllowedLevel < maxLvl) {
+            if (currentTH < MAX_TOWN_HALL && maxAllowedLevel < maxLvl) {
                 const isAtMax = clampedLvl >= maxAllowedLevel;
                 if (isAtMax) {
                     if (!statusTag && metaContainer) {
@@ -260,7 +264,7 @@ export function attachBuildingEditorModalListeners(state, modalBody, onStateChan
             const currentLvl = state.defenseLevelOverrides?.[key] !== undefined
                 ? state.defenseLevelOverrides[key]
                 : (getMaxDefenseLevelForTownHall(key, currentTH)?.level || maxLvl);
-            const defaultSc = (currentTH >= 18 && currentLvl >= maxLvl)
+            const defaultSc = (isSuperchargeAvailableForTownHall(currentTH) && currentLvl >= maxLvl)
                 ? getDefaultSuperchargeTier(key, currentLvl, currentTH)
                 : 0;
 

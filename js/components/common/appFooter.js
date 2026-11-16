@@ -1,13 +1,32 @@
 /**
  * @fileoverview Centralized application footer controller.
  * Manages runtime version display, perpetual dynamic copyright years,
- * in-app legal modal interception, and active link state synchronization.
+ * in-app legal modal interception, localized href updates, and reversible active link state.
  */
 
 import { openLicensesModal, openPrivacyModal, openTermsOfUseModal } from '../appSettings/settingsLegalModals.js';
 import { openRunningCostsModal } from '../appSettings/settingsRunningCostsModal.js';
 import { openBugReportModal, openContactModal } from '../appSettings/settingsSupportModals.js';
 import { translate } from '../../i18n/translator.js';
+import {
+    getLanguageFromPath,
+    normalizeRoutePath,
+    buildLocalizedRouteHref
+} from '../../core/languageRouter.js';
+import { getPlayerTagFromUrl } from '../../core/playerUrlRouter.js';
+import { state } from '../../core/state.js';
+
+const DEFAULT_FOOTER_SELECTOR = '.app-footer__list, .app-footer__links, .navigation-drawer__footer-links, .footer__links';
+
+/**
+ * Checks whether an href points to an external origin, anchor fragment, or non-HTTP scheme.
+ *
+ * @param {string} href
+ * @returns {boolean}
+ */
+function isExternalOrHashHref(href) {
+    return !href || /^(?:https?:\/\/|mailto:|tel:|javascript:|#)/i.test(href.trim());
+}
 
 /**
  * Normalizes URL path by stripping language prefixes and trailing slashes.
@@ -16,42 +35,59 @@ import { translate } from '../../i18n/translator.js';
  */
 export function normalizePath(path) {
     if (!path || typeof path !== 'string') return '/';
-    return path.replace(/^\/(de|tr|zh)(\/|$)/, '/').replace(/\/+$/, '') || '/';
+    const normalized = normalizeRoutePath(path);
+    return normalized === '/' ? '/' : normalized.replace(/\/+$/, '');
+}
+
+/**
+ * Resolves active player tag for link propagation across tools.
+ *
+ * @returns {string}
+ */
+function resolveActivePlayerTag() {
+    const urlTag = getPlayerTagFromUrl();
+    if (urlTag) return urlTag;
+    if (state.currentPlayerTag && state.currentPlayerTag !== 'DEFAULT0') {
+        return state.currentPlayerTag;
+    }
+    return '';
+}
+
+/**
+ * Closes an open navigation drawer when launching a modal from a drawer footer link.
+ */
+function closeOpenDrawer() {
+    const openDrawer = /** @type {HTMLDialogElement | null} */ (document.querySelector('.navigation-drawer'));
+    if (!openDrawer) return;
+    openDrawer.classList.remove('open');
+    const overlay = openDrawer.parentElement?.querySelector('.navigation-drawer__overlay') || document.querySelector('.navigation-drawer__overlay');
+    if (overlay) {
+        overlay.classList.remove('show', 'closing');
+    }
+    document.body?.classList.remove('open-drawer');
+    if (typeof openDrawer.close === 'function' && openDrawer.open) {
+        try { openDrawer.close(); } catch (_) {}
+    }
+    const btn = document.querySelector('#hamburger-btn, #hamburger-button, .app-header__hamburger, .hamburger');
+    if (btn) {
+        btn.setAttribute('aria-expanded', 'false');
+    }
 }
 
 /**
  * Handles legal and support link clicks by opening corresponding in-app dialog modals.
+ * Suppresses native navigation when clicking an already-active footer route link.
  * Falls back gracefully to standard navigation when modifier keys are used or modals are absent.
  * @param {MouseEvent} event
  * @returns {void}
  */
 function handleLegalLinkClick(event) {
-    // Preserve default browser behavior on auxiliary clicks (middle-click) or keyboard modifiers
     if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
         return;
     }
 
     const target = /** @type {HTMLElement | null} */ (event.target);
     if (!target) return;
-
-    // Helper to close navigation drawer if currently open
-    const closeOpenDrawer = () => {
-        const openDrawer = /** @type {HTMLDialogElement | null} */ (document.querySelector('.navigation-drawer'));
-        if (!openDrawer) return;
-        openDrawer.classList.remove('open');
-        const overlay = openDrawer.parentElement?.querySelector('.navigation-drawer__overlay') || document.querySelector('.navigation-drawer__overlay');
-        if (overlay) {
-            overlay.classList.remove('show', 'closing');
-        }
-        document.body?.classList.remove('open-drawer');
-        if (typeof openDrawer.close === 'function' && openDrawer.open) {
-            try { openDrawer.close(); } catch (_) {}
-        }
-        const btn = document.querySelector('#hamburger-btn, #hamburger-button, .app-header__hamburger, .hamburger');
-        if (btn) {
-            btn.setAttribute('aria-expanded', 'false');
-        }
-    };
 
     const changelogTrigger = /** @type {HTMLElement | null} */ (target.closest('[data-modal-target="changelog-modal"], [data-action="open-changelog-modal"]'));
     if (changelogTrigger && document.getElementById('changelog-modal')) {
@@ -112,29 +148,176 @@ function handleLegalLinkClick(event) {
         event.preventDefault();
         closeOpenDrawer();
         openLicensesModal();
+        return;
+    }
+
+    const activeFooterLink = /** @type {HTMLAnchorElement | null} */ (target.closest('a[aria-current="page"]'));
+    if (activeFooterLink) {
+        event.preventDefault();
     }
 }
 
 /**
- * Automatically marks and disables the footer link corresponding to the current URL pathname.
- * @param {string} [containerSelector='.app-footer__list, .app-footer__links, .navigation-drawer__footer-links, .footer__links']
+ * Stateful singleton controller managing footer hydration, reversible active states,
+ * localized link generation, and responsive wrap-separator observers.
  */
-export function syncActiveFooterLinks(containerSelector = '.app-footer__list, .app-footer__links, .navigation-drawer__footer-links, .footer__links') {
-    const currentPath = normalizePath(typeof window !== 'undefined' ? window.location?.pathname : '/');
-    const containers = document.querySelectorAll(containerSelector);
+class AppFooterController {
+    /** @type {WeakMap<Element, string>} */
+    #canonicalBasePaths = new WeakMap();
 
-    containers.forEach(container => {
-        const links = container.querySelectorAll('a[href]');
-        links.forEach(link => {
-            const href = link.getAttribute('href') || '';
-            const linkPath = normalizePath(href);
-            if (currentPath === linkPath) {
-                link.classList.add('is-active');
-                link.setAttribute('aria-current', 'page');
-                link.removeAttribute('href');
+    /** @type {WeakSet<Element>} */
+    #boundLinkLists = new WeakSet();
+
+    /** @type {WeakMap<Element, () => void>} */
+    #separatorCleanups = new WeakMap();
+
+    /** @type {WeakSet<Document>} */
+    #boundDocuments = new WeakSet();
+
+    /**
+     * Reconciles active indicators and localized href attributes across footer and header brand links.
+     *
+     * @param {string} [containerSelector=DEFAULT_FOOTER_SELECTOR]
+     */
+    syncLinks(containerSelector = DEFAULT_FOOTER_SELECTOR) {
+        if (typeof document === 'undefined') return;
+
+        const currentNormalizedPath = normalizeRoutePath(typeof window !== 'undefined' ? window.location?.pathname || '/' : '/');
+        const currentLang = getLanguageFromPath() || 'en';
+        const playerTag = resolveActivePlayerTag();
+
+        if (typeof document.querySelectorAll === 'function') {
+            const brandLinks = document.querySelectorAll('.brand-title-link, .landing-brand');
+            const localizedHubHref = buildLocalizedRouteHref('/', { lang: currentLang });
+            brandLinks.forEach(brandLink => {
+                brandLink.setAttribute?.('href', localizedHubHref);
+            });
+        }
+
+        const containers = document.querySelectorAll?.(containerSelector) || [];
+        containers.forEach(container => {
+            let links = Array.from(container.querySelectorAll?.('a') || []);
+            if (links.length === 0 && typeof container.querySelectorAll === 'function') {
+                links = Array.from(container.querySelectorAll('a[href]') || []);
+            }
+
+            links.forEach(link => {
+                let canonicalPath = this.#canonicalBasePaths.get(link)
+                    || link.getAttribute?.('data-footer-href')
+                    || null;
+
+                if (!canonicalPath) {
+                    const initialHref = link.getAttribute?.('href') || '';
+                    if (isExternalOrHashHref(initialHref)) return;
+                    canonicalPath = normalizeRoutePath(initialHref);
+                    this.#canonicalBasePaths.set(link, canonicalPath);
+                    link.setAttribute?.('data-footer-href', canonicalPath);
+                }
+
+                if (isExternalOrHashHref(canonicalPath)) return;
+
+                const localizedHref = buildLocalizedRouteHref(canonicalPath, {
+                    lang: currentLang,
+                    playerTag
+                });
+                link.setAttribute?.('href', localizedHref);
+
+                if (currentNormalizedPath === canonicalPath) {
+                    link.classList?.add?.('is-active');
+                    link.setAttribute?.('aria-current', 'page');
+                } else {
+                    link.classList?.remove?.('is-active');
+                    link.removeAttribute?.('aria-current');
+                }
+            });
+        });
+    }
+
+    /**
+     * Binds document-level reactive synchronization listeners once per Document instance.
+     */
+    #bindDocumentSyncListeners() {
+        if (typeof document === 'undefined' || typeof document.addEventListener !== 'function') return;
+        if (this.#boundDocuments.has(document)) return;
+        this.#boundDocuments.add(document);
+
+        const refreshLinks = () => this.syncLinks();
+        document.addEventListener('languageChanged', refreshLinks);
+        document.addEventListener('app:playerDropdownSync', refreshLinks);
+    }
+
+    /**
+     * Hydrates copyright/version metadata, delegated click handlers, wrap observers, and active links.
+     *
+     * @param {{ version?: string }} [options={}]
+     */
+    init(options = {}) {
+        const rawVersion = (typeof window !== 'undefined' && window.__ENV__?.APP_VERSION) || options.version || '3.1.0';
+        const formattedVersion = 'v' + String(rawVersion).replace(/^v/, '');
+
+        const versionDisplays = document.querySelectorAll('#app-version-display, .navigation-drawer__app-version, #support-sw-version-text');
+        versionDisplays.forEach(el => {
+            el.textContent = formattedVersion;
+        });
+
+        const currentYear = new Date().getFullYear();
+        const yearRange = currentYear > 2025 ? `2025-${currentYear}` : '2025';
+        const rightsText = translate('app.allRightsReserved');
+        const rightsDisplay = rightsText === 'app.allRightsReserved' ? 'All rights reserved.' : rightsText;
+        const rightsHtml = `<span data-i18n="app.allRightsReserved">${rightsDisplay}</span>`;
+        const copyrightElements = document.querySelectorAll('.app-copyright p, .navigation-drawer__copyright, .footer__copyright');
+        copyrightElements.forEach(el => {
+            if (el.closest?.('.app-footer__copyright')) {
+                el.innerHTML = `&copy; ${yearRange} ClashCalc (formerly OreCalc).<br class="app-footer__copyright-break"> ${rightsHtml}`;
+            } else if (el.closest?.('.navigation-drawer__copyright') || el.classList?.contains('navigation-drawer__copyright')) {
+                el.innerHTML = `&copy; ${yearRange} ClashCalc (formerly OreCalc).<br class="navigation-drawer__copyright-break"> ${rightsHtml}`;
+            } else {
+                el.innerHTML = `&copy; ${yearRange} ClashCalc (formerly OreCalc). ${rightsHtml}`;
             }
         });
-    });
+
+        const footerLinkLists = document.querySelectorAll('.app-footer, .app-footer__links, .app-footer__meta-row, .navigation-drawer__footer-links');
+        footerLinkLists.forEach(list => {
+            const htmlList = /** @type {HTMLElement} */ (list);
+            if (this.#boundLinkLists.has(htmlList) || htmlList.dataset?.footerInitialized) return;
+            this.#boundLinkLists.add(htmlList);
+            if (htmlList.dataset) {
+                htmlList.dataset.footerInitialized = 'true';
+            }
+            htmlList.addEventListener?.('click', handleLegalLinkClick);
+        });
+
+        const wrapSeparatedLists = document.querySelectorAll('.app-footer__col--legal .app-footer__list, .footer__links');
+        wrapSeparatedLists.forEach(list => {
+            const htmlList = /** @type {HTMLElement} */ (list);
+            if (this.#separatorCleanups.has(htmlList) || htmlList.dataset?.separatorsObserved) return;
+            if (htmlList.dataset) {
+                htmlList.dataset.separatorsObserved = 'true';
+            }
+            this.#separatorCleanups.set(htmlList, observeWrappedSeparators(htmlList));
+        });
+
+        if (typeof document !== 'undefined' && document.fonts && typeof document.fonts.ready?.then === 'function') {
+            document.fonts.ready.then(() => {
+                wrapSeparatedLists.forEach(list => {
+                    updateWrappedSeparators(/** @type {HTMLElement} */ (list));
+                });
+            }).catch(() => {});
+        }
+
+        this.#bindDocumentSyncListeners();
+        this.syncLinks();
+    }
+}
+
+const footerController = new AppFooterController();
+
+/**
+ * Reconciles active indicators and localized href attributes across footer and header brand links.
+ * @param {string} [containerSelector=DEFAULT_FOOTER_SELECTOR]
+ */
+export function syncActiveFooterLinks(containerSelector = DEFAULT_FOOTER_SELECTOR) {
+    footerController.syncLinks(containerSelector);
 }
 
 /**
@@ -142,56 +325,7 @@ export function syncActiveFooterLinks(containerSelector = '.app-footer__list, .a
  * @param {{ version?: string }} [options={}]
  */
 export function initAppFooter(options = {}) {
-    const rawVersion = (typeof window !== 'undefined' && window.__ENV__?.APP_VERSION) || options.version || '3.1.0';
-    const formattedVersion = 'v' + String(rawVersion).replace(/^v/, '');
-
-    const versionDisplays = document.querySelectorAll('#app-version-display, .navigation-drawer__app-version, #support-sw-version-text');
-    versionDisplays.forEach(el => {
-        el.textContent = formattedVersion;
-    });
-
-    const currentYear = new Date().getFullYear();
-    const yearRange = currentYear > 2025 ? `2025-${currentYear}` : '2025';
-    const rightsText = translate('app.allRightsReserved');
-    const rightsDisplay = rightsText === 'app.allRightsReserved' ? 'All rights reserved.' : rightsText;
-    const rightsHtml = `<span data-i18n="app.allRightsReserved">${rightsDisplay}</span>`;
-    const copyrightElements = document.querySelectorAll('.app-copyright p, .navigation-drawer__copyright, .footer__copyright');
-    copyrightElements.forEach(el => {
-        if (el.closest?.('.app-footer__copyright')) {
-            el.innerHTML = `&copy; ${yearRange} ClashCalc (formerly OreCalc).<br class="app-footer__copyright-break"> ${rightsHtml}`;
-        } else if (el.closest?.('.navigation-drawer__copyright') || el.classList?.contains('navigation-drawer__copyright')) {
-            el.innerHTML = `&copy; ${yearRange} ClashCalc (formerly OreCalc).<br class="navigation-drawer__copyright-break"> ${rightsHtml}`;
-        } else {
-            el.innerHTML = `&copy; ${yearRange} ClashCalc (formerly OreCalc). ${rightsHtml}`;
-        }
-    });
-
-    const footerLinkLists = document.querySelectorAll('.app-footer, .app-footer__links, .app-footer__meta-row, .navigation-drawer__footer-links');
-    footerLinkLists.forEach(list => {
-        const htmlList = /** @type {HTMLElement} */ (list);
-        if (htmlList.dataset.footerInitialized) return;
-        htmlList.dataset.footerInitialized = 'true';
-        htmlList.addEventListener('click', handleLegalLinkClick);
-    });
-
-    // Observe flex-wrapped footer links to suppress orphan line-break separators
-    const wrapSeparatedLists = document.querySelectorAll('.app-footer__col--legal .app-footer__list, .footer__links');
-    wrapSeparatedLists.forEach(list => {
-        const htmlList = /** @type {HTMLElement} */ (list);
-        if (htmlList.dataset.separatorsObserved) return;
-        htmlList.dataset.separatorsObserved = 'true';
-        observeWrappedSeparators(htmlList);
-    });
-
-    if (typeof document !== 'undefined' && document.fonts && typeof document.fonts.ready?.then === 'function') {
-        document.fonts.ready.then(() => {
-            wrapSeparatedLists.forEach(list => {
-                updateWrappedSeparators(/** @type {HTMLElement} */ (list));
-            });
-        }).catch(() => {});
-    }
-
-    syncActiveFooterLinks();
+    footerController.init(options);
 }
 
 /**

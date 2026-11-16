@@ -75,22 +75,6 @@
     }
 }
 
-.calc-select {
-    padding-block: $spacing-sm;
-    padding-inline: $spacing-md;
-    background-color: $bg-surface-secondary;
-    border: 1px solid $border-primary;
-    border-radius: $shape-corner-small;
-    color: $text-primary;
-    font-size: $font-size-sm;
-    outline: none;
-    transition: border-color $transition-fast;
-
-    &:focus {
-        border-color: $border-accent;
-    }
-}
-
 .calc-view-header {
     container-type: inline-size;
     container-name: view-header;

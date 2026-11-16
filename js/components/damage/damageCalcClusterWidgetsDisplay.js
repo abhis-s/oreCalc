@@ -7,7 +7,16 @@ import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { getClusterPresetsForTownHall } from '../../data/clusterPresetsData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
-import { getMaxDefenseLevelForTownHall } from '../../domain/damage/defenseProgressionDomain.js';
+import {
+    compareDefensesForDisplay,
+    getDefaultSuperchargeTier,
+    getDefenseMaxHp,
+    getMaxDefenseLevelForTownHall,
+    getMaxSuperchargeTier,
+    isClusterDefenseSunsetForTownHall,
+    isDefenseInSeason,
+    snapDefenseLevel
+} from '../../domain/damage/defenseProgressionDomain.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import {
@@ -182,34 +191,94 @@ export function renderMobileSpellDockHtml({
 }
 
 /**
- * Resolves suggested complementary neighbors for a defense at the active Town Hall.
+ * Computes up to 5 recommended neighboring cluster targets ranked by effective HP.
+ * Ranks eligible permanent defenses plus Clan Castle using the player's configured levels
+ * and supercharge tiers (falling back to Town Hall defaults when uncustomized).
+ * Always reserves the 5th slot for Clan Castle when not already ranked in spots 1–5.
  *
- * @param {string} defenseKey - Selected defense key.
+ * @param {string} defenseKey - Selected primary defense key to exclude.
  * @param {number} activeTh - Active Town Hall level.
- * @returns {Array<string>} Array of up to 3 candidate defense keys.
+ * @param {Date|string|number} [referenceDate=new Date()] - Reference date for seasonal filtering.
+ * @param {Object} [options={}] - Optional player configuration overrides.
+ * @param {Object | null} [options.defenseLevelOverrides=null] - Per-building level overrides.
+ * @param {Object | null} [options.defenseSuperchargeOverrides=null] - Per-building supercharge tier overrides.
+ * @param {number | undefined} [options.globalSuperchargeTier=undefined] - Global supercharge tier cap/default.
+ * @returns {Array<string>} Array of up to 5 recommended defense keys.
  */
-export function getSuggestedNeighborsForDefense(defenseKey, activeTh) {
-    const candidates = ['monolith', 'scattershot', 'inferno_tower', 'spell_tower', 'air_defense', 'eagle_artillery', 'clan_castle', 'cake_a_pult'];
-    return candidates
-        .filter(k => k !== defenseKey && getDefensesData()[k] && (!getDefensesData()[k].minTH || activeTh >= getDefensesData()[k].minTH))
-        .slice(0, 3);
+export function getSuggestedNeighborsForDefense(defenseKey, activeTh, referenceDate = new Date(), options = {}) {
+    const {
+        defenseLevelOverrides = null,
+        defenseSuperchargeOverrides = null,
+        globalSuperchargeTier = undefined
+    } = options;
+    const defs = getDefensesData();
+    const ranked = [];
+
+    for (const [k, def] of Object.entries(defs)) {
+        if (!def || k === defenseKey) continue;
+        if (def.subCategory !== 'defense' && def.subCategory !== 'cc') continue;
+        if (def.minTH && activeTh < def.minTH) continue;
+        if (isClusterDefenseSunsetForTownHall(k, activeTh)) continue;
+        if (!isDefenseInSeason(def, referenceDate)) continue;
+
+        const maxThLvl = getMaxDefenseLevelForTownHall(k, activeTh).level;
+        const defaultLvl = maxThLvl > 0 ? maxThLvl : (def.maxLevel || 1);
+        const customLvl = Number(defenseLevelOverrides?.[k]);
+        const effectiveLvl = Number.isFinite(customLvl) && customLvl > 0
+            ? snapDefenseLevel(k, customLvl)
+            : defaultLvl;
+
+        const defaultTier = getDefaultSuperchargeTier(k, effectiveLvl, activeTh);
+        const maxSc = getMaxSuperchargeTier(k, effectiveLvl);
+        const effectiveGlobalSc = globalSuperchargeTier !== undefined
+            ? Math.min(Math.max(0, Math.floor(Number(globalSuperchargeTier) || 0)), maxSc)
+            : defaultTier;
+        const superchargeTier = defenseSuperchargeOverrides?.[k] !== undefined
+            ? Math.min(Math.max(0, Math.floor(Number(defenseSuperchargeOverrides[k]) || 0)), maxSc)
+            : effectiveGlobalSc;
+
+        const hp = getDefenseMaxHp(k, effectiveLvl, { superchargeTier });
+        if (hp > 0) {
+            ranked.push({ key: k, hp });
+        }
+    }
+
+    ranked.sort((a, b) => (
+        b.hp - a.hp || compareDefensesForDisplay(a.key, defs[a.key], b.key, defs[b.key], activeTh)
+    ));
+
+    const topKeys = ranked.slice(0, 5).map(entry => entry.key);
+    if (
+        defenseKey !== 'clan_castle'
+        && topKeys.length === 5
+        && !topKeys.includes('clan_castle')
+        && ranked.some(entry => entry.key === 'clan_castle')
+    ) {
+        topKeys[4] = 'clan_castle';
+    }
+
+    return topKeys;
 }
 
 /**
  * Renders the Popular Cluster Presets cards for the empty state.
  *
  * @param {number} activeTh - Current Town Hall level.
+ * @param {Date|string|number} [referenceDate=new Date()] - Reference date for seasonal filtering.
  * @returns {string} HTML markup.
  */
-export function renderClusterPresetsHtml(activeTh) {
-    const presets = getClusterPresetsForTownHall(activeTh);
+export function renderClusterPresetsHtml(activeTh, referenceDate = new Date()) {
+    const presets = getClusterPresetsForTownHall(activeTh, referenceDate);
     if (!presets || presets.length === 0) {
         return '';
     }
 
     const presetCardsHtml = presets.map(preset => {
         const titleText = escapeHTML(translate(preset.titleKey) || preset.defaultTitle);
-        const descText = escapeHTML(translate(preset.descKey) || preset.defaultDesc);
+        const rawDesc = translate(preset.descKey) || preset.defaultDesc;
+        const isCountAdjusted = typeof preset.baseTargetCount === 'number' && preset.targets.length !== preset.baseTargetCount;
+        const descText = escapeHTML(isCountAdjusted ? rawDesc.replace(/\d+/, String(preset.targets.length)) : rawDesc);
+        const descI18nAttr = isCountAdjusted ? '' : ` data-i18n="${preset.descKey}"`;
         const loadBtnText = escapeHTML(translate('actions.load') || 'Load');
 
         const targetsThumbsHtml = preset.targets.map((tgtKey, i) => {
@@ -240,7 +309,7 @@ export function renderClusterPresetsHtml(activeTh) {
                 <div class="calc-cluster-preset-card__header">
                     <div class="calc-cluster-preset-card__info">
                         <span class="calc-cluster-preset-card__title" data-i18n="${preset.titleKey}">${titleText}</span>
-                        <span class="calc-cluster-preset-card__desc" data-i18n="${preset.descKey}">${descText}</span>
+                        <span class="calc-cluster-preset-card__desc"${descI18nAttr}>${descText}</span>
                     </div>
                     <button type="button" class="btn-secondary calc-cluster-preset-card__btn" data-i18n="actions.load">
                         ${loadBtnText}

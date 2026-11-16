@@ -1,23 +1,37 @@
 import { translate } from '../../i18n/translator.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 import { getAddPlayerHelpContent, hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
-import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
+import { canDismissModalOnEscape, closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { openPrivacyModal, openTermsOfUseModal } from '../appSettings/settingsLegalModals.js';
 import { enhanceClipboardInput, triggerAutoPaste } from '../common/clipboardInputController.js';
 
 const boundModals = new WeakSet();
+const boundStandaloneKeydownScopes = new WeakSet();
 let hasAttachedGlobalKeydown = false;
 /** @type {((tag: string) => Promise<any>) | null} */
 let activeOnLoadPlayer = null;
+/** @type {HTMLElement | null} */
+let activeStandaloneModal = null;
+/** @type {(() => void) | null} */
+let activeStandaloneCloseFn = null;
+
+function handleStandaloneAddPlayerKeydown(e) {
+    if (e.key !== 'Escape' || typeof document === 'undefined') return;
+    const activeModal = document.getElementById('add-player-modal');
+    if (!activeModal || activeModal !== activeStandaloneModal) return;
+    if (!canDismissModalOnEscape(activeModal)) return;
+    activeStandaloneCloseFn?.();
+}
 
 /**
  * Initializes the Add Player modal for standalone applications.
  *
  * @param {Object} options
  * @param {(tag: string) => Promise<any>} options.onLoadPlayer - Callback to load a player tag.
+ * @param {any} [options.scope=null] - Optional route lifecycle scope for listener cleanup.
  * @returns {{ openAddPlayerModal: () => void, closeAddPlayerModal: () => void }} Modal controller methods.
  */
-export function initStandaloneAddPlayerModal({ onLoadPlayer }) {
+export function initStandaloneAddPlayerModal({ onLoadPlayer, scope = null }) {
     activeOnLoadPlayer = onLoadPlayer;
     const modal = /** @type {HTMLDialogElement | null} */ (document.getElementById('add-player-modal'));
     const tagInput = /** @type {HTMLInputElement | null} */ (document.getElementById('player-tag-input-modal'));
@@ -174,16 +188,25 @@ export function initStandaloneAddPlayerModal({ onLoadPlayer }) {
         });
     }
 
-    if (!hasAttachedGlobalKeydown && typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
-        hasAttachedGlobalKeydown = true;
-        document.addEventListener('keydown', (e) => {
-            const activeModal = document.getElementById('add-player-modal');
-            if (e.key === 'Escape' && activeModal?.classList?.contains('show')) {
-                const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
-                if (openModals.length > 0 && openModals.at(-1) !== activeModal) return;
-                closeAddPlayerModal();
+    if (modal) {
+        activeStandaloneModal = modal;
+        activeStandaloneCloseFn = closeAddPlayerModal;
+
+        if (scope && typeof scope.listen === 'function') {
+            if (!boundStandaloneKeydownScopes.has(scope)) {
+                boundStandaloneKeydownScopes.add(scope);
+                scope.listen(document, 'keydown', handleStandaloneAddPlayerKeydown);
+                scope.track?.(() => {
+                    if (activeStandaloneModal === modal) {
+                        activeStandaloneModal = null;
+                        activeStandaloneCloseFn = null;
+                    }
+                });
             }
-        });
+        } else if (!hasAttachedGlobalKeydown && typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+            hasAttachedGlobalKeydown = true;
+            document.addEventListener('keydown', handleStandaloneAddPlayerKeydown);
+        }
     }
 
     return {

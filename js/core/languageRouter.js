@@ -1,4 +1,6 @@
 import { SUPPORTED_LANGUAGES } from '../data/languagesData.js';
+import { APP_ROUTES, APP_LEGAL_ROUTES } from '../data/appRoutesData.js';
+import { normalizePlayerTag } from './storageKeys.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
 import { state } from './state.js';
 
@@ -139,6 +141,103 @@ export function syncLanguageUrl(lang, replace = false) {
 }
 
 /**
+ * Normalizes a URL or path string into an unprefixed canonical pathname ending with '/'.
+ * Strips protocol/origin, query string, hash fragment, trailing index.html, and language prefixes.
+ *
+ * @param {string} pathname
+ * @returns {string}
+ */
+export function normalizeRoutePath(pathname) {
+    if (typeof pathname !== 'string') return '/';
+
+    let rawPath = pathname.trim();
+    if (/^https?:\/\//i.test(rawPath)) {
+        try {
+            rawPath = new URL(rawPath).pathname;
+        } catch {
+            return '/';
+        }
+    }
+
+    rawPath = rawPath.split(/[?#]/)[0] || '/';
+    rawPath = rawPath.replace(/\/index\.html$/i, '') || '/';
+
+    const segments = rawPath.split('/').filter(Boolean);
+    if (segments.length > 0 && SUPPORTED_LANGUAGES.includes(segments[0].toLowerCase())) {
+        segments.shift();
+    }
+    if (segments.length === 1 && segments[0].toLowerCase() === 'index.html') {
+        segments.shift();
+    }
+
+    return segments.length === 0 ? '/' : `/${segments.join('/').toLowerCase()}/`;
+}
+
+/**
+ * Finds the matching canonical application route descriptor for a given URL or pathname.
+ *
+ * @param {string | null | undefined} pathname
+ * @returns {import('../data/appRoutesData.js').AppRouteDescriptor | null}
+ */
+export function findRouteByPath(pathname) {
+    if (typeof pathname !== 'string') return null;
+    const normalized = normalizeRoutePath(pathname);
+    return APP_ROUTES.find(route => route.path === normalized) || null;
+}
+
+/**
+ * Retrieves a canonical application route descriptor by route identifier.
+ *
+ * @param {string | null | undefined} routeId
+ * @returns {import('../data/appRoutesData.js').AppRouteDescriptor | null}
+ */
+export function findRouteById(routeId) {
+    if (typeof routeId !== 'string') return null;
+    return APP_ROUTES.find(route => route.id === routeId) || null;
+}
+
+/**
+ * Builds a clean localized route or legal href with optional player tag query attachment.
+ *
+ * @param {string} basePath
+ * @param {{ lang?: string, playerTag?: string, preserveTag?: boolean }} [options]
+ * @returns {string}
+ */
+export function buildLocalizedRouteHref(basePath, options = {}) {
+    const normalizedPath = normalizeRoutePath(basePath);
+    const requestedLang = (options.lang && SUPPORTED_LANGUAGES.includes(options.lang))
+        ? options.lang
+        : (getLanguageFromPath() || 'en');
+
+    const legalRoute = APP_LEGAL_ROUTES.find(route => route.path === normalizedPath);
+    const targetLang = (legalRoute && !legalRoute.supportedLanguages.includes(requestedLang))
+        ? 'en'
+        : requestedLang;
+
+    const localizedPath = getLocalizedPath(targetLang, {
+        pathname: normalizedPath,
+        search: '',
+        hash: ''
+    });
+
+    const routeDescriptor = findRouteByPath(normalizedPath);
+    const shouldAttachTag = options.preserveTag === false
+        ? false
+        : Boolean(routeDescriptor?.supportsTag);
+
+    if (!shouldAttachTag || !options.playerTag) {
+        return localizedPath;
+    }
+
+    const cleanTag = normalizePlayerTag(options.playerTag);
+    if (!cleanTag || cleanTag === 'DEFAULT0') {
+        return localizedPath;
+    }
+
+    return `${localizedPath}?tag=${encodeURIComponent(cleanTag)}`;
+}
+
+/**
  * Validates whether a pathname is a valid application route or language route.
  *
  * @param {string} pathName - Path string to evaluate.
@@ -151,22 +250,27 @@ export function isValidRoute(pathName) {
     const pathSegments = pathName.split('/').filter(Boolean);
     if (pathSegments.length === 0) return true;
 
+    let lang = 'en';
     const firstSegment = pathSegments[0].toLowerCase();
-
-    // Check language prefix routes (e.g. /de/, /tr/, /zh/)
     if (SUPPORTED_LANGUAGES.includes(firstSegment)) {
-        if (pathSegments.length === 1) return true;
-        if (pathSegments.length === 2) {
-            const subRoute = pathSegments[1].toLowerCase();
-            const validLocalizedSubRoutes = ['ore-calculator', 'hero-journey', 'damage-calculator', 'account', 'privacy', 'terms', '404'];
-            if (validLocalizedSubRoutes.includes(subRoute)) return true;
-        }
-        return false;
+        lang = firstSegment;
+        pathSegments.shift();
     }
 
-    const validRootRoutes = ['ore-calculator', 'hero-journey', 'damage-calculator', 'account', 'privacy', 'terms', 'licenses', '404'];
-    if (pathSegments.length === 1 && validRootRoutes.includes(firstSegment)) {
-        return true;
+    if (pathSegments.length === 0) return true;
+    if (pathSegments.length === 1) {
+        const subRoute = pathSegments[0].toLowerCase();
+        if (subRoute === '404' || subRoute === '404.html') {
+            return true;
+        }
+        const normalizedSubPath = `/${subRoute}/`;
+        if (APP_ROUTES.some(route => route.path === normalizedSubPath)) {
+            return true;
+        }
+        const legalMatch = APP_LEGAL_ROUTES.find(route => route.path === normalizedSubPath);
+        if (legalMatch) {
+            return legalMatch.supportedLanguages.includes(lang);
+        }
     }
 
     return false;

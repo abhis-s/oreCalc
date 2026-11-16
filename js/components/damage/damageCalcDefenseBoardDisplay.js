@@ -7,7 +7,11 @@ import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import { solveClusteredZapQuake } from '../../domain/damage/zapQuakeBatchSolver.js';
-import { getEffectiveEquipmentLevel } from '../../domain/damage/damageFormulas.js';
+import {
+    getEffectiveEquipmentLevel,
+    getMaxSpellLevel,
+    resolveOwnSpellLevels
+} from '../../domain/damage/damageFormulas.js';
 import {
     getMaxSuperchargeTier,
     getMaxDefenseLevelForTownHall
@@ -49,28 +53,19 @@ export function renderDefenseBoardPanel(state, container) {
 
     const zq = state.zapQuake;
     const buildingFilter = zq.buildingFilter || 'all';
-    const spells = state.offense?.spells || { lightning: 13, earthquake: 8 };
-    const zapLvl = spells.lightning || zq.lightningLevel || 13;
-    const eqLvl = spells.earthquake || zq.earthquakeLevel || 8;
+    const maxLightning = getMaxSpellLevel('lightning');
+    const maxEq = getMaxSpellLevel('earthquake');
+    const ownSpells = resolveOwnSpellLevels(state);
+    const zapLvl = ownSpells.lightning;
+    const eqLvl = ownSpells.earthquake;
 
     const activeTh = getShownTownHall(state);
-    let currentDefense = getDefensesData()[zq.defenseKey];
-    if (!currentDefense || (currentDefense.minTH && activeTh < currentDefense.minTH) || (currentDefense.maxTH && activeTh > currentDefense.maxTH)) {
-        zq.defenseKey = 'air_defense';
-        currentDefense = getDefensesData().air_defense;
-    }
-    const maxLvl = currentDefense.maxLevel || 1;
-    const defaultLevel = state.defenseLevelOverrides?.[zq.defenseKey] || maxLvl;
-    const currentLvl = Math.min(zq.defenseLevel || defaultLevel, maxLvl);
 
-    const ccSpellsState = state.offense?.ccSpells || { lightning: 13, earthquake: 8 };
-    const ccZapLvl = ccSpellsState.lightning || 13;
-    const ccEqLvl = ccSpellsState.earthquake || 8;
+    const ccSpellsState = state.offense?.ccSpells || { lightning: maxLightning, earthquake: maxEq };
+    const ccZapLvl = ccSpellsState.lightning || maxLightning;
+    const ccEqLvl = ccSpellsState.earthquake || maxEq;
     const isCcZapEnabled = state.offense?.enabledSources?.cc_lightning !== false;
     const isCcEqEnabled = state.offense?.enabledSources?.cc_earthquake !== false;
-
-    // Cluster mode is invariant for Tab 2
-    zq.multiSelectMode = true;
 
     // Cluster targets from state — resolve levels from overrides at render-time (no state mutation)
     const overrides = state.defenseLevelOverrides || {};
@@ -180,12 +175,17 @@ export function renderDefenseBoardPanel(state, container) {
         const selectNextText = escapeHTML(translate('views.damageCalc.clusterPlanner.clusterSelectNextTarget') || 'Select Target #2');
         const suggestedLabelText = escapeHTML(translate('views.damageCalc.clusterPlanner.clusterSuggestedNeighbors') || 'Suggested Neighbors');
 
-        const suggestedKeys = getSuggestedNeighborsForDefense(singleTgt.defenseKey, activeTh);
+        const suggestedKeys = getSuggestedNeighborsForDefense(singleTgt.defenseKey, activeTh, new Date(), {
+            defenseLevelOverrides: overrides,
+            defenseSuperchargeOverrides: state.defenseSuperchargeOverrides || null,
+            globalSuperchargeTier: getGlobalSuperchargeTier(state)
+        });
         const suggestedChipsHtml = suggestedKeys.map(k => {
             const def = getDefensesData()[k];
             const name = getDefenseDisplayName(k);
             const maxThLvl = getMaxDefenseLevelForTownHall(k, activeTh).level;
-            const lvl = maxThLvl > 0 ? maxThLvl : (def?.maxLevel || 1);
+            const defaultLvl = maxThLvl > 0 ? maxThLvl : (def?.maxLevel || 1);
+            const lvl = overrides[k] || defaultLvl;
             const thumb = getBuildingAssetUrl(k, lvl);
             return `
                 <button type="button" class="calc-cluster-suggest-btn" data-action="add-cluster-neighbor" data-target-key="${k}" title="${escapeHTML(name)}">
@@ -316,12 +316,8 @@ export function renderDefenseBoardPanel(state, container) {
             </div>
 
             ${renderBuildingSelectionGrid({
-                activeKey: clusterTargets[0]?.defenseKey || zq.defenseKey,
-                activeLevel: clusterTargets[0]?.level || currentLvl,
                 searchQuery: zq.searchQuery || '',
                 selectedCluster: clusterTargets,
-                multiSelectMode: true,
-                prefix: 'zq',
                 buildingFilter,
                 townHallLevel: activeTh,
                 superchargeTier: getGlobalSuperchargeTier(state),
@@ -471,12 +467,8 @@ export function updateClusterBuildingGridForSearch(state, container) {
     const clusterTargets = Array.isArray(zq.selectedCluster) ? zq.selectedCluster : [];
     const activeTh = getShownTownHall(state);
     const cardsHtml = renderBuildingGridCardsHtml({
-        activeKey: clusterTargets[0]?.defenseKey || zq.defenseKey,
-        activeLevel: clusterTargets[0]?.level || zq.defenseLevel || 1,
         searchQuery: zq.searchQuery || '',
         selectedCluster: clusterTargets,
-        multiSelectMode: true,
-        prefix: 'zq',
         buildingFilter: zq.buildingFilter || 'all',
         townHallLevel: activeTh,
         superchargeTier: getGlobalSuperchargeTier(state),

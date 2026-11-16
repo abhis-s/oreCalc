@@ -566,19 +566,20 @@ test('Battle Modifier & League Rules Popover', async (t) => {
         // Body must use standard popover stat list
         assert.ok(popover.body.includes('<ul class="calc-popover-stat-list">'), 'Must use calc-popover-stat-list');
 
-        assert.ok(popover.body.includes('Legend III (+10%):'), 'Legend III must be present');
-        assert.ok(popover.body.includes('Def. DPS +10%'), 'Legend III Def. DPS');
-        assert.ok(popover.body.includes('-5%'), 'Legend III -5% hero stats');
+        assert.ok(popover.body.includes('Legend III (+15%):'), 'Legend III must be present');
+        assert.ok(popover.body.includes('Def. DPS +15%'), 'Legend III Def. DPS');
+        assert.ok(popover.body.includes('-10%'), 'Legend III -10% hero stats');
 
-        assert.ok(popover.body.includes('Legend II (+15%):'), 'Legend II must be present');
-        assert.ok(popover.body.includes('Def. DPS +15%'), 'Legend II Def. DPS');
-        assert.ok(popover.body.includes('-10%'), 'Legend II -10% hero stats');
+        assert.ok(popover.body.includes('Legend II (+20%):'), 'Legend II must be present');
+        assert.ok(popover.body.includes('Def. DPS +20%'), 'Legend II Def. DPS');
+        assert.ok(popover.body.includes('-15%'), 'Legend II -15% hero stats');
 
-        assert.ok(popover.body.includes('Legend I (+20%):'), 'Legend I must be present');
-        assert.ok(popover.body.includes('Def. DPS +20%'), 'Legend I Def. DPS');
+        assert.ok(popover.body.includes('Legend I (+25%):'), 'Legend I must be present');
+        assert.ok(popover.body.includes('Def. DPS +25%'), 'Legend I Def. DPS');
         assert.ok(popover.body.includes('-20%'), 'Legend I -20% hero stats');
 
-        assert.ok(popover.body.includes('Esports Mode:'), 'Esports Mode must be present');
+        assert.ok(popover.body.includes('Esports (+30%):'), 'Esports (+30%) must be present');
+        assert.ok(popover.body.includes('Def. DPS +30%'), 'Esports Def. DPS');
         assert.ok(popover.body.includes('Common eq. -3 lvls'), 'Esports Common downgrade');
         assert.ok(popover.body.includes('Epic eq. -6 lvls'), 'Esports Epic downgrade');
     });
@@ -618,11 +619,8 @@ test('Battle Modifier & League Rules Popover', async (t) => {
         assert.ok(popover.body.includes('calc-popover-stat-list'));
     });
 
-    await t.test('getActionInfoPopoverContent returns structured stats for builder repair and damage sources', () => {
-        const repairAction = getActionInfoPopoverContent('builder_repair');
-        assert.ok(repairAction);
-        assert.ok(repairAction.header.includes('Builder Repair'));
-        assert.ok(repairAction.body.includes('+71.25 HP per hit'));
+    await t.test('getActionInfoPopoverContent returns structured stats for damage sources', () => {
+        assert.equal(getActionInfoPopoverContent('unknown_action'), null);
 
         const fireballAction = getActionInfoPopoverContent('fireball');
         assert.ok(fireballAction);
@@ -634,8 +632,7 @@ test('Battle Modifier & League Rules Popover', async (t) => {
             offense: {
                 equipment: { fireball: 27 },
                 spells: { lightning: 13, earthquake: 8 }
-            },
-            simulator: { builderHutLevel: 5 }
+            }
         };
         const fireballEsports = getActionInfoPopoverContent('fireball', esportsState);
         assert.ok(fireballEsports);
@@ -644,12 +641,6 @@ test('Battle Modifier & League Rules Popover', async (t) => {
         assert.ok(!fireballEsports.body.includes('Level:'));
         assert.ok(fireballEsports.body.includes('3,650 HP'));
         assert.ok(fireballEsports.body.includes('5.0 tiles'));
-
-        const repairLvl5 = getActionInfoPopoverContent('builder_repair', esportsState);
-        assert.ok(repairLvl5);
-        assert.ok(repairLvl5.header.includes('level_5.png'));
-        assert.ok(repairLvl5.body.includes('Builder Hut (Lvl 5)'));
-        assert.ok(repairLvl5.body.includes('+60 HP per hit'));
     });
 
     await t.test('getNoteCodePopoverContent returns concise 200% damage note for Giant Arrow vs Air Defense', () => {

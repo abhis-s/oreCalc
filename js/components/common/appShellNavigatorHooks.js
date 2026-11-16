@@ -7,6 +7,7 @@
 import { registerNavigatorUiHooks } from '../../core/appShellNavigator.js';
 import { closeDrawerInternal } from './navigationDrawer.js';
 import { renderNavigationDrawerContent } from './navigationDrawerDisplay.js';
+import { syncActiveFooterLinks } from './appFooter.js';
 import { showRouteTransitionLoader } from './routeTransitionLoader.js';
 import { resetPlayerDropdownState } from '../player/playerDropdownInputs.js';
 import { resetPlayerModalState } from '../player/playerModalInputs.js';
@@ -30,6 +31,9 @@ export function setupNavigatorUiHooks() {
         },
         onCloseDrawer: (drawerEl) => {
             closeDrawerInternal(drawerEl);
+        },
+        onAfterRouteSwap: () => {
+            syncActiveFooterLinks();
         }
     });
 }

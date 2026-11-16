@@ -3,6 +3,8 @@
  * Provides unified, accessible DOM construction for Town Hall badges across all pages.
  */
 
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
+
 const SIZE_CLASSES = {
     xs: 'th-badge--xs',
     sm: 'th-badge--sm',
@@ -34,7 +36,7 @@ export function renderTownHallBadge({
     imgAlt = ''
 }) {
     const levelNum = Number(thLevel) || 1;
-    const src = imgSrc || `assets/th/th${levelNum}.png`;
+    const src = imgSrc || getTownHallIconUrl(levelNum);
     const alt = imgAlt || `Town Hall ${levelNum}`;
     const sizeModifier = SIZE_CLASSES[size] || 'th-badge--md';
     const silhouetteClass = isSilhouette ? ' is-silhouette' : '';

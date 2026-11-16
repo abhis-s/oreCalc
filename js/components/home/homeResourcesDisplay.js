@@ -1,4 +1,5 @@
 import { translate } from '../../i18n/translator.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 
 import { updateCalculatedValue } from '../../utils/numberFormatter.js';
 
@@ -15,7 +16,7 @@ export function renderHomeResourcesFooter(state) {
 
     // Star Bonus Town Hall Requirement
     const thLevel = Math.max(1, Number(state.playerProfile?.townHallLevel) || 1);
-    const targetIconSrc = `assets/th/th${Math.min(thLevel, 18)}.png`;
+    const targetIconSrc = getTownHallIconUrl(thLevel);
 
     if (homeResourceElements.leagueIcon && homeResourceElements.leagueIcon.src !== targetIconSrc) {
         homeResourceElements.leagueIcon.src = targetIconSrc;

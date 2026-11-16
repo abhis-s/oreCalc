@@ -184,10 +184,10 @@ test('Battle Modifier Decoupling & Unified Architecture', async (t) => {
 
     await t.test('MODIFIER_PERCENTAGE_SUFFIXES defines canonical suffixes', () => {
         assert.equal(MODIFIER_PERCENTAGE_SUFFIXES.standard, '');
-        assert.equal(MODIFIER_PERCENTAGE_SUFFIXES.legend3, ' (+10%)');
-        assert.equal(MODIFIER_PERCENTAGE_SUFFIXES.legend2, ' (+15%)');
-        assert.equal(MODIFIER_PERCENTAGE_SUFFIXES.legend1, ' (+20%)');
-        assert.equal(MODIFIER_PERCENTAGE_SUFFIXES.esports, '');
+        assert.equal(MODIFIER_PERCENTAGE_SUFFIXES.legend3, ' (+15%)');
+        assert.equal(MODIFIER_PERCENTAGE_SUFFIXES.legend2, ' (+20%)');
+        assert.equal(MODIFIER_PERCENTAGE_SUFFIXES.legend1, ' (+25%)');
+        assert.equal(MODIFIER_PERCENTAGE_SUFFIXES.esports, ' (+30%)');
     });
 
     await t.test('getModifierLabel returns accurate localized names across all 4 locales', async () => {
@@ -195,10 +195,10 @@ test('Battle Modifier Decoupling & Unified Architecture', async (t) => {
         appGlobalState.uiSettings.language = 'en';
         await loadTranslations('en');
         assert.equal(getModifierLabel('standard', true), 'Standard');
-        assert.equal(getModifierLabel('legend3', true), 'Legend III (+10%)');
-        assert.equal(getModifierLabel('legend2', true), 'Legend II (+15%)');
-        assert.equal(getModifierLabel('legend1', true), 'Legend I (+20%)');
-        assert.equal(getModifierLabel('esports', true), 'Esports');
+        assert.equal(getModifierLabel('legend3', true), 'Legend III (+15%)');
+        assert.equal(getModifierLabel('legend2', true), 'Legend II (+20%)');
+        assert.equal(getModifierLabel('legend1', true), 'Legend I (+25%)');
+        assert.equal(getModifierLabel('esports', true), 'Esports (+30%)');
 
         assert.equal(getModifierLabel('standard', false), 'Standard');
         assert.equal(getModifierLabel('legend3', false), 'Legend III');
@@ -210,10 +210,10 @@ test('Battle Modifier Decoupling & Unified Architecture', async (t) => {
         appGlobalState.uiSettings.language = 'de';
         await loadTranslations('de');
         assert.equal(getModifierLabel('standard', true), 'Standard');
-        assert.equal(getModifierLabel('legend3', true), 'Legende III (+10%)');
-        assert.equal(getModifierLabel('legend2', true), 'Legende II (+15%)');
-        assert.equal(getModifierLabel('legend1', true), 'Legende I (+20%)');
-        assert.equal(getModifierLabel('esports', true), 'E-Sports');
+        assert.equal(getModifierLabel('legend3', true), 'Legende III (+15%)');
+        assert.equal(getModifierLabel('legend2', true), 'Legende II (+20%)');
+        assert.equal(getModifierLabel('legend1', true), 'Legende I (+25%)');
+        assert.equal(getModifierLabel('esports', true), 'E-Sports (+30%)');
 
         assert.equal(getModifierLabel('standard', false), 'Standard');
         assert.equal(getModifierLabel('legend3', false), 'Legende III');
@@ -225,10 +225,10 @@ test('Battle Modifier Decoupling & Unified Architecture', async (t) => {
         appGlobalState.uiSettings.language = 'tr';
         await loadTranslations('tr');
         assert.equal(getModifierLabel('standard', true), 'Standart');
-        assert.equal(getModifierLabel('legend3', true), 'Efsane III (+10%)');
-        assert.equal(getModifierLabel('legend2', true), 'Efsane II (+15%)');
-        assert.equal(getModifierLabel('legend1', true), 'Efsane I (+20%)');
-        assert.equal(getModifierLabel('esports', true), 'E-spor');
+        assert.equal(getModifierLabel('legend3', true), 'Efsane III (+15%)');
+        assert.equal(getModifierLabel('legend2', true), 'Efsane II (+20%)');
+        assert.equal(getModifierLabel('legend1', true), 'Efsane I (+25%)');
+        assert.equal(getModifierLabel('esports', true), 'E-spor (+30%)');
 
         assert.equal(getModifierLabel('standard', false), 'Standart');
         assert.equal(getModifierLabel('legend3', false), 'Efsane III');
@@ -240,10 +240,10 @@ test('Battle Modifier Decoupling & Unified Architecture', async (t) => {
         appGlobalState.uiSettings.language = 'zh';
         await loadTranslations('zh');
         assert.equal(getModifierLabel('standard', true), '标准');
-        assert.equal(getModifierLabel('legend3', true), '传奇杯 III (+10%)');
-        assert.equal(getModifierLabel('legend2', true), '传奇杯 II (+15%)');
-        assert.equal(getModifierLabel('legend1', true), '传奇杯 I (+20%)');
-        assert.equal(getModifierLabel('esports', true), '电竞');
+        assert.equal(getModifierLabel('legend3', true), '传奇杯 III (+15%)');
+        assert.equal(getModifierLabel('legend2', true), '传奇杯 II (+20%)');
+        assert.equal(getModifierLabel('legend1', true), '传奇杯 I (+25%)');
+        assert.equal(getModifierLabel('esports', true), '电竞 (+30%)');
 
         assert.equal(getModifierLabel('standard', false), '标准');
         assert.equal(getModifierLabel('legend3', false), '传奇杯 III');
@@ -261,7 +261,7 @@ test('Battle Modifier Decoupling & Unified Architecture', async (t) => {
         await loadTranslations('en');
         const markupWithPct = getBattleModifierSwitcherMarkup('legend3', { includePercentages: true });
         assert.ok(markupWithPct.includes('data-i18n="views.equipment.modifiers.legend3"'));
-        assert.ok(markupWithPct.includes('<span class="mod-tab-percent"> (+10%)</span>'));
+        assert.ok(markupWithPct.includes('<span class="mod-tab-percent"> (+15%)</span>'));
         assert.ok(markupWithPct.includes('Legend III'));
 
         const markupWithoutPct = getBattleModifierSwitcherMarkup('legend3', { includePercentages: false });

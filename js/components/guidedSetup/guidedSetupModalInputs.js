@@ -1,4 +1,5 @@
 import { dom } from '../../dom/domElements.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { state } from '../../core/state.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
 import { closeModalAnimated } from '../../utils/modalHistoryManager.js';
@@ -44,7 +45,7 @@ export function openGuidedSetupModal(options = {}) {
         const existingPlayer = state.allPlayersData?.[initialTag];
         if (existingPlayer) {
             guidedSetupState.isProfileLoaded = true;
-            guidedSetupState.selectedTH = existingPlayer.playerProfile?.townHallLevel || 16;
+            guidedSetupState.selectedTH = existingPlayer.playerProfile?.townHallLevel || MAX_TOWN_HALL;
             guidedSetupState.selectedLeague = existingPlayer.playerProfile?.leagueTier?.id || 105000000;
             syncPreferencesFromProfile(initialTag);
             syncGuidedSetupQuickSettings(initialTag);

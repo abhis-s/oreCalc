@@ -7,8 +7,9 @@
 import { heroData } from '../../data/heroData.js';
 import { getSavedProfiles } from '../../core/playerStorage.js';
 import { formatDisplayTag, normalizePlayerTag } from '../../core/storageKeys.js';
-import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
+import { MAX_TOWN_HALL, UNRANKED_LEAGUE_ID } from '../../core/constants.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { translate } from '../../i18n/translator.js';
 import { switchOrLoadPlayerTag } from './spotrightClipboard.js';
 import {
@@ -142,7 +143,7 @@ function buildSavedVillageItems(villagesCategory) {
         const cleanTag = profile.cleanTag;
         const displayTag = formatDisplayTag(profile.tag || cleanTag) || `#${cleanTag}`;
         const villageName = profile.name || displayTag;
-        const thLevel = Math.max(1, Math.min(18, Number(profile.townHallLevel) || 18));
+        const thLevel = Math.max(1, Math.min(MAX_TOWN_HALL, Number(profile.townHallLevel) || MAX_TOWN_HALL));
         const isActive = Boolean(activeUrlTag && normalizePlayerTag(activeUrlTag) === cleanTag);
 
         const clanName = profile.cachedData?.clan?.name || '';
@@ -189,7 +190,7 @@ function buildSavedVillageItems(villagesCategory) {
             normalizedTitle: normalizedParts.join(' '),
             category: villagesCategory,
             subtitle: translate('views.spotright.villageSubtitle', { tag: cleanTag, th: thLevel }),
-            icon: `assets/th/th${thLevel}.png`,
+            icon: getTownHallIconUrl(thLevel),
             iconType: 'image',
             acronym: villageName.slice(0, 2).toLowerCase(),
             priorityTier: isActive ? 24 : 22,

@@ -3,10 +3,13 @@
  * Tier 2: Pure Domain Math (0 side effects, 0 DOM references, 0 browser globals).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { spellsData } from '../../data/spellsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import {
+    getMaxSpellLevel,
+    getLightningDamage,
     calculateEarthquakeDamage,
     isTargetImmuneToSpell
 } from './damageFormulas.js';
@@ -20,27 +23,7 @@ import {
 import { calculateEquipmentDamage } from './equipmentDamage.js';
 
 /**
- * Per-hit repair healing delivered to defending structures by Builder Huts.
- * Level 1: 0 HP (not a defensive structure yet).
- * Levels 2-8: official per-hit repair amounts.
- * Supercharge Tier 1 and 2: 71.25 HP.
- * @type {Readonly<Record<string | number, number>>}
- */
-export const BUILDER_REPAIR_PER_HIT = Object.freeze({
-    1: 0,
-    2: 37.5,
-    3: 45.0,
-    4: 52.5,
-    5: 60.0,
-    6: 63.75,
-    7: 67.5,
-    8: 71.25,
-    sc1: 71.25,
-    sc2: 71.25
-});
-
-/**
- * Simulates a chronological sequence of spells, hero equipment, troop death drops, and repairs on a defense.
+ * Simulates a chronological sequence of spells, hero equipment, and troop death drops on a defense.
  *
  * @param {string} targetDefenseKey - Target defense key.
  * @param {number} targetLevel - Target defense level.
@@ -51,9 +34,6 @@ export const BUILDER_REPAIR_PER_HIT = Object.freeze({
  * @param {string} [options.leagueId='standard'] - Competitive league modifier ID (legacy alias).
  * @param {number} [options.superchargeTier=0] - Target supercharge tier (0, 1, 2).
  * @param {Object} [options.defenseSuperchargeOverrides] - Optional per-defense supercharge overrides.
- * @param {number} [options.builderHutLevel=8] - Level of repairing builder huts (1-8).
- * @param {number} [options.builderCount=1] - Number of builders actively repairing the target.
- * @param {boolean} [options.rageTowerActive=false] - Whether a Rage Spell Tower is boosting the defense.
  * @returns {{
  *   isDestroyed: boolean,
  *   targetDefenseKey: string,
@@ -103,7 +83,7 @@ export function simulateAttackSequence(targetDefenseKey, targetLevel, sequenceSt
                 stepIndex: stepIndex++,
                 type: step.type,
                 id: step.id,
-                name: equipmentDamageData[step.id]?.name || spellsData.spells[step.id]?.name || (step.type === 'builder_repair' ? 'Builder Repair' : step.id),
+                name: equipmentDamageData[step.id]?.name || spellsData.spells[step.id]?.name || step.id,
                 damageDealt: 0,
                 hpBefore: 0,
                 remainingHp: 0,
@@ -136,7 +116,7 @@ export function simulateAttackSequence(targetDefenseKey, targetLevel, sequenceSt
                         break;
                     }
 
-                    const zapDmg = spellsData.spells.lightning.levels[step.level || 13]?.damage || 720;
+                    const zapDmg = getLightningDamage(step.level);
                     const count = Math.max(1, step.count || 1);
 
                     for (let c = 0; c < count; c++) {
@@ -176,7 +156,7 @@ export function simulateAttackSequence(targetDefenseKey, targetLevel, sequenceSt
                         continue;
                     }
 
-                    const eqLevel = step.level || 8;
+                    const eqLevel = step.level || getMaxSpellLevel('earthquake');
                     const count = Math.max(1, step.count || 1);
 
                     for (let c = 0; c < count; c++) {
@@ -229,32 +209,6 @@ export function simulateAttackSequence(targetDefenseKey, targetLevel, sequenceSt
                     percentageRemaining: Math.round((currentHp / targetMaxHp) * 1000) / 10,
                     isDestroyed: currentHp <= 0,
                     notes: equipRes.specialNotes.join(', ') || 'hero_equipment_strike'
-                });
-                break;
-            }
-
-            case 'builder_repair': {
-                const hutLvl = step.hutLevel || options.builderHutLevel || 8;
-                const healAmount = BUILDER_REPAIR_PER_HIT[hutLvl] ?? 71.25;
-                let actualHealed = 0;
-
-                // Defenses can only be repaired while alive (HP > 0) and below maximum HP
-                if (currentHp > 0 && currentHp < targetMaxHp && healAmount > 0) {
-                    actualHealed = Math.min(targetMaxHp - currentHp, healAmount);
-                    currentHp += actualHealed;
-                }
-
-                timeline.push({
-                    stepIndex: stepIndex++,
-                    type: 'builder_repair',
-                    id: 'builder_repair',
-                    name: `Builder Repair (Lvl ${hutLvl})`,
-                    hpBefore,
-                    damageDealt: -actualHealed,
-                    remainingHp: currentHp,
-                    percentageRemaining: Math.round((currentHp / targetMaxHp) * 1000) / 10,
-                    isDestroyed: currentHp <= 0,
-                    notes: actualHealed > 0 ? `+${actualHealed} HP Healed` : (currentHp <= 0 ? 'Cannot repair destroyed building' : 'Already at max HP')
                 });
                 break;
             }
@@ -314,7 +268,7 @@ export function simulateSequenceAcrossAllDefenses(sequenceSteps = [], options = 
         const isUnavailable = info.status === 'locked' || info.status === 'sunset';
 
         if (enabledGroups) {
-            const groupId = getBuildingGroupId(key, townHall != null ? townHall : 18);
+            const groupId = getBuildingGroupId(key, townHall != null ? townHall : MAX_TOWN_HALL);
             // Defenses invariant: defenses group is always enabled
             const isGroupEnabled = groupId === 'defenses'
                 ? true

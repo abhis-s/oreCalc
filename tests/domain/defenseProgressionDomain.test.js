@@ -20,6 +20,7 @@ globalThis.fetch = (url) => {
     return Promise.resolve({ json: () => Promise.resolve(data) });
 };
 
+import { MAX_TOWN_HALL } from '../../js/core/constants.js';
 import { preloadDefensesData, getDefensesData } from '../../js/data/defenseTargetsData.js';
 import {
     isTownHallDefenseLevel,
@@ -29,7 +30,9 @@ import {
     getDefenseMaxHp,
     getMaxSuperchargeTier,
     getMaxSuperchargeTierForTownHall,
+    isSuperchargeAvailableForTownHall,
     getMaxDefenseLevelForTownHall,
+    isClusterDefenseSunsetForTownHall,
     isDefenseInSeason,
     getDefaultSuperchargeTier,
     isHeroDefense,
@@ -63,21 +66,22 @@ test('Defense Hitpoints Resolution (getDefenseMaxHp)', () => {
 });
 
 test('Supercharge Tier Calculations (getMaxSuperchargeTier & getDefaultSuperchargeTier)', () => {
-    // Supercharge max tier for town hall 17/18
-    assert.equal(getMaxSuperchargeTierForTownHall(18), 2, 'TH18 supports up to Tier 2 supercharges');
+    // Supercharge max tier at active max TH vs lower TH
+    assert.equal(getMaxSuperchargeTierForTownHall(MAX_TOWN_HALL), 2, `TH${MAX_TOWN_HALL} supports up to Tier 2 supercharges`);
+    assert.equal(getMaxSuperchargeTierForTownHall(MAX_TOWN_HALL - 1), 0, `TH${MAX_TOWN_HALL - 1} does not support supercharges`);
     assert.equal(getMaxSuperchargeTierForTownHall(16), 0, 'TH16 does not support supercharges');
 
     // Max level defense vs non-max level defense
     const defs = getDefensesData();
-    const adMaxLvl = defs.air_defense.maxLevel;
-    assert.equal(getMaxSuperchargeTier('air_defense', adMaxLvl - 1), 0, 'Non-max level defense has 0 supercharge tiers');
+    const infMaxLvl = defs.inferno_tower.maxLevel;
+    assert.equal(getMaxSuperchargeTier('inferno_tower', infMaxLvl - 1), 0, 'Non-max level defense has 0 supercharge tiers');
 
-    // Default supercharge tier for TH18
-    const defaultTier = getDefaultSuperchargeTier('air_defense', adMaxLvl, 18);
+    // Default supercharge tier for active max TH
+    const defaultTier = getDefaultSuperchargeTier('inferno_tower', infMaxLvl, MAX_TOWN_HALL);
     assert.ok(defaultTier >= 0 && defaultTier <= 3, 'Default supercharge tier is bounded between 0 and 3');
 
-    // Below TH18 defaults to 0
-    assert.equal(getDefaultSuperchargeTier('air_defense', adMaxLvl, 16), 0, 'TH16 default supercharge tier is 0');
+    // Below max TH defaults to 0
+    assert.equal(getDefaultSuperchargeTier('inferno_tower', infMaxLvl, 16), 0, 'TH16 default supercharge tier is 0');
 });
 
 test('Town Hall Level Progression Caps (getMaxDefenseLevelForTownHall)', () => {
@@ -144,4 +148,40 @@ test('Target Capability & Structure Predicates', () => {
     assert.equal(isHeroDefense('barbarian_king'), true);
     assert.equal(isHeroDefense('air_defense'), false);
     assert.ok(getMinDefenseLevel('air_defense') >= 1);
+});
+
+test('Supercharge Town Hall Availability (isSuperchargeAvailableForTownHall)', () => {
+    assert.equal(isSuperchargeAvailableForTownHall(), true);
+    assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL), true);
+    assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL + 1), true);
+    assert.equal(isSuperchargeAvailableForTownHall(MAX_TOWN_HALL - 1), false);
+    assert.equal(isSuperchargeAvailableForTownHall(17), false);
+});
+
+test('Cluster Planner Sunset Lifecycle (isClusterDefenseSunsetForTownHall)', () => {
+    const defs = getDefensesData();
+
+    // Eagle Artillery stays active through TH16 and sunsets post-TH16 (TH17+)
+    assert.equal(isClusterDefenseSunsetForTownHall('eagle_artillery', 11), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('eagle_artillery', 16), false);
+    assert.equal(isClusterDefenseSunsetForTownHall(defs.eagle_artillery, 16), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('eagle_artillery', 17), true);
+    assert.equal(isClusterDefenseSunsetForTownHall('eagle_artillery', 19), true);
+
+    // Cannon sunsets immediately on TH17
+    assert.equal(isClusterDefenseSunsetForTownHall('cannon', 16), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('cannon', 17), true);
+    assert.equal(isClusterDefenseSunsetForTownHall(defs.cannon, 17), true);
+    assert.equal(isClusterDefenseSunsetForTownHall('cannon', 18), true);
+
+    // Archer Tower and Scattershot remain through TH18 and sunset immediately on TH19
+    assert.equal(isClusterDefenseSunsetForTownHall('archer_tower', 18), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('archer_tower', 19), true);
+    assert.equal(isClusterDefenseSunsetForTownHall('scattershot', 18), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('scattershot', 19), true);
+
+    // Permanent non-sunset buildings always return false
+    assert.equal(isClusterDefenseSunsetForTownHall('air_defense', 19), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('wizard_tower', 19), false);
+    assert.equal(isClusterDefenseSunsetForTownHall('firecracker_tower', 19), false);
 });

@@ -30,3 +30,14 @@ test('calculateSupercellEventsIncome respects global custom chip override', () =
     assert.equal(income.monthly.glowy, 600);
     assert.equal(income.monthly.starry, 120);
 });
+
+test('calculateSupercellEventsIncome returns consistent positive ore income across 2026 and post-2026 fallback years', (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: new Date('2026-09-18T10:00:00Z') });
+    const income2026 = calculateSupercellEventsIncome(true);
+
+    t.mock.timers.setTime(new Date('2027-01-02T00:00:00Z').getTime());
+    const income2027 = calculateSupercellEventsIncome(true);
+
+    assert.deepEqual(income2027, income2026);
+    assert.ok(income2027.monthly.shiny > 0);
+});

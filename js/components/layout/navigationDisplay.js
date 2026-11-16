@@ -1,6 +1,7 @@
 import { navigationRegistry } from '../../data/navigationRegistry.js';
 import { updateNavigationBadges } from '../modals/updateModal.js';
 import { renderNavigationDrawerContent } from '../common/navigationDrawerDisplay.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { state } from '../../core/state.js';
 import { selectActivePlayerTag, selectPlayerProfile } from '../../core/selectors.js';
 import { handlePlayerSelection } from '../player/playerDropdownInputs.js';
@@ -44,7 +45,7 @@ function renderNavigationDrawer(activeTabId) {
         profileData: isRealPlayer ? {
             name: playerProfile?.name,
             tag: cleanTag ? `#${cleanTag}` : '',
-            townHallLevel: playerProfile?.townHallLevel || 18,
+            townHallLevel: playerProfile?.townHallLevel || MAX_TOWN_HALL,
             trophies: playerProfile?.trophies,
             cachedData: playerProfile
         } : null,

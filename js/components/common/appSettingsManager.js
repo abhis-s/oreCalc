@@ -10,7 +10,183 @@ import { handleStateUpdate } from '../../core/stateManager.js';
 import { setDefaultDateLocale } from '../../utils/dateUtils.js';
 import { loadStoredAppSettings, persistStoredAppSettings } from '../../core/localStorageManager.js';
 
-let isGlobalListenersInitialized = false;
+/**
+ * Coordinates persistent header settings controls (theme, accent, language) and global
+ * storage/popstate/translation synchronization idempotently across soft navigations.
+ */
+class AppSettingsController {
+    /** @type {boolean} */
+    isGlobalListenersInitialized = false;
+
+    /** @type {WeakSet<Element>} */
+    #boundThemeToggles = new WeakSet();
+
+    /** @type {WeakSet<Element>} */
+    #boundAccentSwatches = new WeakSet();
+
+    /** @type {WeakSet<Element>} */
+    #boundLanguageSelects = new WeakSet();
+
+    /**
+     * Resets global listener registration tracking for test suite isolation.
+     */
+    resetForTesting() {
+        this.isGlobalListenersInitialized = false;
+    }
+
+    /**
+     * Populates the header language dropdown only when options are missing or out of sync.
+     *
+     * @param {HTMLSelectElement} selectEl
+     * @param {string} currentLang
+     */
+    populateLanguageDropdown(selectEl, currentLang) {
+        const existingOptions = Array.from(selectEl.options || []);
+        const alreadyPopulated = existingOptions.length === enabledLanguages.length
+            && enabledLanguages.every((lang, index) => existingOptions[index]?.value === lang.code);
+
+        if (alreadyPopulated) {
+            selectEl.value = currentLang;
+            existingOptions.forEach(opt => {
+                opt.selected = opt.value === currentLang;
+            });
+            return;
+        }
+
+        selectEl.innerHTML = '';
+        for (const lang of enabledLanguages) {
+            const opt = document.createElement('option');
+            opt.value = lang.code;
+            const name = lang.nativeName || lang.fallbackName;
+            const flag = lang.flag ? `${lang.flag} ` : '';
+            opt.textContent = `${flag}${name}`;
+            if (lang.code === currentLang) {
+                opt.selected = true;
+            }
+            selectEl.appendChild(opt);
+        }
+    }
+
+    /**
+     * Binds header settings popover controls once per DOM element and attaches global listeners once.
+     */
+    init() {
+        const settings = getAppSettings();
+        applyAppTheme(settings.theme, settings.accentColor);
+
+        const appThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-switch'));
+        if (appThemeToggle) {
+            appThemeToggle.checked = settings.theme === 'light';
+            if (!this.#boundThemeToggles.has(appThemeToggle) && typeof appThemeToggle.addEventListener === 'function') {
+                this.#boundThemeToggles.add(appThemeToggle);
+                appThemeToggle.addEventListener('change', (e) => {
+                    const target = /** @type {HTMLInputElement} */ (e.target);
+                    const targetTheme = target.checked ? 'light' : 'dark';
+                    const current = getAppSettings();
+                    applyAppTheme(targetTheme, current.accentColor, true, false);
+                    document.dispatchEvent(new CustomEvent('app:theme-change', {
+                        detail: { theme: targetTheme, origin: null }
+                    }));
+                });
+            }
+        }
+
+        document.querySelectorAll?.('#app-accent-picker .accent-swatch').forEach(swatch => {
+            if (this.#boundAccentSwatches.has(swatch) || typeof swatch.addEventListener !== 'function') return;
+            this.#boundAccentSwatches.add(swatch);
+            swatch.addEventListener('click', () => {
+                const targetColor = swatch.getAttribute('data-color');
+                if (targetColor) {
+                    const current = getAppSettings();
+                    applyAppTheme(current.theme, targetColor, true, true);
+                }
+            });
+        });
+
+        const langSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('app-language-select'));
+        if (langSelect) {
+            this.populateLanguageDropdown(langSelect, settings.language);
+            if (!this.#boundLanguageSelects.has(langSelect) && typeof langSelect.addEventListener === 'function') {
+                this.#boundLanguageSelects.add(langSelect);
+                langSelect.addEventListener('change', async () => {
+                    const targetLang = langSelect.value;
+                    await applyAppLanguage(targetLang, false);
+                });
+            }
+        }
+
+        if (!this.isGlobalListenersInitialized) {
+            this.isGlobalListenersInitialized = true;
+            this.#attachGlobalListeners();
+        }
+    }
+
+    /**
+     * Registers cross-tab storage, browser history popstate, and document theme/translation listeners.
+     */
+    #attachGlobalListeners() {
+        window.addEventListener('storage', async (event) => {
+            if (!event.key || !event.newValue) return;
+            if (event.key === STORAGE_KEY_MAP.appSettings.canonical || event.key === STORAGE_KEY_MAP.appSettings.legacy) {
+                const newSettings = safeJsonParse(event.newValue, null);
+                if (!newSettings || typeof newSettings !== 'object') return;
+
+                const current = getAppSettings();
+                const themeToApply = newSettings.theme === 'light' ? 'light' : 'dark';
+                const accentToApply = newSettings.accentColor || current.accentColor;
+
+                if (themeToApply !== current.theme || accentToApply !== current.accentColor) {
+                    applyAppTheme(themeToApply, accentToApply, true, false);
+                }
+
+                if (newSettings.language && newSettings.language !== current.language) {
+                    await applyAppLanguage(newSettings.language, false);
+                }
+            }
+        });
+
+        window.addEventListener('popstate', async () => {
+            const pathLang = getLanguageFromPath() || 'en';
+            const currentLang = state.uiSettings?.language || getAppSettings().language;
+            if (pathLang !== currentLang) {
+                await applyAppLanguage(pathLang, true);
+            }
+        });
+
+        if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+            document.addEventListener('app:theme-change', (e) => {
+                const customEvent = /** @type {CustomEvent} */ (e);
+                const eventTheme = customEvent.detail?.theme;
+                if (eventTheme === 'light' || eventTheme === 'dark') {
+                    const isLight = eventTheme === 'light';
+                    const appThemeToggleEl = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-switch'));
+                    if (appThemeToggleEl && appThemeToggleEl.checked !== isLight) {
+                        appThemeToggleEl.checked = isLight;
+                    }
+                    const labelKey = isLight ? 'views.settings.options.themeDark' : 'views.settings.options.themeLight';
+                    const appThemeLabelEl = document.getElementById('app-theme-label');
+                    if (appThemeLabelEl) {
+                        appThemeLabelEl.textContent = translate(labelKey);
+                        appThemeLabelEl.setAttribute('data-i18n', labelKey);
+                    }
+                }
+            });
+
+            document.addEventListener('app:translate', () => {
+                const current = getAppSettings();
+                const isLight = current.theme === 'light';
+                const labelKey = isLight ? 'views.settings.options.themeDark' : 'views.settings.options.themeLight';
+                const appThemeLabelEl = document.getElementById('app-theme-label');
+                if (appThemeLabelEl) {
+                    appThemeLabelEl.textContent = translate(labelKey);
+                    appThemeLabelEl.setAttribute('data-i18n', labelKey);
+                }
+            });
+        }
+    }
+}
+
+const appSettingsController = new AppSettingsController();
 
 /**
  * Reads settings from localStorage with defensive fallbacks.
@@ -160,129 +336,12 @@ export async function applyAppLanguage(targetLang, replaceUrl = false) {
  * Resets global listeners flag for test suite isolation.
  */
 export function resetAppSettingsListenersForTesting() {
-    isGlobalListenersInitialized = false;
-}
-
-/**
- * Populates language dropdown with all enabled languages and marks the active language.
- * @param {HTMLSelectElement} selectEl
- * @param {string} currentLang
- */
-function populateLanguageDropdown(selectEl, currentLang) {
-    selectEl.innerHTML = '';
-    for (const lang of enabledLanguages) {
-        const opt = document.createElement('option');
-        opt.value = lang.code;
-        const name = lang.nativeName || lang.fallbackName;
-        const flag = lang.flag ? `${lang.flag} ` : '';
-        opt.textContent = `${flag}${name}`;
-        if (lang.code === currentLang) {
-            opt.selected = true;
-        }
-        selectEl.appendChild(opt);
-    }
+    appSettingsController.resetForTesting();
 }
 
 /**
  * Initializes settings button, popover bindings, preferences, and cross-tab sync.
  */
 export function initAppSettings() {
-    const settings = getAppSettings();
-    applyAppTheme(settings.theme, settings.accentColor);
-
-    const appThemeToggle = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-switch'));
-    if (appThemeToggle) {
-        appThemeToggle.checked = settings.theme === 'light';
-        appThemeToggle.addEventListener('change', (e) => {
-            const target = /** @type {HTMLInputElement} */ (e.target);
-            const targetTheme = target.checked ? 'light' : 'dark';
-            const current = getAppSettings();
-            applyAppTheme(targetTheme, current.accentColor, true, false);
-            document.dispatchEvent(new CustomEvent('app:theme-change', {
-                detail: { theme: targetTheme, origin: null }
-            }));
-        });
-    }
-
-    document.querySelectorAll('#app-accent-picker .accent-swatch').forEach(swatch => {
-        swatch.addEventListener('click', () => {
-            const targetColor = swatch.getAttribute('data-color');
-            if (targetColor) {
-                const current = getAppSettings();
-                applyAppTheme(current.theme, targetColor, true, true);
-            }
-        });
-    });
-
-    const langSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('app-language-select'));
-    if (langSelect && typeof langSelect.addEventListener === 'function') {
-        populateLanguageDropdown(langSelect, settings.language);
-        langSelect.addEventListener('change', async () => {
-            const targetLang = langSelect.value;
-            await applyAppLanguage(targetLang, false);
-        });
-    }
-
-    if (!isGlobalListenersInitialized) {
-        isGlobalListenersInitialized = true;
-
-        window.addEventListener('storage', async (event) => {
-            if (!event.key || !event.newValue) return;
-            if (event.key === STORAGE_KEY_MAP.appSettings.canonical || event.key === STORAGE_KEY_MAP.appSettings.legacy) {
-                const newSettings = safeJsonParse(event.newValue, null);
-                if (!newSettings || typeof newSettings !== 'object') return;
-
-                const current = getAppSettings();
-                const themeToApply = newSettings.theme === 'light' ? 'light' : 'dark';
-                const accentToApply = newSettings.accentColor || current.accentColor;
-
-                if (themeToApply !== current.theme || accentToApply !== current.accentColor) {
-                    applyAppTheme(themeToApply, accentToApply, true, false);
-                }
-
-                if (newSettings.language && newSettings.language !== current.language) {
-                    await applyAppLanguage(newSettings.language, false);
-                }
-            }
-        });
-
-        window.addEventListener('popstate', async () => {
-            const pathLang = getLanguageFromPath() || 'en';
-            const currentLang = state.uiSettings?.language || getAppSettings().language;
-            if (pathLang !== currentLang) {
-                await applyAppLanguage(pathLang, true);
-            }
-        });
-
-        if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
-            document.addEventListener('app:theme-change', (e) => {
-                const customEvent = /** @type {CustomEvent} */ (e);
-                const eventTheme = customEvent.detail?.theme;
-                if (eventTheme === 'light' || eventTheme === 'dark') {
-                    const isLight = eventTheme === 'light';
-                    const appThemeToggleEl = /** @type {HTMLInputElement|null} */ (document.getElementById('app-theme-switch'));
-                    if (appThemeToggleEl && appThemeToggleEl.checked !== isLight) {
-                        appThemeToggleEl.checked = isLight;
-                    }
-                    const labelKey = isLight ? 'views.settings.options.themeDark' : 'views.settings.options.themeLight';
-                    const appThemeLabelEl = document.getElementById('app-theme-label');
-                    if (appThemeLabelEl) {
-                        appThemeLabelEl.textContent = translate(labelKey);
-                        appThemeLabelEl.setAttribute('data-i18n', labelKey);
-                    }
-                }
-            });
-
-            document.addEventListener('app:translate', () => {
-                const current = getAppSettings();
-                const isLight = current.theme === 'light';
-                const labelKey = isLight ? 'views.settings.options.themeDark' : 'views.settings.options.themeLight';
-                const appThemeLabelEl = document.getElementById('app-theme-label');
-                if (appThemeLabelEl) {
-                    appThemeLabelEl.textContent = translate(labelKey);
-                    appThemeLabelEl.setAttribute('data-i18n', labelKey);
-                }
-            });
-        }
-    }
+    appSettingsController.init();
 }

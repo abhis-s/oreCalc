@@ -1,6 +1,6 @@
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { formatDisplayTag } from '../../core/storageKeys.js';
-import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
+import { MAX_TOWN_HALL, UNRANKED_LEAGUE_ID } from '../../core/constants.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
@@ -49,7 +49,7 @@ export function renderAccountsGrid(savedProfiles, activeTag, onSelectAccount, on
     list.innerHTML = '';
     for (const profile of savedProfiles) {
         const isActive = profile.cleanTag === activeTag;
-        const thLevel = Math.max(1, Math.min(18, Number(profile.townHallLevel) || 18));
+        const thLevel = Math.max(1, Math.min(MAX_TOWN_HALL, Number(profile.townHallLevel) || MAX_TOWN_HALL));
         const clanName = profile.cachedData?.clan?.name;
         const clanBadge = profile.cachedData?.clan?.badgeUrls?.small;
         const trophies = profile.trophies != null ? profile.trophies : profile.cachedData?.trophies;

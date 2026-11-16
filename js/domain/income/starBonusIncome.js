@@ -1,5 +1,7 @@
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getStarBonusForTownHall } from '../../data/incomeSources/starBonus.js';
 import { DAYS_IN_MONTH, DAYS_IN_WEEK, MONTHS_IN_BIMONTH } from '../../data/timeConstants.js';
+import { getTownHallIconUrl } from '../townHall/townHallSchedule.js';
 
 /**
  * Calculates daily, weekly, monthly, and bimonthly ore income from Star Bonus based on
@@ -10,9 +12,9 @@ import { DAYS_IN_MONTH, DAYS_IN_WEEK, MONTHS_IN_BIMONTH } from '../../data/timeC
  * @returns {import('../../core/types.js').IncomeResult} Composite star bonus ore income rates and badge icon URL.
  */
 export function calculateStarBonusIncome(townHallLevel, starBonusState = {}) {
-    const thLevel = Math.max(1, Number(townHallLevel) || 18);
+    const thLevel = Math.max(1, Number(townHallLevel) || MAX_TOWN_HALL);
     const baseOres = getStarBonusForTownHall(thLevel);
-    const iconUrl = `assets/th/th${Math.min(thLevel, 18)}.png`;
+    const iconUrl = getTownHallIconUrl(thLevel);
 
     const stateObj = (starBonusState && typeof starBonusState === 'object') ? /** @type {any} */ (starBonusState) : {};
     const config2x = stateObj["2x"] || {};
@@ -78,7 +80,7 @@ export function calculateStarBonusIncome(townHallLevel, starBonusState = {}) {
  * @returns {number} Effective Town Hall level for that date.
  */
 export function getEffectiveTownHallForDate(date, state) {
-    let effectiveTH = Math.max(1, Number(state?.playerProfile?.townHallLevel) || 18);
+    let effectiveTH = Math.max(1, Number(state?.playerProfile?.townHallLevel) || MAX_TOWN_HALL);
     const upgrades = state?.income?.starBonus?.thUpgrades;
     if (upgrades && typeof upgrades === 'object') {
         const year = date.getUTCFullYear();

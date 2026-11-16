@@ -3,6 +3,7 @@ import { resolveBestMatchShopOfferSet } from '../data/incomeSources/shopOffers.j
 import { getWarOreValue } from '../data/incomeSources/warOres.js';
 import { translate } from '../i18n/translator.js';
 
+import { MAX_TOWN_HALL } from '../core/constants.js';
 import { normalizePlayerTag } from '../core/storageKeys.js';
 import { updateAllPlayersData, updateSavedPlayerTags } from '../core/playerStorage.js';
 import { sanitizePlayerProfile } from '../core/playerStorageSanitizer.js';
@@ -323,7 +324,7 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
                 const glowy = incoming.glowy ?? (defaultIncome.clanWar.oresPerAttack?.glowy || 0);
                 const starry = incoming.starry ?? (defaultIncome.clanWar.oresPerAttack?.starry || 0);
                 if (!shiny && !glowy && !starry) {
-                    const th = newPlayerState.playerProfile?.townHallLevel || 16;
+                    const th = newPlayerState.playerProfile?.townHallLevel || MAX_TOWN_HALL;
                     return {
                         shiny: getWarOreValue('shiny', th),
                         glowy: getWarOreValue('glowy', th),
@@ -342,7 +343,7 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
                 const glowy = incoming.glowy ?? (defaultIncome.cwl.oresPerAttack?.glowy || 0);
                 const starry = incoming.starry ?? (defaultIncome.cwl.oresPerAttack?.starry || 0);
                 if (!shiny && !glowy && !starry) {
-                    const th = newPlayerState.playerProfile?.townHallLevel || 16;
+                    const th = newPlayerState.playerProfile?.townHallLevel || MAX_TOWN_HALL;
                     return {
                         shiny: getWarOreValue('shiny', th),
                         glowy: getWarOreValue('glowy', th),

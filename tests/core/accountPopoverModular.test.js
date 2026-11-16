@@ -419,5 +419,13 @@ describe('Account Popover Modularity & Pre-Rendered Panels Domain Suite', () => 
         assert.ok(!accentItem.classList.contains('is-hidden'), 'Accent color remains visible');
         assert.ok(cardLayoutItem.classList.contains('is-hidden'), 'Card layout must be re-hidden');
         assert.ok(cardLayoutItem.hasAttribute('hidden'));
+
+        // Re-entering a route with cardLayout restores visibility cleanly
+        configureAccountPopover({
+            settingsItems: ['cardLayout']
+        });
+
+        assert.ok(!cardLayoutItem.classList.contains('is-hidden'), 'Card layout must be restored on revisit');
+        assert.equal(cardLayoutItem.hasAttribute('hidden'), false);
     });
 });

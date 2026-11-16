@@ -2,8 +2,9 @@ import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
-import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
+import { MAX_TOWN_HALL, UNRANKED_LEAGUE_ID } from '../../core/constants.js';
 import { formatDisplayTag } from '../../core/storageKeys.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { formatClanRole } from '../common/profileHeaderDisplay.js';
@@ -45,8 +46,8 @@ export function renderProfilePreviewCard(playerData) {
 
     const thImage = document.getElementById('guided-setup-profile-th-image');
     if (thImage) {
-        const thLevel = playerData.townHallLevel || 1;
-        thImage.setAttribute('src', `assets/th/th${thLevel}.png`);
+        const thLevel = playerData.townHallLevel || MAX_TOWN_HALL;
+        thImage.setAttribute('src', getTownHallIconUrl(thLevel));
         thImage.setAttribute('alt', `Town Hall ${thLevel}`);
     }
 

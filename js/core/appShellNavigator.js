@@ -6,9 +6,12 @@
  */
 
 import { isModalHistoryPopping, dismissModalsForNavigation } from '../utils/modalHistoryManager.js';
+import { APP_ROUTES } from '../data/appRoutesData.js';
+import { findRouteByPath } from './languageRouter.js';
 import {
     computeSynchronizedBodyClasses,
     ensureStylesheets,
+    syncRouteStylesheets,
     syncHeadForRoute,
     syncHeaderForRoute,
     syncModalsForRoute
@@ -21,6 +24,7 @@ import {
  * @property {(mainEl: HTMLElement) => void} [onShowLoader]
  * @property {(options: { activeTool: AppRouteId }) => void} [onUpdateDrawer]
  * @property {(drawerEl: HTMLElement | null) => void} [onCloseDrawer]
+ * @property {(routeId: AppRouteId) => void} [onAfterRouteSwap]
  */
 
 /** @type {NavigatorUiHooks} */
@@ -74,14 +78,9 @@ export const NAVIGATION_TIMEOUT_MS = 6000;
  * Registry of entry point script paths mapped to primary tool routes.
  * @type {Record<AppRouteId, string>}
  */
-export const ROUTE_SCRIPT_MAP = {
-    'hub': '/js/landingApp.js',
-    'ore-calculator': '/js/app.js',
-    'hero-journey': '/js/heroJourneyApp.js',
-    'damage-calculator': '/js/damageApp.js',
-    'account': '/js/accountApp.js',
-    'app-management': '/js/appManagementApp.js'
-};
+export const ROUTE_SCRIPT_MAP = /** @type {Record<AppRouteId, string>} */ (
+    Object.freeze(Object.fromEntries(APP_ROUTES.map(route => [route.id, route.script])))
+);
 
 /**
  * Resolves canonical tool route identifier from a URL pathname.
@@ -91,20 +90,7 @@ export const ROUTE_SCRIPT_MAP = {
  * @returns {AppRouteId | null}
  */
 export function resolveAppRoute(pathname) {
-    if (typeof pathname !== 'string') return null;
-
-    // Normalize path by stripping language prefix (/de, /tr, /zh)
-    const normalized = pathname.replace(/^\/(?:de|tr|zh)(?=\/|$)/, '') || '/';
-    const clean = normalized.replace(/\/+$/, '') || '/';
-
-    if (clean === '/') return 'hub';
-    if (clean === '/ore-calculator' || clean.startsWith('/ore-calculator/')) return 'ore-calculator';
-    if (clean === '/hero-journey' || clean.startsWith('/hero-journey/')) return 'hero-journey';
-    if (clean === '/damage-calculator' || clean.startsWith('/damage-calculator/')) return 'damage-calculator';
-    if (clean === '/account' || clean.startsWith('/account/')) return 'account';
-    if (clean === '/app-management' || clean.startsWith('/app-management/')) return 'app-management';
-
-    return null;
+    return findRouteByPath(pathname)?.id || null;
 }
 
 /**
@@ -284,6 +270,7 @@ async function navigateTo(targetUrl, options = {}) {
 
         const performSwap = async () => {
             syncHeadForRoute(newDoc);
+            syncRouteStylesheets(newDoc);
             document.body.className = computeSynchronizedBodyClasses(
                 document.body.className,
                 targetRoute,
@@ -305,6 +292,8 @@ async function navigateTo(targetUrl, options = {}) {
                 activeExtras.replaceWith(newExtras.cloneNode(true));
             } else if (newExtras) {
                 document.body.appendChild(newExtras.cloneNode(true));
+            } else if (activeExtras) {
+                activeExtras.innerHTML = '';
             }
 
             if (!options.isPopState) {
@@ -319,6 +308,7 @@ async function navigateTo(targetUrl, options = {}) {
             }
 
             navigatorUiHooks.onUpdateDrawer?.({ activeTool: targetRoute });
+            navigatorUiHooks.onAfterRouteSwap?.(targetRoute);
 
             // Mount destination application against the newly swapped DOM
             const registeredHandler = routeHandlers.get(targetRoute);
@@ -448,10 +438,10 @@ export function initAppShellNavigator() {
             const dock = anchor.closest('.navigation-drawer__dock');
             if (dock) {
                 dock.querySelectorAll('.navigation-drawer__dock-btn').forEach(btn => {
-                    btn.classList.remove('active');
+                    btn.classList.remove('is-active');
                     btn.removeAttribute('aria-current');
                 });
-                anchor.classList.add('active');
+                anchor.classList.add('is-active');
                 anchor.setAttribute('aria-current', 'page');
             }
         }

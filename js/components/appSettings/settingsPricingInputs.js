@@ -10,6 +10,25 @@ import { renderGlobalPricingGrid } from './appSettingsDisplay.js';
 import { dom } from '../../dom/domElements.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 
+/** @type {WeakSet<Element>} */
+const boundPricingControls = new WeakSet();
+
+/** @type {WeakSet<Element>} */
+const dirtyPricingModals = new WeakSet();
+
+/**
+ * Registers a single event listener per DOM element lifetime.
+ *
+ * @param {Element | null | undefined} el
+ * @param {string} eventName
+ * @param {EventListenerOrEventListenerObject} handler
+ */
+function bindControlOnce(el, eventName, handler) {
+    if (!el || boundPricingControls.has(el)) return;
+    boundPricingControls.add(el);
+    el.addEventListener(eventName, handler);
+}
+
 /**
  * Initializes pricing, cloud sync toggle, and support/transparency sections.
  */
@@ -26,11 +45,9 @@ export function initializeSettingsPricing() {
         cloudSyncToggle
     } = dom.appSettings || {};
 
-    let isGlobalPricingDirty = false;
-
     if (cloudSyncToggle) {
         cloudSyncToggle.checked = state.uiSettings.cloudSync !== false;
-        cloudSyncToggle.addEventListener('change', async () => {
+        bindControlOnce(cloudSyncToggle, 'change', async () => {
             const newState = cloudSyncToggle.checked;
             if (!newState) {
                 const confirmed = await showConfirm(
@@ -53,44 +70,40 @@ export function initializeSettingsPricing() {
         });
     }
 
-    if (currencySelect) {
-        currencySelect.addEventListener('change', (e) => {
-            handleStateUpdate(() => {
-                const selectedCurrency = /** @type {HTMLSelectElement} */ (e.target).value;
-                state.uiSettings.currency = {
-                    code: selectedCurrency
-                };
-                const activeTag = state.savedPlayerTags[0];
-                if (activeTag && state.allPlayersData[activeTag]) {
-                    if (!state.allPlayersData[activeTag].currency) {
-                        state.allPlayersData[activeTag].currency = { code: selectedCurrency, globalPricing: {} };
-                    } else {
-                        state.allPlayersData[activeTag].currency.code = selectedCurrency;
-                    }
+    bindControlOnce(currencySelect, 'change', (e) => {
+        handleStateUpdate(() => {
+            const selectedCurrency = /** @type {HTMLSelectElement} */ (e.target).value;
+            state.uiSettings.currency = {
+                code: selectedCurrency
+            };
+            const activeTag = state.savedPlayerTags[0];
+            if (activeTag && state.allPlayersData[activeTag]) {
+                if (!state.allPlayersData[activeTag].currency) {
+                    state.allPlayersData[activeTag].currency = { code: selectedCurrency, globalPricing: {} };
+                } else {
+                    state.allPlayersData[activeTag].currency.code = selectedCurrency;
                 }
-            }, false, { preferencesOnly: true });
-        });
-    }
-
-    if (resetGlobalPricingBtn) {
-        resetGlobalPricingBtn.addEventListener('click', async () => {
-            if (await showConfirm(translate('confirms.resetGlobalPricing'))) {
-                const selectedCurrency = globalPricingCurrencySelect ? globalPricingCurrencySelect.value : state.uiSettings.currency.code;
-                handleStateUpdate(() => {
-                    const activeTag = state.savedPlayerTags[0];
-                    if (state.allPlayersData[activeTag]?.currency?.globalPricing?.[selectedCurrency]) {
-                        delete state.allPlayersData[activeTag].currency.globalPricing[selectedCurrency];
-                    }
-                });
-                renderGlobalPricingGrid(selectedCurrency);
-                isGlobalPricingDirty = false;
             }
-        });
-    }
+        }, false, { preferencesOnly: true });
+    });
+
+    bindControlOnce(resetGlobalPricingBtn, 'click', async () => {
+        if (await showConfirm(translate('confirms.resetGlobalPricing'))) {
+            const selectedCurrency = globalPricingCurrencySelect ? globalPricingCurrencySelect.value : state.uiSettings.currency.code;
+            handleStateUpdate(() => {
+                const activeTag = state.savedPlayerTags[0];
+                if (state.allPlayersData[activeTag]?.currency?.globalPricing?.[selectedCurrency]) {
+                    delete state.allPlayersData[activeTag].currency.globalPricing[selectedCurrency];
+                }
+            });
+            renderGlobalPricingGrid(selectedCurrency);
+            if (globalPricingModal) dirtyPricingModals.delete(globalPricingModal);
+        }
+    });
 
     if (openGlobalPricingBtn && globalPricingModal && dom.overlay) {
-        openGlobalPricingBtn.addEventListener('click', () => {
-            isGlobalPricingDirty = false;
+        bindControlOnce(openGlobalPricingBtn, 'click', () => {
+            dirtyPricingModals.delete(globalPricingModal);
             if (globalPricingCurrencySelect) {
                 globalPricingCurrencySelect.innerHTML = '';
                 Object.keys(currencyData).forEach(code => {
@@ -105,17 +118,17 @@ export function initializeSettingsPricing() {
             openModal(globalPricingModal);
         });
 
-        globalPricingCurrencySelect?.addEventListener('change', (e) => {
-            isGlobalPricingDirty = true;
+        bindControlOnce(globalPricingCurrencySelect, 'change', (e) => {
+            dirtyPricingModals.add(globalPricingModal);
             renderGlobalPricingGrid(/** @type {HTMLSelectElement} */ (e.target).value);
         });
 
-        dom.appSettings?.globalPricingGridBody?.addEventListener('input', () => {
-            isGlobalPricingDirty = true;
+        bindControlOnce(dom.appSettings?.globalPricingGridBody, 'input', () => {
+            dirtyPricingModals.add(globalPricingModal);
         });
 
         const closeGlobalPricing = async (isCancel = false) => {
-            if (isCancel && isGlobalPricingDirty) {
+            if (isCancel && dirtyPricingModals.has(globalPricingModal)) {
                 if (await showConfirm(translate('views.settings.globalPricing.modal.confirmCancel'))) {
                     closeModalAnimated(globalPricingModal);
                 }
@@ -125,13 +138,10 @@ export function initializeSettingsPricing() {
         };
 
         const closeBtn = document.getElementById('close-global-pricing-modal-btn');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => closeGlobalPricing(true));
-        }
+        bindControlOnce(closeBtn, 'click', () => closeGlobalPricing(true));
+        bindControlOnce(cancelGlobalPricingBtn, 'click', () => closeGlobalPricing(true));
 
-        cancelGlobalPricingBtn?.addEventListener('click', () => closeGlobalPricing(true));
-
-        saveGlobalPricingBtn?.addEventListener('click', () => {
+        bindControlOnce(saveGlobalPricingBtn, 'click', () => {
             if (!globalPricingCurrencySelect || !dom.appSettings?.globalPricingGridBody) return;
 
             const originalText = saveGlobalPricingBtn.textContent;
@@ -171,7 +181,7 @@ export function initializeSettingsPricing() {
                 state.allPlayersData[activeTag].currency.globalPricing[selectedCurrency] = newPricing;
             });
 
-            isGlobalPricingDirty = false;
+            dirtyPricingModals.delete(globalPricingModal);
 
             setTimeout(() => {
                 saveGlobalPricingBtn.disabled = false;

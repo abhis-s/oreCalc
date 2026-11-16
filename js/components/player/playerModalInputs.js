@@ -7,6 +7,7 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
+import { canDismissModalOnEscape } from '../../utils/modalHistoryManager.js';
 
 import {
     getForcedVerification,
@@ -20,15 +21,26 @@ import { triggerCloudSave } from '../../services/cloudSaveService.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 
-let isPlayerModalInitialized = false;
 const boundPlayerModals = new WeakSet();
+const boundPlayerKeydownScopes = new WeakSet();
 let hasAttachedPlayerModalKeydown = false;
+/** @type {HTMLElement | null} */
+let activeBoundPlayerModal = null;
 
 /**
  * Resets player modal initialization state so event listeners can rebind on newly mounted dialogs.
  */
 export function resetPlayerModalState() {
-    isPlayerModalInitialized = false;
+    activeBoundPlayerModal = null;
+    hasAttachedPlayerModalKeydown = false;
+}
+
+function handlePlayerModalKeydown(event) {
+    if (event.key !== 'Escape') return;
+    const activeModal = document.getElementById('add-player-modal');
+    if (!activeModal || activeModal !== activeBoundPlayerModal) return;
+    if (!canDismissModalOnEscape(activeModal)) return;
+    renderPlayerModal(false, '', '', false);
 }
 
 /**
@@ -64,22 +76,42 @@ async function checkAndPromptCloudSync() {
 
 /**
  * Initializes Add Player modal event listeners, form inputs, and verification bindings.
+ * @param {any} [scope=null] - Optional route lifecycle scope for listener cleanup.
  */
-export function initializePlayerModal() {
-    if (isPlayerModalInitialized) return;
-    isPlayerModalInitialized = true;
+export function initializePlayerModal(scope = null) {
+    const modal = typeof document !== 'undefined' ? document.getElementById('add-player-modal') : null;
+    const cancelButton = typeof document !== 'undefined'
+        ? (document.getElementById('cancel-add-player-modal-btn') || document.getElementById('cancel-add-player-button'))
+        : null;
+    const loadButton = /** @type {HTMLButtonElement | null} */ (typeof document !== 'undefined' ? document.getElementById('load-player-modal-btn') : null);
+    const verifyButton = /** @type {HTMLButtonElement | null} */ (typeof document !== 'undefined' ? document.getElementById('verify-player-modal-btn') : null);
+    const guidedSetupButton = typeof document !== 'undefined' ? document.getElementById('add-player-guided-setup-btn') : null;
+    const playerTagInput = /** @type {HTMLInputElement | null} */ (typeof document !== 'undefined' ? document.getElementById('player-tag-input-modal') : null);
+    const tokenInput = /** @type {HTMLInputElement | null} */ (typeof document !== 'undefined' ? document.getElementById('add-player-token-input') : null);
+    const errorMessageElement = typeof document !== 'undefined' ? document.getElementById('player-tag-error-message') : null;
+    const closeBtn = typeof document !== 'undefined' ? document.getElementById('close-add-player-modal-btn') : null;
 
-    const modal = document.getElementById('add-player-modal');
-    if (modal && boundPlayerModals.has(modal)) return;
-    if (modal) boundPlayerModals.add(modal);
-    const cancelButton = document.getElementById('cancel-add-player-modal-btn') || document.getElementById('cancel-add-player-button');
-    const loadButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('load-player-modal-btn'));
-    const verifyButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('verify-player-modal-btn'));
-    const guidedSetupButton = document.getElementById('add-player-guided-setup-btn');
-    const playerTagInput = /** @type {HTMLInputElement | null} */ (document.getElementById('player-tag-input-modal'));
-    const tokenInput = /** @type {HTMLInputElement | null} */ (document.getElementById('add-player-token-input'));
-    const errorMessageElement = document.getElementById('player-tag-error-message');
-    const closeBtn = document.getElementById('close-add-player-modal-btn');
+    if (!modal || !cancelButton || !loadButton || !playerTagInput) return;
+
+    activeBoundPlayerModal = modal;
+
+    if (scope && typeof scope.listen === 'function') {
+        if (!boundPlayerKeydownScopes.has(scope)) {
+            boundPlayerKeydownScopes.add(scope);
+            scope.listen(document, 'keydown', handlePlayerModalKeydown);
+            scope.track?.(() => {
+                if (activeBoundPlayerModal === modal) {
+                    activeBoundPlayerModal = null;
+                }
+            });
+        }
+    } else if (!hasAttachedPlayerModalKeydown && typeof document.addEventListener === 'function') {
+        hasAttachedPlayerModalKeydown = true;
+        document.addEventListener('keydown', handlePlayerModalKeydown);
+    }
+
+    if (boundPlayerModals.has(modal)) return;
+    boundPlayerModals.add(modal);
 
     if (modal && cancelButton && loadButton && playerTagInput) {
         if (guidedSetupButton && !document.getElementById('guided-setup-modal')) {
@@ -257,18 +289,6 @@ export function initializePlayerModal() {
                 renderPlayerModal(false, '', '', false);
             }
         });
-
-        if (!hasAttachedPlayerModalKeydown) {
-            hasAttachedPlayerModalKeydown = true;
-            document.addEventListener('keydown', (event) => {
-                const activeModal = document.getElementById('add-player-modal');
-                if (event.key === 'Escape' && activeModal?.classList.contains('show')) {
-                    const openModals = Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'));
-                    if (openModals.length > 0 && openModals.at(-1) !== activeModal) return;
-                    renderPlayerModal(false, '', '', false);
-                }
-            });
-        }
 
         renderPlayerModal(false, '', '', false);
     }

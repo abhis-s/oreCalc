@@ -3,12 +3,19 @@
  * Tier 2: Pure Domain Math (0 side effects, 0 DOM references, 0 browser globals).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { groupDefensesBySpellCombo } from './zapQuakeBatchSolver.js';
-import { isSameHeroEquipment } from './damageFormulas.js';
+import {
+    getMaxSpellLevel,
+    isSameHeroEquipment,
+    resolveOwnSpellLevels
+} from './damageFormulas.js';
 import {
     getDefenseCategoryTier,
-    isDefenseInSeason
+    getMaxSuperchargeTierForTownHall,
+    isDefenseInSeason,
+    isSuperchargeAvailableForTownHall
 } from './defenseProgressionDomain.js';
 import { getEnabledEquipmentList } from './equipmentDamage.js';
 
@@ -20,24 +27,29 @@ import { getEnabledEquipmentList } from './equipmentDamage.js';
  */
 export function getDashboardComboBuckets(state) {
     if (!state) return [];
+    const maxZapLevel = getMaxSpellLevel('lightning');
+    const maxEqLevel = getMaxSpellLevel('earthquake');
     const zq = state.zapQuake || {};
-    const spells = state.offense?.spells || { lightning: 13, earthquake: 8 };
-    const zapLvl = spells.lightning || zq.lightningLevel || 13;
-    const eqLvl = spells.earthquake || zq.earthquakeLevel || 8;
+    const ownSpells = resolveOwnSpellLevels(state);
+    const zapLvl = ownSpells.lightning;
+    const eqLvl = ownSpells.earthquake;
     const enabledSources = state.offense?.enabledSources || {};
 
-    const rawTh = Number(state.playerTownHall) || 18;
-    const shownTh = Math.max(9, Math.min(18, Math.floor(rawTh)));
+    const rawTh = Number(state.playerTownHall) || MAX_TOWN_HALL;
+    const shownTh = Math.max(9, Math.min(MAX_TOWN_HALL, Math.floor(rawTh)));
 
-    const zapSuperchargeTier = (shownTh < 18)
+    const maxScTier = isSuperchargeAvailableForTownHall(shownTh)
+        ? getMaxSuperchargeTierForTownHall(shownTh)
+        : 0;
+    const zapSuperchargeTier = maxScTier === 0
         ? 0
         : (state.globalSuperchargeTier !== undefined && state.globalSuperchargeTier !== null
-            ? Math.max(0, Math.min(2, Math.floor(Number(state.globalSuperchargeTier)) || 0))
-            : 2);
+            ? Math.max(0, Math.min(maxScTier, Math.floor(Number(state.globalSuperchargeTier)) || 0))
+            : maxScTier);
 
-    const ccSpells = state.offense?.ccSpells || { lightning: 13, earthquake: 8 };
-    const ccZapLvl = ccSpells.lightning || 13;
-    const ccEqLvl = ccSpells.earthquake || 8;
+    const ccSpells = state.offense?.ccSpells || { lightning: maxZapLevel, earthquake: maxEqLevel };
+    const ccZapLvl = ccSpells.lightning || maxZapLevel;
+    const ccEqLvl = ccSpells.earthquake || maxEqLevel;
     const isCcZapEnabled = enabledSources.cc_lightning !== false;
     const isCcEqEnabled = enabledSources.cc_earthquake !== false;
 

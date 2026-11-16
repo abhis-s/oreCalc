@@ -3,7 +3,7 @@
  * Tier 3: Core Service (Player Profile Storage).
  */
 
-import { MAX_SAVED_PLAYERS } from './constants.js';
+import { MAX_SAVED_PLAYERS, MAX_TOWN_HALL } from './constants.js';
 import { getDefaultPlayerState as initializeDefaultPlayerState, state } from './state.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
 import {
@@ -382,10 +382,10 @@ export function getSavedPlayerTagsList() {
  * when a structured player profile snapshot is absent or missing townHallLevel.
  *
  * @param {Record<string, any> | null} playerData
- * @returns {number} Inferred Town Hall level (defaults to 18).
+ * @returns {number} Inferred Town Hall level (defaults to MAX_TOWN_HALL).
  */
 export function inferTownHallLevel(playerData) {
-    if (!playerData) return 18;
+    if (!playerData) return MAX_TOWN_HALL;
     const heroes = playerData.heroes;
     if (heroes && typeof heroes === 'object') {
         if (heroes.dragonDuke || heroes['Dragon Duke']) return 18;
@@ -395,8 +395,8 @@ export function inferTownHallLevel(playerData) {
         if (heroes.barbarianKing || heroes['Barbarian King']) return Math.max(7, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 7);
     }
     const warTh = Number(playerData.income?.clanWar?.warPerformance?.thLevel);
-    if (warTh >= 1 && warTh <= 18) return warTh;
-    return 18;
+    if (warTh >= 1 && warTh <= MAX_TOWN_HALL) return warTh;
+    return MAX_TOWN_HALL;
 }
 
 /**

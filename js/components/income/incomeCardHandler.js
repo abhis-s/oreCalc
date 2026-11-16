@@ -4,7 +4,9 @@ import { getSupercellEventUrl } from '../../data/languagesData.js';
 import { currencyData } from '../../data/pricingData.js';
 import { translate } from '../../i18n/translator.js';
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { state } from '../../core/state.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 
 import { getAddPlayerHelpContent, hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { formatRegionalDate } from '../../utils/dateUtils.js';
@@ -48,17 +50,18 @@ export function initializeIncomeCardHandler() {
     };
 
     const getStarBonusThRewardsPopoverContent = () => {
-        let currentTH = 18;
+        let currentTH = MAX_TOWN_HALL;
         if (state.playerProfile && state.playerProfile.townHallLevel) {
-            currentTH = Number(state.playerProfile.townHallLevel) || 18;
+            currentTH = Number(state.playerProfile.townHallLevel) || MAX_TOWN_HALL;
         } else {
             const activeTag = state.savedPlayerTags?.[0];
             const activePlayer = state.allPlayersData?.[activeTag];
             if (activePlayer?.playerProfile?.townHallLevel) {
-                currentTH = Number(activePlayer.playerProfile.townHallLevel) || 18;
+                currentTH = Number(activePlayer.playerProfile.townHallLevel) || MAX_TOWN_HALL;
             }
         }
-        currentTH = Math.min(Math.max(currentTH, 1), 18);
+        currentTH = Math.min(Math.max(currentTH, 1), MAX_TOWN_HALL);
+        const iconSrc = getTownHallIconUrl(currentTH);
 
         const title = translate('views.income.starBonus.thRewardsTitle');
         const dailyBadge = translate('time.daily');
@@ -67,7 +70,7 @@ export function initializeIncomeCardHandler() {
         const formatNum = (num) => formatNumber(num || 0);
 
         const header = `
-            <clashcalc-assets-image src="assets/th/th${currentTH}.png" class="popover-img" alt="${translate('views.equipment.thShort', { level: currentTH })}" width="22" height="22"></clashcalc-assets-image>
+            <clashcalc-assets-image src="${iconSrc}" class="popover-img" alt="${translate('views.equipment.thShort', { level: currentTH })}" width="22" height="22"></clashcalc-assets-image>
             <div class="popover-title-group">
                 <div class="popover-title">${title}</div>
                 <div class="popover-badge">${dailyBadge}</div>
@@ -77,7 +80,7 @@ export function initializeIncomeCardHandler() {
         const heroHtml = `
             <div class="th-rewards-hero">
                 <div class="th-rewards-hero-left">
-                    <clashcalc-assets-image src="assets/th/th${currentTH}.png" class="th-rewards-hero-img" alt="${translate('views.equipment.thShort', { level: currentTH })}" width="32" height="32"></clashcalc-assets-image>
+                    <clashcalc-assets-image src="${iconSrc}" class="th-rewards-hero-img" alt="${translate('views.equipment.thShort', { level: currentTH })}" width="32" height="32"></clashcalc-assets-image>
                     <span class="th-rewards-hero-title">${translate('views.equipment.thShort', { level: currentTH })}</span>
                     <span class="th-rewards-hero-badge">${activeLabel}</span>
                 </div>
@@ -90,7 +93,10 @@ export function initializeIncomeCardHandler() {
         `;
 
         const col1Levels = [8, 9, 10, 11, 12, 13];
-        const col2Levels = [14, 15, 16, 17, 18];
+        const col2Levels = Object.keys(townHallStarBonusData)
+            .map(Number)
+            .filter(lvl => lvl >= 14)
+            .sort((a, b) => a - b);
 
         const renderRow = (lvl) => {
             const rewards = townHallStarBonusData[lvl] || { shiny: 0, glowy: 0, starry: 0 };

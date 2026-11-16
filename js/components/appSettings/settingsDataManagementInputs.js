@@ -6,6 +6,22 @@ import { dom } from '../../dom/domElements.js';
 import { erasePlayerTagFromAllUsers, fetchPlayerData } from '../../services/apiService.js';
 import { showAlert } from '../../ui/noticeModal.js';
 
+/** @type {WeakSet<Element>} */
+const boundDataManagementControls = new WeakSet();
+
+/**
+ * Registers a single event listener per DOM element lifetime.
+ *
+ * @param {Element | null | undefined} el
+ * @param {string} eventName
+ * @param {EventListenerOrEventListenerObject} handler
+ */
+function bindControlOnce(el, eventName, handler) {
+    if (!el || boundDataManagementControls.has(el)) return;
+    boundDataManagementControls.add(el);
+    el.addEventListener(eventName, handler);
+}
+
 /**
  * Initializes player deletion and exclusion from service modal.
  */
@@ -58,10 +74,10 @@ export function initializeSettingsDataManagement() {
             }
         };
 
-        cancelDeletePlayerBtn?.addEventListener('click', closeDeleteModal);
-        cancelDeleteVerifyBtn?.addEventListener('click', closeDeleteModal);
+        bindControlOnce(cancelDeletePlayerBtn, 'click', closeDeleteModal);
+        bindControlOnce(cancelDeleteVerifyBtn, 'click', closeDeleteModal);
 
-        validateDeletePlayerBtn?.addEventListener('click', async () => {
+        bindControlOnce(validateDeletePlayerBtn, 'click', async () => {
             const tag = deleteTagInput ? deleteTagInput.value.trim() : '';
             if (!tag) {
                 if (deleteTagError) deleteTagError.textContent = translate('errors.playerTagRequired');
@@ -132,7 +148,7 @@ export function initializeSettingsDataManagement() {
             }
         });
 
-        verifyDeletePlayerBtn?.addEventListener('click', async () => {
+        bindControlOnce(verifyDeletePlayerBtn, 'click', async () => {
             const tag = deleteTagInput ? deleteTagInput.value.trim() : '';
             const token = deleteTokenInput ? deleteTokenInput.value.trim() : '';
             if (!token) {
@@ -176,21 +192,21 @@ export function initializeSettingsDataManagement() {
             }
         });
 
-        deleteTagInput?.addEventListener('input', () => {
+        bindControlOnce(deleteTagInput, 'input', () => {
             const result = validatePlayerTagInput(deleteTagInput, deleteTagError);
             if (result.isValid) {
                 deleteTagInput.value = result.cleanedTag ? '#' + result.cleanedTag : '';
             }
         });
 
-        deleteTokenInput?.addEventListener('input', (e) => {
+        bindControlOnce(deleteTokenInput, 'input', (e) => {
             const target = /** @type {HTMLInputElement} */ (e.target);
             target.value = target.value.replace(/[^a-z0-9]/gi, '');
         });
     }
 
     if (dom.appSettings?.closeDeletePlayerModalBtn && deleteModal) {
-        dom.appSettings.closeDeletePlayerModalBtn.addEventListener('click', () => {
+        bindControlOnce(dom.appSettings.closeDeletePlayerModalBtn, 'click', () => {
             closeModalAnimated(deleteModal);
         });
     }

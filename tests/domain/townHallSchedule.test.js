@@ -1,36 +1,10 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getMaxTownHall, getTHReleaseDate } from '../../js/domain/townHall/townHallSchedule.js';
+import { MAX_TOWN_HALL } from '../../js/core/constants.js';
+import { getTHReleaseDate, getTownHallIconUrl } from '../../js/domain/townHall/townHallSchedule.js';
 
-describe('Town Hall Release Schedule Domain Suite', () => {
-
-    test('getMaxTownHall calculates correct maximum released Town Hall across month/year boundaries', () => {
-        // Prior to TH 17 release in November 2024
-        assert.equal(getMaxTownHall(new Date(Date.UTC(2024, 9, 31))), 16); // Oct 31, 2024
-
-        // TH 17 release window
-        assert.equal(getMaxTownHall(new Date(Date.UTC(2024, 10, 1))), 17); // Nov 1, 2024
-        assert.equal(getMaxTownHall(new Date(Date.UTC(2024, 11, 31))), 17); // Dec 31, 2024
-
-        // Throughout 2025 until TH 18 release
-        assert.equal(getMaxTownHall(new Date(Date.UTC(2025, 0, 15))), 17); // Jan 15, 2025
-        assert.equal(getMaxTownHall(new Date(Date.UTC(2025, 9, 31))), 17); // Oct 31, 2025
-        assert.equal(getMaxTownHall(new Date(Date.UTC(2025, 10, 1))), 18); // Nov 1, 2025
-
-        // Throughout 2026 until TH 19 release
-        assert.equal(getMaxTownHall(new Date(Date.UTC(2026, 8, 25))), 18); // Sep 25, 2026
-        assert.equal(getMaxTownHall(new Date(Date.UTC(2026, 9, 31))), 18); // Oct 31, 2026
-        assert.equal(getMaxTownHall(new Date(Date.UTC(2026, 10, 1))), 19); // Nov 1, 2026
-
-        // Long-term projection
-        assert.equal(getMaxTownHall(new Date(Date.UTC(2030, 10, 1))), 23); // Nov 1, 2030
-
-        // Default argument (current date)
-        const currentMaxTH = getMaxTownHall();
-        assert.ok(typeof currentMaxTH === 'number');
-        assert.ok(currentMaxTH >= 17);
-    });
+describe('Town Hall Schedule & Icon Resolution Domain Suite', () => {
 
     test('getTHReleaseDate returns predicted release year based on annual cadence', () => {
         // Levels up to and including TH 17 anchor at 2024
@@ -44,5 +18,15 @@ describe('Town Hall Release Schedule Domain Suite', () => {
         assert.equal(getTHReleaseDate(19), 2026);
         assert.equal(getTHReleaseDate(20), 2027);
         assert.equal(getTHReleaseDate(25), 2032);
+    });
+
+    test('getTownHallIconUrl resolves bounded TH icon URLs with relative and root-relative paths', () => {
+        const maxIconUrl = `assets/th/th${MAX_TOWN_HALL}.png`;
+        assert.equal(getTownHallIconUrl(), maxIconUrl);
+        assert.equal(getTownHallIconUrl(12), 'assets/th/th12.png');
+        assert.equal(getTownHallIconUrl(0), 'assets/th/th1.png');
+        assert.equal(getTownHallIconUrl(19), 'assets/th/th19.png');
+        assert.equal(getTownHallIconUrl(99), maxIconUrl);
+        assert.equal(getTownHallIconUrl(18, { rootRelative: true }), '/assets/th/th18.png');
     });
 });

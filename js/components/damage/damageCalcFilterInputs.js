@@ -13,6 +13,7 @@ import { updateClusterBuildingGridForSearch } from './damageCalcDefenseBoardDisp
 
 /** @type {number | null} */
 let _searchRafId = null;
+const filterClickBindings = new WeakMap();
 
 /**
  * Attaches search, building filter tab, view mode, supercharge, and remaining-targets listeners.
@@ -20,8 +21,9 @@ let _searchRafId = null;
  * @param {any} state - Damage calculator state.
  * @param {HTMLElement} rootContainer - Root container element.
  * @param {() => void} onStateChange - Re-render callback.
+ * @param {any} [scope=null] - Optional route lifecycle scope for listener cleanup.
  */
-export function attachDamageCalcFilterListeners(state, rootContainer, onStateChange) {
+export function attachDamageCalcFilterListeners(state, rootContainer, onStateChange, scope = null) {
     // Applies buildingFilter + searchQuery as a pure DOM show/hide on existing Tab 1 combo cards.
     // Never recalculates combo damage math — only runs when filter/search changes, not on data changes.
     const applyZqDomFilter = (query, buildingFilter) => {
@@ -245,14 +247,25 @@ export function attachDamageCalcFilterListeners(state, rootContainer, onStateCha
         });
     }
 
-    // Delegated reset filters and clear search triggers
-    rootContainer.addEventListener('click', (e) => {
+    // Delegated reset filters and clear search triggers (single listener per container, latest state/callback)
+    const existingBinding = filterClickBindings.get(rootContainer);
+    if (existingBinding) {
+        existingBinding.state = state;
+        existingBinding.onStateChange = onStateChange;
+        return;
+    }
+
+    const bindingEntry = { state, onStateChange };
+    filterClickBindings.set(rootContainer, bindingEntry);
+
+    const handleDelegatedFilterClick = (e) => {
+        const activeState = bindingEntry.state;
         const target = /** @type {HTMLElement | null} */ (e.target);
         if (!target) return;
 
         if (target.closest('[data-action="reset-zq-filters"]')) {
-            state.zapQuake.searchQuery = '';
-            state.zapQuake.buildingFilter = 'all';
+            activeState.zapQuake.searchQuery = '';
+            activeState.zapQuake.buildingFilter = 'all';
             persistState();
             // DOM-only reset — no combo recalculation
             applyZqDomFilter('', 'all');
@@ -262,17 +275,17 @@ export function attachDamageCalcFilterListeners(state, rootContainer, onStateCha
         }
 
         if (target.closest('[data-action="clear-zq-search"]')) {
-            state.zapQuake.searchQuery = '';
+            activeState.zapQuake.searchQuery = '';
             persistState();
             const zqInput = /** @type {HTMLInputElement | null} */ (document.getElementById('zq-search-input'));
             if (rootContainer.querySelector('.calc-view--cluster')) {
                 // Tab 2: rebuild grid with cleared query — no re-render of whole panel
-                updateClusterBuildingGridForSearch(state, rootContainer);
+                updateClusterBuildingGridForSearch(activeState, rootContainer);
                 const sw = rootContainer.querySelector('.calc-view--cluster .calc-view-search-wrapper');
                 sw?.querySelector('[data-action="clear-zq-search"]')?.remove();
             } else {
                 // Tab 1: DOM-only clear — respects current buildingFilter, no combo recalculation
-                applyZqDomFilter('', state.zapQuake.buildingFilter || 'all');
+                applyZqDomFilter('', activeState.zapQuake.buildingFilter || 'all');
             }
             if (zqInput) {
                 zqInput.value = '';
@@ -282,11 +295,11 @@ export function attachDamageCalcFilterListeners(state, rootContainer, onStateCha
         }
 
         if (target.closest('[data-action="reset-cluster-filters"]')) {
-            state.zapQuake.searchQuery = '';
-            state.zapQuake.buildingFilter = 'all';
+            activeState.zapQuake.searchQuery = '';
+            activeState.zapQuake.buildingFilter = 'all';
             persistState();
             // Tab 2: rebuild grid with cleared query + filter — no re-render of whole panel
-            updateClusterBuildingGridForSearch(state, rootContainer);
+            updateClusterBuildingGridForSearch(activeState, rootContainer);
             rootContainer.querySelectorAll('.calc-filter-tab[data-zq-filter]').forEach((t) => {
                 const tf = t.getAttribute('data-zq-filter') || 'all';
                 t.classList.toggle('is-active', tf === 'all');
@@ -295,5 +308,14 @@ export function attachDamageCalcFilterListeners(state, rootContainer, onStateCha
             const input = /** @type {HTMLInputElement | null} */ (document.getElementById('zq-search-input'));
             if (input) input.value = '';
         }
-    });
+    };
+
+    if (scope && typeof scope.listen === 'function') {
+        scope.listen(rootContainer, 'click', handleDelegatedFilterClick);
+        scope.track?.(() => {
+            filterClickBindings.delete(rootContainer);
+        });
+    } else {
+        rootContainer.addEventListener('click', handleDelegatedFilterClick);
+    }
 }

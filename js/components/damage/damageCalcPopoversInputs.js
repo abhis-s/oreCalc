@@ -23,15 +23,16 @@ import {
 
 /** @type {Object | null} */
 let currentDamageState = null;
-let isDamageCalcPopoversBound = false;
+const boundPopoverContainers = new WeakSet();
 
 /**
  * Attaches contextual help popover listeners to the damage calculator root container.
  *
  * @param {HTMLElement} rootContainer - Root container element.
  * @param {Object} state - Damage calculator state.
+ * @param {any} [scope=null] - Optional route lifecycle scope for listener cleanup.
  */
-export function attachDamageCalcPopoverListeners(rootContainer, state) {
+export function attachDamageCalcPopoverListeners(rootContainer, state, scope = null) {
     if (!rootContainer) return;
     currentDamageState = state;
 
@@ -137,13 +138,21 @@ export function attachDamageCalcPopoverListeners(rootContainer, state) {
         return false;
     };
 
-    const damagePopoverTriggerSelector = '[data-calc-info], [data-action-info], [data-note-code], .calc-combo-defense-card__info-btn, [data-combo-defense-info], [data-combo-table-info], .info-btn, [data-combo-row-index], [data-cluster-target-info], [data-casualty-info-btn], [data-source-info], [data-combo-badge], [data-shared-combo-info]';
+    const damagePopoverTriggerSelector = '[data-calc-info], [data-action-info], [data-note-code], .calc-combo-defense-card__info-btn, [data-combo-defense-info], [data-combo-table-info], .calc-target-combo-row__info-btn, .calc-combo-defense-card .info-btn, [data-combo-row-index], [data-cluster-target-info], [data-casualty-info-btn], [data-source-info], [data-combo-badge], [data-shared-combo-info]';
 
-    if (!isDamageCalcPopoversBound) {
-        isDamageCalcPopoversBound = true;
+    if (!boundPopoverContainers.has(rootContainer)) {
+        boundPopoverContainers.add(rootContainer);
 
-        rootContainer.addEventListener('click', (e) => {
-            const trigger = /** @type {HTMLElement | null} */ (e.target)?.closest(damagePopoverTriggerSelector);
+        const listenOnRoot = (eventType, handler) => {
+            if (scope && typeof scope.listen === 'function') {
+                scope.listen(rootContainer, eventType, handler);
+            } else {
+                rootContainer.addEventListener(eventType, handler);
+            }
+        };
+
+        listenOnRoot('click', (e) => {
+            const trigger = /** @type {HTMLElement | null} */ (e.target)?.closest?.(damagePopoverTriggerSelector);
             if (!trigger) return;
             const handled = handlePopoverTrigger(trigger, true);
             if (handled) {
@@ -153,17 +162,17 @@ export function attachDamageCalcPopoverListeners(rootContainer, state) {
             }
         });
 
-        rootContainer.addEventListener('pointerover', (e) => {
+        listenOnRoot('pointerover', (e) => {
             if (e.pointerType === 'touch') return;
-            const trigger = /** @type {HTMLElement | null} */ (e.target)?.closest(damagePopoverTriggerSelector);
+            const trigger = /** @type {HTMLElement | null} */ (e.target)?.closest?.(damagePopoverTriggerSelector);
             if (trigger) {
                 handlePopoverTrigger(trigger, false);
             }
         });
 
-        rootContainer.addEventListener('pointerout', (e) => {
+        listenOnRoot('pointerout', (e) => {
             if (e.pointerType === 'touch') return;
-            const trigger = /** @type {HTMLElement | null} */ (e.target)?.closest(damagePopoverTriggerSelector);
+            const trigger = /** @type {HTMLElement | null} */ (e.target)?.closest?.(damagePopoverTriggerSelector);
             if (!trigger) return;
 
             const related = /** @type {Node | null} */ (e.relatedTarget);
@@ -176,14 +185,20 @@ export function attachDamageCalcPopoverListeners(rootContainer, state) {
             }
         });
 
-        rootContainer.addEventListener('keydown', (e) => {
+        listenOnRoot('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
-                const trigger = e.target.closest('[data-combo-badge], [data-shared-combo-info]');
+                const trigger = /** @type {HTMLElement | null} */ (e.target)?.closest?.('[data-combo-badge], [data-shared-combo-info]');
                 if (trigger) {
                     e.preventDefault();
                     handlePopoverTrigger(trigger, true);
                 }
             }
+        });
+
+        scope?.track?.(() => {
+            boundPopoverContainers.delete(rootContainer);
+            currentDamageState = null;
+            hideCardHelpPopover();
         });
     }
 }

@@ -362,7 +362,11 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         assert.equal(guidedSetupState.currentStep, 1);
     });
 
-    test('generateGuestPlayerData creates valid guest data structure for Town Hall level', () => {
+    test('generateGuestPlayerData creates valid guest data structure for Town Hall level', async () => {
+        const { MAX_TOWN_HALL } = await import('../../js/core/constants.js');
+        const defaultGuestData = generateGuestPlayerData();
+        assert.equal(defaultGuestData.townHallLevel, MAX_TOWN_HALL);
+
         const guestData = generateGuestPlayerData(16);
         assert.ok(guestData);
         assert.equal(guestData.tag, 'DEFAULT0');

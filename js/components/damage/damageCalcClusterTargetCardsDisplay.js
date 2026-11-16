@@ -3,12 +3,13 @@
  * Tier 4: UI Presentation (Dedicated exclusively to cluster target card DOM rendering, 0 event listeners).
  */
 
-import { spellsData } from '../../data/spellsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import {
     calculateEarthquakeDamageWithCc,
     calculateRequiredZaps,
+    getLightningDamage,
+    getMaxSpellLevel,
     isTargetImmuneToSpell
 } from '../../domain/damage/damageFormulas.js';
 import {
@@ -47,14 +48,14 @@ export function renderClusterTargetCardsHtml({
     activePairs,
     zapLvl,
     eqLvl,
-    ccZapLvl = 13,
-    ccEqLvl = 8,
+    ccZapLvl = getMaxSpellLevel('lightning'),
+    ccEqLvl = getMaxSpellLevel('earthquake'),
     isCcZapEnabled = true
 }) {
     const hpUnit = getHpUnit();
-    const zapDmg = spellsData.spells.lightning.levels[zapLvl]?.damage || 720;
+    const zapDmg = getLightningDamage(zapLvl);
     const ccZapDmg = (isCcZapEnabled && ccZapLvl)
-        ? (spellsData.spells.lightning.levels[ccZapLvl]?.damage || zapDmg)
+        ? getLightningDamage(ccZapLvl)
         : zapDmg;
 
     let targetCardsHtml = '';

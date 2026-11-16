@@ -5,18 +5,20 @@
  * Provides a standardized modifier tabs bar across Equipment Details and Damage Calculator.
  */
 
+import { battleModifiersData } from '../../data/battleModifiersData.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 
 const MODIFIER_KEYS = Object.freeze(['standard', 'legend3', 'legend2', 'legend1', 'esports']);
 
-export const MODIFIER_PERCENTAGE_SUFFIXES = Object.freeze({
-    standard: '',
-    legend3: ' (+10%)',
-    legend2: ' (+15%)',
-    legend1: ' (+20%)',
-    esports: ''
-});
+export const MODIFIER_PERCENTAGE_SUFFIXES = Object.freeze(
+    Object.fromEntries(
+        MODIFIER_KEYS.map(key => {
+            const bonusPct = Math.round((battleModifiersData.leagues?.[key]?.defDpsBonus || 0) * 100);
+            return [key, bonusPct > 0 ? ` (+${bonusPct}%)` : ''];
+        })
+    )
+);
 
 /** @type {ResizeObserver | null} */
 let sharedResizeObserver = null;

@@ -121,17 +121,3 @@
         opacity: 0.55;
     }
 }
-
-.calc-supercharge-active-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: $spacing-xs;
-    padding-block: $spacing-2xs;
-    padding-inline: $spacing-xs;
-    background-color: color-mix(in srgb, $color-info 15%, transparent);
-    border: 1px solid color-mix(in srgb, $color-info 40%, transparent);
-    border-radius: $shape-corner-full;
-    font-size: $font-size-2xs;
-    font-weight: $font-weight-bold;
-    color: $color-info;
-}

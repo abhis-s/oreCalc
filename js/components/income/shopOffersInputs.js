@@ -8,6 +8,9 @@ import { initializeOfferGrid } from '../common/offerGrid.js';
 import { dom } from '../../dom/domElements.js';
 import { renderShopOfferGrid, renderShopOfferRow, renderShopOfferSelectorContent } from './shopOffersDisplay.js';
 
+const boundShopOffersLanguageScopes = new WeakSet();
+let hasAttachedShopOffersLanguageListener = false;
+
 function updateShopOfferState(offerId, oreType, count) {
     const selector = dom.income?.shopOffers?.dropdown;
     const setKey = selector ? selector.value : '0';
@@ -32,8 +35,9 @@ function updateShopOfferState(offerId, oreType, count) {
 
 /**
  * Initializes Shop Offers dropdown bindings, offer grid interactions, and state updates.
+ * @param {any} [scope=null] - Optional route lifecycle scope for language change listener cleanup.
  */
-export function initializeShopOffers() {
+export function initializeShopOffers(scope = null) {
     const selector = dom.income?.shopOffers?.dropdown;
     const container = dom.income?.shopOffers?.checkboxes;
     if (!selector || !container) return;
@@ -55,7 +59,15 @@ export function initializeShopOffers() {
         }
     });
 
-    document.addEventListener('languageChanged', renderShopOfferSelectorContent);
+    if (scope && typeof scope.listen === 'function') {
+        if (!boundShopOffersLanguageScopes.has(scope)) {
+            boundShopOffersLanguageScopes.add(scope);
+            scope.listen(document, 'languageChanged', renderShopOfferSelectorContent);
+        }
+    } else if (!hasAttachedShopOffersLanguageListener && typeof document !== 'undefined') {
+        hasAttachedShopOffersLanguageListener = true;
+        document.addEventListener('languageChanged', renderShopOfferSelectorContent);
+    }
 
     const getDynamicOffers = () => {
         const sel = selector.value;

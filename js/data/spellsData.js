@@ -31,7 +31,8 @@ export const spellsData = Object.freeze({
                 10: Object.freeze({ damage: 600, th: 13 }),
                 11: Object.freeze({ damage: 640, th: 14 }),
                 12: Object.freeze({ damage: 680, th: 15 }),
-                13: Object.freeze({ damage: 720, th: 16 })
+                13: Object.freeze({ damage: 720, th: 16 }),
+                14: Object.freeze({ damage: 760, th: 19 })
             })
         }),
         earthquake: Object.freeze({
@@ -62,11 +63,11 @@ export const spellsData = Object.freeze({
         5: 2, 6: 4, 7: 6, 8: 7,
         9: 9, 10: 11, 11: 11, 12: 11,
         13: 11, 14: 11, 15: 11, 16: 11,
-        17: 11, 18: 11
+        17: 11, 18: 11, 19: 11
     }),
     ccSpellCapacitiesByTH: Object.freeze({
         1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0,
         8: 1, 9: 1, 10: 1, 11: 2, 12: 2, 13: 2,
-        14: 3, 15: 3, 16: 3, 17: 3, 18: 4
+        14: 3, 15: 3, 16: 3, 17: 3, 18: 4, 19: 4
     })
 });

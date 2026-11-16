@@ -1,9 +1,10 @@
 import { translate } from '../../i18n/translator.js';
 import { animateValue, formatNumber } from '../../utils/numberFormatter.js';
 import { heroJourneyNodes } from '../../data/heroJourneyData.js';
-import { getMaxCumulativeLevelsByTH, getNodeTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
+import { getMaxCumulativeHeroLevel, getMaxCumulativeLevelsByTH, getNodeTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
 import { getQuestChestReward } from '../../domain/income/heroJourneyIncome.js';
 import { resolveHeroJourneyTrack } from '../../domain/income/heroJourneyResolution.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
 import { hjState, buildStateFromPlayerData } from './heroJourneyState.js';
@@ -286,7 +287,7 @@ export function renderPlayerSummary() {
         card.innerHTML = renderProfileHeaderHtml({
             profile: null,
             isGuest: true,
-            thLevel: hjState.thLevel || 18,
+            thLevel: hjState.thLevel || MAX_TOWN_HALL,
             plannerBridge: { url: bridgeUrl },
             headerExtraClasses: 'hero-journey-page__player-header'
         });
@@ -296,7 +297,7 @@ export function renderPlayerSummary() {
     const thLevel = hjState.thLevel;
     const maxLevelsByTH = getMaxCumulativeLevelsByTH();
     const allMaxValues = Object.values(maxLevelsByTH);
-    const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 480;
+    const overallTrueMaxLevel = allMaxValues.length > 0 ? Math.max(...allMaxValues) : getMaxCumulativeHeroLevel();
     const isTrueMaxPlayer = hjState.cumulativeLevel >= overallTrueMaxLevel && overallTrueMaxLevel > 0;
     const overallPct = overallTrueMaxLevel > 0 ? Math.min(100, Math.round((hjState.cumulativeLevel / overallTrueMaxLevel) * 100)) : 0;
 

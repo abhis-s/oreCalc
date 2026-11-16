@@ -423,10 +423,10 @@ function validateDomainEnumerations(enKeysMap, rootDir = projectRoot) {
     const defensesList = [
         'airDefense', 'airSweeper', 'archerTower', 'bombTower', 'buildersHut',
         'cakeAPult', 'cannon', 'clanCastle', 'darkElixirStorage', 'eagleArtillery',
-        'elixirStorage', 'firespitter', 'goldStorage', 'heroHunter', 'hiddenTesla',
+        'elixirStorage', 'firecrackerTower', 'firespitter', 'goldStorage', 'heroHunter', 'hiddenTesla',
         'hotCandle', 'infernoTower', 'logger', 'longshot', 'monolith',
         'mortar', 'multiArcherTower', 'multiGearTower', 'revengeTower', 'ricochetCannon',
-        'scattershot', 'smasher', 'storages', 'spellTower', 'superWizardTower', 'townHall',
+        'scattershot', 'smasher', 'spikyTower', 'storages', 'spellTower', 'superWizardTower', 'townHall',
         'wizardTower', 'xBow'
     ];
     for (const def of defensesList) {

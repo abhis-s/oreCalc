@@ -16,6 +16,63 @@ let isModalPopping = false;
 let suppressHistoryPop = false;
 
 /**
+ * Returns true for dialogs that manage their own backdrop and Escape dismissal lifecycle.
+ * @param {Element | null | undefined} modal
+ * @returns {boolean}
+ */
+export function isSelfManagedModal(modal) {
+    const id = modal?.id;
+    return id === 'guided-setup-modal' || id === 'notice-modal';
+}
+
+/**
+ * Returns currently open modal elements in DOM order.
+ * @returns {HTMLElement[]}
+ */
+function getOpenModalElements() {
+    if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') {
+        return [];
+    }
+    return /** @type {HTMLElement[]} */ (Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]')));
+}
+
+/**
+ * Resolves the topmost open modal eligible for global Escape/backdrop dismissal.
+ * Yields completely when a self-managed dialog (#guided-setup-modal or #notice-modal) is open.
+ * @returns {HTMLElement | null}
+ */
+export function getTopDismissibleModal() {
+    const openModals = getOpenModalElements();
+    if (openModals.length > 0) {
+        if (openModals.some(isSelfManagedModal)) return null;
+        return openModals.at(-1) || null;
+    }
+    if (typeof document !== 'undefined' && typeof document.querySelector === 'function') {
+        const fallback = /** @type {HTMLElement | null} */ (
+            document.querySelector('.modal.show:not(#guided-setup-modal):not(#notice-modal), dialog.modal[open]:not(#guided-setup-modal):not(#notice-modal)')
+        );
+        return fallback;
+    }
+    return null;
+}
+
+/**
+ * Returns true when the given modal is currently open and owns topmost Escape dismissal.
+ * @param {HTMLElement | HTMLDialogElement | null | undefined} modal
+ * @returns {boolean}
+ */
+export function canDismissModalOnEscape(modal) {
+    if (!modal || modal.isConnected === false || modal.classList?.contains('closing')) return false;
+    const isOpen = Boolean(modal.classList?.contains('show') || /** @type {HTMLDialogElement} */ (modal).open);
+    if (!isOpen) return false;
+
+    const openModals = getOpenModalElements();
+    if (openModals.length === 0) return true;
+    if (openModals.some(isSelfManagedModal)) return false;
+    return openModals.at(-1) === modal;
+}
+
+/**
  * Indicates whether a popstate event was triggered by modal/drawer closure or trapped by an active modal.
  * @returns {boolean}
  */

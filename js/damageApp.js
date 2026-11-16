@@ -6,12 +6,14 @@
 import { updateUIWithTranslations } from './i18n/uiTranslator.js';
 import { renderNavigationDrawerContent } from './components/common/navigationDrawerDisplay.js';
 import { renderBottomNavBar } from './components/common/bottomNavBar.js';
+import { MAX_TOWN_HALL } from './core/constants.js';
 import {
     bootstrapShellLanguageAndStorage,
     finalizeRouteMount,
     initSharedShellChrome,
     mountWhenReady
 } from './core/shellBootstrapper.js';
+import { RouteLifecycleScope } from './core/routeLifecycleScope.js';
 import {
     normalizePlayerTag,
     getPlayerStorageKey,
@@ -53,7 +55,8 @@ import {
 
 /** @type {{ openAddPlayerModal: () => void, closeAddPlayerModal: () => void } | null} */
 let activeAddPlayerModalControls = null;
-let hasAttachedDamageListeners = false;
+/** @type {RouteLifecycleScope | null} */
+let damageLifecycleScope = null;
 let isMounted = false;
 /** @type {Promise<void> | null} */
 let activeMountPromise = null;
@@ -195,7 +198,7 @@ function switchPlayer(tag) {
 
     const savedProfiles = getSavedProfiles();
     const prevProfile = savedProfiles.find(p => p.cleanTag === damageCalcState.activeTag);
-    const prevTh = prevProfile?.townHallLevel || prevProfile?.cachedData?.townHallLevel || damageCalcState.playerTownHall || 18;
+    const prevTh = prevProfile?.townHallLevel || prevProfile?.cachedData?.townHallLevel || damageCalcState.playerTownHall || MAX_TOWN_HALL;
 
     damageCalcState.activeTag = cleanTag;
     syncPlayerTagToUrl(cleanTag);
@@ -203,7 +206,7 @@ function switchPlayer(tag) {
     const targetProfile = savedProfiles.find(p => p.cleanTag === cleanTag);
     let hadCachedData = false;
     if (targetProfile) {
-        const nextTh = targetProfile.townHallLevel || targetProfile.cachedData?.townHallLevel || 18;
+        const nextTh = targetProfile.townHallLevel || targetProfile.cachedData?.townHallLevel || MAX_TOWN_HALL;
         const fullData = getPlayerDataFromStorage(cleanTag);
         syncPlayerVillageData(fullData || targetProfile.cachedData || targetProfile, { resetUI: prevTh !== nextTh });
         hadCachedData = Boolean(targetProfile.cachedData || targetProfile.name);
@@ -283,7 +286,7 @@ function renderActiveView() {
         renderOffenseBar(damageCalcState, modifierBarContainer);
     }
 
-    attachDamageCalcListeners(damageCalcState, document.body, renderActiveView);
+    attachDamageCalcListeners(damageCalcState, document.body, renderActiveView, damageLifecycleScope);
     updateUIWithTranslations(true);
     renderNavigationDrawerContent({
         activeView: damageCalcState.activeTab,
@@ -302,8 +305,10 @@ function renderActiveView() {
 
 /**
  * Synchronizes damage calculator active profile upon cross-tab player storage changes.
+ *
+ * @param {RouteLifecycleScope} scope
  */
-function initDamageCrossTabSync() {
+function initDamageCrossTabSync(scope) {
     const syncFromStorage = () => {
         if (!isMounted) return;
         const saved = getSavedProfiles();
@@ -326,7 +331,7 @@ function initDamageCrossTabSync() {
         }
     };
 
-    window.addEventListener('storage', (event) => {
+    scope.listen(window, 'storage', (event) => {
         if (!event.key) return;
         if (
             event.key === 'clashCalc_playerTags' ||
@@ -338,23 +343,23 @@ function initDamageCrossTabSync() {
         }
     });
 
-    document.addEventListener('app:playerDropdownSync', () => {
+    scope.listen(document, 'app:playerDropdownSync', () => {
         syncFromStorage();
     });
 
-    if (typeof document?.addEventListener === 'function') {
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                syncFromStorage();
-            }
-        });
-    }
+    scope.listen(document, 'visibilitychange', () => {
+        if (!document.hidden) {
+            syncFromStorage();
+        }
+    });
 }
 
 /**
  * Application bootstrapper.
+ *
+ * @param {RouteLifecycleScope} scope
  */
-async function initDamageApp() {
+async function initDamageApp(scope) {
     await bootstrapShellLanguageAndStorage({
         preloadPromise: preloadDefensesData()
     });
@@ -384,6 +389,7 @@ async function initDamageApp() {
     });
 
     activeAddPlayerModalControls = initStandaloneAddPlayerModal({
+        scope,
         onLoadPlayer: async (cleanedTag) => {
             const data = await fetchPlayerData(cleanedTag);
             if (!data || !data.tag) {
@@ -393,8 +399,8 @@ async function initDamageApp() {
             const savedProfiles = getSavedProfiles();
             const isFirstPlayer = savedProfiles.length === 0;
             const prevProfile = savedProfiles.find(p => p.cleanTag === damageCalcState.activeTag);
-            const prevTh = prevProfile?.townHallLevel || prevProfile?.cachedData?.townHallLevel || damageCalcState.playerTownHall || 18;
-            const nextTh = data.townHallLevel || 18;
+            const prevTh = prevProfile?.townHallLevel || prevProfile?.cachedData?.townHallLevel || damageCalcState.playerTownHall || MAX_TOWN_HALL;
+            const nextTh = data.townHallLevel || MAX_TOWN_HALL;
 
             const serverTag = savePlayerProfileToStorage(data);
             damageCalcState.activeTag = serverTag;
@@ -437,15 +443,12 @@ async function initDamageApp() {
     initDamageCalcTabNav(damageCalcState, renderActiveView);
     renderActiveView();
 
-    if (!hasAttachedDamageListeners) {
-        hasAttachedDamageListeners = true;
-        initDamageCrossTabSync();
-        document.addEventListener('languageChanged', () => {
-            if (!isMounted) return;
-            renderActiveView();
-            renderPlayerDropdown(damageCalcState.activeTag);
-        });
-    }
+    initDamageCrossTabSync(scope);
+    scope.listen(document, 'languageChanged', () => {
+        if (!isMounted) return;
+        renderActiveView();
+        renderPlayerDropdown(damageCalcState.activeTag);
+    });
 }
 
 /**
@@ -460,7 +463,10 @@ export async function mount(options = {}) {
 
     activeMountPromise = (async () => {
         isMounted = true;
-        await initDamageApp();
+        damageLifecycleScope?.dispose();
+        const scope = new RouteLifecycleScope();
+        damageLifecycleScope = scope;
+        await initDamageApp(scope);
         finalizeRouteMount('damage-calculator', { mount, destroy });
     })();
 
@@ -478,6 +484,8 @@ export function destroy() {
     activeMountPromise = null;
     if (!isMounted) return;
     isMounted = false;
+    damageLifecycleScope?.dispose();
+    damageLifecycleScope = null;
 }
 
 mountWhenReady(mount);

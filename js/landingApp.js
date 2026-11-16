@@ -4,7 +4,8 @@
  * Tier 4: UI Application Entry.
  */
 
-import { getLanguageFromPath } from './core/languageRouter.js';
+import { MAX_TOWN_HALL } from './core/constants.js';
+import { getLanguageFromPath, buildLocalizedRouteHref } from './core/languageRouter.js';
 import { formatDisplayTag } from './core/storageKeys.js';
 import { getSavedProfiles } from './core/playerStorage.js';
 import { closeModal, openModal } from './utils/modalHistoryManager.js';
@@ -16,6 +17,7 @@ import {
     initSharedShellChrome,
     mountWhenReady
 } from './core/shellBootstrapper.js';
+import { RouteLifecycleScope } from './core/routeLifecycleScope.js';
 import './utils/svgManager.js';
 import './utils/imageManager.js';
 import './console.js';
@@ -41,16 +43,15 @@ import { renderTownHallBadge } from './components/common/townHallBadge.js';
  */
 function updateToolLinks(cleanTag) {
     const currentLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
-    const langPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
     const oreCta = /** @type {HTMLAnchorElement | null} */ (document.getElementById('landing-launch-ore'));
     const hjCta = /** @type {HTMLAnchorElement | null} */ (document.getElementById('landing-launch-hj'));
     const oreTitleLink = /** @type {HTMLAnchorElement | null} */ (document.getElementById('landing-title-link-ore'));
     const hjTitleLink = /** @type {HTMLAnchorElement | null} */ (document.getElementById('landing-title-link-hj'));
-    const query = cleanTag ? `?tag=${encodeURIComponent(cleanTag)}` : '';
 
-    const oreUrl = `${langPrefix}/ore-calculator/${query}`;
-    const hjUrl = `${langPrefix}/hero-journey/${query}`;
-    const damageUrl = `${langPrefix}/damage-calculator/${query}`;
+    const oreUrl = buildLocalizedRouteHref('/ore-calculator/', { lang: currentLang, playerTag: cleanTag });
+    const hjUrl = buildLocalizedRouteHref('/hero-journey/', { lang: currentLang, playerTag: cleanTag });
+    const damageUrl = buildLocalizedRouteHref('/damage-calculator/', { lang: currentLang, playerTag: cleanTag });
+    const queryJoiner = cleanTag ? '&' : '?';
 
     if (oreCta) oreCta.href = oreUrl;
     if (oreTitleLink) oreTitleLink.href = oreUrl;
@@ -69,16 +70,12 @@ function updateToolLinks(cleanTag) {
     const jumpZapQuake = /** @type {HTMLAnchorElement | null} */ (document.getElementById('landing-jump-zapquake'));
     const jumpEquipmentSnipes = /** @type {HTMLAnchorElement | null} */ (document.getElementById('landing-jump-eq-snipes'));
 
-    const plannerQuery = query ? `${query}&tab=planner` : '?tab=planner';
-    const incomeQuery = query ? `${query}&tab=income` : '?tab=income';
-    const clusterQuery = query ? `${query}&tab=cluster-planner` : '?tab=cluster-planner';
-
-    if (jumpPlanner) jumpPlanner.href = `${langPrefix}/ore-calculator/${plannerQuery}`;
-    if (jumpIncome) jumpIncome.href = `${langPrefix}/ore-calculator/${incomeQuery}`;
-    if (jumpTrack) jumpTrack.href = `${langPrefix}/hero-journey/${query}#hero-journey-track-card`;
-    if (jumpTable) jumpTable.href = `${langPrefix}/hero-journey/${query}#hero-journey-table`;
-    if (jumpZapQuake) jumpZapQuake.href = `${langPrefix}/damage-calculator/${query}`;
-    if (jumpEquipmentSnipes) jumpEquipmentSnipes.href = `${langPrefix}/damage-calculator/${clusterQuery}`;
+    if (jumpPlanner) jumpPlanner.href = `${oreUrl}${queryJoiner}tab=planner`;
+    if (jumpIncome) jumpIncome.href = `${oreUrl}${queryJoiner}tab=income`;
+    if (jumpTrack) jumpTrack.href = `${hjUrl}#hero-journey-track-card`;
+    if (jumpTable) jumpTable.href = `${hjUrl}#hero-journey-table`;
+    if (jumpZapQuake) jumpZapQuake.href = damageUrl;
+    if (jumpEquipmentSnipes) jumpEquipmentSnipes.href = `${damageUrl}${queryJoiner}tab=cluster-planner`;
 }
 
 /** @type {ReturnType<typeof bindStandaloneNavigationDrawer>} */
@@ -104,7 +101,7 @@ function updateLandingDrawer(activeAction = '') {
         profileData: activeLandingProfile ? {
             name: activeLandingProfile.name,
             tag: activeLandingProfile.tag || formatDisplayTag(activeLandingProfile.cleanTag),
-            townHallLevel: activeLandingProfile.townHallLevel || 18,
+            townHallLevel: activeLandingProfile.townHallLevel || MAX_TOWN_HALL,
             trophies: activeLandingProfile.cachedData?.trophies || 0,
             leagueIcon: activeLandingProfile.cachedData?.league?.iconUrls?.small || '',
             leagueName: activeLandingProfile.cachedData?.league?.name || '',
@@ -137,7 +134,7 @@ async function initCommandCenter() {
      */
     const openLaunchModal = (village) => {
         if (!launchModal) return;
-        const thLevel = Math.max(1, Math.min(18, Number(village.townHallLevel) || 18));
+        const thLevel = Math.max(1, Math.min(MAX_TOWN_HALL, Number(village.townHallLevel) || MAX_TOWN_HALL));
         const activeLaunchThEl = document.getElementById('landing-launch-th');
         if (activeLaunchThEl) {
             activeLaunchThEl.outerHTML = renderTownHallBadge({
@@ -324,9 +321,11 @@ function refreshLandingPortal() {
 
 /**
  * Initializes cross-tab storage sync for the Landing Portal.
+ *
+ * @param {RouteLifecycleScope} scope
  */
-function initLandingCrossTabSync() {
-    window.addEventListener('storage', (event) => {
+function initLandingCrossTabSync(scope) {
+    scope.listen(window, 'storage', (event) => {
         if (!event.key) return;
         if (
             event.key === 'clashCalc_playerTags' ||
@@ -337,18 +336,18 @@ function initLandingCrossTabSync() {
             refreshLandingPortal();
         }
     });
-    document.addEventListener('app:playerDropdownSync', () => {
+    scope.listen(document, 'app:playerDropdownSync', () => {
         refreshLandingPortal();
     });
-    document.addEventListener('app:accountSynced', () => {
+    scope.listen(document, 'app:accountSynced', () => {
         refreshLandingPortal();
     });
-    document.addEventListener('visibilitychange', () => {
+    scope.listen(document, 'visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             refreshLandingPortal();
         }
     });
-    document.addEventListener('languageChanged', () => {
+    scope.listen(document, 'languageChanged', () => {
         if (!isMounted || !landingAccountsManager) return;
         const curTag = landingAccountsManager.getActiveTag();
         if (curTag) {
@@ -366,7 +365,8 @@ function initLandingCrossTabSync() {
 }
 
 let isMounted = false;
-let hasAttachedLandingListeners = false;
+/** @type {RouteLifecycleScope | null} */
+let landingLifecycleScope = null;
 /** @type {Promise<void> | null} */
 let activeMountPromise = null;
 
@@ -384,6 +384,9 @@ export async function mount(options = {}) {
 
     activeMountPromise = (async () => {
         isMounted = true;
+        landingLifecycleScope?.dispose();
+        const scope = new RouteLifecycleScope();
+        landingLifecycleScope = scope;
 
         try {
             sessionStorage.setItem('clashCalc_sessionLaunched', 'true');
@@ -404,10 +407,7 @@ export async function mount(options = {}) {
         await initCommandCenter();
         initLandingToolsInputs();
         landingDrawerInstance = bindStandaloneNavigationDrawer(updateLandingDrawer);
-        if (!hasAttachedLandingListeners) {
-            hasAttachedLandingListeners = true;
-            initLandingCrossTabSync();
-        }
+        initLandingCrossTabSync(scope);
 
         finalizeRouteMount('hub', { mount, destroy });
     })();
@@ -426,6 +426,8 @@ export function destroy() {
     if (!isMounted) return;
     isMounted = false;
 
+    landingLifecycleScope?.dispose();
+    landingLifecycleScope = null;
     destroyLandingToolsInputs();
     landingSearchController?.destroy?.();
     landingAccountsManager?.destroy?.();

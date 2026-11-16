@@ -1,6 +1,6 @@
 import { heroData } from '../data/heroData.js';
 import { shopOfferData, resolveBestMatchShopOfferSet } from '../data/incomeSources/shopOffers.js';
-import { STORAGE_LIMITS } from './constants.js';
+import { MAX_TOWN_HALL, STORAGE_LIMITS } from './constants.js';
 
 import { compareVersions } from '../utils/versionUtils.js';
 
@@ -123,7 +123,7 @@ function getDefaultPlayerStateProperties() {
                 winRate: 70,
                 drawRate: 0,
                 oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
-                warPerformance: { thLevel: 16 }
+                warPerformance: { thLevel: MAX_TOWN_HALL }
             },
             cwl: {
                 enabled: false,
@@ -463,7 +463,7 @@ function ensureStateDefaults(s) {
                         winRate: 70,
                         drawRate: 0,
                         oresPerAttack: { shiny: 0, glowy: 0, starry: 0 },
-                        warPerformance: { thLevel: 16 }
+                        warPerformance: { thLevel: MAX_TOWN_HALL }
                     };
                 } else {
                     if (!ps.income.clanWar.oresPerAttack) ps.income.clanWar.oresPerAttack = { shiny: 0, glowy: 0, starry: 0 };

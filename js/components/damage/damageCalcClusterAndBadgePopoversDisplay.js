@@ -6,6 +6,11 @@
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import {
+    clampSpellLevelToTownHall,
+    getMaxSpellLevel,
+    resolveOwnSpellLevels
+} from '../../domain/damage/damageFormulas.js';
+import {
     getMaxSuperchargeTier,
     getMaxDefenseLevelForTownHall
 } from '../../domain/damage/defenseProgressionDomain.js';
@@ -209,31 +214,37 @@ export function getComboBadgePopoverContent(elem, badgeType, state) {
         return getEquipmentStatsPopoverContent(equipId, equipLevel, { modifier: activeMod, leagueId: activeMod, rawLevel, isCombo: true });
     }
     if (badgeType === 'earthquake') {
+        const ownSpells = resolveOwnSpellLevels(state);
         const eqCount = Number(elem.dataset?.eqCount ?? elem.getAttribute?.('data-eq-count')) || 1;
-        const eqLevel = Number(elem.dataset?.eqLevel ?? elem.getAttribute?.('data-eq-level')) || (state?.offense?.spells?.earthquake || 8);
+        const rawEq = Number(elem.dataset?.eqLevel ?? elem.getAttribute?.('data-eq-level'));
+        const eqLevel = rawEq > 0 ? clampSpellLevelToTownHall('earthquake', rawEq, ownSpells.townHallLevel) : ownSpells.earthquake;
         const ccAttr = elem.dataset?.ccEqLevel ?? elem.getAttribute?.('data-cc-eq-level');
         const ccEqLevel = ccAttr ? (Number(ccAttr) || null) : null;
         const targetScope = resolveTargetScopeFromContext(elem);
         return getEarthquakeStatsPopoverContent({ level: eqLevel, count: eqCount, isCombo: true, ccLevel: ccEqLevel, targetScope });
     }
     if (badgeType === 'cc_earthquake') {
+        const maxEq = getMaxSpellLevel('earthquake');
         const eqCount = Number(elem.dataset?.eqCount ?? elem.getAttribute?.('data-eq-count')) || 1;
         const ccAttr = elem.dataset?.ccEqLevel ?? elem.getAttribute?.('data-cc-eq-level');
-        const ccEqLevel = ccAttr ? (Number(ccAttr) || 8) : (state?.offense?.ccSpells?.earthquake || 8);
+        const ccEqLevel = ccAttr ? (Number(ccAttr) || maxEq) : (state?.offense?.ccSpells?.earthquake || maxEq);
         const targetScope = resolveTargetScopeFromContext(elem);
         return getEarthquakeStatsPopoverContent({ level: ccEqLevel, count: eqCount, isCombo: true, isCc: true, targetScope });
     }
     if (badgeType === 'lightning') {
+        const ownSpells = resolveOwnSpellLevels(state);
         const zapCount = Number(elem.dataset?.zapCount ?? elem.getAttribute?.('data-zap-count')) || 1;
-        const zapLevel = Number(elem.dataset?.zapLevel ?? elem.getAttribute?.('data-zap-level')) || (state?.offense?.spells?.lightning || 13);
+        const rawZap = Number(elem.dataset?.zapLevel ?? elem.getAttribute?.('data-zap-level'));
+        const zapLevel = rawZap > 0 ? clampSpellLevelToTownHall('lightning', rawZap, ownSpells.townHallLevel) : ownSpells.lightning;
         const ccAttr = elem.dataset?.ccZapLevel ?? elem.getAttribute?.('data-cc-zap-level');
         const ccZapLevel = ccAttr ? (Number(ccAttr) || null) : null;
         return getLightningStatsPopoverContent({ level: zapLevel, count: zapCount, isCombo: true, ccLevel: ccZapLevel });
     }
     if (badgeType === 'cc_lightning') {
+        const maxLightning = getMaxSpellLevel('lightning');
         const zapCount = Number(elem.dataset?.zapCount ?? elem.getAttribute?.('data-zap-count')) || 1;
         const ccAttr = elem.dataset?.ccZapLevel ?? elem.getAttribute?.('data-cc-zap-level');
-        const ccZapLevel = ccAttr ? (Number(ccAttr) || 13) : (state?.offense?.ccSpells?.lightning || 13);
+        const ccZapLevel = ccAttr ? (Number(ccAttr) || maxLightning) : (state?.offense?.ccSpells?.lightning || maxLightning);
         return getLightningStatsPopoverContent({ level: ccZapLevel, count: zapCount, isCombo: true, isCc: true });
     }
     if (badgeType === 'remaining') {

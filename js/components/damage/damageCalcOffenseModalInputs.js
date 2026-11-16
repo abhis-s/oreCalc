@@ -5,6 +5,7 @@
 
 import { persistState, getActiveModifier } from './damageCalcState.js';
 import { formatOffenseModalValue } from './damageCalcOffenseModalDisplay.js';
+import { clampSpellLevelToTownHall, getMaxSpellLevel } from '../../domain/damage/damageFormulas.js';
 
 /**
  * Attaches event listeners for the Offense editor section of the Edit Levels modal.
@@ -18,8 +19,12 @@ export function attachOffenseModalListeners(state, modalBody, onStateChange) {
         const slider = /** @type {HTMLInputElement | null} */ (modalBody.querySelector(`.offense-level-slider[data-type="${type}"][data-id="${id}"]`));
         if (!slider) return;
         const min = Number(slider.min) || 1;
-        const max = Number(slider.max) || 1;
-        const clamped = Math.max(min, Math.min(max, val));
+        const max = type === 'spell'
+            ? getMaxSpellLevel(id, state?.playerTownHall)
+            : (Number(slider.max) || 1);
+        const clamped = type === 'spell'
+            ? clampSpellLevelToTownHall(id, Math.max(min, val), state?.playerTownHall)
+            : Math.max(min, Math.min(max, val));
         slider.value = String(clamped);
 
         if (!state.offense) state.offense = { spells: {}, equipment: {} };
@@ -38,7 +43,7 @@ export function attachOffenseModalListeners(state, modalBody, onStateChange) {
                 if (readout) readout.textContent = formatOffenseModalValue('spell', 'earthquake', clamped);
             }
         } else if (type === 'cc_spell') {
-            if (!state.offense.ccSpells) state.offense.ccSpells = { lightning: 13, earthquake: 8 };
+            if (!state.offense.ccSpells) state.offense.ccSpells = { lightning: getMaxSpellLevel('lightning'), earthquake: getMaxSpellLevel('earthquake') };
             state.offense.ccSpells[id] = clamped;
             const readout = modalBody.querySelector(`#modal-val-cc-${id}`);
             if (readout) readout.textContent = formatOffenseModalValue('spell', id, clamped);

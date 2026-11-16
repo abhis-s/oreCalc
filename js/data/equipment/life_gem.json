@@ -2,6 +2,9 @@
   "id": "life_gem",
   "type": "passive",
   "rarity": "common",
+  "staticStats": [
+    {"key": "maxHousingSpace", "value": 260, "valueUnit": "number"}
+  ],
   "statsMeta": [
     {"key": "hitpointIncrease", "category": "ability", "valueUnit": "percentage"},
     {"key": "hitpointIncrease", "category": "ability", "valueUnit": "number"},

@@ -2,6 +2,9 @@
   "id": "rage_gem",
   "type": "passive",
   "rarity": "common",
+  "staticStats": [
+    {"key": "maxHousingSpace", "value": 260, "valueUnit": "number"}
+  ],
   "statsMeta": [
     {"key": "damageIncrease", "category": "ability", "valueUnit": "percentage"},
     {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},

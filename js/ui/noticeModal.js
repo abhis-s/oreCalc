@@ -1,6 +1,8 @@
 import { translate } from '../i18n/translator.js';
 
 let modal, titleElem, messageElem, cancelBtn, okBtn, overlay;
+/** @type {(() => void) | null} */
+let activeNoticeSupersede = null;
 
 function initializeNoticeModal() {
     modal = document.getElementById('notice-modal');
@@ -93,6 +95,8 @@ export function sanitizeHTML(html) {
  */
 function showNotice(message, titleKey = 'status.notice', showCancel = false, okBtnKey = null, cancelBtnKey = 'actions.cancel') {
     return new Promise((resolve) => {
+        activeNoticeSupersede?.();
+
         if (!modal || (typeof modal.isConnected === 'boolean' && !modal.isConnected)) {
             initializeNoticeModal();
         }
@@ -151,12 +155,27 @@ function showNotice(message, titleKey = 'status.notice', showCancel = false, okB
             }
         };
 
-        const cleanup = () => {
+        const detachListeners = () => {
             okBtn.removeEventListener('click', handleOk);
             cancelBtn.removeEventListener('click', handleCancel);
             modal.removeEventListener('cancel', handleCancelEvent);
             modal.removeEventListener('click', handleBackdropClick);
             messageElem?.removeEventListener?.('click', handleMessageClick);
+        };
+
+        const supersede = () => {
+            if (activeNoticeSupersede === supersede) {
+                activeNoticeSupersede = null;
+            }
+            detachListeners();
+            resolve(false);
+        };
+
+        const cleanup = () => {
+            if (activeNoticeSupersede === supersede) {
+                activeNoticeSupersede = null;
+            }
+            detachListeners();
             modal.classList.remove('show');
             if (typeof modal.close === 'function' && modal.open) {
                 try {
@@ -165,6 +184,8 @@ function showNotice(message, titleKey = 'status.notice', showCancel = false, okB
             }
             overlay?.classList.remove('show');
         };
+
+        activeNoticeSupersede = supersede;
 
         okBtn.addEventListener('click', handleOk);
         cancelBtn.addEventListener('click', handleCancel);

@@ -10,7 +10,11 @@ import {
     detectLanguage,
     syncLanguageUrl,
     getLocalizedPath,
-    isValidRoute
+    isValidRoute,
+    normalizeRoutePath,
+    findRouteByPath,
+    findRouteById,
+    buildLocalizedRouteHref
 } from '../../js/core/languageRouter.js';
 import { state } from '../../js/core/state.js';
 
@@ -467,6 +471,29 @@ describe('Language Router Domain Suite', () => {
             const enHtml = generateLocalizedHtml(rawHeaderHtml, 'en', ['en', 'de', 'tr', 'zh'], true);
             assert.ok(enHtml.includes('href="/" class="brand-title-link"'), 'English must preserve root / for brand-title-link');
             assert.ok(enHtml.includes('href="/" class="landing-brand"'), 'English must preserve root / for landing-brand');
+        });
+    });
+
+    describe('Canonical Route Resolution & Localized Href Builder', () => {
+        test('normalizeRoutePath, findRouteByPath, and findRouteById resolve app routes cleanly', () => {
+            assert.equal(normalizeRoutePath('/de/damage-calculator/index.html?tag=ABC#eq'), '/damage-calculator/');
+            assert.equal(normalizeRoutePath('https://clashcalc.com/tr/hero-journey'), '/hero-journey/');
+            assert.equal(normalizeRoutePath('/en/'), '/');
+            assert.equal(findRouteByPath('/de/ore-calculator')?.id, 'ore-calculator');
+            assert.equal(findRouteById('damage-calculator')?.path, '/damage-calculator/');
+            assert.equal(findRouteByPath('/privacy/'), null);
+            assert.equal(isValidRoute('/app-management/'), true);
+            assert.equal(isValidRoute('/de/app-management/'), true);
+        });
+
+        test('buildLocalizedRouteHref enforces locale availability and player tag eligibility', () => {
+            assert.equal(buildLocalizedRouteHref('/ore-calculator/', { lang: 'de', playerTag: '#8pjygujc' }), '/de/ore-calculator/?tag=8PJYGUJC');
+            assert.equal(buildLocalizedRouteHref('/damage-calculator/', { lang: 'en', playerTag: '8PJYGUJC', preserveTag: false }), '/damage-calculator/');
+            assert.equal(buildLocalizedRouteHref('/', { lang: 'de', playerTag: '#8PJYGUJC' }), '/de/');
+            assert.equal(buildLocalizedRouteHref('/account/', { lang: 'tr', playerTag: '#8PJYGUJC' }), '/tr/account/');
+            assert.equal(buildLocalizedRouteHref('/licenses/', { lang: 'de', playerTag: '#8PJYGUJC' }), '/licenses/');
+            assert.equal(buildLocalizedRouteHref('/privacy/', { lang: 'de' }), '/de/privacy/');
+            assert.equal(buildLocalizedRouteHref('/privacy/', { lang: 'tr' }), '/privacy/');
         });
     });
 });

@@ -2,7 +2,7 @@
  * Test Suite: Building Asset Integrity
  * Feature Domain: Static Game Assets & Defenses Registry
  *
- * Verifies that all 29 Home Village structures defined in getDefensesData().js have
+ * Verifies that all 31 Home Village structures defined in getDefensesData().js have
  * complete, valid, non-zero-byte asset files in assets/buildings/<id>/level_<N>.png,
  * and that all heroes and guardians have valid asset files.
  */
@@ -31,11 +31,11 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '../..');
 const BUILDINGS_ASSETS_DIR = path.join(REPO_ROOT, 'assets/buildings');
 
-test('Building Assets - Directory exists for all 29 canonical defenses and structures', () => {
+test('Building Assets - Directory exists for all 31 canonical defenses and structures', () => {
     assert.ok(fs.existsSync(BUILDINGS_ASSETS_DIR), 'assets/buildings directory must exist');
 
     const buildingEntries = Object.entries(getDefensesData()).filter(([_, d]) => d.category !== 'hero' && d.category !== 'guardian');
-    assert.strictEqual(buildingEntries.length, 29, 'getDefensesData() must contain exactly 29 building structures');
+    assert.strictEqual(buildingEntries.length, 31, 'getDefensesData() must contain exactly 31 building structures');
     assert.strictEqual(Object.hasOwn(getDefensesData(), 'blacksmith'), false, 'getDefensesData() must not contain blacksmith');
     assert.strictEqual(Object.hasOwn(getDefensesData(), 'walls'), false, 'getDefensesData() must not contain walls');
 

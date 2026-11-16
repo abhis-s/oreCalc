@@ -6,6 +6,7 @@
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
+import { getMaxSpellLevel, resolveOwnSpellLevels } from '../../domain/damage/damageFormulas.js';
 import {
     getMaxSuperchargeTier,
     isDefenseInSeason,
@@ -184,15 +185,17 @@ function renderComboDefensesHtml(filteredDefenses, combo, viewMode, context) {
 export function renderZapQuakePanel(state, container) {
     if (!container) return;
 
+    const maxLightning = getMaxSpellLevel('lightning');
+    const maxEq = getMaxSpellLevel('earthquake');
     const zq = state.zapQuake;
-    const spells = state.offense?.spells || { lightning: 13, earthquake: 8 };
-    const zapLvl = spells.lightning || zq.lightningLevel || 13;
-    const eqLvl = spells.earthquake || zq.earthquakeLevel || 8;
+    const ownSpells = resolveOwnSpellLevels(state);
+    const zapLvl = ownSpells.lightning;
+    const eqLvl = ownSpells.earthquake;
     const enabledSources = state.offense?.enabledSources || {};
 
-    const ccSpells = state.offense?.ccSpells || { lightning: 13, earthquake: 8 };
-    const ccZapLvl = ccSpells.lightning || 13;
-    const ccEqLvl = ccSpells.earthquake || 8;
+    const ccSpells = state.offense?.ccSpells || { lightning: maxLightning, earthquake: maxEq };
+    const ccZapLvl = ccSpells.lightning || maxLightning;
+    const ccEqLvl = ccSpells.earthquake || maxEq;
     const isCcZapEnabled = enabledSources.cc_lightning !== false;
     const isCcEqEnabled = enabledSources.cc_earthquake !== false;
     const hpUnit = getHpUnit();
@@ -444,11 +447,97 @@ export function renderZapQuakePanel(state, container) {
         }
     }
 
+    const viewClass = 'calc-view--zapquake calc-view-combos-layout';
+    const viewHtml = `
+        <div class="calc-view-header">
+            <div class="calc-view-search-wrapper">
+                <clashcalc-assets-svg name="search" class="calc-search-icon" width="15" height="15" aria-hidden="true"></clashcalc-assets-svg>
+                <input type="search"
+                    id="zq-search-input"
+                    class="calc-search-input"
+                    placeholder="${escapeHTML(translate('views.damageCalc.filters.searchDefensesPlaceholder'))}"
+                    value="${escapeHTML(zq.searchQuery || '')}"
+                    aria-label="${escapeHTML(translate('views.damageCalc.filters.searchDefensesPlaceholder'))}"
+                    autocomplete="off">
+                ${zq.searchQuery ? `
+                    <button type="button" class="calc-search-clear-btn" data-action="clear-zq-search" aria-label="${escapeHTML(translate('views.heroJourney.page.clearSearch'))}">
+                        <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
+                    </button>
+                ` : ''}
+            </div>
+            <div class="calc-view-actions">
+                <div class="calc-filter-tabs" role="tablist" aria-label="${escapeHTML(translate('views.damageCalc.filters.filterTargetsAria') || 'Filter targets')}">
+                    <button type="button"
+                        class="calc-filter-tab ${buildingFilter === 'all' ? 'is-active' : ''}"
+                        data-zq-filter="all"
+                        role="tab"
+                        aria-selected="${buildingFilter === 'all'}">
+                        <span data-i18n="views.heroJourney.filters.filterAll">${escapeHTML(translate('views.heroJourney.filters.filterAll') || 'All')}</span>
+                    </button>
+                    <button type="button"
+                        class="calc-filter-tab ${buildingFilter === 'defenses' ? 'is-active' : ''}"
+                        data-zq-filter="defenses"
+                        role="tab"
+                        aria-selected="${buildingFilter === 'defenses'}">
+                        <span data-i18n="views.damageCalc.filters.filterDefenses">${escapeHTML(translate('views.damageCalc.filters.filterDefenses') || 'Defenses')}</span>
+                    </button>
+                    <button type="button"
+                        class="calc-filter-tab ${buildingFilter === 'heroes' ? 'is-active' : ''}"
+                        data-zq-filter="heroes"
+                        role="tab"
+                        aria-selected="${buildingFilter === 'heroes'}">
+                        <span data-i18n="views.damageCalc.filters.filterHeroes">${escapeHTML(translate('views.damageCalc.filters.filterHeroes') || 'Heroes')}</span>
+                    </button>
+                    <button type="button"
+                        class="calc-filter-tab ${buildingFilter === 'guardians' ? 'is-active' : ''}"
+                        data-zq-filter="guardians"
+                        role="tab"
+                        aria-selected="${buildingFilter === 'guardians'}">
+                        <span data-i18n="views.damageCalc.filters.filterGuardians">${escapeHTML(translate('views.damageCalc.filters.filterGuardians') || 'Guardians')}</span>
+                    </button>
+                    <button type="button"
+                        class="calc-filter-tab ${buildingFilter === 'other' ? 'is-active' : ''}"
+                        data-zq-filter="other"
+                        role="tab"
+                        aria-selected="${buildingFilter === 'other'}">
+                        <span data-i18n="views.damageCalc.filters.filterOther">${escapeHTML(translate('views.damageCalc.filters.filterOther') || 'Other')}</span>
+                    </button>
+                </div>
+                <div class="calc-view-mode-control segmented-control" role="radiogroup" aria-label="${escapeHTML(translate('views.damageCalc.zapQuake.viewMode') || 'View Mode')}">
+                    <button type="button"
+                        class="segmented-btn ${viewMode === 'compact' ? 'is-active' : ''}"
+                        data-zq-view-mode="compact"
+                        role="radio"
+                        aria-checked="${viewMode === 'compact'}">
+                        <span data-i18n="views.settings.options.layoutCompactLabel">${escapeHTML(translate('views.settings.options.layoutCompactLabel') || 'Compact')}</span>
+                    </button>
+                    <button type="button"
+                        class="segmented-btn ${viewMode === 'detailed' ? 'is-active' : ''}"
+                        data-zq-view-mode="detailed"
+                        role="radio"
+                        aria-checked="${viewMode === 'detailed'}">
+                        <span data-i18n="views.damageCalc.zapQuake.viewModeDetailed">${escapeHTML(translate('views.damageCalc.zapQuake.viewModeDetailed') || 'Detailed')}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="calc-combos-container">
+            ${comboCardsHtml}
+        </div>
+        <div class="calc-remaining-container">
+            ${remainingSectionHtml}
+        </div>
+    `;
+
     const existingLayout = typeof container.querySelector === 'function'
-        ? container.querySelector('.calc-view-combos-layout')
+        ? container.querySelector('.calc-tab-layout')
+        : null;
+    const existingView = existingLayout
+        ? existingLayout.querySelector('.calc-view--zapquake, .calc-view--cluster')
         : null;
 
-    if (existingLayout) {
+    if (existingLayout && existingView) {
         const tabsContainer = existingLayout.querySelector('.calc-modifier-bar__tabs-container');
         if (tabsContainer) {
             renderBattleModifierSwitcher(/** @type {HTMLElement} */ (tabsContainer), getActiveModifier(state), {
@@ -462,12 +551,25 @@ export function renderZapQuakePanel(state, container) {
             sourcesGrid.innerHTML = getDamageSourcesGridHtml(state);
         }
 
-        const combosContainer = existingLayout.querySelector('.calc-combos-container');
-        if (combosContainer) {
-            combosContainer.innerHTML = comboCardsHtml;
+        const existingBackdrop = existingLayout.querySelector('#calc-mobile-dock-backdrop');
+        const existingDock = existingLayout.querySelector('#calc-mobile-spell-dock');
+        if (existingBackdrop && typeof existingBackdrop.remove === 'function') {
+            existingBackdrop.remove();
+        }
+        if (existingDock && typeof existingDock.remove === 'function') {
+            existingDock.remove();
         }
 
-        const remainingContainer = existingLayout.querySelector('.calc-remaining-container');
+        const combosContainer = existingView.querySelector('.calc-combos-container');
+        if (!combosContainer) {
+            existingView.className = viewClass;
+            existingView.innerHTML = viewHtml;
+            return;
+        }
+
+        combosContainer.innerHTML = comboCardsHtml;
+
+        const remainingContainer = existingView.querySelector('.calc-remaining-container');
         if (remainingContainer) {
             remainingContainer.innerHTML = remainingSectionHtml;
         } else if (remainingSectionHtml && combosContainer) {
@@ -477,7 +579,7 @@ export function renderZapQuakePanel(state, container) {
             combosContainer.parentNode?.insertBefore(newRemaining, combosContainer.nextSibling);
         }
 
-        const searchWrapper = existingLayout.querySelector('.calc-view-search-wrapper');
+        const searchWrapper = existingView.querySelector('.calc-view-search-wrapper');
         if (searchWrapper && typeof document !== 'undefined') {
             const existingClearBtn = searchWrapper.querySelector('[data-action="clear-zq-search"]');
             if (zq.searchQuery && !existingClearBtn) {
@@ -493,12 +595,12 @@ export function renderZapQuakePanel(state, container) {
             }
         }
 
-        const searchInput = /** @type {HTMLInputElement | null} */ (existingLayout.querySelector('#zq-search-input'));
+        const searchInput = /** @type {HTMLInputElement | null} */ (existingView.querySelector('#zq-search-input'));
         if (searchInput && (typeof document === 'undefined' || document.activeElement !== searchInput || !zq.searchQuery)) {
             searchInput.value = zq.searchQuery || '';
         }
 
-        const filterTabs = existingLayout.querySelectorAll?.('.calc-filter-tab[data-zq-filter]') || [];
+        const filterTabs = existingView.querySelectorAll?.('.calc-filter-tab[data-zq-filter]') || [];
         filterTabs.forEach(tab => {
             const filterVal = tab.getAttribute('data-zq-filter');
             const isActive = filterVal === buildingFilter;
@@ -506,7 +608,7 @@ export function renderZapQuakePanel(state, container) {
             tab.setAttribute?.('aria-selected', String(isActive));
         });
 
-        const viewModeBtns = existingLayout.querySelectorAll?.('[data-zq-view-mode]') || [];
+        const viewModeBtns = existingView.querySelectorAll?.('[data-zq-view-mode]') || [];
         viewModeBtns.forEach(btn => {
             const modeVal = btn.getAttribute('data-zq-view-mode');
             const isActive = modeVal === viewMode;
@@ -518,87 +620,11 @@ export function renderZapQuakePanel(state, container) {
     }
 
     container.innerHTML = `
-        <div class="calc-tab-layout calc-view-combos-layout">
+        <div class="calc-tab-layout">
             ${getDamageSourcesCardMarkup(state)}
 
-            <div class="calc-view-header">
-                <div class="calc-view-search-wrapper">
-                    <clashcalc-assets-svg name="search" class="calc-search-icon" width="15" height="15" aria-hidden="true"></clashcalc-assets-svg>
-                    <input type="search"
-                        id="zq-search-input"
-                        class="calc-search-input"
-                        placeholder="${escapeHTML(translate('views.damageCalc.filters.searchDefensesPlaceholder'))}"
-                        value="${escapeHTML(zq.searchQuery || '')}"
-                        aria-label="${escapeHTML(translate('views.damageCalc.filters.searchDefensesPlaceholder'))}"
-                        autocomplete="off">
-                    ${zq.searchQuery ? `
-                        <button type="button" class="calc-search-clear-btn" data-action="clear-zq-search" aria-label="${escapeHTML(translate('views.heroJourney.page.clearSearch'))}">
-                            <clashcalc-assets-svg name="close" width="12" height="12"></clashcalc-assets-svg>
-                        </button>
-                    ` : ''}
-                </div>
-                <div class="calc-view-actions">
-                    <div class="calc-filter-tabs" role="tablist" aria-label="${escapeHTML(translate('views.damageCalc.filters.filterTargetsAria') || 'Filter targets')}">
-                        <button type="button"
-                            class="calc-filter-tab ${buildingFilter === 'all' ? 'is-active' : ''}"
-                            data-zq-filter="all"
-                            role="tab"
-                            aria-selected="${buildingFilter === 'all'}">
-                            <span data-i18n="views.heroJourney.filters.filterAll">${escapeHTML(translate('views.heroJourney.filters.filterAll') || 'All')}</span>
-                        </button>
-                        <button type="button"
-                            class="calc-filter-tab ${buildingFilter === 'defenses' ? 'is-active' : ''}"
-                            data-zq-filter="defenses"
-                            role="tab"
-                            aria-selected="${buildingFilter === 'defenses'}">
-                            <span data-i18n="views.damageCalc.filters.filterDefenses">${escapeHTML(translate('views.damageCalc.filters.filterDefenses') || 'Defenses')}</span>
-                        </button>
-                        <button type="button"
-                            class="calc-filter-tab ${buildingFilter === 'heroes' ? 'is-active' : ''}"
-                            data-zq-filter="heroes"
-                            role="tab"
-                            aria-selected="${buildingFilter === 'heroes'}">
-                            <span data-i18n="views.damageCalc.filters.filterHeroes">${escapeHTML(translate('views.damageCalc.filters.filterHeroes') || 'Heroes')}</span>
-                        </button>
-                        <button type="button"
-                            class="calc-filter-tab ${buildingFilter === 'guardians' ? 'is-active' : ''}"
-                            data-zq-filter="guardians"
-                            role="tab"
-                            aria-selected="${buildingFilter === 'guardians'}">
-                            <span data-i18n="views.damageCalc.filters.filterGuardians">${escapeHTML(translate('views.damageCalc.filters.filterGuardians') || 'Guardians')}</span>
-                        </button>
-                        <button type="button"
-                            class="calc-filter-tab ${buildingFilter === 'other' ? 'is-active' : ''}"
-                            data-zq-filter="other"
-                            role="tab"
-                            aria-selected="${buildingFilter === 'other'}">
-                            <span data-i18n="views.damageCalc.filters.filterOther">${escapeHTML(translate('views.damageCalc.filters.filterOther') || 'Other')}</span>
-                        </button>
-                    </div>
-                    <div class="calc-view-mode-control segmented-control" role="radiogroup" aria-label="${escapeHTML(translate('views.damageCalc.zapQuake.viewMode') || 'View Mode')}">
-                        <button type="button"
-                            class="segmented-btn ${viewMode === 'compact' ? 'is-active' : ''}"
-                            data-zq-view-mode="compact"
-                            role="radio"
-                            aria-checked="${viewMode === 'compact'}">
-                            <span data-i18n="views.settings.options.layoutCompactLabel">${escapeHTML(translate('views.settings.options.layoutCompactLabel') || 'Compact')}</span>
-                        </button>
-                        <button type="button"
-                            class="segmented-btn ${viewMode === 'detailed' ? 'is-active' : ''}"
-                            data-zq-view-mode="detailed"
-                            role="radio"
-                            aria-checked="${viewMode === 'detailed'}">
-                            <span data-i18n="views.damageCalc.zapQuake.viewModeDetailed">${escapeHTML(translate('views.damageCalc.zapQuake.viewModeDetailed') || 'Detailed')}</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="calc-combos-container">
-                ${comboCardsHtml}
-            </div>
-            <div class="calc-remaining-container">
-                ${remainingSectionHtml}
+            <div class="${viewClass}">
+                ${viewHtml}
             </div>
         </div>
     `;

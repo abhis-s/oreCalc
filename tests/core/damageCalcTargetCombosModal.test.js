@@ -93,9 +93,9 @@ test('Target Combos Modal - Renders overview, non-dominated combinations, and se
     assert.ok(html.includes('calc-stepped-slider'), 'Must render stepped slider container');
     assert.ok(html.includes('calc-slider-ticks'), 'Must render stepped slider ticks container');
     assert.ok(html.includes('calc-slider-tick'), 'Must render stepped slider tick elements');
-    assert.equal((html.match(/\bcalc-slider-tick\b/g) || []).length, 16, 'Must render 16 step tick marks for level 16 defense');
+    assert.equal((html.match(/\bcalc-slider-tick\b/g) || []).length, 17, 'Must render 17 step tick marks for air_defense');
     assert.ok(html.includes('calc-target-modal-slider'), 'Must render defense level slider');
-    assert.ok(html.includes('calc-supercharge-pills'), 'Must render supercharge pills for superchargeable defense');
+    assert.ok(!html.includes('calc-supercharge-pills'), 'Air Defense at Lvl 16 must not render supercharge pills');
     assert.ok(html.includes('calc-target-combos-list'), 'Must render combinations list');
     assert.ok(html.includes('calc-target-combo-row'), 'Must render at least one combo row');
     assert.ok(html.includes('calc-target-combo-row__info-btn'), 'Must render info button for damage breakdown popover');
@@ -152,16 +152,25 @@ test('Target Combos Modal - Renders non-optimal collapsible section when combos 
         }
     };
 
-    renderTargetCombosModal(state, container, 'scattershot', 7, 2);
+    renderTargetCombosModal(state, container, 'scattershot', 7, 0);
     const html = container.innerHTML;
 
     assert.ok(html.includes('calc-target-combos-collapse'), 'Must render collapsible details container for non-optimal combos');
     assert.ok(html.includes('calc-target-combos-collapse__summary'), 'Must render summary header for non-optimal combos');
     assert.ok(html.includes('data-i18n="views.damageCalc.zapQuake.nonOptimalCombosTitle"'), 'Summary must declare i18n key for non-optimal title');
-    // Header should show optimal count (52)
-    assert.ok(html.includes('(52)'), 'Possible combinations counter must count strictly optimal combos (< 6 spells)');
-    // Non-optimal section should show non-optimal count (9)
-    assert.ok(html.includes('(9)</span>'), 'Non-optimal counter in summary must count combos with 6+ spells');
+    const [optimalSectionHtml, nonOptimalSectionHtml = ''] = html.split('<details class="calc-target-combos-collapse"');
+    const optimalRowCount = (optimalSectionHtml.match(/class="calc-target-combo-row\b/g) || []).length;
+    const nonOptimalRowCount = (nonOptimalSectionHtml.match(/class="calc-target-combo-row\b/g) || []).length;
+    assert.ok(optimalRowCount > 0, 'Must render at least one optimal combo row (< 6 spells)');
+    assert.ok(nonOptimalRowCount > 0, 'Must render at least one non-optimal combo row (6+ spells)');
+    assert.ok(
+        html.includes(`Possible Combinations</span> (${optimalRowCount})`),
+        'Possible combinations counter must match rendered optimal rows (< 6 spells)'
+    );
+    assert.ok(
+        html.includes(`class="calc-target-combos-collapse__count">(${nonOptimalRowCount})</span>`),
+        'Non-optimal counter in summary must match rendered collapsed rows (6+ spells)'
+    );
 });
 
 test('renderSliderTicksHtml - Generates stepped ticks accurately', () => {
@@ -267,7 +276,7 @@ test('Target Combos Modal - Preserves supercharge tier in-memory across level sc
 
     const testState = {
         ...damageCalcState,
-        playerTownHall: 18,
+        playerTownHall: 19,
         defenseLevelOverrides: { [defenseKey]: 2 },
         defenseSuperchargeOverrides: { [defenseKey]: 2 },
         zapQuake: {
@@ -479,18 +488,18 @@ test('Target Combos Modal - Renders TH Max badge and enforces TH level cap for n
         }
     };
 
-    // Air Defense has max level 10 at TH12 (overall max is 16)
-    renderTargetCombosModal(state, container, 'air_defense', 16, 0);
+    // Air Defense has max level 10 at TH12 (overall max is 17)
+    renderTargetCombosModal(state, container, 'air_defense', 17, 0);
     const html = container.innerHTML;
 
     assert.ok(html.includes('calc-target-combos-overview__th-max'), 'Must render TH Max container for non-max Town Hall');
     assert.ok(html.includes('TH 12 Max'), 'Must render exact TH 12 Max text');
-    assert.ok(html.includes('max="16"'), 'Stepped slider must maintain full size max=16');
+    assert.ok(html.includes('max="17"'), 'Stepped slider must maintain full size max=17');
     assert.ok(html.includes('value="10"'), 'Slider value must be clamped to TH12 cap (10)');
     assert.ok(html.includes('data-max-allowed="10"'), 'Slider must declare data-max-allowed="10"');
     assert.ok(html.includes('calc-slider-locked-track'), 'Must render locked track segment for steps beyond TH12');
-    assert.equal((html.match(/\bcalc-slider-tick\b/g) || []).length, 16, 'Must render all 16 ticks across full size range');
-    assert.equal((html.match(/calc-slider-tick is-disabled/g) || []).length, 6, 'Must mark steps 11 through 16 as disabled ticks');
+    assert.equal((html.match(/\bcalc-slider-tick\b/g) || []).length, 17, 'Must render all 17 ticks across full size range');
+    assert.equal((html.match(/calc-slider-tick is-disabled/g) || []).length, 7, 'Must mark steps 11 through 17 as disabled ticks');
 });
 
 test('Target Combos Modal - Does not render TH tag when level is set below Town Hall max', () => {
@@ -603,8 +612,8 @@ test('Target Combos Modal - Renders Shared (n) badge with correct ordering', () 
 
     assert.ok(html.includes('calc-target-combo-row__shared-pill'), 'Must render shared pill');
     assert.ok(html.includes('data-shared-combo-info="true"'), 'Shared pill must have data-shared-combo-info attribute');
-    assert.ok(html.includes('data-shared-defenses="hidden_tesla,archer_tower"'), 'Must list naturally shared defense keys');
-    assert.ok(html.includes('Shared (2)'), 'Must show count of 2 other shared defenses');
+    assert.ok(html.includes('data-shared-defenses="builders_hut"'), 'Must list naturally shared defense keys');
+    assert.ok(html.includes('Shared (1)'), 'Must show count of 1 other shared defense');
 
     const sharedIndex = html.indexOf('calc-target-combo-row__shared-pill');
     const defaultIndex = html.indexOf('calc-target-combo-row__default-pill');
@@ -627,6 +636,7 @@ test('Target Combos Modal - Renders all dashboard shared defenses (including def
         playerTownHall: 18,
         offense: {
             spells: { lightning: 13, earthquake: 8 },
+            ccSpells: { lightning: 13, earthquake: 8 },
             equipment: { spiky_ball: 27, fireball: 27 },
             enabledSources: {
                 lightning: true,
@@ -647,12 +657,27 @@ test('Target Combos Modal - Renders all dashboard shared defenses (including def
     renderTargetCombosModal(state, container, 'clan_castle', 14, 0);
     const html = container.innerHTML;
 
-    assert.ok(html.includes('Shared (11)'), 'Clan Castle must share combo with 11 other in-season defenses');
-    assert.ok(html.includes('data-shared-defenses="super_wizard_tower,revenge_tower,ricochet_cannon,monolith,hot_candle,scattershot,cake_a_pult,multi_archer_tower,firespitter,inferno_tower,x_bow"'), 'Must list all 11 shared defenses');
-    assert.ok(html.includes('super_wizard_tower'), 'Must include override-assigned defense');
-    assert.ok(html.includes('ricochet_cannon'), 'Must include default-assigned defense');
-    assert.ok(html.includes('monolith'), 'Must include default-assigned defense');
-    assert.ok(html.includes('scattershot'), 'Must include default-assigned defense');
+    const sharedAttrMatch = html.match(/data-shared-defenses="([^"]+)"/);
+    assert.ok(sharedAttrMatch, 'Must render data-shared-defenses attribute on Shared pill');
+    const sharedKeys = sharedAttrMatch[1].split(',').filter(Boolean);
+    assert.ok(html.includes(`Shared (${sharedKeys.length})`), 'Shared pill label must match rendered shared defense count');
+
+    const expectedPermanentShared = [
+        'super_wizard_tower',
+        'revenge_tower',
+        'ricochet_cannon',
+        'monolith',
+        'scattershot',
+        'multi_archer_tower',
+        'firespitter',
+        'inferno_tower',
+        'x_bow'
+    ];
+    for (const defKey of expectedPermanentShared) {
+        assert.ok(sharedKeys.includes(defKey), `Must include ${defKey} among shared defenses`);
+    }
+    assert.equal(sharedKeys.includes('clan_castle'), false, 'Target itself must not appear in shared defenses');
+    assert.equal(sharedKeys.includes('hero_hunter'), false, 'Defense with distinct combo override must be excluded');
 });
 
 test('Target Combos Modal - getSharedComboPopoverContent formats defense names and assets', () => {
@@ -695,9 +720,9 @@ test('Target Combos Modal - Hero level slider renders discrete ticks and snaps l
 
     assert.ok(html.includes('Barbarian King'), 'Must render Barbarian King');
     assert.ok(html.includes('id="calc-target-modal-level-slider"'), 'Must render level slider');
-    // Barbarian King discrete levels: 1, 5, 10, ..., 110 -> 23 ticks
+    // Barbarian King discrete levels: 1, 5, 10, ..., 115 -> 24 ticks
     const tickMatches = html.match(/\bcalc-slider-tick\b/g) || [];
-    assert.equal(tickMatches.length, 23, 'Must render exactly 23 discrete tick marks for Barbarian King');
+    assert.equal(tickMatches.length, 24, 'Must render exactly 24 discrete tick marks for Barbarian King');
 
     // Test snapping an invalid requested level (e.g. 7) to 5
     const containerSnap = createMockContainer();
@@ -732,13 +757,14 @@ test('Target Combos Modal - Renders supercharge bolts next to level label and no
     const container = createMockContainer();
     const state = {
         ...damageCalcState,
-        playerTownHall: 18,
+        playerTownHall: 19,
         zapQuake: { ...damageCalcState.zapQuake, selectedCombos: {} }
     };
 
     renderTargetCombosModal(state, container, 'super_wizard_tower', 2, 2);
     const html = container.innerHTML;
 
+    assert.ok(html.includes('calc-supercharge-pills'), 'Must render supercharge pills for superchargeable defense');
     const levelLabelMatch = html.match(/id="calc-target-modal-level-label"[^>]*>([\s\S]*?)<\/span>/);
     assert.ok(levelLabelMatch, 'Must find level label');
     const levelLabelContent = levelLabelMatch[1];

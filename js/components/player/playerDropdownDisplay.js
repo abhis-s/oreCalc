@@ -1,7 +1,9 @@
 import { translate } from '../../i18n/translator.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { formatDisplayTag, normalizePlayerTag } from '../../core/storageKeys.js';
 import { getSavedProfiles, loadPlayerData } from '../../core/playerStorage.js';
 import { state } from '../../core/state.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { getSVG } from '../../utils/svgManager.js';
 import { dom } from '../../dom/domElements.js';
@@ -55,8 +57,8 @@ export function renderStandaloneDropdownMarkup({
         const playerName = escapeHTML(p.name || displayTag);
         const isActive = cleanTag === activeCleanTag;
         const isDefaultTag = cleanTag === 'DEFAULT0';
-        const thLevel = Math.min(Math.max(Number(p.townHallLevel) || 1, 1), 18);
-        const thImg = `assets/th/th${thLevel}.png`;
+        const thLevel = Math.min(Math.max(Number(p.townHallLevel) || 1, 1), MAX_TOWN_HALL);
+        const thImg = getTownHallIconUrl(thLevel);
         const idAttr = idPrefix ? `id="${idPrefix}-${index}" ` : '';
         const thDefense = translate('entities.defenses.townHall');
         const thPrefix = (thDefense && thDefense !== 'entities.defenses.townHall') ? thDefense : 'Town Hall';

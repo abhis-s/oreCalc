@@ -60,12 +60,12 @@ test('Defense Popovers Supercharge Pips Replacing Tier Text', async (t) => {
             closest: (sel) => (sel.includes('data-combo-defense-info') || sel.includes('data-combo-row-index')) ? mockWithSupercharge : null,
             getAttribute: (attr) => {
                 const map = {
-                    'data-building-target': 'air_defense',
-                    'data-building-level': '16',
+                    'data-building-target': 'inferno_tower',
+                    'data-building-level': '12',
                     'data-supercharge': '2',
                     'data-eq-count': '0',
                     'data-zap-count': '0',
-                    'data-max-hp': '2000',
+                    'data-max-hp': '5300',
                     'data-equip': JSON.stringify([{ id: 'giant_arrow', level: 18, rawLevel: 18 }])
                 };
                 return map[attr] || null;
@@ -74,12 +74,12 @@ test('Defense Popovers Supercharge Pips Replacing Tier Text', async (t) => {
 
         const popover = getComboBreakdownPopoverContent(mockWithSupercharge, dummyState);
         assert.ok(popover);
-        assert.ok(popover.header.includes('Air Defense (Lvl 16)'));
+        assert.ok(popover.header.includes('Inferno Tower (Lvl 12)'));
         assert.ok(popover.header.includes('calc-supercharge-pips'), 'Must render supercharge pips');
         assert.ok(popover.header.includes('/assets/supercharge/supercharge_bolt.png'), 'Must render charged bolt asset');
         assert.ok(!popover.header.includes(', Tier'), 'Must strictly NOT include ", Tier"');
         assert.ok(!popover.header.includes('Tier 2)'), 'Must strictly NOT include "Tier 2)" in title text');
-        assert.ok(popover.header.includes('2,000 HP'), 'Must display HP in popover badge');
+        assert.ok(popover.header.includes('5,300 HP'), 'Must display HP in popover badge');
         assert.ok(!popover.header.includes('HP Base'), 'Must not display HP Base');
         assert.ok(!popover.header.includes('Hitpoints'), 'Must not display Hitpoints');
 
@@ -87,12 +87,12 @@ test('Defense Popovers Supercharge Pips Replacing Tier Text', async (t) => {
             closest: (sel) => (sel.includes('data-combo-defense-info') || sel.includes('data-combo-row-index')) ? mockWithoutSupercharge : null,
             getAttribute: (attr) => {
                 const map = {
-                    'data-building-target': 'air_defense',
-                    'data-building-level': '16',
+                    'data-building-target': 'inferno_tower',
+                    'data-building-level': '12',
                     'data-supercharge': '0',
                     'data-eq-count': '0',
                     'data-zap-count': '0',
-                    'data-max-hp': '2000',
+                    'data-max-hp': '5100',
                     'data-equip': JSON.stringify([{ id: 'giant_arrow', level: 18, rawLevel: 18 }])
                 };
                 return map[attr] || null;
@@ -101,7 +101,7 @@ test('Defense Popovers Supercharge Pips Replacing Tier Text', async (t) => {
 
         const popoverUncharged = getComboBreakdownPopoverContent(mockWithoutSupercharge, dummyState);
         assert.ok(popoverUncharged);
-        assert.ok(popoverUncharged.header.includes('Air Defense (Lvl 16)</span>'));
+        assert.ok(popoverUncharged.header.includes('Inferno Tower (Lvl 12)</span>'));
         assert.ok(!popoverUncharged.header.includes('calc-supercharge-pips'), 'Must not render supercharge pips when tier is 0');
 
         const esportsComboState = {
@@ -211,12 +211,12 @@ test('Defense Popovers Supercharge Pips Replacing Tier Text', async (t) => {
             closest: (sel) => sel.includes('data-cluster-target-info') ? mockClusterTarget : null,
             getAttribute: (attr) => {
                 const map = {
-                    'data-building-key': 'air_defense',
-                    'data-building-level': '16',
+                    'data-building-key': 'inferno_tower',
+                    'data-building-level': '12',
                     'data-supercharge': '2',
-                    'data-max-hp': '2000',
+                    'data-max-hp': '5300',
                     'data-eq-dmg': '580',
-                    'data-rem-hp': '1420',
+                    'data-rem-hp': '4720',
                     'data-zap-count': '2',
                     'data-shared-eq': '1'
                 };
@@ -226,7 +226,7 @@ test('Defense Popovers Supercharge Pips Replacing Tier Text', async (t) => {
 
         const popover = getClusterTargetPopoverContent(mockClusterTarget);
         assert.ok(popover);
-        assert.ok(popover.header.includes('Air Defense (Lvl 16)'));
+        assert.ok(popover.header.includes('Inferno Tower (Lvl 12)'));
         assert.ok(popover.header.includes('calc-supercharge-pips'), 'Must render supercharge pips');
         assert.ok(popover.header.includes('/assets/supercharge/supercharge_bolt.png'), 'Must render charged bolt asset');
         assert.ok(!popover.header.includes(', Tier'), 'Must strictly NOT include ", Tier"');

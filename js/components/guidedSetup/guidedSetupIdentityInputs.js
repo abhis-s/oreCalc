@@ -10,7 +10,7 @@ import { formatDisplayTag, normalizePlayerTag } from '../../core/storageKeys.js'
 import { sanitizePlayerProfile } from '../../core/playerStorageSanitizer.js';
 import { getSavedProfiles } from '../../core/playerStorage.js';
 import { state } from '../../core/state.js';
-import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
+import { UNRANKED_LEAGUE_ID, MAX_TOWN_HALL } from '../../core/constants.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { renderTownHallBadge } from '../common/townHallBadge.js';
@@ -126,7 +126,7 @@ export function renderSavedProfilesList(onSelectProfile) {
             guidedSetupState.activeTag = cleanTag;
             guidedSetupState.isProfileLoaded = true;
 
-            const selectedTH = existingPlayer?.playerProfile?.townHallLevel || profile.townHallLevel || 16;
+            const selectedTH = existingPlayer?.playerProfile?.townHallLevel || profile.townHallLevel || MAX_TOWN_HALL;
             const selectedLeague = existingPlayer?.playerProfile?.leagueTier?.id || 105000000;
             guidedSetupState.selectedTH = selectedTH;
             guidedSetupState.selectedLeague = selectedLeague;
@@ -242,7 +242,7 @@ export function initializeGuidedSetupIdentityInputs(modal, onIdentityComplete) {
 
                     guidedSetupState.activeTag = tagKey;
                     guidedSetupState.isProfileLoaded = true;
-                    guidedSetupState.selectedTH = playerData.townHallLevel || 16;
+                    guidedSetupState.selectedTH = playerData.townHallLevel || MAX_TOWN_HALL;
                     guidedSetupState.selectedLeague = playerData.leagueTier?.id || 105000000;
 
                     syncPreferencesFromProfile(tagKey);

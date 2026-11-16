@@ -55,7 +55,7 @@ import { initClipboardInputs } from '../components/common/clipboardInputControll
 import { handleSpotrightDeepLink } from '../components/spotright/spotrightNavigator.js';
 import { initializeGlobalHaptics } from '../services/hapticService.js';
 import { initializeCloudSaveButtons } from '../services/cloudSaveService.js';
-import { applyCardLayout, initCardLayoutManager } from '../ui/cardLayoutManager.js';
+import { applyCardLayout, initCardLayoutManager, destroyCardLayoutManager } from '../ui/cardLayoutManager.js';
 
 /**
  * Detects currency from browser navigator languages if not explicitly configured.
@@ -96,8 +96,9 @@ function autoDetectCurrency() {
 /**
  * Initializes all UI components, binds events, and executes initial domain calculations.
  * @param {string} initialLang
+ * @param {import('./routeLifecycleScope.js').RouteLifecycleScope | null} [lifecycleScope=null]
  */
-export async function bootstrapUIComponents(initialLang) {
+export async function bootstrapUIComponents(initialLang, lifecycleScope = null) {
     try {
         await loadTranslations('en');
         if (initialLang !== 'en') {
@@ -148,9 +149,9 @@ export async function bootstrapUIComponents(initialLang) {
     initializeNavigation();
     initializeModalHistoryManager();
     initializeStorageInputs();
-    initializeHeroCards(state.heroes, state.uiSettings, state.planner);
+    initializeHeroCards(state.heroes, state.uiSettings, state.planner, lifecycleScope);
     initializePlayerDropdown();
-    initializePlayerModal();
+    initializePlayerModal(lifecycleScope);
     initializeGuidedSetupModal();
     initializeFab();
     initializeAppSettings();
@@ -165,18 +166,23 @@ export async function bootstrapUIComponents(initialLang) {
     initializeRaidMedalTrader();
     initializeGemTrader();
     initializeEventTrader();
-    initializeShopOffers();
+    initializeShopOffers(lifecycleScope);
     initializeSupercellEventsInputs();
     initializeProspector();
     initializeIncomeCardHandler();
     initCardLayoutManager();
+    lifecycleScope?.track(destroyCardLayoutManager);
     initSpotright();
     initShortcutsModalListener();
     initClipboardInputs();
 
     handleSpotrightDeepLink();
     if (typeof window !== 'undefined') {
-        window.addEventListener('hashchange', handleSpotrightDeepLink);
+        if (lifecycleScope) {
+            lifecycleScope.listen(window, 'hashchange', handleSpotrightDeepLink);
+        } else {
+            window.addEventListener('hashchange', handleSpotrightDeepLink);
+        }
     }
 
     let layoutMode = state.uiSettings.cardLayout;
@@ -224,10 +230,12 @@ function finishStartupTeardown() {
 /**
  * Handles preloader dismiss animation and triggers guided tour or pending modals.
  * @param {HTMLElement|null} preloader
+ * @param {import('./routeLifecycleScope.js').RouteLifecycleScope | null} [lifecycleScope=null]
  */
-export function handlePreloaderTeardown(preloader) {
+export function handlePreloaderTeardown(preloader, lifecycleScope = null) {
+    const schedule = (fn, delay) => (lifecycleScope ? lifecycleScope.setTimeout(fn, delay) : setTimeout(fn, delay));
     if (preloader) {
-        setTimeout(() => {
+        schedule(() => {
             preloader.classList.add('is-hidden');
 
             const cardContainer = document.getElementById('orecalc-home-player-card');
@@ -240,13 +248,14 @@ export function handlePreloaderTeardown(preloader) {
                 });
             }
 
-            setTimeout(() => {
+            schedule(() => {
                 preloader.style.display = 'none';
                 finishStartupTeardown();
             }, 600);
 
             if (state.activeTab === 'planner-tab') {
                 import('../components/planner/calendarDisplay.js').then(module => {
+                    if (lifecycleScope && !lifecycleScope.active) return;
                     module.setAnimateNextRender('all', 0.6);
                     renderApp(state);
                 });

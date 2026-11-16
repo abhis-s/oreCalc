@@ -3,10 +3,12 @@
  * Tier 2: Pure Domain Math (0 side effects, 0 DOM references, 0 browser globals).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
-import { spellsData } from '../../data/spellsData.js';
 import {
     getSpellCapacities,
+    getMaxSpellLevel,
+    getLightningDamage,
     calculateEarthquakeDamage,
     calculateEarthquakeDamageWithPools,
     calculateRequiredZapsTwoPools,
@@ -45,7 +47,13 @@ import {
  * @param {boolean} [options.includeStepDetails=true] - Whether to include detailed execution steps in combination candidates.
  * @returns {Object} Optimal spell combination, all valid candidates, and metadata.
  */
-export function solveZapQuakeCombinations(defenseKey, defenseLevel = 1, lightningLevel = 13, eqLevel = 8, options = {}) {
+export function solveZapQuakeCombinations(
+    defenseKey,
+    defenseLevel = 1,
+    lightningLevel = getMaxSpellLevel('lightning'),
+    eqLevel = getMaxSpellLevel('earthquake'),
+    options = {}
+) {
     const def = getDefensesData()[defenseKey];
     if (!def) {
         return { optimalCombination: null, candidates: [], totalCombinationsTested: 0, reason: 'invalid_defense' };
@@ -62,8 +70,8 @@ export function solveZapQuakeCombinations(defenseKey, defenseLevel = 1, lightnin
     const isImmuneToLightning = isTargetImmuneToSpell(defenseKey, 'lightning', def);
     const isImmuneToEarthquake = isTargetImmuneToSpell(defenseKey, 'earthquake', def);
 
-    const zapDmg = spellsData.spells.lightning.levels[lightningLevel]?.damage || 720;
-    const th = Number(options.townHallLevel ?? (/** @type {any} */ (options)).playerTownHall) || 18;
+    const zapDmg = getLightningDamage(lightningLevel);
+    const th = Number(options.townHallLevel ?? (/** @type {any} */ (options)).playerTownHall) || MAX_TOWN_HALL;
     const defaultCaps = getSpellCapacities(th);
     const regCap = options.regularSpellCapacity != null ? Number(options.regularSpellCapacity) : defaultCaps.regularCapacity;
     const ccCap = options.ccSpellCapacity != null ? Number(options.ccSpellCapacity) : defaultCaps.ccCapacity;
@@ -101,7 +109,7 @@ export function solveZapQuakeCombinations(defenseKey, defenseLevel = 1, lightnin
 
     const ccEqLevel = options.ccSpells?.earthquake != null ? Number(options.ccSpells.earthquake) : eqLevel;
     const ccLightningLevel = options.ccSpells?.lightning != null ? Number(options.ccSpells.lightning) : lightningLevel;
-    const ccZapDmg = spellsData.spells.lightning.levels[ccLightningLevel]?.damage || zapDmg;
+    const ccZapDmg = options.ccSpells?.lightning != null ? getLightningDamage(ccLightningLevel) : zapDmg;
 
     /** @type {Array<Object>} */
     const candidates = [];
@@ -470,9 +478,9 @@ export function getComboSignature(combo) {
  * @returns {{ eqBurden: number, zapBurden: number }}
  */
 function getSpellTierBurden(combo) {
-    const eqLvl = combo.eqLevel ?? 8;
+    const eqLvl = combo.eqLevel ?? getMaxSpellLevel('earthquake');
     const ccEqLvl = combo.ccEqLevel ?? eqLvl;
-    const zapLvl = combo.lightningLevel ?? 13;
+    const zapLvl = combo.lightningLevel ?? getMaxSpellLevel('lightning');
     const ccZapLvl = combo.ccLightningLevel ?? zapLvl;
 
     const ccEq = combo.ccEqCount ?? 0;
@@ -606,13 +614,26 @@ function deduplicateCandidates(list) {
  * @param {number|null} [defenseLevel=null] - Defense level.
  * @returns {Array<Object>} Ordered steps with remaining HP.
  */
-function buildStepDetails(firstArg, eqCount = 0, zapCount = 0, eqLevel = 8, zapDmg = 720, equipmentList = [], options = {}, defenseKey = '', defenseLevel = null) {
+function buildStepDetails(
+    firstArg,
+    eqCount = 0,
+    zapCount = 0,
+    eqLevel = getMaxSpellLevel('earthquake'),
+    zapDmg = getLightningDamage(),
+    equipmentList = [],
+    options = {},
+    defenseKey = '',
+    defenseLevel = null
+) {
+    const maxZapLevel = getMaxSpellLevel('lightning');
+    const maxEqLevel = getMaxSpellLevel('earthquake');
+    const defaultZapDmg = getLightningDamage(maxZapLevel);
     let params;
     if (typeof firstArg === 'object' && firstArg !== null && 'targetHp' in firstArg) {
         params = firstArg;
     } else {
         const legacyCcZap = options?.ccSpells?.lightning != null
-            ? (spellsData.spells.lightning.levels[options.ccSpells.lightning]?.damage || zapDmg)
+            ? (getLightningDamage(options.ccSpells.lightning) || zapDmg)
             : zapDmg;
         params = {
             targetHp: firstArg,
@@ -624,8 +645,8 @@ function buildStepDetails(firstArg, eqCount = 0, zapCount = 0, eqLevel = 8, zapD
             ccEqLevel: options?.ccSpells?.earthquake ?? eqLevel,
             zapDmg,
             ccZapDmg: legacyCcZap,
-            lightningLevel: options?.lightningLevel ?? 13,
-            ccLightningLevel: options?.ccSpells?.lightning ?? 13,
+            lightningLevel: options?.lightningLevel ?? maxZapLevel,
+            ccLightningLevel: options?.ccSpells?.lightning ?? maxZapLevel,
             equipmentList,
             options,
             defenseKey,
@@ -639,12 +660,12 @@ function buildStepDetails(firstArg, eqCount = 0, zapCount = 0, eqLevel = 8, zapD
         ccEqCount = 0,
         regZapCount = 0,
         ccZapCount = 0,
-        eqLevel: strikeEqLevel = 8,
-        ccEqLevel: strikeCcEqLevel = 8,
-        zapDmg: strikeZapDmg = 720,
-        ccZapDmg: strikeCcZapDmg = 720,
-        lightningLevel: strikeLightningLevel = 13,
-        ccLightningLevel: strikeCcLightningLevel = 13,
+        eqLevel: strikeEqLevel = maxEqLevel,
+        ccEqLevel: strikeCcEqLevel = maxEqLevel,
+        zapDmg: strikeZapDmg = defaultZapDmg,
+        ccZapDmg: strikeCcZapDmg = defaultZapDmg,
+        lightningLevel: strikeLightningLevel = maxZapLevel,
+        ccLightningLevel: strikeCcLightningLevel = maxZapLevel,
         equipmentList: equipItems = [],
         defenseKey: dKey = '',
         defenseLevel: dLevel = null

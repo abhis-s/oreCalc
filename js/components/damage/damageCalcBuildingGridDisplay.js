@@ -3,11 +3,13 @@
  * Tier 4: UI Presentation (Dedicated exclusively to building grid DOM rendering, 0 event listeners).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import {
     getMaxSuperchargeTier,
     getDefaultSuperchargeTier,
+    isClusterDefenseSunsetForTownHall,
     isDefenseInSeason,
     getBuildingGroupId,
     getDefenseCategoryTier,
@@ -42,12 +44,8 @@ const DEFENSE_GROUPS = Object.freeze({
  * Used by renderBuildingSelectionGrid and targeted search update paths.
  *
  * @param {Object} options
- * @param {string} [options.activeKey]
- * @param {number} [options.activeLevel]
  * @param {string} [options.searchQuery='']
  * @param {Array} [options.selectedCluster=[]]
- * @param {boolean} [options.multiSelectMode=false]
- * @param {string} [options.prefix='zq']
  * @param {string} [options.buildingFilter='all']
  * @param {boolean} [options.excludeFortifications=false]
  * @param {number|null} [options.townHallLevel=null]
@@ -59,12 +57,8 @@ const DEFENSE_GROUPS = Object.freeze({
  * @returns {string} HTML string of card buttons only.
  */
 export function renderBuildingGridCardsHtml({
-    activeKey,
-    activeLevel,
     searchQuery = '',
     selectedCluster = [],
-    multiSelectMode = false,
-    prefix = 'zq',
     buildingFilter = 'all',
     excludeFortifications = false,
     townHallLevel = null,
@@ -82,12 +76,13 @@ export function renderBuildingGridCardsHtml({
         const d = getDefensesData()[k];
         if (!d) continue;
         if (!isDefenseInSeason(d, referenceDate)) continue;
+        if (townHallLevel != null && isClusterDefenseSunsetForTownHall(k, townHallLevel)) continue;
 
         const info = townHallLevel != null ? getMaxDefenseLevelForTownHall(k, townHallLevel) : { level: d.maxLevel, status: 'available' };
         const isUnavailable = info.status === 'locked' || info.status === 'sunset';
 
         if (enabledBuildingGroups) {
-            const groupId = getBuildingGroupId(k, townHallLevel != null ? townHallLevel : 18);
+            const groupId = getBuildingGroupId(k, townHallLevel != null ? townHallLevel : MAX_TOWN_HALL);
             // Defenses invariant: defenses group is always enabled
             const isGroupEnabled = groupId === 'defenses'
                 ? true
@@ -95,7 +90,6 @@ export function renderBuildingGridCardsHtml({
             if (!isGroupEnabled) continue;
         } else if (townHallLevel != null) {
             if (d.minTH && townHallLevel < d.minTH) continue;
-            if ('maxTH' in d && typeof d.maxTH === 'number' && townHallLevel > d.maxTH) continue;
         }
         const tier = getDefenseCategoryTier(k, d);
         const isDefense = tier === 1;
@@ -120,26 +114,22 @@ export function renderBuildingGridCardsHtml({
         const maxLvl = isUnavailable
             ? (info.status === 'locked' ? 1 : (d.maxLevel || 1))
             : (availableLevels.length > 0 ? Math.max(...availableLevels) : (d.maxLevel || 1));
-        const clusterIndex = multiSelectMode ? selectedCluster.findIndex(t => t.defenseKey === k) : -1;
-        const isInCluster = multiSelectMode && clusterIndex !== -1;
-        const cardLevel = isInCluster
+        const clusterIndex = selectedCluster.findIndex(t => t.defenseKey === k);
+        const isSelected = clusterIndex !== -1;
+        const cardLevel = isSelected
             ? (selectedCluster[clusterIndex]?.level ?? maxLvl)
-            : ((k === activeKey) ? activeLevel : (defenseLevelOverrides?.[k] ?? maxLvl));
-        const isSelected = (k === activeKey);
+            : (defenseLevelOverrides?.[k] ?? maxLvl);
         const isCrafted = d.subCategory === 'crafted';
-        const defaultCardTier = getDefaultSuperchargeTier(k, cardLevel, townHallLevel != null ? townHallLevel : 18);
+        const defaultCardTier = getDefaultSuperchargeTier(k, cardLevel, townHallLevel != null ? townHallLevel : MAX_TOWN_HALL);
         const maxSc = getMaxSuperchargeTier(k, cardLevel);
         const effectiveGlobalSc = superchargeTier !== undefined ? Math.min(superchargeTier, maxSc) : defaultCardTier;
         const cardSupercharge = isSelected
-            ? (superchargeTier !== undefined ? Math.min(superchargeTier, maxSc) : defaultCardTier)
-            : (isInCluster
-                ? (selectedCluster[clusterIndex]?.superchargeTier ?? defaultCardTier)
-                : (defenseSuperchargeOverrides?.[k] !== undefined ? defenseSuperchargeOverrides[k] : effectiveGlobalSc));
+            ? (selectedCluster[clusterIndex]?.superchargeTier ?? defaultCardTier)
+            : (defenseSuperchargeOverrides?.[k] !== undefined ? defenseSuperchargeOverrides[k] : effectiveGlobalSc);
 
         cardsHtml += `
             <button type="button"
-                class="calc-building-card ${isSelected ? 'is-selected' : ''} ${isInCluster ? 'is-in-cluster' : ''}"
-                data-prefix="${prefix}"
+                class="calc-building-card${isSelected ? ' is-selected' : ''}"
                 data-building-key="${k}"
                 role="listitem"
                 aria-pressed="${isSelected}"
@@ -152,7 +142,7 @@ export function renderBuildingGridCardsHtml({
                         class="calc-building-card__img"
                         size="standard">
                     </clashcalc-assets-image>
-                    ${isInCluster ? `<span class="calc-building-card__cluster-badge">${clusterIndex + 1}</span>` : ''}
+                    ${isSelected ? `<span class="calc-building-card__cluster-badge">${clusterIndex + 1}</span>` : ''}
                     ${isCrafted ? `
                         <span class="calc-building-card__seasonal-badge" title="${escapeHTML(translate('views.damageCalc.filters.craftedDefenseTooltip'))}">
                             <clashcalc-assets-svg name="timer" width="14" height="14"></clashcalc-assets-svg>
@@ -175,49 +165,33 @@ export function renderBuildingGridCardsHtml({
  * Renders the Visual Building Selection Grid with Category Filtering.
  *
  * @param {Object} options
- * @param {string} options.activeKey - Currently active building key.
- * @param {number} options.activeLevel - Level of active building.
  * @param {string} [options.searchQuery=''] - Search query string.
  * @param {Array<{ defenseKey: string, level: number, superchargeTier?: number }>} [options.selectedCluster=[]] - Active cluster.
- * @param {boolean} [options.multiSelectMode=false] - Whether multi-select cluster mode is active.
- * @param {string} [options.prefix='zq'] - Unique prefix ('zq', 'eq', 'sim').
  * @param {'all' | 'defenses' | 'heroes' | 'guardians' | 'other'} [options.buildingFilter='all'] - Active category filter.
  * @param {boolean} [options.excludeFortifications=false] - Exclude storages/fortifications.
  * @param {number | null} [options.townHallLevel=null] - Optional player Town Hall for lifecycle filtering.
- * @param {number} [options.superchargeTier=2] - Active supercharge tier for currently selected defense.
+ * @param {number} [options.superchargeTier=2] - Default global supercharge tier for unselected buildings.
  * @param {Date|string|number} [options.referenceDate=new Date()] - Reference date for seasonal filtering.
- * @param {boolean} [options.showClusterToggle=false] - Whether to render inline cluster toggle switch.
  * @param {Object | null} [options.enabledBuildingGroups=null] - Group visibility states.
  * @param {Object | null} [options.defenseLevelOverrides=null] - Per-building level overrides from state.
  * @param {Object | null} [options.defenseSuperchargeOverrides=null] - Per-building supercharge overrides from state.
  * @returns {string} HTML string.
  */
 export function renderBuildingSelectionGrid({
-    activeKey,
-    activeLevel,
     searchQuery = '',
     selectedCluster = [],
-    multiSelectMode = false,
-    prefix = 'zq',
     buildingFilter = 'all',
     excludeFortifications = false,
     townHallLevel = null,
     superchargeTier = 2,
     referenceDate = new Date(),
-    showClusterToggle = false,
     enabledBuildingGroups = null,
     defenseLevelOverrides = null,
     defenseSuperchargeOverrides = null
 }) {
-    const isZapQuakeTab = prefix === 'zq';
-
     const cardsHtml = renderBuildingGridCardsHtml({
-        activeKey,
-        activeLevel,
         searchQuery,
         selectedCluster,
-        multiSelectMode,
-        prefix,
         buildingFilter,
         excludeFortifications,
         townHallLevel,
@@ -228,107 +202,79 @@ export function renderBuildingSelectionGrid({
         defenseSuperchargeOverrides
     });
 
-    let clusterToolbarHtml = '';
-    if (isZapQuakeTab && multiSelectMode) {
-        let chipItemsHtml = '';
-        selectedCluster.forEach((target, idx) => {
-            const defName = getDefenseDisplayName(target.defenseKey);
-            const isTargetActive = target.defenseKey === activeKey ? 'is-active-target' : '';
-            const cardSupercharge = target.superchargeTier || 0;
-            const superchargeHtml = cardSupercharge > 0
-                ? `<span class="calc-cluster-chip__supercharge" title="${escapeHTML(translate('views.damageCalc.offense.superchargeLabel'))} &middot; ${escapeHTML(translate('views.damageCalc.zapQuake.tierLabel', { tier: cardSupercharge }))}">${renderSuperchargePipsHtml(cardSupercharge, getMaxSuperchargeTier(target.defenseKey, target.level), { variant: 'compact' })}</span>`
-                : '';
-            const thumbUrl = getBuildingAssetUrl(target.defenseKey, target.level);
-
-            chipItemsHtml += `
-                <div class="calc-cluster-chip ${isTargetActive}" data-cluster-index="${idx}" title="${escapeHTML(defName)} (${getLvlShort(target.defenseKey)} ${target.level})">
-                    <span class="calc-cluster-chip__index">#${idx + 1}</span>
-                    <clashcalc-assets-image src="${thumbUrl}" alt="${escapeHTML(defName)}" size="thumbnail" class="calc-cluster-chip__thumb"></clashcalc-assets-image>
-                    <span class="calc-cluster-chip__level">${getLvlShort(target.defenseKey)} ${target.level}</span>
-                    ${superchargeHtml}
-                    <button type="button" class="calc-cluster-chip__remove" data-cluster-remove="${idx}" aria-label="${escapeHTML(translate('actions.remove'))}: ${escapeHTML(defName)}">
-                        <clashcalc-assets-svg name="close" width="10" height="10"></clashcalc-assets-svg>
-                    </button>
-                </div>
-            `;
-        });
-
-        if (selectedCluster.length === 0) {
-            chipItemsHtml = `
-                <div class="calc-cluster-toolbar__empty-hint">
-                    <span class="calc-cluster-toolbar__empty-prompt">
-                        <clashcalc-assets-svg name="plus" width="12" height="12" class="calc-cluster-toolbar__empty-icon"></clashcalc-assets-svg>
-                        <span data-i18n="views.damageCalc.clusterPlanner.clusterEmptyToolbarPrompt">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterEmptyToolbarPrompt') || 'Select defenses below to add to cluster (min. 2, max. 5)')}</span>
-                    </span>
-                    <div class="calc-cluster-ghost-slots" aria-hidden="true">
-                        <span class="calc-cluster-ghost-slot is-required" title="${escapeHTML(translate('views.damageCalc.clusterPlanner.targetSlotTitle', { number: 1 }))}" data-i18n-title="views.damageCalc.clusterPlanner.targetSlotTitle" data-i18n-title-args='{"number":1}'>1</span>
-                        <span class="calc-cluster-ghost-slot is-required" title="${escapeHTML(translate('views.damageCalc.clusterPlanner.targetSlotTitle', { number: 2 }))}" data-i18n-title="views.damageCalc.clusterPlanner.targetSlotTitle" data-i18n-title-args='{"number":2}'>2</span>
-                        <span class="calc-cluster-ghost-slot" title="${escapeHTML(translate('views.damageCalc.clusterPlanner.targetSlotTitle', { number: 3 }))}" data-i18n-title="views.damageCalc.clusterPlanner.targetSlotTitle" data-i18n-title-args='{"number":3}'>3</span>
-                        <span class="calc-cluster-ghost-slot" title="${escapeHTML(translate('views.damageCalc.clusterPlanner.targetSlotTitle', { number: 4 }))}" data-i18n-title="views.damageCalc.clusterPlanner.targetSlotTitle" data-i18n-title-args='{"number":4}'>4</span>
-                        <span class="calc-cluster-ghost-slot" title="${escapeHTML(translate('views.damageCalc.clusterPlanner.targetSlotTitle', { number: 5 }))}" data-i18n-title="views.damageCalc.clusterPlanner.targetSlotTitle" data-i18n-title-args='{"number":5}'>5</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        const isMax = selectedCluster.length >= 5;
-        const countBadge = `<span class="calc-cluster-toolbar__separator">&middot;</span><span class="${isMax ? 'calc-cluster-counter is-max' : 'calc-cluster-counter'}">${selectedCluster.length}/5${isMax ? ` &middot; ${escapeHTML(translate('validation.max') || 'MAX')}` : ''}</span>`;
-
-        const clearBtnHtml = selectedCluster.length > 0
-            ? `<button type="button" id="zq-cluster-clear" class="btn-text calc-cluster-clear-btn"><span data-i18n="views.damageCalc.clusterPlanner.clearSelectionBtn">${escapeHTML(translate('views.damageCalc.clusterPlanner.clearSelectionBtn') || 'Clear Selection')}</span></button>`
+    let chipItemsHtml = '';
+    selectedCluster.forEach((target, idx) => {
+        const defName = getDefenseDisplayName(target.defenseKey);
+        const cardSupercharge = target.superchargeTier || 0;
+        const superchargeHtml = cardSupercharge > 0
+            ? `<span class="calc-cluster-chip__supercharge" title="${escapeHTML(translate('views.damageCalc.offense.superchargeLabel'))} &middot; ${escapeHTML(translate('views.damageCalc.zapQuake.tierLabel', { tier: cardSupercharge }))}">${renderSuperchargePipsHtml(cardSupercharge, getMaxSuperchargeTier(target.defenseKey, target.level), { variant: 'compact' })}</span>`
             : '';
+        const thumbUrl = getBuildingAssetUrl(target.defenseKey, target.level);
 
-        const noticeHtml = selectedCluster.length >= 2
-            ? `<div class="calc-cluster-notice">
-                <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))}" data-i18n-alt="views.damageCalc.offense.spellEarthquake" size="thumbnail" class="calc-cluster-notice__icon"></clashcalc-assets-image>
-                <span data-i18n="views.damageCalc.clusterPlanner.clusterSharedNotice">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterSharedNotice') || 'Shared Earthquake damage applied across cluster')}</span>
-            </div>`
-            : '';
+        chipItemsHtml += `
+            <div class="calc-cluster-chip" data-cluster-index="${idx}" title="${escapeHTML(defName)} (${getLvlShort(target.defenseKey)} ${target.level})">
+                <span class="calc-cluster-chip__index">#${idx + 1}</span>
+                <clashcalc-assets-image src="${thumbUrl}" alt="${escapeHTML(defName)}" size="thumbnail" class="calc-cluster-chip__thumb"></clashcalc-assets-image>
+                <span class="calc-cluster-chip__level">${getLvlShort(target.defenseKey)} ${target.level}</span>
+                ${superchargeHtml}
+                <button type="button" class="calc-cluster-chip__remove" data-cluster-remove="${idx}" aria-label="${escapeHTML(translate('actions.remove'))}: ${escapeHTML(defName)}">
+                    <clashcalc-assets-svg name="close" width="10" height="10"></clashcalc-assets-svg>
+                </button>
+            </div>
+        `;
+    });
 
-        clusterToolbarHtml = `
-            <div class="calc-cluster-toolbar${selectedCluster.length === 0 ? ' is-empty' : ''}">
-                <div class="calc-cluster-toolbar__header">
-                    <span class="calc-cluster-toolbar__title">
-                        <clashcalc-assets-svg name="swords-filled" width="16" height="16"></clashcalc-assets-svg>
-                        <span data-i18n="views.damageCalc.clusterPlanner.clusterTitle">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterTitle') || 'Target Cluster')}</span>
-                        ${countBadge}
-                    </span>
-                    ${clearBtnHtml}
+    if (selectedCluster.length === 0) {
+        chipItemsHtml = `
+            <div class="calc-cluster-toolbar__empty-hint">
+                <span class="calc-cluster-toolbar__empty-prompt">
+                    <clashcalc-assets-svg name="plus" width="12" height="12" class="calc-cluster-toolbar__empty-icon"></clashcalc-assets-svg>
+                    <span data-i18n="views.damageCalc.clusterPlanner.clusterEmptyToolbarPrompt">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterEmptyToolbarPrompt') || 'Select defenses below to add to cluster (min. 2, max. 5)')}</span>
+                </span>
+                <div class="calc-cluster-ghost-slots" aria-hidden="true">
+                    <span class="calc-cluster-ghost-slot is-required" title="${escapeHTML(translate('views.damageCalc.clusterPlanner.targetSlotTitle', { number: 1 }))}" data-i18n-title="views.damageCalc.clusterPlanner.targetSlotTitle" data-i18n-title-args='{"number":1}'>1</span>
+                    <span class="calc-cluster-ghost-slot is-required" title="${escapeHTML(translate('views.damageCalc.clusterPlanner.targetSlotTitle', { number: 2 }))}" data-i18n-title="views.damageCalc.clusterPlanner.targetSlotTitle" data-i18n-title-args='{"number":2}'>2</span>
+                    <span class="calc-cluster-ghost-slot" title="${escapeHTML(translate('views.damageCalc.clusterPlanner.targetSlotTitle', { number: 3 }))}" data-i18n-title="views.damageCalc.clusterPlanner.targetSlotTitle" data-i18n-title-args='{"number":3}'>3</span>
+                    <span class="calc-cluster-ghost-slot" title="${escapeHTML(translate('views.damageCalc.clusterPlanner.targetSlotTitle', { number: 4 }))}" data-i18n-title="views.damageCalc.clusterPlanner.targetSlotTitle" data-i18n-title-args='{"number":4}'>4</span>
+                    <span class="calc-cluster-ghost-slot" title="${escapeHTML(translate('views.damageCalc.clusterPlanner.targetSlotTitle', { number: 5 }))}" data-i18n-title="views.damageCalc.clusterPlanner.targetSlotTitle" data-i18n-title-args='{"number":5}'>5</span>
                 </div>
-                <div class="calc-cluster-chips-list">
-                    ${chipItemsHtml}
-                </div>
-                ${noticeHtml}
             </div>
         `;
     }
 
-    const clusterToggleHtml = (isZapQuakeTab && showClusterToggle) ? `
-        <div class="calc-cluster-toggle-bar">
-            <button type="button"
-                id="zq-multi-switch"
-                class="calc-cluster-switch ${multiSelectMode ? 'is-active' : ''}"
-                role="switch"
-                aria-checked="${multiSelectMode}">
-                <span class="calc-cluster-switch__track">
-                    <span class="calc-cluster-switch__thumb"></span>
+    const isMax = selectedCluster.length >= 5;
+    const countBadge = `<span class="calc-cluster-toolbar__separator">&middot;</span><span class="${isMax ? 'calc-cluster-counter is-max' : 'calc-cluster-counter'}">${selectedCluster.length}/5${isMax ? ` &middot; ${escapeHTML(translate('validation.max') || 'MAX')}` : ''}</span>`;
+
+    const clearBtnHtml = selectedCluster.length > 0
+        ? `<button type="button" id="zq-cluster-clear" class="btn-text calc-cluster-clear-btn"><span data-i18n="views.damageCalc.clusterPlanner.clearSelectionBtn">${escapeHTML(translate('views.damageCalc.clusterPlanner.clearSelectionBtn') || 'Clear Selection')}</span></button>`
+        : '';
+
+    const noticeHtml = selectedCluster.length >= 2
+        ? `<div class="calc-cluster-notice">
+            <clashcalc-assets-image src="/assets/spells/earthquake.png" alt="${escapeHTML(translate('views.damageCalc.offense.spellEarthquake'))}" data-i18n-alt="views.damageCalc.offense.spellEarthquake" size="thumbnail" class="calc-cluster-notice__icon"></clashcalc-assets-image>
+            <span data-i18n="views.damageCalc.clusterPlanner.clusterSharedNotice">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterSharedNotice') || 'Shared Earthquake damage applied across cluster')}</span>
+        </div>`
+        : '';
+
+    const clusterToolbarHtml = `
+        <div class="calc-cluster-toolbar${selectedCluster.length === 0 ? ' is-empty' : ''}">
+            <div class="calc-cluster-toolbar__header">
+                <span class="calc-cluster-toolbar__title">
+                    <clashcalc-assets-svg name="swords-filled" width="16" height="16"></clashcalc-assets-svg>
+                    <span data-i18n="views.damageCalc.clusterPlanner.clusterTitle">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterTitle') || 'Target Cluster')}</span>
+                    ${countBadge}
                 </span>
-                <span class="calc-cluster-switch__text">
-                    <span class="calc-cluster-switch__title" data-i18n="views.damageCalc.clusterPlanner.clusterModeToggle">${escapeHTML(translate('views.damageCalc.clusterPlanner.clusterModeToggle'))}</span>
-                </span>
-            </button>
-            <button type="button" class="info-btn" data-calc-info="cluster" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo">
-                <clashcalc-assets-svg name="info" width="14" height="14"></clashcalc-assets-svg>
-            </button>
-            ${multiSelectMode && selectedCluster.length > 1 ? `
-                <span class="calc-multi-counter-pill">${selectedCluster.length} Defenses</span>
-            ` : ''}
+                ${clearBtnHtml}
+            </div>
+            <div class="calc-cluster-chips-list">
+                ${chipItemsHtml}
+            </div>
+            ${noticeHtml}
         </div>
-    ` : '';
+    `;
 
     return `
         <div class="calc-selector-container">
-            ${clusterToggleHtml}
             ${clusterToolbarHtml}
 
             <div class="calc-building-grid${!cardsHtml ? ' calc-building-grid--empty' : ''}" role="list">

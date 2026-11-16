@@ -1,10 +1,10 @@
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
-import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
+import { MAX_TOWN_HALL, UNRANKED_LEAGUE_ID } from '../../core/constants.js';
 import { formatDisplayTag } from '../../core/storageKeys.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
-import { getMaxTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { renderTownHallBadge } from './townHallBadge.js';
 
 /**
@@ -96,8 +96,8 @@ export function renderProfileHeaderHtml({
     actionsRowHtml = '',
     headerExtraClasses = ''
 } = {}) {
-    const activeTh = Number(thLevel || profile?.townHallLevel || getMaxTownHallLevel());
-    const thImgUrl = `assets/th/th${activeTh}.png`;
+    const activeTh = Number(thLevel || profile?.townHallLevel || MAX_TOWN_HALL);
+    const thImgUrl = getTownHallIconUrl(activeTh);
 
     const leagueId = Number(profile?.leagueTier?.id || profile?.league?.id || UNRANKED_LEAGUE_ID);
     const leagueData = leagueTiers.items.find(l => l.id === leagueId)

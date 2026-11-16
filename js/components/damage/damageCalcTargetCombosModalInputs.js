@@ -18,9 +18,11 @@ import {
     getLvlShort,
     renderSuperchargePipsHtml
 } from './damageCalcDisplay.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import {
     getMaxDefenseLevelForTownHall,
     getMaxSuperchargeTier,
+    isSuperchargeAvailableForTownHall,
     snapDefenseLevel,
     getPrevDefenseLevel,
     getNextDefenseLevel,
@@ -121,7 +123,7 @@ export function attachTargetCombosModalListeners(state, modalBody, onStateChange
         const thInfo = getMaxDefenseLevelForTownHall(defenseKey, currentTH);
         const maxAllowedLevel = (thInfo?.status === 'available' && thInfo.level > 0) ? thInfo.level : (def.maxLevel || 1);
         const maxSc = getMaxSuperchargeTier(defenseKey, curLvl);
-        const isScDisabled = curLvl < (def.maxLevel || 1) || currentTH < 18 || maxSc === 0;
+        const isScDisabled = curLvl < (def.maxLevel || 1) || !isSuperchargeAvailableForTownHall(currentTH) || maxSc === 0;
         const rawSc = Number(sheet.getAttribute('data-active-supercharge')) || 0;
         const activeSc = isScDisabled ? 0 : rawSc;
 
@@ -136,7 +138,7 @@ export function attachTargetCombosModalListeners(state, modalBody, onStateChange
         const thMaxEl = modalBody.querySelector('#calc-target-modal-th-max');
         const hpRow = modalBody.querySelector('.calc-target-combos-overview__hp-row');
         const isAtMax = curLvl >= maxAllowedLevel;
-        if (currentTH < 18 && isAtMax) {
+        if (currentTH < MAX_TOWN_HALL && isAtMax) {
             if (!thMaxEl && hpRow) {
                 const newTag = document.createElement('span');
                 newTag.className = 'calc-target-combos-overview__th-max';
@@ -218,7 +220,7 @@ export function attachTargetCombosModalListeners(state, modalBody, onStateChange
             state.defenseLevelOverrides[defenseKey] = newLvl;
 
             const maxSc = getMaxSuperchargeTier(defenseKey, newLvl);
-            const isScDisabled = newLvl < (def.maxLevel || 1) || currentTH < 18 || maxSc === 0;
+            const isScDisabled = newLvl < (def.maxLevel || 1) || !isSuperchargeAvailableForTownHall(currentTH) || maxSc === 0;
 
             if (isScDisabled) {
                 // Keep active supercharge in memory before setting active tier to 0

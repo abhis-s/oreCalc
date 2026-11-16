@@ -1,8 +1,13 @@
 import { formatDisplayTag } from '../../core/storageKeys.js';
-import { UNRANKED_LEAGUE_ID } from '../../core/constants.js';
+import { MAX_TOWN_HALL, UNRANKED_LEAGUE_ID } from '../../core/constants.js';
 import { heroData } from '../../data/heroData.js';
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
-import { getCumulativeHeroLevel, getMaxCumulativeLevelsByTH } from '../../domain/income/heroJourneyLevels.js';
+import {
+    getMaxCumulativeHeroLevel,
+    getMaxCumulativeLevelForTH,
+    getRawCumulativeHeroLevel
+} from '../../domain/income/heroJourneyLevels.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
 import { animateValue, cancelAnimation, formatNumber } from '../../utils/numberFormatter.js';
@@ -81,19 +86,17 @@ export function calculateMaxedEquipmentCount(ownedEquipment) {
  * Calculates Hero Journey cumulative hero levels and progress percentage.
  * @param {any} playerData
  * @param {any} profile
- * @param {number} [thLevel=18]
+ * @param {number} [thLevel=MAX_TOWN_HALL]
  * @returns {{ cumulativeLevel: number, thCap: number, overallMax: number, progressPercent: number, isThMaxed: boolean, isTrackMaxed: boolean }}
  */
-export function calculateHeroJourneyProgress(playerData, profile, thLevel = 18) {
+export function calculateHeroJourneyProgress(playerData, profile, thLevel = MAX_TOWN_HALL) {
     const rawCumulative = profile?.heroJourney?.cumulativeHeroLevel ?? playerData?.heroJourney?.cumulativeHeroLevel;
     let cumulativeLevel = Number(rawCumulative);
     if (rawCumulative == null || Number.isNaN(cumulativeLevel)) {
-        cumulativeLevel = getCumulativeHeroLevel({ playerProfile: profile, heroes: playerData?.heroes });
+        cumulativeLevel = getRawCumulativeHeroLevel({ playerProfile: profile, heroes: playerData?.heroes });
     }
-    const maxLevelsByTH = getMaxCumulativeLevelsByTH();
-    const thCap = maxLevelsByTH[thLevel] || 480;
-    const allMaxValues = Object.values(maxLevelsByTH);
-    const overallMax = allMaxValues.length > 0 ? Math.max(...allMaxValues) : 480;
+    const overallMax = getMaxCumulativeHeroLevel();
+    const thCap = getMaxCumulativeLevelForTH(thLevel) || overallMax;
     const progressPercent = Math.min(100, Math.max(0, Math.round((cumulativeLevel / thCap) * 100)));
     const isThMaxed = cumulativeLevel >= thCap;
     const isTrackMaxed = cumulativeLevel >= overallMax;
@@ -171,7 +174,7 @@ export function renderActiveProfile(summary, playerData, maxedCount, totalCount)
     if (!showcaseSection) return;
 
     const profile = summary.cachedData || playerData?.playerProfile || playerData || {};
-    const thLevel = Math.max(1, Math.min(18, Number(summary.townHallLevel || profile.townHallLevel) || 18));
+    const thLevel = Math.max(1, Math.min(MAX_TOWN_HALL, Number(summary.townHallLevel || profile.townHallLevel) || MAX_TOWN_HALL));
     const name = summary.name || profile.name || summary.tag;
     const tag = formatDisplayTag(summary.tag || summary.cleanTag) || (summary.tag ? `#${summary.tag.replace(/^#+/, '')}` : '');
     const clanName = profile.clan?.name;
@@ -206,7 +209,7 @@ export function renderActiveProfile(summary, playerData, maxedCount, totalCount)
         // In-place delta update to prevent layout flash
         const thImg = existingCard.querySelector('.th-badge__img');
         if (thImg) {
-            thImg.setAttribute('src', `assets/th/th${thLevel}.png`);
+            thImg.setAttribute('src', getTownHallIconUrl(thLevel));
             thImg.setAttribute('alt', `Town Hall ${thLevel}`);
         }
         const thOverlay = existingCard.querySelector('.th-badge__level');

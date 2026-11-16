@@ -4,6 +4,7 @@
  * Tier 4: User Inputs (Dedicated exclusively to event listener attachments inside modal dialogs).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import {
     damageCalcState,
     persistState,
@@ -21,8 +22,28 @@ import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { renderBuildingEditModal } from './damageCalcBuildingEditorModalDisplay.js';
 import {
     getMaxSuperchargeTier,
-    getMinDefenseLevel
+    getMaxSuperchargeTierForTownHall,
+    getMinDefenseLevel,
+    isSuperchargeAvailableForTownHall
 } from '../../domain/damage/defenseProgressionDomain.js';
+
+/**
+ * Synchronizes expanded CSS state, trigger ARIA attributes, and panel visibility for a building group.
+ *
+ * @param {Element} groupEl - Building group container element.
+ * @param {boolean} isExpanded - Whether the group panel should be expanded.
+ */
+function setBuildingGroupExpanded(groupEl, isExpanded) {
+    groupEl.classList.toggle('is-open', isExpanded);
+    const summaryBtn = /** @type {HTMLButtonElement | null} */ (groupEl.querySelector('.calc-building-group__summary'));
+    if (summaryBtn) {
+        summaryBtn.setAttribute('aria-expanded', String(isExpanded));
+    }
+    const contentEl = /** @type {HTMLElement | null} */ (groupEl.querySelector('.calc-building-group__content'));
+    if (contentEl) {
+        contentEl.hidden = !isExpanded;
+    }
+}
 
 /**
  * Attaches event listeners for the building editor toolbar (TH preset, reset, group toggles, search).
@@ -80,7 +101,7 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
                 e.stopPropagation();
                 closeThMenu();
                 buildingEditSuperchargeMemory.clear();
-                const selectedTh = Number(item.getAttribute('data-th')) || 18;
+                const selectedTh = Number(item.getAttribute('data-th')) || MAX_TOWN_HALL;
                 const prevTh = getShownTownHall(state);
                 setPlayerTownHall(selectedTh);
                 if (state !== damageCalcState) {
@@ -89,10 +110,11 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
                 if (thSelect) {
                     thSelect.value = String(selectedTh);
                 }
-                if (selectedTh >= 18 && (prevTh < 18 || state.globalSuperchargeTier === undefined || state.globalSuperchargeTier === 0)) {
-                    setGlobalSuperchargeTier(2);
+                if (isSuperchargeAvailableForTownHall(selectedTh) && (!isSuperchargeAvailableForTownHall(prevTh) || state.globalSuperchargeTier == null || state.globalSuperchargeTier === 0)) {
+                    const maxScTier = getMaxSuperchargeTierForTownHall(selectedTh);
+                    setGlobalSuperchargeTier(maxScTier);
                     if (state !== damageCalcState) {
-                        state.globalSuperchargeTier = 2;
+                        state.globalSuperchargeTier = maxScTier;
                     }
                 }
                 pruneDefenseOverrides(state);
@@ -109,16 +131,17 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
     if (thSelect) {
         thSelect.addEventListener('change', () => {
             buildingEditSuperchargeMemory.clear();
-            const selectedTh = Number(thSelect.value) || 18;
+            const selectedTh = Number(thSelect.value) || MAX_TOWN_HALL;
             const prevTh = getShownTownHall(state);
             setPlayerTownHall(selectedTh);
             if (state !== damageCalcState) {
                 state.playerTownHall = selectedTh;
             }
-            if (selectedTh >= 18 && (prevTh < 18 || state.globalSuperchargeTier === undefined || state.globalSuperchargeTier === 0)) {
-                setGlobalSuperchargeTier(2);
+            if (isSuperchargeAvailableForTownHall(selectedTh) && (!isSuperchargeAvailableForTownHall(prevTh) || state.globalSuperchargeTier == null || state.globalSuperchargeTier === 0)) {
+                const maxScTier = getMaxSuperchargeTierForTownHall(selectedTh);
+                setGlobalSuperchargeTier(maxScTier);
                 if (state !== damageCalcState) {
-                    state.globalSuperchargeTier = 2;
+                    state.globalSuperchargeTier = maxScTier;
                 }
             }
             pruneDefenseOverrides(state);
@@ -133,13 +156,15 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
     if (applyThBtn && thSelect) {
         applyThBtn.addEventListener('click', () => {
             buildingEditSuperchargeMemory.clear();
-            const selectedTh = Number(thSelect.value) || 18;
+            const selectedTh = Number(thSelect.value) || MAX_TOWN_HALL;
             applyTownHallPreset(selectedTh);
             if (state !== damageCalcState) {
                 state.playerTownHall = selectedTh;
                 state.defenseLevelOverrides = {};
                 state.defenseSuperchargeOverrides = {};
-                state.globalSuperchargeTier = selectedTh >= 18 ? 2 : 0;
+                state.globalSuperchargeTier = isSuperchargeAvailableForTownHall(selectedTh)
+                    ? getMaxSuperchargeTierForTownHall(selectedTh)
+                    : 0;
             }
             pruneDefenseOverrides(state);
             onStateChange();
@@ -182,8 +207,9 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
             if (state !== damageCalcState) {
                 state.defenseLevelOverrides = {};
                 state.defenseSuperchargeOverrides = {};
-                if (getShownTownHall(state) >= 18) {
-                    state.globalSuperchargeTier = 2;
+                const shownTh = getShownTownHall(state);
+                if (isSuperchargeAvailableForTownHall(shownTh)) {
+                    state.globalSuperchargeTier = getMaxSuperchargeTierForTownHall(shownTh);
                 }
             }
             onStateChange();
@@ -194,18 +220,22 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
         });
     }
 
+    const searchInput = /** @type {HTMLInputElement | null} */ (modalBody.querySelector('#calc-building-search'));
+
     // Collapsible building groups toggle persistence
     const buildingGroups = modalBody.querySelectorAll('.calc-building-group');
     buildingGroups.forEach(groupEl => {
-        const details = /** @type {HTMLDetailsElement} */ (groupEl);
-        if (details.dataset.hasToggleListener) return;
-        details.dataset.hasToggleListener = 'true';
-        details.addEventListener('toggle', () => {
+        const summaryBtn = /** @type {HTMLButtonElement | null} */ (groupEl.querySelector('.calc-building-group__summary'));
+        if (!summaryBtn || summaryBtn.dataset.hasToggleListener) return;
+        summaryBtn.dataset.hasToggleListener = 'true';
+        summaryBtn.addEventListener('click', () => {
+            const nextExpanded = !groupEl.classList.contains('is-open');
+            setBuildingGroupExpanded(groupEl, nextExpanded);
             const currentQuery = searchInput ? searchInput.value.trim() : '';
             if (!currentQuery) {
-                const groupId = details.getAttribute('data-group-id');
+                const groupId = groupEl.getAttribute('data-group-id');
                 if (groupId) {
-                    setBuildingGroupSessionPreference(groupId, details.open);
+                    setBuildingGroupSessionPreference(groupId, nextExpanded);
                 }
             }
         });
@@ -218,10 +248,7 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
         if (switchBtn.dataset.hasSwitchListener) return;
         switchBtn.dataset.hasSwitchListener = 'true';
 
-        switchBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
+        switchBtn.addEventListener('click', () => {
             const groupId = switchBtn.getAttribute('data-group-switch');
             if (!groupId || groupId === 'defenses') return;
 
@@ -254,9 +281,9 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
             switchBtn.setAttribute('aria-checked', String(nextVal));
 
             // In-place update of rows inside this group
-            const groupDetails = switchBtn.closest('.calc-building-group');
-            if (groupDetails) {
-                const rows = groupDetails.querySelectorAll('.calc-building-modal-row');
+            const groupEl = switchBtn.closest('.calc-building-group');
+            if (groupEl) {
+                const rows = groupEl.querySelectorAll('.calc-building-modal-row');
                 rows.forEach(row => {
                     const isRowUnavailable = row.classList.contains('is-unavailable');
                     const isRestricted = isRowUnavailable || !nextVal;
@@ -286,7 +313,6 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
     });
 
     // Instant Search Input
-    const searchInput = /** @type {HTMLInputElement | null} */ (modalBody.querySelector('#calc-building-search'));
     const clearInputBtn = modalBody.querySelector('#calc-building-search-clear-btn, [data-action="clear-defense-search-input"]');
     const emptyNotice = modalBody.querySelector('#calc-building-empty-search');
     if (searchInput && !searchInput.dataset.hasSearchListener) {
@@ -301,9 +327,9 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
             let totalVisibleCount = 0;
 
             if (query) {
-                groups.forEach(groupEl => {
-                    const details = /** @type {HTMLDetailsElement} */ (groupEl);
-                    const rows = details.querySelectorAll('.calc-building-modal-row');
+                groups.forEach(groupNode => {
+                    const groupEl = /** @type {HTMLElement} */ (groupNode);
+                    const rows = groupEl.querySelectorAll('.calc-building-modal-row');
                     let groupVisibleCount = 0;
 
                     rows.forEach(row => {
@@ -318,22 +344,22 @@ export function attachBuildingEditorToolbarListeners(state, modalBody, onStateCh
                     });
 
                     if (groupVisibleCount > 0) {
-                        details.style.display = '';
-                        details.open = true;
+                        groupEl.hidden = false;
+                        setBuildingGroupExpanded(groupEl, true);
                     } else {
-                        details.style.display = 'none';
+                        groupEl.hidden = true;
                     }
                 });
             } else {
-                groups.forEach(groupEl => {
-                    const details = /** @type {HTMLDetailsElement} */ (groupEl);
-                    const groupId = details.getAttribute('data-group-id');
-                    details.style.display = '';
+                groups.forEach(groupNode => {
+                    const groupEl = /** @type {HTMLElement} */ (groupNode);
+                    const groupId = groupEl.getAttribute('data-group-id');
+                    groupEl.hidden = false;
                     if (groupId) {
-                        details.open = Boolean(groupPrefs[groupId]);
+                        setBuildingGroupExpanded(groupEl, Boolean(groupPrefs[groupId]));
                     }
 
-                    const rows = details.querySelectorAll('.calc-building-modal-row');
+                    const rows = groupEl.querySelectorAll('.calc-building-modal-row');
                     rows.forEach(row => {
                         /** @type {HTMLElement} */ (row).style.display = '';
                         totalVisibleCount++;

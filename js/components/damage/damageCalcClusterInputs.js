@@ -72,24 +72,28 @@ export function pruneEquipmentSharingOnRemove(sharing, removedIdx, newClusterLen
 
 let isMobileDockScrollBound = false;
 let lastDockScrollY = 0;
+/** @type {Object | null} */
+let mobileDockScrollState = null;
 
 /**
  * Initializes passive window scroll listener to auto-hide mobile dock when scrolling down
  * and reveal it when scrolling up or near the top of the viewport.
  *
  * @param {Object} state - Damage calculator reactive state.
+ * @param {any} [scope=null] - Optional route lifecycle scope for listener cleanup.
  */
-function initMobileDockScrollListener(state) {
+function initMobileDockScrollListener(state, scope = null) {
+    mobileDockScrollState = state;
     if (isMobileDockScrollBound || typeof window === 'undefined') return;
     isMobileDockScrollBound = true;
     lastDockScrollY = window.scrollY || 0;
 
-    window.addEventListener('scroll', () => {
+    const handleDockScroll = () => {
         const dock = document.getElementById('calc-mobile-spell-dock');
         if (!dock) return;
 
         // Invariant: Do not auto-hide while the drawer modal is expanded
-        if (state.zapQuake?.mobileDockExpanded || dock.classList.contains('is-expanded')) {
+        if (mobileDockScrollState?.zapQuake?.mobileDockExpanded || dock.classList.contains('is-expanded')) {
             return;
         }
 
@@ -102,7 +106,17 @@ function initMobileDockScrollListener(state) {
             dock.classList.remove('is-scrolled-down');
         }
         lastDockScrollY = currentScrollY;
-    }, { passive: true });
+    };
+
+    if (scope && typeof scope.listen === 'function') {
+        scope.listen(window, 'scroll', handleDockScroll, { passive: true });
+        scope.track?.(() => {
+            isMobileDockScrollBound = false;
+            mobileDockScrollState = null;
+        });
+    } else {
+        window.addEventListener('scroll', handleDockScroll, { passive: true });
+    }
 }
 
 /**
@@ -117,25 +131,16 @@ export function resetMobileDockScrollState() {
 }
 
 /**
- * Attaches event listeners for the Cluster Planner (multi-select, presets, neighbors,
+ * Attaches event listeners for the Cluster Planner (presets, neighbors,
  * adjacency, equipment toggles, sharing pills, and mobile spell dock).
  *
  * @param {Object} state - Reactive damage calculator state.
  * @param {HTMLElement} rootContainer - Root DOM container for calculator view.
  * @param {Function} onStateChange - State change notification callback.
+ * @param {any} [scope=null] - Optional route lifecycle scope for listener cleanup.
  */
-export function attachClusterPlannerListeners(state, rootContainer, onStateChange) {
-    initMobileDockScrollListener(state);
-
-    // Multi-Select Toggle Button (ZapQuake)
-    const multiToggleBtn = rootContainer.querySelector('#zq-multi-switch');
-    if (multiToggleBtn) {
-        multiToggleBtn.addEventListener('click', () => {
-            state.zapQuake.multiSelectMode = !state.zapQuake.multiSelectMode;
-            persistState();
-            onStateChange();
-        });
-    }
+export function attachClusterPlannerListeners(state, rootContainer, onStateChange, scope = null) {
+    initMobileDockScrollListener(state, scope);
 
     const clearClusterBtns = rootContainer.querySelectorAll('#zq-cluster-clear, [data-action="clear-cluster"]');
     clearClusterBtns.forEach(btn => {

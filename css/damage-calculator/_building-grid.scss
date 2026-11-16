@@ -57,10 +57,6 @@
         box-shadow: 0 0 0 1px $accent-primary;
     }
 
-    &.is-in-cluster {
-        border-color: $accent-secondary;
-    }
-
     &__img-wrapper {
         position: relative;
         width: 46px;
@@ -147,152 +143,6 @@
     }
 }
 
-.calc-target-toolbar {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-sm;
-    padding: $spacing-md;
-    background-color: $bg-surface-secondary;
-    border: 1px solid $border-card;
-    border-radius: $shape-corner-medium;
-    min-width: 0;
-    max-width: 100%;
-    box-sizing: border-box;
-
-    @media (max-width: $breakpoint-modal) {
-        padding: $spacing-sm;
-    }
-
-    @media (max-width: $breakpoint-micro) {
-        padding: $spacing-xs $spacing-sm;
-        gap: $spacing-xs;
-    }
-
-    &__info {
-        display: flex;
-        align-items: center;
-        gap: $spacing-sm;
-        min-width: 0;
-        width: 100%;
-    }
-
-    &__thumb-frame {
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: $bg-surface-tertiary;
-        border: 1px solid $border-primary;
-        border-radius: $shape-corner-small;
-        padding: $spacing-2xs;
-        flex-shrink: 0;
-    }
-
-    &__thumb {
-        width: 44px;
-        height: 44px;
-        object-fit: contain;
-    }
-
-    &__meta {
-        display: flex;
-        flex-direction: column;
-        gap: $spacing-2xs;
-        min-width: 0;
-        flex: 1;
-    }
-
-    &__title-row {
-        display: flex;
-        align-items: center;
-        gap: $spacing-xs;
-        flex-wrap: wrap;
-        min-width: 0;
-    }
-
-    &__title {
-        margin: 0;
-        font-size: $font-size-sm;
-        font-weight: $font-weight-bold;
-        color: $text-primary;
-    }
-
-    &__hp-badge {
-        font-size: $font-size-xs;
-        font-weight: $font-weight-bold;
-        color: $accent-primary;
-    }
-
-    &__controls {
-        display: flex;
-        flex-direction: column;
-        gap: $spacing-xs;
-        width: 100%;
-        min-width: 0;
-    }
-}
-
-.calc-crafted-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: $spacing-xs;
-    padding-block: 1px;
-    padding-inline: 6px;
-    background: color-mix(in srgb, $accent-primary 15%, transparent);
-    border: 1px solid color-mix(in srgb, $accent-primary 30%, transparent);
-    border-radius: $shape-corner-full;
-    font-size: $font-size-2xs;
-    font-weight: $font-weight-semibold;
-    color: $accent-primary;
-    white-space: nowrap;
-    flex-shrink: 0;
-
-    svg,
-    clashcalc-assets-svg,
-    orecalc-assets-svg {
-        display: inline-flex;
-        width: 12px;
-        height: 12px;
-        fill: currentColor;
-    }
-}
-
-.calc-level-control-group {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-2xs;
-    width: 100%;
-}
-
-.calc-level-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    width: 100%;
-    padding-inline: $spacing-2xs;
-    min-width: 0;
-}
-
-.calc-level-label {
-    font-size: $font-size-2xs;
-    color: $text-secondary;
-    font-weight: $font-weight-medium;
-    white-space: nowrap;
-}
-
-.calc-level-value {
-    font-size: $font-size-xs;
-    font-weight: $font-weight-bold;
-    color: $text-primary;
-    white-space: nowrap;
-}
-
-.calc-level-max {
-    font-weight: $font-weight-regular;
-    color: $text-muted;
-}
-
 .calc-stepper-track {
     display: flex;
     align-items: center;
@@ -331,20 +181,6 @@
         cursor: not-allowed;
     }
 
-    &--min,
-    &--max {
-        padding-inline: $spacing-xs;
-        min-width: 36px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-
-        @media (max-width: $breakpoint-micro) {
-            min-width: 28px;
-            padding-inline: $spacing-xs;
-            font-size: 10px;
-        }
-    }
-
     &--step {
         width: 28px;
         min-width: 28px;
@@ -365,9 +201,4 @@
             fill: currentColor;
         }
     }
-}
-
-.calc-slider-input-wrapper {
-    flex: 1;
-    min-width: 48px;
 }

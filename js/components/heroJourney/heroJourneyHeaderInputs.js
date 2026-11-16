@@ -17,6 +17,7 @@ export function initHeroJourneyPlayerDropdown(options) {
  * Initializes the Add Player modal for Hero's Journey.
  * @param {Object} options
  * @param {(tag: string) => Promise<any>} options.onLoadPlayer - Callback to load a player tag.
+ * @param {any} [options.scope=null] - Optional route lifecycle scope for listener cleanup.
  * @returns {{ openAddPlayerModal: () => void, closeAddPlayerModal: () => void }} Modal controller methods.
  */
 export function initHeroJourneyAddPlayerModal(options) {

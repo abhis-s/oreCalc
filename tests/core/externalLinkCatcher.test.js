@@ -2,19 +2,28 @@ import { describe, test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { initExternalLinkCatcher } from '../../js/components/common/externalLinkCatcher.js';
+import { showConfirm } from '../../js/ui/noticeModal.js';
 
 describe('External Link Catcher Domain Suite', () => {
     let mockDocument;
     let clickListeners = [];
     let openedUrls = [];
-    let modalOkCallback = null;
-    let modalCancelCallback = null;
+    let okListeners = [];
+    let cancelListeners = [];
+
+    const triggerOk = () => {
+        for (const cb of [...okListeners]) cb();
+    };
+
+    const triggerCancel = () => {
+        for (const cb of [...cancelListeners]) cb();
+    };
 
     beforeEach(() => {
         clickListeners = [];
         openedUrls = [];
-        modalOkCallback = null;
-        modalCancelCallback = null;
+        okListeners = [];
+        cancelListeners = [];
 
         globalThis.window = {
             location: {
@@ -32,18 +41,26 @@ describe('External Link Catcher Domain Suite', () => {
             close: () => {},
             classList: { add: () => {}, remove: () => {} },
             addEventListener: (ev, cb) => {
-                if (ev === 'cancel') modalCancelCallback = cb;
+                if (ev === 'cancel') cancelListeners.push(cb);
             },
-            removeEventListener: () => {}
+            removeEventListener: (ev, cb) => {
+                if (ev === 'cancel') {
+                    cancelListeners = cancelListeners.filter(fn => fn !== cb);
+                }
+            }
         };
         const mockOkBtn = {
-            addEventListener: (ev, cb) => { if (ev === 'click') modalOkCallback = cb; },
-            removeEventListener: () => {},
+            addEventListener: (ev, cb) => { if (ev === 'click') okListeners.push(cb); },
+            removeEventListener: (ev, cb) => {
+                if (ev === 'click') okListeners = okListeners.filter(fn => fn !== cb);
+            },
             setAttribute: () => {}
         };
         const mockCancelBtn = {
-            addEventListener: (ev, cb) => { if (ev === 'click') modalCancelCallback = cb; },
-            removeEventListener: () => {},
+            addEventListener: (ev, cb) => { if (ev === 'click') cancelListeners.push(cb); },
+            removeEventListener: (ev, cb) => {
+                if (ev === 'click') cancelListeners = cancelListeners.filter(fn => fn !== cb);
+            },
             setAttribute: () => {},
             style: {}
         };
@@ -208,7 +225,7 @@ describe('External Link Catcher Domain Suite', () => {
             preventDefault: () => { defaultPrevented = true; }
         });
 
-        if (modalOkCallback) modalOkCallback();
+        triggerOk();
         await clickPromise;
 
         assert.equal(defaultPrevented, true);
@@ -230,7 +247,7 @@ describe('External Link Catcher Domain Suite', () => {
             preventDefault: () => { defaultPrevented = true; }
         });
 
-        if (modalCancelCallback) modalCancelCallback();
+        triggerCancel();
         await clickPromise;
 
         assert.equal(defaultPrevented, true);
@@ -249,7 +266,7 @@ describe('External Link Catcher Domain Suite', () => {
             preventDefault: () => { defaultPrevented = true; }
         });
 
-        if (modalOkCallback) modalOkCallback();
+        triggerOk();
         await clickPromise;
 
         assert.equal(defaultPrevented, true);
@@ -261,5 +278,84 @@ describe('External Link Catcher Domain Suite', () => {
         assert.equal(clickListeners.length, 1);
         initExternalLinkCatcher(mockDocument);
         assert.equal(clickListeners.length, 1, 'Should not attach duplicate listener to same root');
+    });
+
+    test('handles a bubbling click event at most once across nested roots', async () => {
+        const bodyListeners = [];
+        const mockBody = {
+            addEventListener: (event, handler) => {
+                if (event === 'click') bodyListeners.push(handler);
+            },
+            removeEventListener: (event, handler) => {
+                if (event === 'click') {
+                    const idx = bodyListeners.indexOf(handler);
+                    if (idx !== -1) bodyListeners.splice(idx, 1);
+                }
+            }
+        };
+
+        const cleanupBody = initExternalLinkCatcher(mockBody);
+        const cleanupDoc = initExternalLinkCatcher(mockDocument);
+
+        const target = createMockAnchor({ href: 'https://github.com/abhis-s/oreCalc' });
+        let preventCount = 0;
+        const sharedEvent = {
+            target,
+            preventDefault: () => { preventCount += 1; }
+        };
+
+        const p1 = bodyListeners[0](sharedEvent);
+        const p2 = clickListeners[0](sharedEvent);
+
+        assert.equal(preventCount, 1);
+        assert.equal(okListeners.length, 1);
+
+        triggerOk();
+        await Promise.all([p1, p2]);
+
+        assert.equal(openedUrls.length, 1);
+
+        cleanupBody();
+        cleanupDoc();
+    });
+
+    test('ignores concurrent external link clicks while confirmation modal is already active', async () => {
+        const cleanup = initExternalLinkCatcher(mockDocument);
+        const handler = clickListeners[0];
+
+        const target1 = createMockAnchor({ href: 'https://github.com/abhis-s/oreCalc' });
+        const target2 = createMockAnchor({ href: 'https://crowdin.com/project/orecalc' });
+        let secondPrevented = false;
+
+        const firstPromise = handler({
+            target: target1,
+            preventDefault: () => {}
+        });
+        const secondPromise = handler({
+            target: target2,
+            preventDefault: () => { secondPrevented = true; }
+        });
+
+        assert.equal(secondPrevented, true);
+        assert.equal(okListeners.length, 1);
+
+        triggerOk();
+        await Promise.all([firstPromise, secondPromise]);
+
+        assert.equal(openedUrls.length, 1);
+        assert.equal(openedUrls[0].url, 'https://github.com/abhis-s/oreCalc');
+
+        cleanup();
+    });
+
+    test('supersedes an in-flight notice confirmation without stacking OK listeners', async () => {
+        const firstPromise = showConfirm('First external link');
+        const secondPromise = showConfirm('Second external link');
+
+        assert.equal(await firstPromise, false);
+        assert.equal(okListeners.length, 1);
+
+        triggerOk();
+        assert.equal(await secondPromise, true);
     });
 });

@@ -4,10 +4,13 @@
  */
 
 import { translate } from '../../i18n/translator.js';
-import { getLanguageFromPath } from '../../core/languageRouter.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
+import { APP_ROUTES } from '../../data/appRoutesData.js';
+import { getLanguageFromPath, findRouteById, buildLocalizedRouteHref } from '../../core/languageRouter.js';
 import { navigationRegistry } from '../../data/navigationRegistry.js';
 import { getSavedProfiles } from '../../core/playerStorage.js';
 import { resolvePlayerSummaryStats } from '../../core/playerSummaryResolver.js';
+import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { symbolExists } from '../../utils/svgManager.js';
 import { initAppFooter } from './appFooter.js';
@@ -205,7 +208,7 @@ function buildDrawerMetricsHtml(statsList, profileSummary) {
             label = translate('entities.defenses.townHall') || 'Town Hall';
             value = `TH${profileSummary.thLevel}`;
             iconType = 'image';
-            iconSrc = `assets/th/th${profileSummary.thLevel}.png`;
+            iconSrc = getTownHallIconUrl(profileSummary.thLevel);
         } else {
             label = stat.label || '';
             value = stat.value || '';
@@ -254,9 +257,7 @@ export function renderNavigationDrawerContent(options = {}) {
     let activeTool = currentRoute || options.activeTool || 'hub';
     const activeView = options.activeView || '';
     const currentLang = getLanguageFromPath() || 'en';
-    const langPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
     const cleanTag = options.playerTag ? options.playerTag.replace(/^#/, '').trim() : '';
-    const tagQuery = cleanTag ? `?tag=${encodeURIComponent(cleanTag)}` : '';
 
     activeDrawerOptions = { ...options, activeTool, cleanTag };
     bindDrawerDelegatedEvents(drawer);
@@ -266,40 +267,21 @@ export function renderNavigationDrawerContent(options = {}) {
     if (dockContainer) {
         dockContainer.innerHTML = '';
 
-        const dockItems = [
-            {
-                id: 'hub',
-                href: `${langPrefix}/`,
-                iconActive: 'home-filled',
-                iconInactive: 'home-outline',
-                label: translate('nav.dock.hub') || 'Hub',
-                isActive: activeTool === 'hub'
-            },
-            {
-                id: 'ore-calculator',
-                href: `${langPrefix}/ore-calculator/${tagQuery}`,
-                iconActive: 'equipment-filled',
-                iconInactive: 'equipment-outline',
-                label: translate('app.brandToolName') || 'OreCalc',
-                isActive: activeTool === 'ore-calculator'
-            },
-            {
-                id: 'hero-journey',
-                href: `${langPrefix}/hero-journey/${tagQuery}`,
-                iconActive: 'timeline',
-                iconInactive: 'timeline',
-                label: translate('nav.dock.heroJourney') || 'Journey',
-                isActive: activeTool === 'hero-journey'
-            },
-            {
-                id: 'damage-calculator',
-                href: `${langPrefix}/damage-calculator/${tagQuery}`,
-                iconActive: 'swords-filled',
-                iconInactive: 'swords-outline',
-                label: translate('entities.stats.damage') || 'Damage',
-                isActive: activeTool === 'damage-calculator'
-            }
-        ];
+        const dockItems = APP_ROUTES
+            .filter(route => route.showInDrawerDock)
+            .map(route => ({
+                id: route.id,
+                href: buildLocalizedRouteHref(route.path, {
+                    lang: currentLang,
+                    playerTag: cleanTag,
+                    preserveTag: route.supportsTag
+                }),
+                iconActive: route.dockIconActive || route.brandIcon,
+                iconInactive: route.dockIconInactive || route.brandIcon,
+                label: (route.dockLabelKey ? translate(route.dockLabelKey) : '') || route.dockDefaultLabel || route.brandDefaultLabel,
+                isActive: activeTool === route.id,
+                isSoon: false
+            }));
 
         dockItems.forEach(item => {
             if (item.isSoon) {
@@ -394,11 +376,11 @@ export function renderNavigationDrawerContent(options = {}) {
                     <div class="navigation-drawer__context-switcher-menu" hidden>
                         ${savedProfiles.map(p => {
                             const isCurrent = p.cleanTag === cleanTag;
-                            const pTh = Math.max(1, Math.min(18, Number(p.townHallLevel) || 18));
+                            const pTh = Math.max(1, Math.min(MAX_TOWN_HALL, Number(p.townHallLevel) || MAX_TOWN_HALL));
                             return `
                                 <button type="button" class="navigation-drawer__context-switcher-item ${isCurrent ? 'is-active' : ''}" data-tag="${escapeHtml(p.cleanTag)}">
                                     <div class="navigation-drawer__context-switcher-item-left">
-                                        <clashcalc-assets-image class="navigation-drawer__context-switcher-th" src="assets/th/th${pTh}.png" alt="TH${pTh}" size="thumbnail"></clashcalc-assets-image>
+                                        <clashcalc-assets-image class="navigation-drawer__context-switcher-th" src="${getTownHallIconUrl(pTh)}" alt="TH${pTh}" size="thumbnail"></clashcalc-assets-image>
                                         <span class="navigation-drawer__context-switcher-name">${escapeHtml(p.name)}</span>
                                     </div>
                                     <span class="navigation-drawer__context-switcher-tag">${escapeHtml(p.tag)}</span>
@@ -585,16 +567,11 @@ export function renderNavigationDrawerContent(options = {}) {
     // Update drawer subtitle
     const subtitleEl = drawer.querySelector('.navigation-drawer__subtitle') || drawer.querySelector('[data-drawer-subtitle]');
     if (subtitleEl) {
+        const activeRouteDescriptor = findRouteById(activeTool);
         if (options.subtitle) {
             subtitleEl.textContent = options.subtitle;
-        } else if (activeTool === 'ore-calculator') {
-            subtitleEl.textContent = translate('app.title') || 'Ore Calculator';
-        } else if (activeTool === 'hero-journey') {
-            subtitleEl.textContent = translate('views.heroJourney.widget.title') || "Hero's Journey";
-        } else if (activeTool === 'damage-calculator') {
-            subtitleEl.textContent = translate('views.damageCalc.brandToolName') || 'DamageCalc';
-        } else if (activeTool === 'account') {
-            subtitleEl.textContent = translate('views.account.title') || 'Account & Security';
+        } else if (activeRouteDescriptor) {
+            subtitleEl.textContent = translate(activeRouteDescriptor.drawerSubtitleKey) || activeRouteDescriptor.drawerDefaultSubtitle;
         } else {
             subtitleEl.textContent = translate('views.landing.drawerSubtitle') || 'Clash of Clans Toolkit';
         }

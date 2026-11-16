@@ -10,7 +10,7 @@ test('getStarBonusForTownHall returns zero ores for TH1 through TH7', () => {
     }
 });
 
-test('getStarBonusForTownHall returns canonical Supercell rewards for TH8 through TH18', () => {
+test('getStarBonusForTownHall returns canonical Supercell rewards for TH8 through TH19', () => {
     assert.deepEqual(getStarBonusForTownHall(8), { shiny: 480, glowy: 33, starry: 1 });
     assert.deepEqual(getStarBonusForTownHall(9), { shiny: 630, glowy: 42, starry: 1 });
     assert.deepEqual(getStarBonusForTownHall(10), { shiny: 760, glowy: 43, starry: 1 });
@@ -22,13 +22,13 @@ test('getStarBonusForTownHall returns canonical Supercell rewards for TH8 throug
     assert.deepEqual(getStarBonusForTownHall(16), { shiny: 1300, glowy: 69, starry: 2 });
     assert.deepEqual(getStarBonusForTownHall(17), { shiny: 1400, glowy: 78, starry: 2 });
     assert.deepEqual(getStarBonusForTownHall(18), { shiny: 1500, glowy: 81, starry: 2 });
+    assert.deepEqual(getStarBonusForTownHall(19), { shiny: 1600, glowy: 87, starry: 3 });
 });
 
-test('getStarBonusForTownHall clamps future unreleased Town Halls to TH18 rewards', () => {
-    const th18Rewards = townHallStarBonusData[18];
-    assert.deepEqual(getStarBonusForTownHall(19), th18Rewards);
-    assert.deepEqual(getStarBonusForTownHall(20), th18Rewards);
-    assert.deepEqual(getStarBonusForTownHall(99), th18Rewards);
+test('getStarBonusForTownHall clamps future unreleased Town Halls to TH19 rewards', () => {
+    const th19Rewards = townHallStarBonusData[19];
+    assert.deepEqual(getStarBonusForTownHall(20), th19Rewards);
+    assert.deepEqual(getStarBonusForTownHall(99), th19Rewards);
 });
 
 test('calculateStarBonusIncome returns valid daily, weekly, and monthly rates for TH16 with 2x multiplier', () => {
@@ -57,8 +57,8 @@ test('calculateStarBonusIncome returns valid daily, weekly, and monthly rates fo
 
 test('calculateStarBonusIncome safely falls back for missing or invalid Town Hall levels', () => {
     const result = calculateStarBonusIncome(undefined);
-    assert.equal(result.baseDaily.shiny, 1500);
-    assert.equal(result.iconUrl, 'assets/th/th18.png');
+    assert.equal(result.baseDaily.shiny, 1600);
+    assert.equal(result.iconUrl, 'assets/th/th19.png');
     assert.ok(result.daily !== undefined);
     assert.ok(result.monthly !== undefined);
 });

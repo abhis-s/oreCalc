@@ -17,6 +17,7 @@ import {
     calculateEquipmentProgress,
     getOverallGradient
 } from '../../domain/equipment/equipmentProgressDomain.js';
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
 
 /**
@@ -43,7 +44,7 @@ export function renderHomeProfile(state) {
         renderState.pendingSnapshot = null;
 
         cardContainer.classList.add('is-stats-collapsed');
-        const thLevel = profile?.townHallLevel || 18;
+        const thLevel = profile?.townHallLevel || MAX_TOWN_HALL;
 
         cardContainer.classList.remove('is-max-progress');
         cardContainer.innerHTML = renderProfileHeaderHtml({

@@ -21,22 +21,37 @@
     display: flex;
     flex-direction: column;
 
-    &__summary {
+    &[hidden] {
+        display: none;
+    }
+
+    &__header {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: $spacing-xs $spacing-sm;
         background-color: $bg-surface-secondary;
         border: 1px solid $border-primary;
         border-radius: $shape-corner-small;
+        transition: background-color $transition-fast, border-color $transition-fast;
+    }
+
+    &__summary {
+        flex: 1;
+        min-width: 0;
+        min-block-size: $spacing-xl;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-sm;
+        padding: $spacing-xs $spacing-sm;
+        background: transparent;
+        border: none;
+        border-radius: inherit;
+        color: inherit;
+        font: inherit;
+        text-align: start;
         cursor: pointer;
         user-select: none;
-        list-style: none;
-        transition: background-color $transition-fast, border-color $transition-fast;
-
-        &::-webkit-details-marker {
-            display: none;
-        }
+        transition: background-color $transition-fast;
 
         &:hover {
             background-color: $bg-surface-tertiary;
@@ -66,9 +81,11 @@
     }
 
     &__summary-actions {
-        display: inline-flex;
+        display: none;
         align-items: center;
         gap: $spacing-sm;
+        padding-inline-end: $spacing-sm;
+        flex-shrink: 0;
     }
 
     &__chevron {
@@ -76,8 +93,8 @@
         transition: transform $transition-fast ease-in-out;
     }
 
-    &[open] {
-        > .calc-building-group__summary {
+    &.is-open {
+        > .calc-building-group__header {
             border-bottom-left-radius: 0;
             border-bottom-right-radius: 0;
             border-bottom-color: transparent;
@@ -86,18 +103,14 @@
                 transform: rotate(180deg);
             }
 
-            .calc-building-group-switch {
+            .calc-building-group__summary-actions {
                 display: inline-flex;
-            }
-
-            .calc-building-group__divider {
-                display: inline-block;
             }
         }
     }
 
     &__divider {
-        display: none;
+        display: inline-block;
         width: 0;
         height: 14px;
         border-inline-start: 1px solid $border-primary;
@@ -110,13 +123,19 @@
         flex-direction: column;
         gap: $spacing-xs;
         padding-top: $spacing-xs;
+
+        &[hidden] {
+            display: none;
+        }
     }
 
     .calc-building-group-switch {
-        display: none;
+        display: inline-flex;
         align-items: center;
         gap: $spacing-xs;
-        padding: 0;
+        min-block-size: $spacing-xl;
+        min-inline-size: $spacing-xl;
+        padding: 0 $spacing-2xs;
         background: transparent;
         border: none;
         cursor: pointer;
@@ -128,7 +147,7 @@
             border-radius: $shape-corner-small;
         }
 
-        &:hover &__track {
+        &:hover .calc-building-group-switch__track {
             border-color: $border-secondary;
         }
 
@@ -179,7 +198,7 @@
             }
         }
 
-        &:hover &__label {
+        &:hover .calc-building-group-switch__label {
             color: $text-primary;
         }
     }

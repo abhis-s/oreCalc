@@ -3,6 +3,7 @@
  * Tier 4: User Inputs (Dedicated exclusively to event listener attachments and state dispatching).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import {
     damageCalcState,
     persistState,
@@ -85,10 +86,11 @@ function initSourcesThOutsideClick() {
  * @param {any} state - Damage calculator state.
  * @param {HTMLElement} rootContainer - Root container element.
  * @param {() => void} onStateChange - Re-render callback.
+ * @param {any} [scope=null] - Optional route lifecycle scope for listener cleanup.
  */
-export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
+export function attachDamageCalcListeners(state, rootContainer, onStateChange, scope = null) {
     if (!rootContainer || typeof onStateChange !== 'function') return;
-    attachDamageCalcPopoverListeners(rootContainer, state);
+    attachDamageCalcPopoverListeners(rootContainer, state, scope);
 
     // Offense Bar modifier tabs
     const modifierTabs = /** @type {HTMLElement | null} */ (rootContainer.querySelector('.calc-modifier-tabs'));
@@ -269,7 +271,7 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
             item.addEventListener('click', (e) => {
                 e.stopPropagation();
                 closeSourcesThMenu();
-                const selectedTh = Number(item.getAttribute('data-th')) || 18;
+                const selectedTh = Number(item.getAttribute('data-th')) || MAX_TOWN_HALL;
                 setPlayerTownHall(selectedTh);
                 if (state && state !== damageCalcState) {
                     state.playerTownHall = selectedTh;
@@ -286,7 +288,7 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
 
     if (sourcesThSelect) {
         sourcesThSelect.addEventListener('change', () => {
-            const selectedTh = Number(sourcesThSelect.value) || 18;
+            const selectedTh = Number(sourcesThSelect.value) || MAX_TOWN_HALL;
             setPlayerTownHall(selectedTh);
             if (state && state !== damageCalcState) {
                 state.playerTownHall = selectedTh;
@@ -331,7 +333,6 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
     buildingCards.forEach(card => {
         card.addEventListener('click', (e) => {
             const btn = /** @type {HTMLElement} */ (e.currentTarget);
-            const prefix = btn.getAttribute('data-prefix') || 'zq';
             const buildingKey = btn.getAttribute('data-building-key');
             if (!buildingKey || !getDefensesData()[buildingKey]) return;
 
@@ -345,77 +346,66 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
                 ? state.defenseSuperchargeOverrides[buildingKey]
                 : defaultTier;
 
-            if (prefix === 'zq') {
-                if (state.zapQuake.multiSelectMode) {
-                    if (!Array.isArray(state.zapQuake.selectedCluster)) {
-                        state.zapQuake.selectedCluster = [];
-                    }
-                    const existingIdx = state.zapQuake.selectedCluster.findIndex(t => t.defenseKey === buildingKey);
-                    const existingCraftedIdx = def.subCategory === 'crafted'
-                        ? state.zapQuake.selectedCluster.findIndex(t => getDefensesData()[t.defenseKey]?.subCategory === 'crafted')
-                        : -1;
-                    const existingGuardianIdx = def.category === 'guardian'
-                        ? state.zapQuake.selectedCluster.findIndex(t => getDefensesData()[t.defenseKey]?.category === 'guardian')
-                        : -1;
-                    const heroIndices = [];
-                    state.zapQuake.selectedCluster.forEach((t, i) => {
-                        if (getDefensesData()[t.defenseKey]?.category === 'hero') {
-                            heroIndices.push(i);
-                        }
-                    });
-                    const isHero = def.category === 'hero';
-                    const hasMaxHeroes = isHero && heroIndices.length >= 4;
-
-                    if (existingIdx !== -1) {
-                        state.zapQuake.selectedCluster.splice(existingIdx, 1);
-                        state.zapQuake.adjacentPairs = pruneAdjacentPairsOnRemove(state.zapQuake.adjacentPairs, existingIdx);
-                        state.zapQuake.clusterEquipmentSharing = pruneEquipmentSharingOnRemove(
-                            state.zapQuake.clusterEquipmentSharing,
-                            existingIdx,
-                            state.zapQuake.selectedCluster.length
-                        );
-                        state.zapQuake.selectedClusterComboIndex = 0;
-                    } else if (existingCraftedIdx !== -1) {
-                        state.zapQuake.selectedCluster[existingCraftedIdx] = {
-                            defenseKey: buildingKey,
-                            level: effectiveLvl,
-                            superchargeTier: effectiveTier
-                        };
-                        state.zapQuake.selectedClusterComboIndex = 0;
-                    } else if (existingGuardianIdx !== -1) {
-                        state.zapQuake.selectedCluster[existingGuardianIdx] = {
-                            defenseKey: buildingKey,
-                            level: effectiveLvl,
-                            superchargeTier: effectiveTier
-                        };
-                        state.zapQuake.selectedClusterComboIndex = 0;
-                    } else if (hasMaxHeroes) {
-                        const targetHeroIdx = heroIndices.at(-1);
-                        state.zapQuake.selectedCluster[targetHeroIdx] = {
-                            defenseKey: buildingKey,
-                            level: effectiveLvl,
-                            superchargeTier: effectiveTier
-                        };
-                        state.zapQuake.selectedClusterComboIndex = 0;
-                    } else if (state.zapQuake.selectedCluster.length < 5) {
-                        state.zapQuake.selectedCluster.push({
-                            defenseKey: buildingKey,
-                            level: effectiveLvl,
-                            superchargeTier: effectiveTier
-                        });
-                        state.zapQuake.selectedClusterComboIndex = 0;
-                    } else {
-                        showToast(translate('views.damageCalc.clusterPlanner.clusterLimitToast') || 'Cluster limit reached (maximum 5 defenses)', 'warning');
-                        return;
-                    }
-                } else {
-                    state.zapQuake.selectedComboIndex = 0;
-                    state.zapQuake.selectedCluster = [{
-                        defenseKey: buildingKey,
-                        level: effectiveLvl,
-                        superchargeTier: effectiveTier
-                    }];
+            if (!Array.isArray(state.zapQuake.selectedCluster)) {
+                state.zapQuake.selectedCluster = [];
+            }
+            const existingIdx = state.zapQuake.selectedCluster.findIndex(t => t.defenseKey === buildingKey);
+            const existingCraftedIdx = def.subCategory === 'crafted'
+                ? state.zapQuake.selectedCluster.findIndex(t => getDefensesData()[t.defenseKey]?.subCategory === 'crafted')
+                : -1;
+            const existingGuardianIdx = def.category === 'guardian'
+                ? state.zapQuake.selectedCluster.findIndex(t => getDefensesData()[t.defenseKey]?.category === 'guardian')
+                : -1;
+            const heroIndices = [];
+            state.zapQuake.selectedCluster.forEach((t, i) => {
+                if (getDefensesData()[t.defenseKey]?.category === 'hero') {
+                    heroIndices.push(i);
                 }
+            });
+            const isHero = def.category === 'hero';
+            const hasMaxHeroes = isHero && heroIndices.length >= 4;
+
+            if (existingIdx !== -1) {
+                state.zapQuake.selectedCluster.splice(existingIdx, 1);
+                state.zapQuake.adjacentPairs = pruneAdjacentPairsOnRemove(state.zapQuake.adjacentPairs, existingIdx);
+                state.zapQuake.clusterEquipmentSharing = pruneEquipmentSharingOnRemove(
+                    state.zapQuake.clusterEquipmentSharing,
+                    existingIdx,
+                    state.zapQuake.selectedCluster.length
+                );
+                state.zapQuake.selectedClusterComboIndex = 0;
+            } else if (existingCraftedIdx !== -1) {
+                state.zapQuake.selectedCluster[existingCraftedIdx] = {
+                    defenseKey: buildingKey,
+                    level: effectiveLvl,
+                    superchargeTier: effectiveTier
+                };
+                state.zapQuake.selectedClusterComboIndex = 0;
+            } else if (existingGuardianIdx !== -1) {
+                state.zapQuake.selectedCluster[existingGuardianIdx] = {
+                    defenseKey: buildingKey,
+                    level: effectiveLvl,
+                    superchargeTier: effectiveTier
+                };
+                state.zapQuake.selectedClusterComboIndex = 0;
+            } else if (hasMaxHeroes) {
+                const targetHeroIdx = heroIndices.at(-1);
+                state.zapQuake.selectedCluster[targetHeroIdx] = {
+                    defenseKey: buildingKey,
+                    level: effectiveLvl,
+                    superchargeTier: effectiveTier
+                };
+                state.zapQuake.selectedClusterComboIndex = 0;
+            } else if (state.zapQuake.selectedCluster.length < 5) {
+                state.zapQuake.selectedCluster.push({
+                    defenseKey: buildingKey,
+                    level: effectiveLvl,
+                    superchargeTier: effectiveTier
+                });
+                state.zapQuake.selectedClusterComboIndex = 0;
+            } else {
+                showToast(translate('views.damageCalc.clusterPlanner.clusterLimitToast') || 'Cluster limit reached (maximum 5 defenses)', 'warning');
+                return;
             }
 
             persistState();
@@ -424,6 +414,6 @@ export function attachDamageCalcListeners(state, rootContainer, onStateChange) {
         });
     });
 
-    attachDamageCalcFilterListeners(state, rootContainer, onStateChange);
-    attachClusterPlannerListeners(state, rootContainer, onStateChange);
+    attachDamageCalcFilterListeners(state, rootContainer, onStateChange, scope);
+    attachClusterPlannerListeners(state, rootContainer, onStateChange, scope);
 }

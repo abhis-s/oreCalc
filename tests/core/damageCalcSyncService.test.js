@@ -18,6 +18,7 @@ globalThis.fetch = (url) => {
 };
 
 import { preloadDefensesData } from '../../js/data/defenseTargetsData.js';
+import { MAX_TOWN_HALL } from '../../js/core/constants.js';
 import {
     damageCalcState,
     resetDamageCalcState
@@ -55,7 +56,7 @@ test('Damage Calculator Sync Service Suite', async (t) => {
         syncPlayerVillageData(null);
         syncPlayerVillageData(undefined);
         syncPlayerVillageData('invalid');
-        assert.equal(damageCalcState.playerTownHall, 18);
+        assert.equal(damageCalcState.playerTownHall, MAX_TOWN_HALL);
     });
 
     await t.test('syncPlayerVillageData maps spell levels from array payload', () => {
@@ -87,5 +88,30 @@ test('Damage Calculator Sync Service Suite', async (t) => {
         // Giant Arrow not owned -> level 1, disabled
         assert.equal(damageCalcState.offense.equipment.giant_arrow, 1);
         assert.equal(damageCalcState.offense.enabledSources.giant_arrow, false);
+    });
+
+    await t.test('syncPlayerVillageData caps own spells to target Town Hall while keeping CC spells uncapped', () => {
+        syncPlayerVillageData({
+            townHallLevel: 16,
+            spells: [
+                { name: 'Lightning Spell', level: 14 },
+                { name: 'Earthquake Spell', level: 8 }
+            ]
+        });
+
+        assert.equal(damageCalcState.offense.spells.lightning, 13);
+        assert.equal(damageCalcState.zapQuake.lightningLevel, 13);
+        assert.equal(damageCalcState.offense.spells.earthquake, 8);
+        assert.equal(damageCalcState.offense.ccSpells.lightning, 14);
+        assert.equal(damageCalcState.offense.ccSpells.earthquake, 8);
+
+        // Switching to a lower TH without spells payload clamps over-TH spells down
+        syncPlayerVillageData({
+            townHallLevel: 12
+        });
+        assert.equal(damageCalcState.offense.spells.lightning, 9);
+        assert.equal(damageCalcState.offense.spells.earthquake, 5);
+        assert.equal(damageCalcState.offense.ccSpells.lightning, 14);
+        assert.equal(damageCalcState.offense.ccSpells.earthquake, 8);
     });
 });

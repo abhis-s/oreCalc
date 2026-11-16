@@ -1,6 +1,6 @@
 /**
  * Canonical Battle & Difficulty Modifiers Data.
- * Source: Clash of Clans Wiki (Ranked Battles, Esports Mode, Rage Spell, Rage Gem, Rage Spell Tower, Builder's Hut).
+ * Source: Clash of Clans Wiki (Ranked Battles, Esports Mode, Rage Spell, Rage Gem, Rage Spell Tower).
  */
 
 export const battleModifiersData = Object.freeze({
@@ -18,16 +18,6 @@ export const battleModifiersData = Object.freeze({
         legend3: Object.freeze({
             id: 'legend3',
             name: 'Legend III',
-            defDpsBonus: 0.10,
-            defHeroBonus: 0.10,
-            defGuardianBonus: 0.05,
-            atkHeroMultiplier: 0.95,
-            equipLevelLossCommon: 0,
-            equipLevelLossEpic: 0
-        }),
-        legend2: Object.freeze({
-            id: 'legend2',
-            name: 'Legend II',
             defDpsBonus: 0.15,
             defHeroBonus: 0.15,
             defGuardianBonus: 0.10,
@@ -35,12 +25,22 @@ export const battleModifiersData = Object.freeze({
             equipLevelLossCommon: 0,
             equipLevelLossEpic: 0
         }),
+        legend2: Object.freeze({
+            id: 'legend2',
+            name: 'Legend II',
+            defDpsBonus: 0.20,
+            defHeroBonus: 0.20,
+            defGuardianBonus: 0.15,
+            atkHeroMultiplier: 0.85,
+            equipLevelLossCommon: 0,
+            equipLevelLossEpic: 0
+        }),
         legend1: Object.freeze({
             id: 'legend1',
             name: 'Legend I',
-            defDpsBonus: 0.20,
-            defHeroBonus: 0.20,
-            defGuardianBonus: 0.20,
+            defDpsBonus: 0.25,
+            defHeroBonus: 0.25,
+            defGuardianBonus: 0.25,
             atkHeroMultiplier: 0.80,
             equipLevelLossCommon: 0,
             equipLevelLossEpic: 0
@@ -48,10 +48,10 @@ export const battleModifiersData = Object.freeze({
         esports: Object.freeze({
             id: 'esports',
             name: 'Esports Mode',
-            defDpsBonus: 0.20,
-            defHeroBonus: 0.20,
-            defGuardianBonus: 0.20,
-            atkHeroMultiplier: 0.80,
+            defDpsBonus: 0.30,
+            defHeroBonus: 0.30,
+            defGuardianBonus: 0.25,
+            atkHeroMultiplier: 0.75,
             equipLevelLossCommon: 3,
             equipLevelLossEpic: 6
         })
@@ -74,16 +74,6 @@ export const battleModifiersData = Object.freeze({
         18: 0.50
     }),
     rageSpellTower: Object.freeze({
-        damageMultiplier: 2.00,
-        builderRepairMultiplier: 1.60
-    }),
-    buildersHutRepair: Object.freeze({
-        2: 37.5,
-        3: 45.0,
-        4: 52.5,
-        5: 60.0,
-        6: 63.75,
-        7: 67.5,
-        8: 71.25
+        damageMultiplier: 2.00
     })
 });

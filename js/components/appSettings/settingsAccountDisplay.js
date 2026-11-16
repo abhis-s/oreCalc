@@ -58,6 +58,9 @@ let currentPopoverOptions = {
     customPanels: []
 };
 
+/** @type {Set<HTMLElement>} */
+const renderedCustomPanels = new Set();
+
 /**
  * Toggles a popover panel's expanded state.
  * @param {string} panelId
@@ -220,6 +223,33 @@ function applyPopoverConfiguration() {
     }
 
     const panelsContainer = document.getElementById('account-popover-panels');
+    const desiredCustomIds = new Set((currentPopoverOptions.customPanels || []).map(def => def.id));
+
+    for (const stalePanel of renderedCustomPanels) {
+        const staleId = stalePanel.getAttribute?.('data-popover-panel');
+        if (!staleId || !desiredCustomIds.has(staleId)) {
+            if (typeof stalePanel.remove === 'function') {
+                stalePanel.remove();
+            } else {
+                stalePanel.parentNode?.removeChild?.(stalePanel);
+            }
+            renderedCustomPanels.delete(stalePanel);
+        }
+    }
+
+    if (panelsContainer && typeof panelsContainer.querySelectorAll === 'function') {
+        panelsContainer.querySelectorAll('[data-custom-panel="true"]').forEach(existingCustom => {
+            const panelId = existingCustom.getAttribute('data-popover-panel');
+            if (!panelId || !desiredCustomIds.has(panelId)) {
+                if (typeof existingCustom.remove === 'function') {
+                    existingCustom.remove();
+                } else {
+                    existingCustom.parentNode?.removeChild?.(existingCustom);
+                }
+            }
+        });
+    }
+
     if (panelsContainer && currentPopoverOptions.customPanels.length > 0) {
         for (const customDef of currentPopoverOptions.customPanels) {
             let customPanel = panelsContainer.querySelector(`[data-popover-panel="${customDef.id}"]`);
@@ -227,6 +257,7 @@ function applyPopoverConfiguration() {
                 customPanel = document.createElement('div');
                 customPanel.className = 'account-popover-panel';
                 customPanel.setAttribute('data-popover-panel', customDef.id);
+                customPanel.setAttribute('data-custom-panel', 'true');
                 customPanel.id = `account-popover-panel-${customDef.id}`;
 
                 const icon = customDef.icon || 'settings-filled';
@@ -249,6 +280,7 @@ function applyPopoverConfiguration() {
                     </div>
                 `;
                 panelsContainer.appendChild(customPanel);
+                renderedCustomPanels.add(/** @type {HTMLElement} */ (customPanel));
 
                 if (typeof customDef.onRender === 'function') {
                     const bodyInner = customPanel.querySelector('.account-popover-panel-inner');

@@ -1,7 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { heroJourneyNodes, oreChestRewardsNormal, oreChestRewardsAccelerated } from '../../js/data/heroJourneyData.js';
-import { getMaxCumulativeLevelsByTH, getNodeTownHallLevel, isTrueMaxCumulativeLevel } from '../../js/domain/income/heroJourneyLevels.js';
+import { getMaxCumulativeHeroLevel, getMaxCumulativeLevelForTH, getMaxCumulativeLevelsByTH, getNodeTownHallLevel, isTrueMaxCumulativeLevel } from '../../js/domain/income/heroJourneyLevels.js';
 import { getQuestChestReward } from '../../js/domain/income/heroJourneyIncome.js';
 
 if (typeof globalThis.localStorage === 'undefined') {
@@ -688,5 +688,39 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         assert.strictEqual(stateSlice.equipment['Giant Gauntlet'], 12, 'Giant Gauntlet level must match ownedEquipment');
         assert.strictEqual(stateSlice.townHall, 16, 'Town hall level must resolve to 16');
         assert.strictEqual(stateSlice.playerProfile?.tag, 'BUILD_TEST', 'Player profile tag must be normalized');
+    });
+
+    test('verifies calculateHeroJourneyProgress caps percentages at 100% and computes TH19 progress accurately', async () => {
+        const { calculateHeroJourneyProgress } = await import('../../js/components/landing/landingActiveProfile.js');
+        const expectedTrackMax = getMaxCumulativeLevelForTH(19);
+        const overallMax = getMaxCumulativeHeroLevel();
+
+        const partialTh19 = calculateHeroJourneyProgress(
+            {
+                heroes: [
+                    { name: 'Barbarian King', level: 80, village: 'home' },
+                    { name: 'Archer Queen', level: 80, village: 'home' }
+                ]
+            },
+            { townHallLevel: 19 },
+            19
+        );
+        assert.strictEqual(partialTh19.cumulativeLevel, 160);
+        assert.strictEqual(partialTh19.thCap, expectedTrackMax);
+        assert.strictEqual(partialTh19.progressPercent, Math.round((160 / expectedTrackMax) * 100));
+        assert.strictEqual(partialTh19.isThMaxed, false);
+        assert.strictEqual(partialTh19.isTrackMaxed, false);
+
+        const overCapTh19 = calculateHeroJourneyProgress(
+            { heroJourney: { cumulativeHeroLevel: expectedTrackMax + 30 } },
+            { townHallLevel: 19 },
+            19
+        );
+        assert.strictEqual(overCapTh19.cumulativeLevel, expectedTrackMax + 30);
+        assert.strictEqual(overCapTh19.thCap, expectedTrackMax);
+        assert.strictEqual(overCapTh19.overallMax, overallMax);
+        assert.strictEqual(overCapTh19.progressPercent, 100);
+        assert.strictEqual(overCapTh19.isThMaxed, true);
+        assert.strictEqual(overCapTh19.isTrackMaxed, true);
     });
 });

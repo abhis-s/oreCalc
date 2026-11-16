@@ -3,11 +3,92 @@
  * Tier 2: Pure Domain Math (0 side effects, 0 DOM references, 0 browser globals).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { spellsData } from '../../data/spellsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { battleModifiersData } from '../../data/battleModifiersData.js';
 import { canEquipmentTarget, isUnitTarget } from './defenseProgressionDomain.js';
+
+/**
+ * Resolves the maximum available level for a spell from spellsData, optionally capped by Town Hall level.
+ *
+ * @param {string} spellId - Spell identifier ('lightning', 'earthquake').
+ * @param {number|null} [townHallLevel=null] - Optional Town Hall level to cap against; null returns global max.
+ * @returns {number} Maximum spell level.
+ */
+export function getMaxSpellLevel(spellId, townHallLevel = null) {
+    const spell = spellsData.spells?.[spellId];
+    if (!spell) return 1;
+    const levels = spell.levels || {};
+    const thNum = townHallLevel != null ? Number(townHallLevel) : NaN;
+    if (Number.isFinite(thNum) && thNum > 0) {
+        const unlocked = Object.entries(levels)
+            .filter(([, meta]) => (Number(meta?.th) || 1) <= thNum)
+            .map(([lvl]) => Number(lvl))
+            .filter(n => Number.isFinite(n) && n > 0);
+        return unlocked.length > 0 ? Math.max(...unlocked) : 1;
+    }
+    if (typeof spell.maxLevel === 'number' && spell.maxLevel > 0) {
+        return spell.maxLevel;
+    }
+    const levelKeys = Object.keys(levels).map(Number).filter(n => Number.isFinite(n) && n > 0);
+    return levelKeys.length > 0 ? Math.max(...levelKeys) : 1;
+}
+
+/**
+ * Clamps a spell level to [1, maxAllowedLevel] for an optional Town Hall level.
+ *
+ * @param {string} spellId - Spell identifier ('lightning', 'earthquake').
+ * @param {number|string|null|undefined} requestedLevel - Requested or persisted spell level.
+ * @param {number|null} [townHallLevel=null] - Optional Town Hall level cap; null uses global max.
+ * @returns {number} Clamped spell level.
+ */
+export function clampSpellLevelToTownHall(spellId, requestedLevel, townHallLevel = null) {
+    const maxLevel = getMaxSpellLevel(spellId, townHallLevel);
+    if (requestedLevel === null || requestedLevel === undefined || requestedLevel === '') {
+        return maxLevel;
+    }
+    const parsed = Math.floor(Number(requestedLevel));
+    if (!Number.isFinite(parsed) || parsed <= 0) return maxLevel;
+    return Math.min(Math.max(1, parsed), maxLevel);
+}
+
+/**
+ * Resolves effective own spell caps and clamped levels for a damage calculator state object.
+ * Donated Clan Castle spells remain uncapped by player Town Hall level.
+ *
+ * @param {Object} state - Damage calculator state snapshot.
+ * @returns {{ townHallLevel: number, maxLightning: number, maxEarthquake: number, lightning: number, earthquake: number }}
+ */
+export function resolveOwnSpellLevels(state) {
+    const rawTh = Number(state?.playerTownHall);
+    const townHallLevel = Number.isFinite(rawTh) && rawTh > 0 ? Math.floor(rawTh) : MAX_TOWN_HALL;
+    const maxLightning = getMaxSpellLevel('lightning', townHallLevel);
+    const maxEarthquake = getMaxSpellLevel('earthquake', townHallLevel);
+    const rawLightning = state?.offense?.spells?.lightning ?? state?.zapQuake?.lightningLevel;
+    const rawEarthquake = state?.offense?.spells?.earthquake ?? state?.zapQuake?.earthquakeLevel;
+    return {
+        townHallLevel,
+        maxLightning,
+        maxEarthquake,
+        lightning: clampSpellLevelToTownHall('lightning', rawLightning, townHallLevel),
+        earthquake: clampSpellLevelToTownHall('earthquake', rawEarthquake, townHallLevel)
+    };
+}
+
+/**
+ * Resolves Lightning Spell damage for a given level (clamped to valid configured levels).
+ *
+ * @param {number} [level] - Lightning Spell level (defaults to max configured level).
+ * @returns {number} Damage per Lightning Spell strike.
+ */
+export function getLightningDamage(level) {
+    const maxLevel = getMaxSpellLevel('lightning');
+    const resolved = level == null ? maxLevel : Math.min(Math.max(1, Math.floor(Number(level) || maxLevel)), maxLevel);
+    const levels = spellsData.spells?.lightning?.levels || {};
+    return levels[resolved]?.damage ?? levels[maxLevel]?.damage ?? 0;
+}
 
 /**
  * Resolves the effective equipment level taking competitive modifier level loss into account (Esports Mode).
@@ -89,7 +170,8 @@ export function calculateEarthquakeDamage(maxHp, eqLevel, strikeIndex = 1, targe
     }
 
     const eqConfig = spellsData.spells.earthquake;
-    const levelInfo = eqConfig.levels[eqLevel] || eqConfig.levels[8];
+    const maxEqLevel = getMaxSpellLevel('earthquake');
+    const levelInfo = eqConfig.levels[eqLevel] || eqConfig.levels[maxEqLevel];
     const isHeroOrUnit = isUnitTarget(targetDefOrKey);
     const basePct = isHeroOrUnit ? (levelInfo.troopDamagePct ?? 0) : levelInfo.damagePct;
 
@@ -129,11 +211,13 @@ export function calculateCumulativeEarthquakeDamage(maxHp, eqLevel, count = 1, t
 /**
  * Resolves regular army spell capacity and donated Clan Castle spell capacity for a Town Hall level.
  *
- * @param {number} [townHallLevel=18] - Player Town Hall level (1-18).
+ * @param {number} [townHallLevel=MAX_TOWN_HALL] - Player Town Hall level.
  * @returns {{ regularCapacity: number, ccCapacity: number, totalCapacity: number, regular: number, clanCastle: number }}
  */
-export function getSpellCapacities(townHallLevel = 18) {
-    const th = Math.min(Math.max(1, Number(townHallLevel) || 18), 18);
+export function getSpellCapacities(townHallLevel = MAX_TOWN_HALL) {
+    const capacityKeys = Object.keys(spellsData.spellCapacitiesByTH || {}).map(Number).filter(n => Number.isFinite(n) && n > 0);
+    const maxCapacityTH = capacityKeys.length > 0 ? Math.max(...capacityKeys) : MAX_TOWN_HALL;
+    const th = Math.min(Math.max(1, Number(townHallLevel) || MAX_TOWN_HALL), maxCapacityTH);
     const regularCapacity = spellsData.spellCapacitiesByTH[th] ?? 11;
     const ccCapacity = spellsData.ccSpellCapacitiesByTH[th] ?? 4;
     return {
@@ -158,10 +242,11 @@ export function getSpellCapacities(townHallLevel = 18) {
  * @param {string|Object} [targetDefOrKey=null] - Optional canonical defense key or target definition.
  * @returns {number} Hitpoints damage dealt.
  */
-export function calculateEarthquakeDamageWithPools(maxHp, eqRegCount = 0, eqLevel = 8, eqCcCount = 0, ccEqLevel = 8, targetDefOrKey = null) {
+export function calculateEarthquakeDamageWithPools(maxHp, eqRegCount = 0, eqLevel = getMaxSpellLevel('earthquake'), eqCcCount = 0, ccEqLevel = getMaxSpellLevel('earthquake'), targetDefOrKey = null) {
     if (maxHp <= 0 || (eqRegCount <= 0 && eqCcCount <= 0)) return 0;
-    const safeEqLevel = Math.min(Math.max(1, Number(eqLevel) || 8), 8);
-    const safeCcEqLevel = Math.min(Math.max(1, Number(ccEqLevel) || safeEqLevel), 8);
+    const maxEqLevel = getMaxSpellLevel('earthquake');
+    const safeEqLevel = Math.min(Math.max(1, Number(eqLevel) || maxEqLevel), maxEqLevel);
+    const safeCcEqLevel = Math.min(Math.max(1, Number(ccEqLevel) || safeEqLevel), maxEqLevel);
 
     const strikes = [];
     if (safeCcEqLevel > safeEqLevel) {
