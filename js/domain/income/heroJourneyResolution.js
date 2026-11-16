@@ -11,7 +11,7 @@ import {
 
 /**
  * Resolves deterministic equipment milestone rewards across the entire Hero Journey track.
- * Traverses from Node 1 to 480 sequentially, checking the player's official server inventory
+ * Traverses from Node 1 to 510 sequentially, checking the player's official server inventory
  * and assigning the first unowned equipment in priority order for each hero.
  *
  * @param {import('../../core/types.js').AppState | any} state - Application state.

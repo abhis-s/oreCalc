@@ -7,7 +7,8 @@ import {
     getMaxTownHallLevel,
     getCumulativeHeroLevel,
     getRawCumulativeHeroLevel,
-    getTownHallLevel
+    getTownHallLevel,
+    isTrueMaxCumulativeLevel
 } from '../../js/domain/income/heroJourneyLevels.js';
 import {
     getQuestChestReward,
@@ -210,5 +211,8 @@ test('TH 19 resolves Hero Journey track cap cleanly while exposing raw cumulativ
         }
     };
     assert.equal(getRawCumulativeHeroLevel(maxedTh19State), 510);
-    assert.equal(getCumulativeHeroLevel(maxedTh19State), Math.min(510, trackMax));
+    assert.equal(getCumulativeHeroLevel(maxedTh19State), 510);
+    assert.equal(trackMax, 510);
+    assert.equal(isTrueMaxCumulativeLevel(510), true);
+    assert.deepEqual(calculateHeroJourneyUpcomingOres(maxedTh19State), { shiny: 0, glowy: 0, starry: 0 });
 });

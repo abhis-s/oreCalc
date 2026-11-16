@@ -43,6 +43,8 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         assert.equal(getNodeTownHallLevel(151), 12);
         assert.equal(getNodeTownHallLevel(250), 13);
         assert.equal(getNodeTownHallLevel(350), 15);
+        assert.equal(getNodeTownHallLevel(486), 19);
+        assert.equal(getNodeTownHallLevel(510), 19);
     });
 
     test('verifies oreChestRewardsNormal and oreChestRewardsAccelerated cover TH8 through TH18', () => {
@@ -77,10 +79,11 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
     test('verifies getMaxCumulativeLevelsByTH generates strictly monotonically increasing caps', () => {
         const maxLevels = getMaxCumulativeLevelsByTH();
         let lastCap = 0;
-        for (let th = 8; th <= 18; th++) {
+        for (let th = 8; th <= 19; th++) {
             assert.ok(maxLevels[th] > lastCap, `TH${th} cap (${maxLevels[th]}) should be greater than TH${th - 1} cap (${lastCap})`);
             lastCap = maxLevels[th];
         }
+        assert.equal(maxLevels[19], 510, 'TH19 cumulative cap must equal 510');
     });
 
     test('verifies every heroJourneyNode resolves valid display metadata without throwing errors or undefined properties', async () => {
@@ -545,19 +548,19 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         };
 
         try {
-            // State for Player 1: True Max (e.g. TH18 with overall max hero levels)
+            // State for Player 1: True Max (e.g. TH19 with overall max hero levels)
             const trueMaxState = {
                 heroJourney: {},
                 playerProfile: {
                     tag: '#TRUE_MAX',
-                    townHallLevel: 18,
+                    townHallLevel: 19,
                     heroes: [
-                        { name: 'Barbarian King', level: 110, village: 'home' },
-                        { name: 'Archer Queen', level: 110, village: 'home' },
-                        { name: 'Minion Prince', level: 95, village: 'home' },
-                        { name: 'Grand Warden', level: 85, village: 'home' },
-                        { name: 'Royal Champion', level: 55, village: 'home' },
-                        { name: 'Dragon Duke', level: 25, village: 'home' }
+                        { name: 'Barbarian King', level: 115, village: 'home' },
+                        { name: 'Archer Queen', level: 115, village: 'home' },
+                        { name: 'Minion Prince', level: 100, village: 'home' },
+                        { name: 'Grand Warden', level: 90, village: 'home' },
+                        { name: 'Royal Champion', level: 60, village: 'home' },
+                        { name: 'Dragon Duke', level: 30, village: 'home' }
                     ]
                 }
             };

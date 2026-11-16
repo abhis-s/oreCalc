@@ -1,10 +1,10 @@
 export const heroMaxLevelsPerTH = {
-    barbarianKing:  { 7: 10, 8: 20, 9: 30, 10: 40, 11: 50, 12: 65, 13: 75, 14: 85, 15: 90, 16: 95, 17: 100, 18: 110 },
-    archerQueen:    { 8: 10, 9: 30, 10: 40, 11: 50, 12: 65, 13: 75, 14: 85, 15: 90, 16: 95, 17: 100, 18: 110 },
-    minionPrince:   { 9: 10, 10: 20, 11: 30, 12: 40, 13: 50, 14: 60, 15: 70, 16: 80, 17: 90, 18: 95 },
-    grandWarden:    { 11: 20, 12: 40, 13: 50, 14: 60, 15: 65, 16: 70, 17: 75, 18: 85 },
-    royalChampion:  { 13: 25, 14: 30, 15: 40, 16: 45, 17: 50, 18: 55 },
-    dragonDuke:     { 15: 10, 16: 15, 17: 20, 18: 25 }
+    barbarianKing:  { 7: 10, 8: 20, 9: 30, 10: 40, 11: 50, 12: 65, 13: 75, 14: 85, 15: 90, 16: 95, 17: 100, 18: 110, 19: 115 },
+    archerQueen:    { 8: 10, 9: 30, 10: 40, 11: 50, 12: 65, 13: 75, 14: 85, 15: 90, 16: 95, 17: 100, 18: 110, 19: 115 },
+    minionPrince:   { 9: 10, 10: 20, 11: 30, 12: 40, 13: 50, 14: 60, 15: 70, 16: 80, 17: 90, 18: 95, 19: 100 },
+    grandWarden:    { 11: 20, 12: 40, 13: 50, 14: 60, 15: 65, 16: 70, 17: 75, 18: 85, 19: 90 },
+    royalChampion:  { 13: 25, 14: 30, 15: 40, 16: 45, 17: 50, 18: 55, 19: 60 },
+    dragonDuke:     { 15: 10, 16: 15, 17: 20, 18: 25, 19: 30 }
 };
 
 export const oreChestRewardsNormal = {
@@ -846,5 +846,40 @@ export const heroJourneyNodes = [
         "amount": 1,
         "icon": "assets/skins/majesticDragonDuke.png",
         "hero": "dragonDuke"
+    },
+    {
+        "level": 486,
+        "type": "resource",
+        "amount": 410000,
+        "icon": "assets/dark_elixir.png",
+        "resourceType": "darkElixir"
+    },
+    {
+        "level": 492,
+        "type": "magicItem",
+        "itemKey": "mightyMorsel",
+        "amount": 3,
+        "icon": "assets/magicItems/mightyMorsel.png"
+    },
+    {
+        "level": 498,
+        "type": "ore",
+        "amount": 60,
+        "icon": "assets/starry_ore.png",
+        "resourceType": "starry"
+    },
+    {
+        "level": 504,
+        "type": "resource",
+        "amount": 26000000,
+        "icon": "assets/elixir.png",
+        "resourceType": "elixir"
+    },
+    {
+        "level": 510,
+        "type": "magicItem",
+        "itemKey": "bookOfHeroes",
+        "amount": 1,
+        "icon": "assets/magicItems/bookOfHeroes.png"
     }
 ];

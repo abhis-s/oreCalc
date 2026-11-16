@@ -110,7 +110,7 @@ export function getMaxTownHallLevel() {
 export function getMaxCumulativeHeroLevel() {
     const levelsMap = getMaxCumulativeLevelsByTH();
     const vals = Object.values(levelsMap).map(Number).filter(n => Number.isFinite(n) && n > 0);
-    return vals.length > 0 ? Math.max(...vals) : 480;
+    return vals.length > 0 ? Math.max(...vals) : 510;
 }
 
 /**
