@@ -81,6 +81,21 @@ dialog.navigation-drawer,
         }
     }
 
+    &.closing {
+        transform: translateX(-100%);
+        pointer-events: none;
+        transition: transform $duration-exit $ease-exit;
+
+        &::backdrop {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            transition: opacity $duration-exit $ease-exit,
+                        backdrop-filter $duration-exit $ease-exit,
+                        -webkit-backdrop-filter $duration-exit $ease-exit;
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         transition: none !important;
 

@@ -107,6 +107,11 @@ function initModalListeners() {
 
     closeBtn?.addEventListener('click', handleCancel);
     cancelBtn?.addEventListener('click', handleCancel);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            handleCancel();
+        }
+    });
     modal.addEventListener('close', () => {
         if (!isConfirmed && typeof activeOnCancel === 'function') {
             const cancelCb = activeOnCancel;

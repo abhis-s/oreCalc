@@ -265,7 +265,10 @@ export function initializePullToRefresh() {
             if (ptrLabel) ptrLabel.textContent = translate('nav.pullToRefresh.pullToRefresh');
             if (ptrIconWrapper) ptrIconWrapper.style.transform = '';
             const currentMain = getMainContainer();
-            if (currentMain) currentMain.style.transition = '';
+            if (currentMain) {
+                currentMain.style.transform = '';
+                currentMain.style.transition = '';
+            }
             isRefreshing = false;
             isPulling = false;
             currentStage = 0;
@@ -275,5 +278,5 @@ export function initializePullToRefresh() {
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
-    window.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+    window.addEventListener('touchcancel', resetPTR, { passive: true });
 }

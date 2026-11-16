@@ -92,6 +92,11 @@ export function openModal(modalOrId, options = {}) {
     const modal = typeof modalOrId === 'string' ? document.getElementById(modalOrId) : modalOrId;
     if (!modal) return;
 
+    const initialTarget = getInitialModalFocusTarget(modal);
+    if (initialTarget && initialTarget !== modal && typeof initialTarget.setAttribute === 'function') {
+        initialTarget.setAttribute('autofocus', '');
+    }
+
     if (typeof modal.showModal === 'function' && !modal.open) {
         try {
             modal.showModal();
@@ -166,6 +171,11 @@ export function closeModalAnimated(modalOrId, callback) {
 
     setTimeout(() => {
         modal.classList.remove('show', 'active', 'open', 'closing');
+        if (typeof modal.querySelectorAll === 'function') {
+            modal.querySelectorAll('[autofocus]').forEach((el) => {
+                el.removeAttribute('autofocus');
+            });
+        }
         if (typeof modal.close === 'function' && modal.open) {
             try {
                 modal.close();
@@ -393,6 +403,11 @@ function handleModalStateChange(element, isOpen, options = {}) {
     const existingIndex = modalStack.findIndex(item => item.element === element);
 
     if (isOpen) {
+        const initialTarget = getInitialModalFocusTarget(element);
+        if (initialTarget && initialTarget !== element && typeof initialTarget.setAttribute === 'function') {
+            initialTarget.setAttribute('autofocus', '');
+        }
+
         if (typeof element.showModal === 'function' && !element.open) {
             try {
                 element.showModal();
@@ -409,12 +424,11 @@ function handleModalStateChange(element, isOpen, options = {}) {
             }
 
             // Focus initial interactive element inside modal according to WAI-ARIA hierarchy
-            setTimeout(() => {
-                const target = getInitialModalFocusTarget(element);
-                if (target && typeof target.focus === 'function') {
-                    target.focus();
+            if (initialTarget && typeof initialTarget.focus === 'function') {
+                if (typeof document !== 'undefined' && document.activeElement !== initialTarget) {
+                    initialTarget.focus();
                 }
-            }, 50);
+            }
 
             // Push or replace history state entry for back-gesture trapping
             const stateId = `modal_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;

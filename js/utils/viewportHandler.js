@@ -79,10 +79,10 @@ export function initializeViewportHandler() {
         const target = event.target;
         if (!target || !target.matches('input, select, textarea')) return;
 
-        const modalBody = target.closest('.modal-body');
-        if (modalBody) {
+        const modalContainer = target.closest('.modal-body, .modal-content, dialog.modal, .modal');
+        if (modalContainer) {
             setTimeout(() => {
-                target.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+                target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
             }, 120);
         }
     }, { passive: true });
@@ -100,12 +100,16 @@ export function initializeViewportHandler() {
                 headerFrame = null;
 
                 const activeEl = document.activeElement;
-                if (activeEl && activeEl.closest('.modal, .modal-content, .modal-backdrop')) {
-                    return;
-                }
-
                 const header = document.querySelector('.app-header, .header-container');
                 if (!header) return;
+
+                if (activeEl && activeEl.closest('.modal, .modal-content, .modal-backdrop')) {
+                    if (header.style.transform) {
+                        header.style.transform = '';
+                        header.style.transition = '';
+                    }
+                    return;
+                }
 
                 const isInputFocused = Boolean(activeEl && activeEl.matches('input, select, textarea'));
                 const offsetTop = window.visualViewport.offsetTop;
@@ -113,7 +117,7 @@ export function initializeViewportHandler() {
                 if (isInputFocused && offsetTop > 2) {
                     header.style.transition = 'none';
                     header.style.transform = `translate3d(0, ${offsetTop}px, 0)`;
-                } else {
+                } else if (header.style.transform) {
                     header.style.transform = '';
                 }
             });

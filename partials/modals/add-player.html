@@ -11,18 +11,20 @@
                             </button>
                         </div>
                     </div>
-                    <div class="player-name-input-container">
-                        <label for="player-tag-input-modal" data-i18n="player.tag"></label>
-                        <input type="text" id="player-tag-input-modal" maxlength="12" data-clipboard-paste="player-tag" data-clipboard-auto="true" data-i18n-placeholder="player.placeholderTag" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" data-modal-autofocus>
-                        <div id="player-tag-error-message" class="error-message"></div>
-                    </div>
-                    <div class="player-name-input-container" id="add-player-token-container" hidden>
-                        <label for="add-player-token-input" data-i18n="player.apiToken"></label>
-                        <input type="text" id="add-player-token-input" maxlength="8" data-i18n-placeholder="player.placeholderToken" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-                        <small class="api-token-hint" data-i18n="player.apiTokenHint"></small>
-                    </div>
-                    <div class="privacy-notice">
-                        <p data-i18n="player.disclaimer"></p>
+                    <div class="modal-body">
+                        <div class="player-name-input-container">
+                            <label for="player-tag-input-modal" data-i18n="player.tag"></label>
+                            <input type="text" id="player-tag-input-modal" maxlength="12" data-clipboard-paste="player-tag" data-clipboard-auto="true" data-i18n-placeholder="player.placeholderTag" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" data-modal-autofocus>
+                            <div id="player-tag-error-message" class="error-message"></div>
+                        </div>
+                        <div class="player-name-input-container" id="add-player-token-container" hidden>
+                            <label for="add-player-token-input" data-i18n="player.apiToken"></label>
+                            <input type="text" id="add-player-token-input" maxlength="8" data-i18n-placeholder="player.placeholderToken" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+                            <small class="api-token-hint" data-i18n="player.apiTokenHint"></small>
+                        </div>
+                        <div class="privacy-notice">
+                            <p data-i18n="player.disclaimer"></p>
+                        </div>
                     </div>
                     <div class="modal-actions">
                         <button type="button" id="add-player-guided-setup-btn" class="btn btn--secondary" data-i18n="views.guidedSetup.title"></button>

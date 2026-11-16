@@ -409,12 +409,21 @@ export function registerInputPopover(inputElement, options = {}) {
     inputElement.addEventListener('blur', handleBlur);
 
     const preventInputBlur = (e) => {
-        // Prevent loss of focus on the input field so popover stays open during click interactions
+        // Prevent loss of focus on the input field so popover stays open during mouse clicks.
+        // Touch events must NOT call preventDefault(), otherwise WebKit/Blink cancels synthetic click events.
+        if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+            return;
+        }
         e.preventDefault();
     };
     popover.addEventListener('mousedown', preventInputBlur);
     popover.addEventListener('pointerdown', preventInputBlur);
-    popover.addEventListener('touchstart', preventInputBlur, { passive: false });
+    popover.addEventListener('touchstart', () => {
+        if (blurTimeout) {
+            clearTimeout(blurTimeout);
+            blurTimeout = null;
+        }
+    }, { passive: true });
 
     const handleOptionSelect = (e) => {
         e.stopPropagation();

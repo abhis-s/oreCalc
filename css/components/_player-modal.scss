@@ -6,6 +6,11 @@
         max-width: $modal-width-expanded;
     }
 
+    .modal-body {
+        padding: 0;
+        gap: 0;
+    }
+
     .modal-actions {
         display: flex;
         justify-content: space-between;
