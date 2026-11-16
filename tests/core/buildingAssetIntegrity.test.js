@@ -31,7 +31,7 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '../..');
 const BUILDINGS_ASSETS_DIR = path.join(REPO_ROOT, 'assets/buildings');
 
-test('Building Assets - Directory exists for all 31 canonical defenses and structures (excluding placeholder fallback towers)', () => {
+test('Building Assets - Directory exists for all 31 canonical defenses and structures', () => {
     assert.ok(fs.existsSync(BUILDINGS_ASSETS_DIR), 'assets/buildings directory must exist');
 
     const buildingEntries = Object.entries(getDefensesData()).filter(([_, d]) => d.category !== 'hero' && d.category !== 'guardian');
@@ -39,16 +39,7 @@ test('Building Assets - Directory exists for all 31 canonical defenses and struc
     assert.strictEqual(Object.hasOwn(getDefensesData(), 'blacksmith'), false, 'getDefensesData() must not contain blacksmith');
     assert.strictEqual(Object.hasOwn(getDefensesData(), 'walls'), false, 'getDefensesData() must not contain walls');
 
-    const temporaryFallbackBuildings = new Set(['firecracker_tower', 'spiky_tower']);
     for (const [key] of buildingEntries) {
-        if (temporaryFallbackBuildings.has(key)) {
-            assert.strictEqual(
-                getBuildingAssetUrl(key, 1),
-                `/assets/buildings/${key}_placeholder.png`,
-                `Fallback-backed building "${key}" must resolve to placeholder asset`
-            );
-            continue;
-        }
         const dirPath = path.join(BUILDINGS_ASSETS_DIR, key);
         assert.ok(
             fs.existsSync(dirPath),

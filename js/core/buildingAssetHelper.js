@@ -14,11 +14,6 @@ const HERO_ASSET_MAP = Object.freeze({
     dragon_duke: 'dragonDuke'
 });
 
-const FALLBACK_BUILDING_ASSETS = Object.freeze({
-    firecracker_tower: '/assets/buildings/firecracker_tower_placeholder.png',
-    spiky_tower: '/assets/buildings/spiky_tower_placeholder.png'
-});
-
 /**
  * Returns the absolute asset URL for a given target entity key and level.
  *
@@ -28,9 +23,6 @@ const FALLBACK_BUILDING_ASSETS = Object.freeze({
  */
 export function getBuildingAssetUrl(buildingKey, level = 1) {
     if (!buildingKey) return '';
-    if (FALLBACK_BUILDING_ASSETS[buildingKey]) {
-        return FALLBACK_BUILDING_ASSETS[buildingKey];
-    }
 
     const def = getDefensesData()[buildingKey];
     if (!def) return '';

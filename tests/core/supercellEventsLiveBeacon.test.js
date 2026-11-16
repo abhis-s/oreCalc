@@ -103,8 +103,23 @@ describe('Supercell Events Live Beacon and Placeholder Architecture', () => {
         const originalClearInterval = globalThis.clearInterval;
         const originalDocument = globalThis.document;
         const originalWindow = globalThis.window;
+        const OriginalDate = globalThis.Date;
 
         try {
+            const mockNow = new OriginalDate('2026-06-27T10:29:50Z');
+            class MockDate extends OriginalDate {
+                constructor(...args) {
+                    if (args.length === 0) {
+                        super(mockNow.getTime());
+                    } else {
+                        super(...args);
+                    }
+                }
+                static now() {
+                    return mockNow.getTime();
+                }
+            }
+            globalThis.Date = MockDate;
             globalThis.window = globalThis;
             globalThis.setInterval = (fn) => {
                 intervalCallback = fn;
@@ -152,6 +167,7 @@ describe('Supercell Events Live Beacon and Placeholder Architecture', () => {
             intervalCallback();
             assert.equal(cleared, true, 'Timer must be cleared when income-tab loses is-active');
         } finally {
+            globalThis.Date = OriginalDate;
             globalThis.setInterval = originalSetInterval;
             globalThis.clearInterval = originalClearInterval;
             globalThis.document = originalDocument;
