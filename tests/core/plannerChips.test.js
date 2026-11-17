@@ -308,4 +308,46 @@ describe('Planner Chips Subsystem & Drag/Drop Integrity Tests', () => {
         const placedChips = newCalendarDates[monthKey]['20'];
         assert.ok(placedChips.includes('starBonus2x-01-2026-08'));
     });
+
+    test('auto-placer never creates NaN day keys when encountering unexpected manual chip IDs', () => {
+        const monthKey = '2026-08';
+        const newCalendarDates = {
+            [monthKey]: {
+                '15': ['starBonus2x-manual-custom-chip']
+            }
+        };
+
+        performAutoPlacementForMonth('08', '2026', newCalendarDates);
+
+        assert.equal(newCalendarDates[monthKey]['NaN'], undefined, 'Must never produce NaN day keys on the calendar');
+    });
+
+    test('auto-placer reconciles clan war counts authoritatively without double-subtraction', () => {
+        const monthKey = '2026-08';
+        // Base calendar with 1 manual clan war chip
+        const datesWithManual = {
+            [monthKey]: {
+                '05': ['clanWar-01-2026-08']
+            }
+        };
+
+        // Empty calendar to count baseline potential auto clan war chips
+        const baselineDates = { [monthKey]: {} };
+        performAutoPlacementForMonth('08', '2026', baselineDates);
+
+        let baselineClanWarCount = 0;
+        for (const day in baselineDates[monthKey]) {
+            baselineClanWarCount += baselineDates[monthKey][day].filter(id => id.includes('clanWar')).length;
+        }
+
+        // Auto place with 1 manual chip present
+        performAutoPlacementForMonth('08', '2026', datesWithManual);
+
+        let countWithManual = 0;
+        for (const day in datesWithManual[monthKey]) {
+            countWithManual += datesWithManual[monthKey][day].filter(id => id.includes('clanWar')).length;
+        }
+
+        assert.equal(countWithManual, baselineClanWarCount, 'Total manual + auto clan war chips must equal baseline total');
+    });
 });

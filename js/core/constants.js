@@ -13,6 +13,12 @@ export const FREE_WEEKLY_GLOWY = 10;
 
 export const ORE_TYPES = Object.freeze(/** @type {const} */ (['shiny', 'glowy', 'starry']));
 
+export const ZERO_ORES = Object.freeze({
+    shiny: 0,
+    glowy: 0,
+    starry: 0
+});
+
 export const STORAGE_LIMITS = Object.freeze({
     shiny: 50000,
     glowy: 5000,

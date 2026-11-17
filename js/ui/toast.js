@@ -98,12 +98,20 @@ export function showToast(message, type = 'info') {
     }
 
     const iconName = iconId.replace(/^icon-/, '');
-    toast.innerHTML = `
-        <span class="toast-icon">
-            <clashcalc-assets-svg name="${iconName}" class="toast-icon-svg" aria-hidden="true"></clashcalc-assets-svg>
-        </span>
-        <span class="toast-message">${message}</span>
-    `;
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'toast-icon';
+    const svgElem = document.createElement('clashcalc-assets-svg');
+    svgElem.setAttribute('name', iconName);
+    svgElem.setAttribute('class', 'toast-icon-svg');
+    svgElem.setAttribute('aria-hidden', 'true');
+    iconSpan.appendChild(svgElem);
+
+    const messageSpan = document.createElement('span');
+    messageSpan.className = 'toast-message';
+    messageSpan.textContent = String(message);
+
+    toast.appendChild(iconSpan);
+    toast.appendChild(messageSpan);
 
     // Position it at slot 0 initially, but offset slightly down and faded out for the transition
     toast.style.opacity = '0';
@@ -122,7 +130,12 @@ export function showToast(message, type = 'info') {
             oldestToast.style.transform = oldestToast.style.transform.replace('scale(1)', 'scale(0.95)');
             oldestToast.addEventListener('transitionend', () => {
                 oldestToast.remove();
-            });
+            }, { once: true });
+            setTimeout(() => {
+                if (oldestToast.parentElement) {
+                    oldestToast.remove();
+                }
+            }, 500);
         }
     }
 
@@ -158,7 +171,7 @@ export function showToast(message, type = 'info') {
             }
         };
 
-        toast.addEventListener('transitionend', removeToastAndCleanContainer);
+        toast.addEventListener('transitionend', removeToastAndCleanContainer, { once: true });
         // Fallback removal if transition doesn't fire
         setTimeout(() => {
             if (toast.parentElement) {

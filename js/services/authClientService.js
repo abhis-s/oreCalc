@@ -19,10 +19,10 @@ import { state } from '../core/state.js';
 import { generateUUID } from '../utils/uuidGenerator.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
 
-export const AUTH_TOKEN_KEY = 'clashCalc_authToken';
-export const AUTH_USERNAME_KEY = 'clashCalc_username';
-export const AUTH_AVATAR_KEY = 'clashCalc_avatar';
-export const AUTH_HAS_PASSWORD_KEY = CANONICAL_HAS_PASSWORD_KEY;
+const AUTH_TOKEN_KEY = 'clashCalc_authToken';
+const AUTH_USERNAME_KEY = 'clashCalc_username';
+const AUTH_AVATAR_KEY = 'clashCalc_avatar';
+const AUTH_HAS_PASSWORD_KEY = CANONICAL_HAS_PASSWORD_KEY;
 const USER_ID_KEY = 'clashCalc_userId';
 
 const AVATAR_KEYS = Object.freeze([
@@ -116,15 +116,46 @@ export function getRequestHeaders(extraHeaders = {}) {
  * @returns {Promise<never>}
  */
 export async function throwApiError(response) {
+    let errorData = null;
     try {
-        const errorData = await response.json();
-        const reason = errorData.reason || `http_${response.status}`;
-        const err = new Error(reason);
+        errorData = await response.json();
+    } catch (_) {}
+    const reason = errorData?.reason || `http_${response.status}`;
+    const err = new Error(reason);
+    if (errorData?.message) {
         /** @type {any} */ (err).serverMessage = errorData.message;
-        throw err;
-    } catch (e) {
-        if (/** @type {any} */ (e).serverMessage) throw e;
-        throw new Error(`http_${response.status}`);
+    }
+    throw err;
+}
+
+/**
+ * Applies an authenticated session locally and broadcasts state change.
+ * Purges prior local guest/player data on login or pairing claim.
+ *
+ * @param {{ token?: string, username?: string, userId?: string, avatar?: string, hasPassword?: boolean }} data
+ * @param {'login' | 'register' | 'pairing-claim'} [action='login']
+ */
+export function applyAuthSession(data, action = 'login') {
+    if (!data || !data.token || !data.username) return;
+    if (typeof localStorage !== 'undefined') {
+        if (action !== 'register' && data.userId) {
+            purgeLocalDataOnLogin(data.userId);
+        }
+        localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+        localStorage.setItem(AUTH_USERNAME_KEY, data.username);
+        const hasPass = typeof data.hasPassword === 'boolean'
+            ? String(data.hasPassword)
+            : (data.hasPassword ? 'true' : 'false');
+        localStorage.setItem(AUTH_HAS_PASSWORD_KEY, hasPass);
+        if (data.userId) {
+            localStorage.setItem(getActiveUserIdKey(), data.userId);
+        }
+        if (data.avatar) {
+            localStorage.setItem(AUTH_AVATAR_KEY, data.avatar);
+        }
+    }
+    if (typeof document !== 'undefined') {
+        document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action, user: data } }));
     }
 }
 
@@ -151,13 +182,7 @@ export async function registerWithPassword(username, password, turnstileToken = 
     }
 
     const data = await response.json();
-    localStorage.setItem(AUTH_TOKEN_KEY, data.token);
-    localStorage.setItem(AUTH_USERNAME_KEY, data.username);
-    localStorage.setItem(AUTH_HAS_PASSWORD_KEY, 'true');
-    if (data.avatar) {
-        localStorage.setItem(AUTH_AVATAR_KEY, data.avatar);
-    }
-    document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: 'register', user: data } }));
+    applyAuthSession(data, 'register');
     return data;
 }
 
@@ -182,15 +207,7 @@ export async function loginWithPassword(username, password, turnstileToken = '')
     }
 
     const data = await response.json();
-    purgeLocalDataOnLogin(data.userId);
-    localStorage.setItem(AUTH_TOKEN_KEY, data.token);
-    localStorage.setItem(AUTH_USERNAME_KEY, data.username);
-    localStorage.setItem(AUTH_HAS_PASSWORD_KEY, 'true');
-    localStorage.setItem(getActiveUserIdKey(), data.userId);
-    if (data.avatar) {
-        localStorage.setItem(AUTH_AVATAR_KEY, data.avatar);
-    }
-    document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: 'login', user: data } }));
+    applyAuthSession(data, 'login');
     return data;
 }
 

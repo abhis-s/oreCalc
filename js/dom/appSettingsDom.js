@@ -6,7 +6,7 @@
 export function getAppSettingsDOMElements() {
     return {
         currencySelect: document.getElementById('currency-select'),
-        languageSelect: document.getElementById('language-select'),
+        languageSelect: document.getElementById('app-language-select') || document.getElementById('settings-language-select') || document.getElementById('language-select'),
         openGlobalPricingBtn: document.getElementById('open-global-pricing-btn'),
         globalPricingModal: document.getElementById('global-pricing-modal'),
         closeGlobalPricingModalBtn: document.getElementById('close-global-pricing-modal-btn'),

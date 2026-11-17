@@ -169,7 +169,13 @@ export function closeModalAnimated(modalOrId, callback) {
         overlay.classList.add('closing');
     }
 
-    setTimeout(() => {
+    if (modal._closingTimer) {
+        clearTimeout(modal._closingTimer);
+        modal._closingTimer = null;
+    }
+
+    modal._closingTimer = setTimeout(() => {
+        modal._closingTimer = null;
         modal.classList.remove('show', 'active', 'open', 'closing');
         if (typeof modal.querySelectorAll === 'function') {
             modal.querySelectorAll('[autofocus]').forEach((el) => {
@@ -273,7 +279,7 @@ export function initializeModalHistoryManager() {
 
         // Smoothly animate modal dismiss when close/cancel/X buttons are clicked
         document.addEventListener('click', (e) => {
-            const closeBtn = e.target?.closest?.('.close-button, [data-action="close"], [data-modal-dismiss]');
+            const closeBtn = e.target?.closest?.('.close-button, .modal__close-btn, .dialog__close-btn, [data-action="close"], [data-modal-dismiss]');
             if (!closeBtn) return;
 
             const modal = closeBtn.closest('.modal, dialog, .dialog-overlay');
@@ -286,6 +292,13 @@ export function initializeModalHistoryManager() {
         // Escape key modal dismissal fallback for standard DOM elements
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' || e.key === 'Esc') {
+                const noticeModal = document.getElementById('notice-modal');
+                const guidedModal = document.getElementById('guided-setup-modal');
+                const isNoticeOpen = noticeModal && (noticeModal.classList.contains('show') || /** @type {HTMLDialogElement} */ (noticeModal).open);
+                const isGuidedOpen = guidedModal && (guidedModal.classList.contains('show') || /** @type {HTMLDialogElement} */ (guidedModal).open);
+                if (isNoticeOpen || isGuidedOpen) {
+                    return;
+                }
                 if (modalStack.length > 0) {
                     const topModal = modalStack.at(-1);
                     if (topModal && topModal.element && topModal.element.id !== 'guided-setup-modal' && topModal.element.id !== 'notice-modal') {
@@ -354,10 +367,11 @@ export function initializeModalHistoryManager() {
                     const isBodyDrawerOrFab = target === document.body && (mutation.attributeName === 'class');
 
                     if (isModal && target.id !== 'guided-setup-modal' && target.id !== 'notice-modal') {
-                        const isOpen = target.classList.contains('show') ||
+                        const isOpen = (target.classList.contains('show') ||
                                        target.classList.contains('open') ||
                                        target.classList.contains('active') ||
-                                       Boolean(target.open || (typeof target.hasAttribute === 'function' && target.hasAttribute('open')));
+                                       Boolean(target.open || (typeof target.hasAttribute === 'function' && target.hasAttribute('open')))) &&
+                                       !target.classList.contains('closing');
 
                         handleModalStateChange(target, isOpen);
                     } else if (isBodyDrawerOrFab) {
@@ -403,9 +417,23 @@ function handleModalStateChange(element, isOpen, options = {}) {
     const existingIndex = modalStack.findIndex(item => item.element === element);
 
     if (isOpen) {
+        if (existingIndex !== -1) {
+            return;
+        }
+
+        if (element._closingTimer) {
+            clearTimeout(element._closingTimer);
+            element._closingTimer = null;
+        }
+        if (element.classList && typeof element.classList.contains === 'function' && element.classList.contains('closing')) {
+            element.classList.remove('closing');
+        }
+
         const initialTarget = getInitialModalFocusTarget(element);
         if (initialTarget && initialTarget !== element && typeof initialTarget.setAttribute === 'function') {
-            initialTarget.setAttribute('autofocus', '');
+            if (typeof initialTarget.hasAttribute === 'function' && !initialTarget.hasAttribute('autofocus')) {
+                initialTarget.setAttribute('autofocus', '');
+            }
         }
 
         if (typeof element.showModal === 'function' && !element.open) {
@@ -548,41 +576,48 @@ export function dismissModalsForNavigation() {
  * Synchronously removes top-layer pointer locks and resets modal navigation stack.
  */
 export function closeAllModals() {
-    const candidateModals = document.querySelectorAll('dialog, .modal, .dialog-overlay, .nav-drawer, .navigation-drawer, #fab-menu');
-    candidateModals.forEach(modal => {
-        const isOpen = modal.classList.contains('show') ||
-                       modal.classList.contains('open') ||
-                       modal.classList.contains('active') ||
-                       Boolean(modal.open);
-        if (isOpen) {
-            modal.classList.remove('show', 'active', 'open', 'closing');
-            if (typeof modal.close === 'function' && modal.open) {
-                try {
-                    modal.close();
-                } catch (err) {}
+    suppressHistoryPop = true;
+    try {
+        const candidateModals = document.querySelectorAll('dialog, .modal, .dialog-overlay, .nav-drawer, .navigation-drawer, #fab-menu');
+        candidateModals.forEach(modal => {
+            const isOpen = modal.classList.contains('show') ||
+                           modal.classList.contains('open') ||
+                           modal.classList.contains('active') ||
+                           Boolean(modal.open);
+            if (isOpen) {
+                modal.classList.remove('show', 'active', 'open', 'closing');
+                if (typeof modal.close === 'function' && modal.open) {
+                    try {
+                        modal.close();
+                    } catch (err) {}
+                }
+                if (modal.id === 'nav-drawer' || modal.id === 'navigation-drawer' || modal.classList.contains('nav-drawer') || modal.classList.contains('navigation-drawer')) {
+                    document.body.classList.remove('open-drawer');
+                    modal.style.transform = '';
+                }
+                if (modal.id === 'fab-menu' || modal.classList.contains('fab-menu')) {
+                    document.body.classList.remove('open-fab');
+                }
+                handleModalStateChange(modal, false);
             }
-            if (modal.id === 'nav-drawer' || modal.id === 'navigation-drawer' || modal.classList.contains('nav-drawer') || modal.classList.contains('navigation-drawer')) {
-                document.body.classList.remove('open-drawer');
-                modal.style.transform = '';
-            }
-            if (modal.id === 'fab-menu' || modal.classList.contains('fab-menu')) {
-                document.body.classList.remove('open-fab');
-            }
-            handleModalStateChange(modal, false);
-        }
-    });
+        });
 
-    modalStack.forEach(item => {
-        if (item && item.element && item.trapHandler) {
-            item.element.removeEventListener('keydown', item.trapHandler);
-        }
-    });
-    modalStack = [];
+        modalStack.forEach(item => {
+            if (item && item.element && item.trapHandler) {
+                item.element.removeEventListener('keydown', item.trapHandler);
+            }
+        });
+        modalStack = [];
 
-    const overlays = document.querySelectorAll('#overlay, #nav-drawer-overlay, .modal-overlay, .dialog-overlay');
-    overlays.forEach(overlay => {
-        overlay.classList.remove('show', 'active', 'closing');
-        overlay.style.opacity = '';
-    });
-    document.body.classList.remove('open-drawer', 'open-fab');
+        const overlays = document.querySelectorAll('#overlay, #nav-drawer-overlay, .modal-overlay, .dialog-overlay');
+        overlays.forEach(overlay => {
+            overlay.classList.remove('show', 'active', 'closing');
+            overlay.style.opacity = '';
+        });
+        document.body.classList.remove('open-drawer', 'open-fab');
+    } finally {
+        setTimeout(() => {
+            suppressHistoryPop = false;
+        }, 100);
+    }
 }

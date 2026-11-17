@@ -6,10 +6,7 @@
 
 import { getApiBaseUrl } from './apiService.js';
 import {
-    AUTH_AVATAR_KEY,
-    AUTH_HAS_PASSWORD_KEY,
-    AUTH_TOKEN_KEY,
-    AUTH_USERNAME_KEY,
+    applyAuthSession,
     getRequestHeaders,
     throwApiError
 } from './authClientService.js';
@@ -112,15 +109,7 @@ export async function claimPairingToken(pairingToken) {
     }
 
     const data = await response.json();
-    if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(AUTH_TOKEN_KEY, data.token);
-        localStorage.setItem(AUTH_USERNAME_KEY, data.username);
-        localStorage.setItem(AUTH_HAS_PASSWORD_KEY, data.hasPassword ? 'true' : 'false');
-        if (data.avatar) {
-            localStorage.setItem(AUTH_AVATAR_KEY, data.avatar);
-        }
-    }
-    document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: 'pairing-claim', user: data } }));
+    applyAuthSession(data, 'pairing-claim');
     return data;
 }
 

@@ -11,6 +11,7 @@ import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { getAddPlayerHelpContent, hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { formatRegionalDate } from '../../utils/dateUtils.js';
 import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
+import { escapeHTML } from '../../utils/stringUtils.js';
 
 import { bindSelectInput } from '../common/formBindingUtils.js';
 import { openBugReportModal } from '../appSettings/settingsSupportModals.js';
@@ -159,7 +160,7 @@ export function initializeIncomeCardHandler() {
             if (customFooterKey) {
                 footer = translate(customFooterKey);
             } else if (customFooter) {
-                footer = customFooter;
+                footer = escapeHTML(customFooter);
             }
         }
 

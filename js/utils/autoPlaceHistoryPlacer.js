@@ -112,10 +112,22 @@ export function autoPlaceChipsByHistory(filteredUnplacedChips, currentYear, curr
                                     }
                                     const historicalDate = getDateFromDayAndMonth(lookbackYear, lookbackMonth, historicalDay);
                                     const dayOfWeek = historicalDate.getUTCDay();
-                                    const nthOccurrence = chip.instance;
-                                    const targetDateObj = findNthDayOfWeek(currentYear, currentMonth, dayOfWeek, nthOccurrence);
-                                    if (targetDateObj) {
-                                        targetDay = targetDateObj.getUTCDate();
+                                    const scheduledDates = source?.schedule ? getScheduleDates(currentYear, currentMonth, source.schedule) : [];
+                                    const currentCycle = scheduledDates[chip.instance - 1];
+                                    const cycleStartDate = currentCycle ? extractScheduleStartDate(currentCycle) : null;
+                                    if (cycleStartDate && typeof cycleStartDate.getUTCDate === 'function') {
+                                        const dayOffset = (dayOfWeek - 2 + 7) % 7;
+                                        const candidateDate = addDays(cycleStartDate, dayOffset);
+                                        if (candidateDate.getUTCMonth() === currentMonth) {
+                                            targetDay = candidateDate.getUTCDate();
+                                        } else {
+                                            targetDay = cycleStartDate.getUTCDate();
+                                        }
+                                    } else {
+                                        const targetDateObj = findNthDayOfWeek(currentYear, currentMonth, dayOfWeek, chip.instance);
+                                        if (targetDateObj) {
+                                            targetDay = targetDateObj.getUTCDate();
+                                        }
                                     }
                                     break;
                                 }

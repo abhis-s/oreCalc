@@ -2,8 +2,8 @@ import { translate } from '../i18n/translator.js';
 import { normalizePlayerTag } from '../core/storageKeys.js';
 
 const tagValidChars = "CGJLOPQRUVY0289";
-const MAX_TAG_LENGTH = 12;
-const VALID_TAG_PATTERN = /^[0289CGJLOPQRUVY]{3,12}$/;
+const MAX_TAG_LENGTH = 14;
+const VALID_TAG_PATTERN = /^[0289CGJLOPQRUVY]{3,14}$/;
 let validationErrorTimeout;
 
 /**
@@ -109,7 +109,7 @@ export function extractPlayerTag(rawText) {
     }
 
     // Extract tag if embedded in text with a hash (e.g. "Tag: #8PJYGUJC")
-    const hashMatch = candidate.match(/#([0289CGJLOPQRUVY]{3,12})\b/i);
+    const hashMatch = candidate.match(/#([0289CGJLOPQRUVY]{3,14})\b/i);
     if (hashMatch && hashMatch[1]) {
         candidate = hashMatch[1];
     }

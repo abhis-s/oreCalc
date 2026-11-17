@@ -1,4 +1,5 @@
 import { translate } from '../i18n/translator.js';
+import { sanitizeHTML } from '../utils/stringUtils.js';
 
 let modal, titleElem, messageElem, cancelBtn, okBtn, overlay;
 /** @type {(() => void) | null} */
@@ -11,77 +12,6 @@ function initializeNoticeModal() {
     cancelBtn = document.getElementById('cancel-notice-modal-btn') || document.getElementById('notice-modal-cancel-btn');
     okBtn = document.getElementById('notice-modal-ok-btn');
     overlay = document.getElementById('overlay');
-}
-
-/**
- * Sanitizes HTML input to allow only safe formatting elements and classes.
- * Discards any dangerous elements such as script, iframe, objects, images, etc.
- *
- * @param {string} html - The raw HTML string to sanitize.
- * @returns {string} The sanitized HTML safe for innerHTML insertion.
- */
-export function sanitizeHTML(html) {
-    if (!html) return '';
-    try {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const allowedTags = new Set(['span', 'strong', 'em', 'code', 'br', 'p', 'b', 'i', 'a']);
-        const allowedClasses = new Set(['user-id-code', 'external-link', 'theme-link']);
-        const blockedTags = new Set(['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'svg', 'img', 'video', 'audio']);
-
-        function cleanNode(node) {
-            if (node.nodeType === Node.TEXT_NODE) {
-                return node.cloneNode(true);
-            }
-            if (node.nodeType === Node.ELEMENT_NODE) {
-                const tagName = node.tagName.toLowerCase();
-                if (blockedTags.has(tagName)) {
-                    return document.createDocumentFragment();
-                }
-                if (allowedTags.has(tagName)) {
-                    const cleanedElement = document.createElement(tagName);
-                    if (node.className) {
-                        const classes = Array.from(node.classList).filter(cls => allowedClasses.has(cls));
-                        if (classes.length > 0) {
-                            cleanedElement.className = classes.join(' ');
-                        }
-                    }
-                    if (tagName === 'a') {
-                        const rawHref = (node.getAttribute('href') || '').trim();
-                        const isSafe = /^(https?:\/\/|mailto:|\/|#)/i.test(rawHref) && !/^javascript:/i.test(rawHref) && !/^data:/i.test(rawHref);
-                        if (isSafe) {
-                            cleanedElement.setAttribute('href', rawHref);
-                        }
-                        if (node.getAttribute('target') === '_blank') {
-                            cleanedElement.setAttribute('target', '_blank');
-                        }
-                        cleanedElement.setAttribute('rel', 'noopener noreferrer');
-                    }
-                    for (const child of Array.from(node.childNodes)) {
-                        cleanedElement.appendChild(cleanNode(child));
-                    }
-                    return cleanedElement;
-                }
-            }
-            // Unrecognized tags: just extract children (unpack them)
-            const fragment = document.createDocumentFragment();
-            for (const child of Array.from(node.childNodes)) {
-                fragment.appendChild(cleanNode(child));
-            }
-            return fragment;
-        }
-
-        const container = document.createElement('div');
-        for (const child of Array.from(doc.body.childNodes)) {
-            container.appendChild(cleanNode(child));
-        }
-        return container.innerHTML;
-    } catch (e) {
-        // Fallback to text content if DOMParser fails
-        const div = document.createElement('div');
-        div.textContent = html;
-        return div.innerHTML;
-    }
 }
 
 /**
@@ -150,7 +80,10 @@ function showNotice(message, titleKey = 'status.notice', showCancel = false, okB
                 cleanup();
                 resolve(false);
                 if (typeof window !== 'undefined' && window.location) {
-                    window.location.href = '/account/';
+                    const pathLang = window.location.pathname.split('/').filter(Boolean)[0];
+                    const isSupported = pathLang && ['de', 'tr', 'zh'].includes(pathLang.toLowerCase());
+                    const targetPath = isSupported ? `/${pathLang.toLowerCase()}/account/` : '/account/';
+                    window.location.href = targetPath;
                 }
             }
         };
@@ -182,7 +115,12 @@ function showNotice(message, titleKey = 'status.notice', showCancel = false, okB
                     modal.close();
                 } catch (e) {}
             }
-            overlay?.classList.remove('show');
+            const otherOpenModal = typeof document !== 'undefined' && typeof document.querySelector === 'function'
+                ? document.querySelector('.modal.show:not(#notice-modal), dialog[open]:not(#notice-modal), .dialog-overlay.show, .navigation-drawer.open, dialog.navigation-drawer[open]')
+                : null;
+            if (!otherOpenModal) {
+                overlay?.classList.remove('show');
+            }
         };
 
         activeNoticeSupersede = supersede;

@@ -10,6 +10,7 @@ import { escapeHTML } from '../utils/stringUtils.js';
 import { translate } from '../i18n/translator.js';
 import { getPlayerStorageKey } from './storageKeys.js';
 import { getSavedProfiles } from './playerStorage.js';
+import { sanitizeImageUrl } from './playerStorageSanitizer.js';
 import { calculateEquipmentProgress } from '../domain/equipment/equipmentProgressDomain.js';
 import { getCumulativeHeroLevel, getMaxCumulativeHeroLevel } from '../domain/income/heroJourneyLevels.js';
 import { heroJourneyNodes } from '../data/heroJourneyData.js';
@@ -44,7 +45,7 @@ import { heroData } from '../data/heroData.js';
  * }}
  */
 export function resolvePlayerSummaryStats(cleanTag = '', explicitProfile = null) {
-    const rawTag = cleanTag ? cleanTag.replace(/^#+/, '').trim() : '';
+    const rawTag = cleanTag ? cleanTag.replace(/^#+/, '').trim().toUpperCase() : '';
     let name = explicitProfile?.name || '';
     let townHallLevel = explicitProfile?.townHallLevel;
     let trophies = typeof explicitProfile?.trophies === 'number'
@@ -110,7 +111,7 @@ export function resolvePlayerSummaryStats(cleanTag = '', explicitProfile = null)
                 for (const heroKey in heroData) {
                     const hero = heroData[heroKey];
                     const heroState = partition.heroes[heroKey] || partition.heroes[hero.name];
-                    if (heroState?.enabled !== false) {
+                    if (heroState && heroState.enabled !== false) {
                         const hInfo = { level: heroState?.level || 1, maxLevel: 95 };
                         ownedHeroes[heroKey] = hInfo;
                         ownedHeroes[hero.name] = hInfo;
@@ -148,7 +149,7 @@ export function resolvePlayerSummaryStats(cleanTag = '', explicitProfile = null)
             }
             if (heroLevel === null && Object.keys(ownedHeroes).length > 0) {
                 try {
-                    heroLevel = getCumulativeHeroLevel({ playerProfile: { ownedHeroes } });
+                    heroLevel = getCumulativeHeroLevel({ playerProfile: { ownedHeroes, townHallLevel: Number(townHallLevel) || 1 } });
                 } catch (_) {}
             }
         }
@@ -156,7 +157,7 @@ export function resolvePlayerSummaryStats(cleanTag = '', explicitProfile = null)
 
     const cleanName = (name === 'DEFAULT0' || name === '#DEFAULT0') ? '' : name;
     const hasProfile = Boolean(cleanName);
-    const thLevel = Math.max(1, Math.min(MAX_TOWN_HALL, Number(townHallLevel) || MAX_TOWN_HALL));
+    const thLevel = Math.max(1, Math.min(MAX_TOWN_HALL, Number(townHallLevel) || 1));
     const orePct = typeof oreProgressPct === 'number' ? Math.round(Math.max(0, Math.min(100, oreProgressPct))) : 0;
     const oresDoneText = translate('nav.context.oresDone', { percent: orePct }) || `${orePct}% Ores Done`;
 
@@ -188,12 +189,14 @@ export function resolvePlayerSummaryStats(cleanTag = '', explicitProfile = null)
     const leagueId = Number(rawLeague?.id);
     const canonicalLeague = leagueTiers.items.find(l => l.id === leagueId);
     const unrankedLeague = leagueTiers.items.find(l => l.id === UNRANKED_LEAGUE_ID) || leagueTiers.items[0];
-    const leagueIcon = explicitProfile?.leagueIcon ||
+    const leagueIcon = sanitizeImageUrl(
+        explicitProfile?.leagueIcon ||
         canonicalLeague?.iconUrls?.small ||
         rawLeague?.iconUrls?.small ||
         rawLeague?.iconUrls?.medium ||
         unrankedLeague?.iconUrls?.small ||
-        '';
+        ''
+    );
     const leagueAlt = explicitProfile?.leagueAlt || canonicalLeague?.name || rawLeague?.name || unrankedLeague?.name || 'League Icon';
 
     let leagueName = explicitProfile?.leagueName || canonicalLeague?.name || rawLeague?.name || '';
@@ -202,12 +205,13 @@ export function resolvePlayerSummaryStats(cleanTag = '', explicitProfile = null)
             .replace(/\./g, '')
             .replace(/\s(i+)$/i, (_, p1) => p1.toUpperCase())
             .replace(/\s/g, '_');
-        leagueName = translate(leagueKey);
+        const translated = translate(leagueKey);
+        leagueName = (translated && !translated.startsWith('entities.')) ? translated : (canonicalLeague.name || '');
     }
     const leagueNameDisplay = leagueName || translate('entities.leagues.unranked') || 'Unranked';
 
     const rawClan = explicitProfile?.clan || explicitProfile?.cachedData?.clan || found?.cachedData?.clan;
-    const clanBadge = rawClan?.badgeUrls?.small || rawClan?.badgeUrls?.medium || '';
+    const clanBadge = sanitizeImageUrl(rawClan?.badgeUrls?.small || rawClan?.badgeUrls?.medium || '');
     const clanName = escapeHTML(rawClan?.name || '');
 
     return {

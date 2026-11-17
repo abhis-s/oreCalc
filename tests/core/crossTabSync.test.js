@@ -310,4 +310,61 @@ describe('Cross-Tab In-Session Storage Synchronization Suite', () => {
             globalThis.document = originalDocument;
         }
     });
+
+    test('verifies storage clear (key === null) resets state and removes has-player class', async () => {
+        const { state, getDefaultPlayerState } = await import('../../js/core/state.js');
+        const { initMainAppCrossTabSync, resetCrossTabSyncForTesting } = await import('../../js/core/crossTabSync.js');
+        resetCrossTabSyncForTesting();
+
+        const windowListeners = {};
+        const dispatchedEvents = [];
+        let hasPlayerRemoved = false;
+        const originalWindow = globalThis.window;
+        const originalDocument = globalThis.document;
+
+        try {
+            globalThis.window = {
+                addEventListener: (event, handler) => {
+                    windowListeners[event] = handler;
+                },
+                location: { search: '?tag=TESTTAG1', pathname: '/ore-calculator/', href: 'http://localhost/?tag=TESTTAG1' },
+                history: { replaceState: () => {} }
+            };
+            globalThis.document = {
+                ...mockDoc,
+                documentElement: {
+                    ...mockDoc.documentElement,
+                    classList: {
+                        add: () => {},
+                        remove: (cls) => {
+                            if (cls === 'has-player') hasPlayerRemoved = true;
+                        }
+                    }
+                },
+                dispatchEvent: (event) => {
+                    dispatchedEvents.push(event.type);
+                    return true;
+                }
+            };
+
+            const tag1State = getDefaultPlayerState();
+            tag1State.heroes = { barbarianKing: { level: 50 } };
+            state.savedPlayerTags = ['TESTTAG1'];
+            state.heroes = tag1State.heroes;
+
+            initMainAppCrossTabSync();
+
+            const storageHandler = windowListeners['storage'];
+            assert.ok(typeof storageHandler === 'function');
+
+            await storageHandler({ key: null, newValue: null });
+
+            assert.deepEqual(state.savedPlayerTags, ['DEFAULT0']);
+            assert.equal(hasPlayerRemoved, true);
+            assert.ok(dispatchedEvents.includes('app:playerDropdownSync'));
+        } finally {
+            globalThis.window = originalWindow;
+            globalThis.document = originalDocument;
+        }
+    });
 });

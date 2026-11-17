@@ -157,11 +157,9 @@ export function consolidateLocalStorageKeys() {
         }
 
         // Consolidate Player Partitions
-        const allStorageKeys = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k) allStorageKeys.push(k);
-        }
+        const allStorageKeys = typeof localStorage.key === 'function'
+            ? Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)).filter(Boolean)
+            : Object.keys(localStorage);
 
         for (const key of allStorageKeys) {
             if (key.startsWith(PLAYER_PREFIX)) {
@@ -216,15 +214,37 @@ export function consolidateLocalStorageKeys() {
                                 canonicalData.planner = legacyData.planner;
                                 merged = true;
                             }
+                            if (!canonicalData.heroJourney && legacyData.heroJourney) {
+                                canonicalData.heroJourney = legacyData.heroJourney;
+                                merged = true;
+                            }
+                            if (!canonicalData.currency && legacyData.currency) {
+                                canonicalData.currency = legacyData.currency;
+                                merged = true;
+                            }
+                            if (!canonicalData.onboardingTimestamp && legacyData.onboardingTimestamp) {
+                                canonicalData.onboardingTimestamp = legacyData.onboardingTimestamp;
+                                merged = true;
+                            }
+                            if (!canonicalData.lastRefreshedAt && legacyData.lastRefreshedAt) {
+                                canonicalData.lastRefreshedAt = legacyData.lastRefreshedAt;
+                                merged = true;
+                            }
                             if (merged) {
                                 localStorage.setItem(canonicalKey, JSON.stringify(canonicalData));
                                 summary.migrated.push(canonicalKey);
                             }
+                        } else if (canonicalData === null && legacyData !== null) {
+                            localStorage.setItem(canonicalKey, legacyValRaw);
+                            summary.migrated.push(canonicalKey);
                         }
                     }
 
-                    localStorage.removeItem(normalizedLegacyKey);
-                    summary.deleted.push(normalizedLegacyKey);
+                    const finalCanonical = localStorage.getItem(canonicalKey);
+                    if (finalCanonical !== null && safeJsonParse(finalCanonical, null) !== null) {
+                        localStorage.removeItem(normalizedLegacyKey);
+                        summary.deleted.push(normalizedLegacyKey);
+                    }
                 }
             }
 
@@ -296,11 +316,17 @@ export function consolidateLocalStorageKeys() {
         }
 
         // Surgically Purge Un-Allowlisted Keys and Obsolete Historical Partitions
-        const activeTagsRaw = localStorage.getItem(CANONICAL_PLAYER_TAGS_KEY) || localStorage.getItem(PLAYER_TAGS_KEY);
-        const activeTags = safeJsonParse(activeTagsRaw, []);
-        const swept = sweepObsoleteStorageKeys(Array.isArray(activeTags) ? activeTags : []);
-        for (const k of swept) {
-            summary.deleted.push(k);
+        const canonicalTags = safeJsonParse(localStorage.getItem(CANONICAL_PLAYER_TAGS_KEY), null);
+        const legacyTags = safeJsonParse(localStorage.getItem(PLAYER_TAGS_KEY), null);
+        const combinedTags = Array.from(new Set([
+            ...(Array.isArray(canonicalTags) ? canonicalTags : []),
+            ...(Array.isArray(legacyTags) ? legacyTags : [])
+        ]));
+        if (combinedTags.length > 0 || (canonicalTags === null && legacyTags === null)) {
+            const swept = sweepObsoleteStorageKeys(combinedTags);
+            for (const k of swept) {
+                summary.deleted.push(k);
+            }
         }
     } catch (e) {
         console.error("Error during localStorage consolidation:", e);
@@ -327,11 +353,9 @@ export function sweepObsoleteStorageKeys(validPlayerTags = []) {
     );
     const isGuestAllowed = validTagSet.has('DEFAULT0');
 
-    const allKeys = [];
-    for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k) allKeys.push(k);
-    }
+    const allKeys = typeof localStorage.key === 'function'
+        ? Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)).filter(Boolean)
+        : Object.keys(localStorage);
 
     for (const key of allKeys) {
         if (ALLOWED_STATIC_STORAGE_KEYS.has(key)) {

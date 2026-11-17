@@ -36,8 +36,10 @@ import { normalizeHeroesState, migrateHeroesToKeys } from './stateCleanup.js';
  */
 export function removePlayerTag(playerTagToDelete) {
     const cleanTag = normalizePlayerTag(playerTagToDelete);
-    if (cleanTag === 'DEFAULT0') {
-        console.warn('Attempted to delete DEFAULT0. This tag cannot be removed.');
+    if (!cleanTag || cleanTag === 'DEFAULT0') {
+        if (cleanTag === 'DEFAULT0') {
+            console.warn('Attempted to delete DEFAULT0. This tag cannot be removed.');
+        }
         return;
     }
     try {
@@ -177,7 +179,7 @@ export function loadPlayerData(playerTag) {
     const cleanTag = normalizePlayerTag(playerTag);
     let playerState = (state.allPlayersData && (state.allPlayersData[cleanTag] || state.allPlayersData[playerTag])) || null;
 
-    if (!playerState) {
+    if (!playerState || !playerState.heroes) {
         const activePrefix = getActivePlayerPrefix();
         const inactivePrefix = isClashCalcHost() ? PLAYER_PREFIX : CANONICAL_PLAYER_PREFIX;
         const primaryKey = getPlayerStorageKey(cleanTag, activePrefix);
@@ -195,7 +197,10 @@ export function loadPlayerData(playerTag) {
                 } catch (e) {}
             }
         }
-        playerState = safeJsonParse(playerStr, null);
+        const diskPlayer = safeJsonParse(playerStr, null);
+        if (diskPlayer) {
+            playerState = playerState ? { ...diskPlayer, ...playerState } : diskPlayer;
+        }
     }
 
     if (playerState) {
@@ -248,6 +253,7 @@ export function loadPlayerData(playerTag) {
  */
 export function updateSavedPlayerTags(playerTag) {
     const cleanTag = normalizePlayerTag(playerTag);
+    if (!cleanTag) return;
     if (!state.allPlayersData || typeof state.allPlayersData !== 'object') {
         state.allPlayersData = {};
     }
@@ -494,8 +500,11 @@ export function savePlayerProfileToStorage(data, updateOrder = true) {
     const serverTag = normalizePlayerTag(data.tag);
     if (!serverTag || serverTag === 'DEFAULT0') return '';
 
-    const canonicalKey = getPlayerStorageKey(serverTag);
-    const existingStr = localStorage.getItem(canonicalKey);
+    const activePrefix = getActivePlayerPrefix();
+    const inactivePrefix = isClashCalcHost() ? PLAYER_PREFIX : CANONICAL_PLAYER_PREFIX;
+    const canonicalKey = getPlayerStorageKey(serverTag, activePrefix);
+    const fallbackKey = getPlayerStorageKey(serverTag, inactivePrefix);
+    const existingStr = localStorage.getItem(canonicalKey) || localStorage.getItem(fallbackKey);
     const existing = safeJsonParse(existingStr, null);
     const partition = (existing && typeof existing === 'object')
         ? { ...initializeDefaultPlayerState(), ...existing }

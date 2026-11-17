@@ -56,7 +56,8 @@ export function calculateCumulativeOres(targetDate, initialOres) {
             cumulativeOres.starry += Math.round(prospectorIncome.starry || 0);
         }
 
-        if (state.income.supercellEvents && state.income.supercellEvents.worldChampionship) {
+        const hasCustomSupercellEvent = chipsForThisDay.some(id => id.startsWith('custom-supercellEvents'));
+        if (state.income.supercellEvents && state.income.supercellEvents.worldChampionship && !hasCustomSupercellEvent) {
             const supercellEvents = getSupercellEventsForYear(currentDate.getUTCFullYear(), supercellEventsData);
             supercellEvents.forEach((event) => {
                 const startDate = new Date(event.start);
@@ -93,7 +94,7 @@ export function calculateCumulativeOres(targetDate, initialOres) {
 
         chipsForThisDay.forEach(chipId => {
             const parts = chipId.split('-');
-            const type = parts[0];
+            const cleanType = chipId.startsWith('custom-') ? parts[1] || '' : parts[0];
 
             // Check for custom chip data override
             if (chipId.startsWith('custom-') && state.planner.calendar.customChipData?.[chipId]) {
@@ -104,17 +105,17 @@ export function calculateCumulativeOres(targetDate, initialOres) {
                 return;
             }
 
-            if (type === 'starBonus' || type === 'prospector' || type === 'supercellEvents') {
+            if (cleanType === 'starBonus' || cleanType === 'prospector' || cleanType === 'supercellEvents') {
                 return;
             }
-            if (type.startsWith('starBonus') && type.includes('x')) {
-                const mult = parseInt(type.replace('starBonus', '').replace('x', ''), 10) || 1;
+            if (cleanType.startsWith('starBonus') && cleanType.includes('x')) {
+                const mult = parseInt(cleanType.replace('starBonus', '').replace('x', ''), 10) || 1;
                 cumulativeOres.shiny += Math.round(starBonusIncome.shiny * mult);
                 cumulativeOres.glowy += Math.round(starBonusIncome.glowy * mult);
                 cumulativeOres.starry += Math.round(starBonusIncome.starry * mult);
                 return;
             }
-            const incomeSource = getSourceById(type);
+            const incomeSource = getSourceById(cleanType);
 
             if (incomeSource) {
                 const income = incomeSource.getIncome(state);
@@ -154,13 +155,14 @@ export function checkAndGenerateRecurringChips() {
         };
 
         // Star Bonus
-        if (settings.starBonus.monthly && settings.starBonus.count > 0) {
-            const sbType = 'starBonus' + settings.starBonus.multiplier; // e.g. "starBonus3x"
+        if (settings?.starBonus?.monthly && settings.starBonus.count > 0) {
+            const rawMultiplier = settings.starBonus.multiplier || '2x';
+            const sbType = 'starBonus' + rawMultiplier; // e.g. "starBonus3x"
             const baseIncome = getSourceById('starBonus')?.getBaseIncome(state) || { shiny: 0, glowy: 0, starry: 0 };
-            const multValue = parseInt(settings.starBonus.multiplier.replace('x', ''), 10) || 1;
+            const multValue = parseInt(String(rawMultiplier).replace('x', ''), 10) || 1;
             generate(sbType, {
                 type: sbType,
-                multiplier: settings.starBonus.multiplier,
+                multiplier: rawMultiplier,
                 shiny: baseIncome.shiny * multValue,
                 glowy: baseIncome.glowy * multValue,
                 starry: baseIncome.starry * multValue

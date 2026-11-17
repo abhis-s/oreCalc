@@ -115,6 +115,15 @@ describe('Language Router Domain Suite', () => {
             assert.equal(detectLanguage(), 'de');
         });
 
+        test('respects localStorage saved language when state.uiSettings.language is auto', () => {
+            cleanups.push(mockGlobal('window', { location: { pathname: '/' } }));
+            cleanups.push(mockGlobal('localStorage', { getItem: (key) => key === 'clashCalc_appSettings' ? JSON.stringify({ language: 'de' }) : null }));
+            cleanups.push(mockGlobal('navigator', { languages: ['tr', 'en'] }));
+            state.uiSettings = { language: 'auto' };
+
+            assert.equal(detectLanguage(), 'de');
+        });
+
         test('falls back to navigator.languages when no saved preference exists', () => {
             cleanups.push(mockGlobal('window', { location: { pathname: '/' } }));
             cleanups.push(mockGlobal('localStorage', { getItem: () => null }));
@@ -366,6 +375,13 @@ describe('Language Router Domain Suite', () => {
         test('falls back safely to root path if location is missing or empty', () => {
             assert.equal(getLocalizedPath('de', null), '/de/');
             assert.equal(getLocalizedPath('en', null), '/');
+        });
+
+        test('falls back to English when target language is not supported on legal routes', () => {
+            assert.equal(getLocalizedPath('zh', { pathname: '/privacy/' }), '/privacy/');
+            assert.equal(getLocalizedPath('de', { pathname: '/privacy/' }), '/de/privacy/');
+            assert.equal(getLocalizedPath('tr', { pathname: '/terms/' }), '/terms/');
+            assert.equal(getLocalizedPath('de', { pathname: '/licenses/' }), '/licenses/');
         });
     });
 

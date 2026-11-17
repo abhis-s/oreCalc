@@ -4,6 +4,8 @@
  * Provides a helper to generate <svg><use></use></svg> markup.
  */
 
+import { escapeHTML } from './stringUtils.js';
+
 const DEFAULT_VIEWBOX = '0 0 24 24';
 
 const SVG_VIEWBOXES = {
@@ -23,10 +25,15 @@ const SVG_VIEWBOXES = {
 export function getSVG(id, className = '', height = 24, width = 24, fill = 'currentColor') {
     if (!id) return '';
     const viewBox = SVG_VIEWBOXES[id] || DEFAULT_VIEWBOX;
+    const safeId = escapeHTML(id);
+    const safeClassName = escapeHTML(className);
+    const safeHeight = escapeHTML(height);
+    const safeWidth = escapeHTML(width);
+    const safeFill = escapeHTML(fill);
 
     // Use <use> tag to reference the sprite sheet defined in index.html
-    return `<svg class="${className}" height="${height}" width="${width}" viewBox="${viewBox}" fill="${fill}">
-        <use href="#icon-${id}" xlink:href="#icon-${id}"></use>
+    return `<svg class="${safeClassName}" height="${safeHeight}" width="${safeWidth}" viewBox="${viewBox}" fill="${safeFill}">
+        <use href="#icon-${safeId}" xlink:href="#icon-${safeId}"></use>
     </svg>`;
 }
 
@@ -62,9 +69,12 @@ if (typeof HTMLElement !== 'undefined') {
             const width = this.getAttribute('width') || '24';
             const fill = this.getAttribute('fill') || 'currentColor';
 
-            if (name) {
-                this.innerHTML = getSVG(name, '', height, width, fill);
+            if (!name) {
+                this.innerHTML = '';
+                return;
             }
+
+            this.innerHTML = getSVG(name, '', height, width, fill);
         }
     }
 

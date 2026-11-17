@@ -6,6 +6,7 @@ import { applyThemeSettings } from '../core/themeManager.js';
 
 import { safeJsonParse } from '../utils/jsonUtils.js';
 import { setDefaultDateLocale, getAppLastUpdatedDateFormatted } from '../utils/dateUtils.js';
+import { sanitizeHTML } from '../utils/stringUtils.js';
 
 /**
  * Traverses DOM data-i18n attributes and updates element text/attributes with translated strings.
@@ -33,22 +34,35 @@ export function updateUIWithTranslations(isInitialLoad = false) {
 
         let translatedName = translate(key, mergedArgs);
 
-        if (translatedName.includes('<') && translatedName.includes('>')) {
-            element.innerHTML = translatedName;
+        const allowsHtml = element.getAttribute('data-i18n-html') === 'true';
+        if (allowsHtml) {
+            element.innerHTML = sanitizeHTML(translatedName);
             return;
         }
 
-        let updated = false;
-        for (const child of element.childNodes) {
-            if (child.nodeType === Node.TEXT_NODE) {
-                child.textContent = translatedName;
-                updated = true;
-                break;
+        let targetTextNode = null;
+        if (element.childNodes) {
+            for (const child of element.childNodes) {
+                if (child.nodeType === Node.TEXT_NODE && child.textContent && child.textContent.trim().length > 0) {
+                    targetTextNode = child;
+                    break;
+                }
             }
         }
 
-        if (!updated) {
+        if (targetTextNode) {
+            targetTextNode.textContent = translatedName;
+        } else if (!element.children || element.children.length === 0) {
             element.textContent = translatedName;
+        } else {
+            const lastChild = element.lastChild;
+            if (lastChild && lastChild.nodeType === Node.TEXT_NODE) {
+                lastChild.textContent = ' ' + translatedName;
+            } else if (typeof document !== 'undefined' && typeof document.createTextNode === 'function') {
+                element.appendChild(document.createTextNode(' ' + translatedName));
+            } else {
+                element.textContent = translatedName;
+            }
         }
     });
 

@@ -2,7 +2,7 @@ import { translate } from '../../i18n/translator.js';
 
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
-import { sanitizeHTML } from '../../ui/noticeModal.js';
+import { sanitizeHTML } from '../../utils/stringUtils.js';
 import { enhanceClipboardInput, triggerAutoPaste } from '../common/clipboardInputController.js';
 
 let errorTimeout;

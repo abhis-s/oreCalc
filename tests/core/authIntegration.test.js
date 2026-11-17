@@ -137,11 +137,13 @@ import { ALLOWED_STATIC_STORAGE_KEYS, normalizePlayerTag, getActiveUserId, rotat
 import { loadTranslations } from '../../js/i18n/translator.js';
 await loadTranslations('en');
 const {
+    applyAuthSession,
     getAuthenticatedUser,
     isAuthenticated,
     logout,
     purgeLocalDataOnLogin,
     resetApplication,
+    throwApiError,
     initCrossTabAuthSync,
     resetCrossTabAuthSyncForTesting
 } = await import('../../js/services/authClientService.js');
@@ -320,10 +322,14 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         const unsupportedCodeErr = { code: 'ERROR_AUTHENTICATOR_NO_SUPPORTED_PUBKEYCREDPARAMS_ALG' };
         assert.equal(normalizeWebAuthnError(unsupportedCodeErr).message, 'passkeyNotSupported');
 
-        // Security / Domain origin mismatch
-        const securityErr = new Error('Origin mismatch');
+        // Security / Domain origin mismatch with "not allowed" text
+        const securityErr = new Error('The domain is not allowed for this origin');
         securityErr.name = 'SecurityError';
         assert.equal(normalizeWebAuthnError(securityErr).message, 'passkeySecurityError');
+
+        const notSupportedWithMsg = new Error('Operation not allowed because algorithm is unsupported');
+        notSupportedWithMsg.name = 'NotSupportedError';
+        assert.equal(normalizeWebAuthnError(notSupportedWithMsg).message, 'passkeyNotSupported');
 
         const invalidDomainErr = { code: 'ERROR_INVALID_DOMAIN' };
         assert.equal(normalizeWebAuthnError(invalidDomainErr).message, 'passkeySecurityError');
@@ -674,6 +680,63 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
 
         assert.equal(eventsReceived.length, 3);
         assert.equal(eventsReceived[2].action, 'profile-update');
+
+        globalThis.document.removeEventListener('auth:state-change', handler);
+    });
+
+    test('throwApiError preserves error reason even when serverMessage is omitted', async () => {
+        const fakeResponse = {
+            status: 400,
+            json: async () => ({ reason: 'custom_validation_failure' })
+        };
+        await assert.rejects(
+            async () => throwApiError(fakeResponse),
+            {
+                name: 'Error',
+                message: 'custom_validation_failure'
+            }
+        );
+    });
+
+    test('applyAuthSession updates session storage, dispatches event, and purges partitions on login but preserves on register', () => {
+        /** @type {any[]} */
+        const events = [];
+        const handler = (e) => events.push(e.detail);
+        globalThis.document.addEventListener('auth:state-change', handler);
+
+        // Pre-populate guest partitions
+        store.set('clashCalc_player_ABC123', JSON.stringify({ townHallLevel: 15 }));
+        store.set('clashCalc_playerTags', JSON.stringify(['ABC123']));
+
+        // Registration: does NOT purge partitions
+        applyAuthSession({
+            token: 'reg.jwt.token',
+            username: 'newUser',
+            userId: 'user-id-reg-1',
+            hasPassword: true,
+            avatar: 'archer'
+        }, 'register');
+
+        assert.equal(store.get('clashCalc_authToken'), 'reg.jwt.token');
+        assert.equal(store.get('clashCalc_username'), 'newUser');
+        assert.equal(store.get('clashCalc_player_ABC123') !== undefined, true, 'Registration preserves existing local partitions');
+        assert.equal(events.length, 1);
+        assert.equal(events[0].action, 'register');
+
+        // Login: PURGES prior guest partitions
+        applyAuthSession({
+            token: 'login.jwt.token',
+            username: 'existingUser',
+            userId: 'user-id-login-2',
+            hasPassword: false,
+            avatar: 'goblin'
+        }, 'login');
+
+        assert.equal(store.get('clashCalc_authToken'), 'login.jwt.token');
+        assert.equal(store.get('clashCalc_username'), 'existingUser');
+        assert.equal(store.get('clashCalc_player_ABC123'), undefined, 'Login purges prior partitions');
+        assert.equal(events.length, 2);
+        assert.equal(events[1].action, 'login');
 
         globalThis.document.removeEventListener('auth:state-change', handler);
     });

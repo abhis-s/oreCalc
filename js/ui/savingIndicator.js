@@ -1,6 +1,4 @@
 import { translate } from '../i18n/translator.js';
-import { state } from '../core/state.js';
-import { handleStateUpdate } from '../core/stateManager.js';
 
 /**
  * Resolves active saving buttons present in the current DOM environment.
@@ -115,13 +113,6 @@ function showSaveErrorIndicator() {
     const { buttons } = getSaveElements();
     if (buttons.length === 0) return;
 
-    handleStateUpdate(() => {
-        if (!state.uiSettings) {
-            state.uiSettings = {};
-        }
-        state.uiSettings.saveError = true;
-    }, true, { skipSave: true });
-
     buttons.forEach(btn => {
         btn.classList.remove('saving');
         btn.classList.remove('success');
@@ -140,13 +131,6 @@ function showSaveErrorIndicator() {
 function hideSaveErrorIndicator() {
     const { buttons } = getSaveElements();
     if (buttons.length === 0) return;
-
-    handleStateUpdate(() => {
-        if (!state.uiSettings) {
-            state.uiSettings = {};
-        }
-        state.uiSettings.saveError = false;
-    }, true, { skipSave: true });
 
     buttons.forEach(btn => {
         btn.classList.remove('error');

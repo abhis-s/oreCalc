@@ -1,9 +1,7 @@
-import { MAX_TOWN_HALL } from '../core/constants.js';
+import { MAX_TOWN_HALL, ZERO_ORES } from '../core/constants.js';
 import { supercellEventsData } from './incomeSources/supercellEvents.js';
 import { currencyData } from './pricingData.js';
 import { translate } from '../i18n/translator.js';
-
-import { selectDerivedSourceIncome, ZERO_ORES } from '../core/selectors.js';
 
 import { getProspectorIncomeForDate } from '../domain/income/prospectorManager.js';
 import { getSupercellEventsForYear } from '../domain/income/supercellEventsSchedule.js';
@@ -37,6 +35,17 @@ const SUPERCELL_EVENT_REWARD_MAP = {
     'Last Chance Qualifier': 'lastChanceQualifiers',
     'World Finals': 'worldChampionships'
 };
+
+/**
+ * Pure accessor for derived income sources without importing higher-tier core state selectors.
+ * @param {import('../core/types.js').AppState} state
+ * @param {string} sourceId
+ * @param {string} [timeframe='monthly']
+ * @returns {import('../core/types.js').OreQuantity}
+ */
+const getDerivedSourceIncome = (state, sourceId, timeframe = 'monthly') => (
+    state?.derived?.incomeSources?.[sourceId]?.[timeframe] || ZERO_ORES
+);
 
 /**
  * Multiplies an ore quantity by a constant factor.
@@ -90,8 +99,8 @@ export const incomeData = {
             dateStart: 1,
             availableTillEndOfMonth: true,
         },
-        getIncome: (state) => selectDerivedSourceIncome(state, 'starBonus', 'daily'),
-        getBaseIncome: (state) => selectDerivedSourceIncome(state, 'starBonus', 'baseDaily'),
+        getIncome: (state) => getDerivedSourceIncome(state, 'starBonus', 'daily'),
+        getBaseIncome: (state) => getDerivedSourceIncome(state, 'starBonus', 'baseDaily'),
         getSVGUrl: (state) => {
             const thLevel = Math.max(1, Number(state.playerProfile?.townHallLevel) || MAX_TOWN_HALL);
             return getTownHallIconUrl(thLevel);
@@ -121,7 +130,7 @@ export const incomeData = {
                     const duration = state.income.starBonus?.["2x"]?.duration || 0;
                     return isStarBonusEventMonth(month, year, frequency, lastMonth, lastYear) ? duration : 0;
                 },
-                getIncome: (state) => multiplyOres(selectDerivedSourceIncome(state, 'starBonus', 'baseDaily'), 2),
+                getIncome: (state) => multiplyOres(getDerivedSourceIncome(state, 'starBonus', 'baseDaily'), 2),
                 isValidDate: (day, month, year) => {
                     const window = getStarBonus2xWindow(month, year);
                     const targetDate = new Date(Date.UTC(year, month, day));
@@ -141,7 +150,7 @@ export const incomeData = {
                     const targetStr = `${year}-${String(month + 1).padStart(2, '0')}`;
                     return Object.values(upgrades).some(u => u === targetStr) ? 6 : 0;
                 },
-                getIncome: (state) => multiplyOres(selectDerivedSourceIncome(state, 'starBonus', 'baseDaily'), 4),
+                getIncome: (state) => multiplyOres(getDerivedSourceIncome(state, 'starBonus', 'baseDaily'), 4),
                 isValidDate: () => true
             }
         ]
@@ -161,7 +170,7 @@ export const incomeData = {
             dateStart: 26,
             dateEnd: 28,
         },
-        getIncome: (state) => selectDerivedSourceIncome(state, 'shopOffers', 'monthly'),
+        getIncome: (state) => getDerivedSourceIncome(state, 'shopOffers', 'monthly'),
         getResourceString: (state) => {
             const selected = state.income.shopOffers?.selectedSet;
             if (!selected) return '';
@@ -183,7 +192,7 @@ export const incomeData = {
             dateStart: 2,
             dateEnd: 1,
         },
-        getIncome: (state) => selectDerivedSourceIncome(state, 'raidMedalTrader', 'weekly'),
+        getIncome: (state) => getDerivedSourceIncome(state, 'raidMedalTrader', 'weekly'),
         getResourceString: (state) => translate('views.income.raidMedalTrader.perWeek', { count: state.derived.incomeSources.raidMedalTrader?.cost || 0 })
     },
     gemTrader: {
@@ -200,7 +209,7 @@ export const incomeData = {
             dateStart: 2,
             dateEnd: 1,
         },
-        getIncome: (state) => selectDerivedSourceIncome(state, 'gemTrader', 'weekly'),
+        getIncome: (state) => getDerivedSourceIncome(state, 'gemTrader', 'weekly'),
         getResourceString: (state) => translate('views.income.gemTrader.perWeek', { count: state.derived.incomeSources.gemTrader?.cost || 0 })
     },
     eventPass: {
@@ -224,7 +233,7 @@ export const incomeData = {
                 2030: [2, 4, 6, 8, 10, 12]
             },
         },
-        getIncome: (state) => selectDerivedSourceIncome(state, 'eventPass', 'bimonthly'),
+        getIncome: (state) => getDerivedSourceIncome(state, 'eventPass', 'bimonthly'),
         getResourceString: (state) => (
             state.income.eventPass?.eventPass
                 ? `${translate('views.income.eventPass.title')} (${getCostString(state, 'eventPass')})`
@@ -253,7 +262,7 @@ export const incomeData = {
                 2030: [2, 4, 6, 8, 10, 12]
             },
         },
-        getIncome: (state) => selectDerivedSourceIncome(state, 'eventTrader', 'bimonthly'),
+        getIncome: (state) => getDerivedSourceIncome(state, 'eventTrader', 'bimonthly'),
         getResourceString: (state) => translate('views.income.eventPass.medalsResource', { count: state.derived.incomeSources.eventTrader?.cost || 0 })
     },
     clanWar: {
@@ -270,7 +279,7 @@ export const incomeData = {
             dateStart: 4,
             availableTillEndOfMonth: true,
         },
-        getIncome: (state) => selectDerivedSourceIncome(state, 'clanWar', 'perEvent'),
+        getIncome: (state) => getDerivedSourceIncome(state, 'clanWar', 'perEvent'),
         getCount: (state) => state.income.clanWar?.warsPerMonth || 0,
         minReoccurrenceDays: 2,
         getResourceString: (state) => formatWarResource(state.income.clanWar?.warsPerMonth || 0, state.income.clanWar?.winRate, 'views.income.clanWar.resource')
@@ -289,7 +298,7 @@ export const incomeData = {
             dateStart: 3,
             dateEnd: 11,
         },
-        getIncome: (state) => selectDerivedSourceIncome(state, 'cwl', 'perEvent'),
+        getIncome: (state) => getDerivedSourceIncome(state, 'cwl', 'perEvent'),
         getCount: (state) => state.income.cwl?.hitsPerSeason || 0,
         getResourceString: (state) => formatWarResource(state.income.cwl?.hitsPerSeason || 0, state.income.cwl?.winRate, 'views.income.cwl.resource')
     },
@@ -346,7 +355,7 @@ export const incomeData = {
             dateStart: 1,
             availableTillEndOfMonth: true,
         },
-        getIncome: (state) => selectDerivedSourceIncome(state, 'prospector', 'daily'),
+        getIncome: (state) => getDerivedSourceIncome(state, 'prospector', 'daily'),
         getResourceString: (state) => (
             state.income.prospector?.goldPass
                 ? `${translate('entities.pricing.goldPass')} (${getCostString(state, 'prospector')})`
@@ -386,7 +395,7 @@ export function getSourceById(id) {
                 className: `star-bonus-${multiplierStr}`,
                 schedule: { type: 'custom' },
                 getSVGUrl: (state) => incomeData.starBonus.getSVGUrl(state),
-                getIncome: (state) => multiplyOres(selectDerivedSourceIncome(state, 'starBonus', 'baseDaily'), mult),
+                getIncome: (state) => multiplyOres(getDerivedSourceIncome(state, 'starBonus', 'baseDaily'), mult),
                 isValidDate: () => true
             };
         }

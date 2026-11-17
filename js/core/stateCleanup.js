@@ -74,11 +74,20 @@ export function migrateComingSoonEquipment(heroes) {
                 if (hero.equipment[sKey]?.isCustom) {
                     const sourcePlan = hero.equipment[sKey].upgradePlan;
                     if (sKey !== canonicalKey) {
-                        hero.equipment[canonicalKey] = {
-                            level: hero.equipment[sKey].level || 1,
-                            checked: hero.equipment[sKey].checked !== false,
-                            ...(sourcePlan ? { upgradePlan: structuredClone(sourcePlan) } : {})
-                        };
+                        const targetEquip = hero.equipment[canonicalKey];
+                        const targetHasProgress = targetEquip && (
+                            targetEquip.level > 1 ||
+                            (targetEquip.upgradePlan && Object.keys(targetEquip.upgradePlan).length > 0)
+                        );
+                        if (!targetHasProgress) {
+                            hero.equipment[canonicalKey] = {
+                                level: hero.equipment[sKey].level || 1,
+                                checked: hero.equipment[sKey].checked !== false,
+                                ...(sourcePlan ? { upgradePlan: structuredClone(sourcePlan) } : {})
+                            };
+                        } else if (!targetEquip.upgradePlan && sourcePlan) {
+                            targetEquip.upgradePlan = structuredClone(sourcePlan);
+                        }
                         delete hero.equipment[sKey];
                     } else {
                         delete hero.equipment[sKey].isCustom;
@@ -173,7 +182,8 @@ export function migrateHeroesToKeys(heroes) {
                 if (!heroes[heroKey]) {
                     heroes[heroKey] = legacyVal;
                 } else if (typeof heroes[heroKey] === 'object' && typeof legacyVal === 'object') {
-                    heroes[heroKey] = { ...legacyVal, ...heroes[heroKey] };
+                    const mergedEq = { ...(heroes[heroKey].equipment || {}), ...(legacyVal.equipment || {}) };
+                    heroes[heroKey] = { ...heroes[heroKey], ...legacyVal, equipment: mergedEq };
                 }
                 delete heroes[heroName];
             }
@@ -193,7 +203,7 @@ export function migrateHeroesToKeys(heroes) {
                             if (!eqMap[eqKey]) {
                                 eqMap[eqKey] = legacyEq;
                             } else if (typeof eqMap[eqKey] === 'object' && typeof legacyEq === 'object') {
-                                eqMap[eqKey] = { ...legacyEq, ...eqMap[eqKey] };
+                                eqMap[eqKey] = { ...eqMap[eqKey], ...legacyEq };
                             }
                             delete eqMap[eqName];
                         }
@@ -330,95 +340,100 @@ export function cleanupOrphanedPlayerPartitions(stateObj = null) {
 
         for (const key of allKeys) {
             if (!key) continue;
-            let activePrefix = null;
-            if (key.startsWith(CANONICAL_PLAYER_PREFIX)) {
-                activePrefix = CANONICAL_PLAYER_PREFIX;
-            } else if (key.startsWith(LEGACY_PLAYER_PREFIX)) {
-                activePrefix = LEGACY_PLAYER_PREFIX;
-            }
+            try {
+                let activePrefix = null;
+                if (key.startsWith(CANONICAL_PLAYER_PREFIX)) {
+                    activePrefix = CANONICAL_PLAYER_PREFIX;
+                } else if (key.startsWith(LEGACY_PLAYER_PREFIX)) {
+                    activePrefix = LEGACY_PLAYER_PREFIX;
+                }
 
-            if (activePrefix) {
-                const rawSuffix = key.slice(activePrefix.length);
-                const cleanTag = normalizePlayerTag(rawSuffix);
-                const canonicalKey = `${activePrefix}${cleanTag}`;
+                if (activePrefix) {
+                    const rawSuffix = key.slice(activePrefix.length);
+                    const cleanTag = normalizePlayerTag(rawSuffix);
+                    const canonicalKey = `${activePrefix}${cleanTag}`;
 
-                const isAllowed = cleanTag && (
-                    allowedTags.has(cleanTag) ||
-                    (cleanTag === 'DEFAULT0' && isGuestAllowed)
-                );
+                    const isAllowed = cleanTag && (
+                        allowedTags.has(cleanTag) ||
+                        (cleanTag === 'DEFAULT0' && isGuestAllowed)
+                    );
 
-                const isLegacy = key.startsWith(LEGACY_PLAYER_PREFIX);
-                const canonicalCounterpart = `${CANONICAL_PLAYER_PREFIX}${cleanTag}`;
-                const canonicalExists = isLegacy && localStorage.getItem(canonicalCounterpart) !== null;
+                    const isLegacy = key.startsWith(LEGACY_PLAYER_PREFIX);
+                    const canonicalCounterpart = `${CANONICAL_PLAYER_PREFIX}${cleanTag}`;
+                    const canonicalExists = isLegacy && localStorage.getItem(canonicalCounterpart) !== null;
+                    const isLegacyHost = typeof window !== 'undefined' && Boolean(window.location?.hostname?.toLowerCase().includes('orecalc.tech'));
 
-                if (isLegacy && canonicalExists) {
-                    localStorage.removeItem(key);
-                    deletedKeys.push(key);
-                } else if (!isAllowed) {
-                    localStorage.removeItem(key);
-                    deletedKeys.push(key);
-                    if (stateObj?.allPlayersData && cleanTag && stateObj.allPlayersData[cleanTag]) {
-                        delete stateObj.allPlayersData[cleanTag];
-                    }
-                } else if (key !== canonicalKey) {
-                    const canonicalExists = localStorage.getItem(canonicalKey) !== null;
-                    if (canonicalExists) {
+                    if (isLegacy && canonicalExists && !isLegacyHost) {
                         localStorage.removeItem(key);
                         deletedKeys.push(key);
+                    } else if (!isAllowed) {
+                        localStorage.removeItem(key);
+                        deletedKeys.push(key);
+                        if (stateObj?.allPlayersData && cleanTag && stateObj.allPlayersData[cleanTag]) {
+                            delete stateObj.allPlayersData[cleanTag];
+                        }
+                    } else if (key !== canonicalKey) {
+                        const canonicalExists = localStorage.getItem(canonicalKey) !== null;
+                        if (canonicalExists) {
+                            localStorage.removeItem(key);
+                            deletedKeys.push(key);
+                        } else {
+                            const raw = localStorage.getItem(key);
+                            if (raw) {
+                                const parsed = safeJsonParse(raw, null);
+                                if (parsed && typeof parsed === 'object') {
+                                    if (parsed.heroJourney && typeof parsed.heroJourney === 'object') {
+                                        parsed.heroJourney = {
+                                            acceleratedRewards: Boolean(parsed.heroJourney.acceleratedRewards ?? parsed.heroJourney.accelerated ?? (parsed.heroJourney.rewardMode === 'accelerated')),
+                                            revealBeyondTH: Boolean(parsed.heroJourney.revealBeyondTH),
+                                            hidden: Boolean(parsed.heroJourney.hidden)
+                                        };
+                                    }
+                                    if (parsed.heroes && typeof parsed.heroes === 'object') {
+                                        migrateComingSoonEquipment(parsed.heroes);
+                                    }
+                                    localStorage.setItem(canonicalKey, JSON.stringify(parsed));
+                                } else {
+                                    localStorage.setItem(canonicalKey, raw);
+                                }
+                            }
+                            localStorage.removeItem(key);
+                            deletedKeys.push(key);
+                        }
                     } else {
-                        const raw = localStorage.getItem(key);
-                        if (raw) {
-                            const parsed = safeJsonParse(raw, null);
-                            if (parsed && typeof parsed === 'object') {
-                                if (parsed.heroJourney && typeof parsed.heroJourney === 'object') {
-                                    parsed.heroJourney = {
-                                        acceleratedRewards: Boolean(parsed.heroJourney.acceleratedRewards ?? parsed.heroJourney.accelerated ?? (parsed.heroJourney.rewardMode === 'accelerated')),
-                                        revealBeyondTH: Boolean(parsed.heroJourney.revealBeyondTH),
-                                        hidden: Boolean(parsed.heroJourney.hidden)
-                                    };
+                        const raw = localStorage.getItem(canonicalKey);
+                        const parsed = safeJsonParse(raw, null);
+                        if (parsed && typeof parsed === 'object') {
+                            let shouldWrite = false;
+                            if (parsed.heroJourney && typeof parsed.heroJourney === 'object') {
+                                const prevHj = parsed.heroJourney;
+                                const nextHj = {
+                                    acceleratedRewards: Boolean(prevHj.acceleratedRewards ?? prevHj.accelerated ?? (prevHj.rewardMode === 'accelerated')),
+                                    revealBeyondTH: Boolean(prevHj.revealBeyondTH),
+                                    hidden: Boolean(prevHj.hidden)
+                                };
+                                if (prevHj.acceleratedRewards !== nextHj.acceleratedRewards ||
+                                    prevHj.revealBeyondTH !== nextHj.revealBeyondTH ||
+                                    prevHj.hidden !== nextHj.hidden ||
+                                    prevHj.accelerated !== undefined ||
+                                    prevHj.rewardMode !== undefined) {
+                                    parsed.heroJourney = nextHj;
+                                    shouldWrite = true;
                                 }
-                                if (parsed.heroes && typeof parsed.heroes === 'object') {
-                                    migrateComingSoonEquipment(parsed.heroes);
+                            }
+                            if (parsed.heroes && typeof parsed.heroes === 'object') {
+                                if (migrateComingSoonEquipment(parsed.heroes)) {
+                                    shouldWrite = true;
                                 }
+                            }
+                            if (shouldWrite) {
                                 localStorage.setItem(canonicalKey, JSON.stringify(parsed));
-                            } else {
-                                localStorage.setItem(canonicalKey, raw);
                             }
-                        }
-                        localStorage.removeItem(key);
-                        deletedKeys.push(key);
-                    }
-                } else {
-                    const raw = localStorage.getItem(canonicalKey);
-                    const parsed = safeJsonParse(raw, null);
-                    if (parsed && typeof parsed === 'object') {
-                        let shouldWrite = false;
-                        if (parsed.heroJourney && typeof parsed.heroJourney === 'object') {
-                            const prevHj = parsed.heroJourney;
-                            const nextHj = {
-                                acceleratedRewards: Boolean(prevHj.acceleratedRewards ?? prevHj.accelerated ?? (prevHj.rewardMode === 'accelerated')),
-                                revealBeyondTH: Boolean(prevHj.revealBeyondTH),
-                                hidden: Boolean(prevHj.hidden)
-                            };
-                            if (prevHj.acceleratedRewards !== nextHj.acceleratedRewards ||
-                                prevHj.revealBeyondTH !== nextHj.revealBeyondTH ||
-                                prevHj.hidden !== nextHj.hidden ||
-                                prevHj.accelerated !== undefined ||
-                                prevHj.rewardMode !== undefined) {
-                                parsed.heroJourney = nextHj;
-                                shouldWrite = true;
-                            }
-                        }
-                        if (parsed.heroes && typeof parsed.heroes === 'object') {
-                            if (migrateComingSoonEquipment(parsed.heroes)) {
-                                shouldWrite = true;
-                            }
-                        }
-                        if (shouldWrite) {
-                            localStorage.setItem(canonicalKey, JSON.stringify(parsed));
                         }
                     }
                 }
+            } catch (keyErr) {
+                console.warn(`Error cleaning up partition key ${key}:`, keyErr);
             }
         }
 

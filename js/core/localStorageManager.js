@@ -91,7 +91,7 @@ export function persistStoredAppSettings(patch) {
  * @param {boolean} [immediate=false] - Whether to bypass 1000ms debounce timer.
  */
 export function saveState(state, immediate = false) {
-    if (isResettingState || !state || !Array.isArray(state.savedPlayerTags) || !state.allPlayersData || state.uiSettings?.saveError) {
+    if (isResettingState || !state || !Array.isArray(state.savedPlayerTags) || !state.allPlayersData) {
         return;
     }
     clearTimeout(saveTimeout);
@@ -363,10 +363,17 @@ export function loadState() {
                 const parsedPlayer = safeJsonParse(playerStr, null);
                 let playerObj = parsedPlayer || initializeDefaultPlayerState();
                 if (!playerObj.heroes && cleanKey !== 'DEFAULT0') {
-                    const existingProfile = playerObj.playerProfile;
-                    playerObj = initializeDefaultPlayerState();
-                    if (existingProfile && typeof existingProfile === 'object') {
-                        playerObj.playerProfile = existingProfile;
+                    if (primaryKey !== fallbackKey) {
+                        const fallbackStr = localStorage.getItem(fallbackKey);
+                        if (fallbackStr) {
+                            const fallbackObj = safeJsonParse(fallbackStr, null);
+                            if (fallbackObj && fallbackObj.heroes) {
+                                playerObj = { ...fallbackObj, ...playerObj };
+                            }
+                        }
+                    }
+                    if (!playerObj.heroes) {
+                        playerObj = { ...initializeDefaultPlayerState(), ...playerObj, heroes: initializeDefaultPlayerState().heroes };
                     }
                 }
                 // Purge cross-contaminated profile if partition key does not match internal profile tag

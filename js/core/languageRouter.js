@@ -38,8 +38,14 @@ export function detectLanguage() {
         ? (localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings'))
         : null;
     const settings = safeJsonParse(rawSettings, {});
-    const savedLang = state.uiSettings?.language || settings?.language;
-    if (savedLang && SUPPORTED_LANGUAGES.includes(savedLang) && savedLang !== 'auto') {
+    const stateLang = (state.uiSettings?.language && state.uiSettings.language !== 'auto')
+        ? state.uiSettings.language
+        : null;
+    const storageLang = (settings?.language && settings.language !== 'auto')
+        ? settings.language
+        : null;
+    const savedLang = stateLang || storageLang;
+    if (savedLang && SUPPORTED_LANGUAGES.includes(savedLang)) {
         return savedLang;
     }
 
@@ -83,13 +89,32 @@ export function getLocalizedPath(lang, loc = (typeof window !== 'undefined' ? wi
         formattedPath = `${formattedPath}/`;
     }
 
-    if (lang === 'en') {
+    const normalizedSubPath = formattedPath ? `/${formattedPath}` : '/';
+    const legalRoute = APP_LEGAL_ROUTES.find(route => route.path === normalizedSubPath);
+    const effectiveLang = (legalRoute && !legalRoute.supportedLanguages.includes(lang))
+        ? 'en'
+        : lang;
+
+    if (effectiveLang === 'en') {
         const newPathname = formattedPath ? `/${formattedPath}` : '/';
         return `${newPathname}${currentSearch}${currentHash}`;
     }
 
-    const newPathname = formattedPath ? `/${lang}/${formattedPath}` : `/${lang}/`;
+    const newPathname = formattedPath ? `/${effectiveLang}/${formattedPath}` : `/${effectiveLang}/`;
     return `${newPathname}${currentSearch}${currentHash}`;
+}
+
+/** @type {((pathAndSearch: string) => void) | null} */
+let languageUrlSyncHandler = null;
+
+/**
+ * Registers a callback invoked whenever syncLanguageUrl updates the browser URL.
+ * Keeps external navigators synchronized without circular module dependencies.
+ *
+ * @param {(pathAndSearch: string) => void} handler
+ */
+export function registerLanguageUrlSyncHandler(handler) {
+    languageUrlSyncHandler = handler;
 }
 
 /**
@@ -129,6 +154,7 @@ export function syncLanguageUrl(lang, replace = false) {
         } else {
             history.pushState(null, '', newUrl);
         }
+        languageUrlSyncHandler?.(window.location.pathname + window.location.search);
     }
 
     document.documentElement.lang = lang;

@@ -214,14 +214,14 @@ export function initializePwaService() {
                 logger.warn('Forced update reload loop detected. Aborting automatic reload.');
                 return;
             }
-            sessionStorage.setItem('clashCalc_lastSwReload', now.toString());
             sessionStorage.removeItem('oreCalcUpdateDetectedAt');
-            markSWUpdated();
 
             wb.register().then(reg => {
                 if (reg && reg.waiting) {
                     wb.messageSkipWaiting();
                 } else {
+                    sessionStorage.setItem('clashCalc_lastSwReload', now.toString());
+                    markSWUpdated();
                     window.location.reload();
                 }
             });

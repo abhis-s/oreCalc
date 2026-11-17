@@ -69,11 +69,12 @@ export function registerInputPopover(inputElement, options = {}) {
         return currMin !== 0;
     };
 
-    const getShowMax = () => {
+    const getShowMax = (currMax) => {
         if (isRangeEnabled()) return false;
         if (typeof options.showMax === 'function') return options.showMax();
         if (options.showMax !== undefined) return !!options.showMax;
-        return true;
+        const maxVal = currMax !== undefined ? currMax : getMax();
+        return Number.isFinite(maxVal);
     };
 
     const isRecommendedEnabled = () => {
@@ -145,7 +146,8 @@ export function registerInputPopover(inputElement, options = {}) {
     };
 
     const updatePopover = () => {
-        const val = parseFloat(inputElement.value) || 0;
+        const rawVal = inputElement.value;
+        const val = rawVal === '' ? NaN : (parseFloat(rawVal) || 0);
         const recVal = getRecommendedValue();
         const currMin = getMin();
         const currMax = getMax();
@@ -170,7 +172,7 @@ export function registerInputPopover(inputElement, options = {}) {
             titleText: getTitleText(),
             showRange: isRangeEnabled(),
             showMin: getShowMin(currMin),
-            showMax: getShowMax(),
+            showMax: getShowMax(currMax),
             showRecNow,
             enableValidationColoring,
             clickToFill,
@@ -236,11 +238,13 @@ export function registerInputPopover(inputElement, options = {}) {
                 actionTriggered = true;
             }
         } else if (key === 'escape') {
+            e.preventDefault();
+            e.stopPropagation();
             hidePopover();
             if (typeof inputElement.blur === 'function') {
                 inputElement.blur();
             }
-            actionTriggered = true;
+            return;
         } else {
             const customButtons = getCustomButtons();
             for (let i = 0; i < customButtons.length; i++) {
@@ -276,24 +280,6 @@ export function registerInputPopover(inputElement, options = {}) {
             inputElement.dispatchEvent(new Event('change', { bubbles: true }));
             updatePopover();
         }
-    };
-
-    let animationFrameId = null;
-
-    const stopTrackingPosition = () => {
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
-    };
-
-    const trackPositionLoop = () => {
-        if (!popover.classList.contains('show') || document.activeElement !== inputElement) {
-            stopTrackingPosition();
-            return;
-        }
-        positionPopover(popover, inputElement, options);
-        animationFrameId = requestAnimationFrame(trackPositionLoop);
     };
 
     const showPopover = () => {
@@ -342,8 +328,7 @@ export function registerInputPopover(inputElement, options = {}) {
             hide: hidePopover
         };
 
-        stopTrackingPosition();
-        trackPositionLoop();
+        positionPopoverThrottled();
     };
 
     let blurTimeout = null;
@@ -358,7 +343,6 @@ export function registerInputPopover(inputElement, options = {}) {
             activePopoverInstance = null;
         }
 
-        stopTrackingPosition();
         popover.classList.remove('show');
         popover.style.opacity = '0';
         popover.style.pointerEvents = 'none';
@@ -376,7 +360,6 @@ export function registerInputPopover(inputElement, options = {}) {
             if (activePopoverInstance?.inputElement === inputElement) {
                 activePopoverInstance = null;
             }
-            stopTrackingPosition();
             popover.classList.remove('show');
             popover.style.opacity = '0';
             popover.style.pointerEvents = 'none';

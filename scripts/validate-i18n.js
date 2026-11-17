@@ -266,8 +266,8 @@ function scanCodebaseKeys(files, enKeysMap) {
                 }
             }
 
-            // B. Match data-i18n="static.key" or data-i18n-*="static.key"
-            const dataI18nMatches = line.matchAll(/data-i18n(?:-[a-z-]+)?=\s*['"]([a-zA-Z0-9_.-]+)['"]/g);
+            // B. Match data-i18n="static.key" or data-i18n-*="static.key" (ignoring flag attributes like data-i18n-html or data-i18n-args)
+            const dataI18nMatches = line.matchAll(/data-i18n(?:-(?!html|args)[a-z-]+)?=\s*['"]([a-zA-Z0-9_.-]+)['"]/g);
             for (const match of dataI18nMatches) {
                 const k = match[1];
                 if (k !== 'key.name' && !k.endsWith('.')) {

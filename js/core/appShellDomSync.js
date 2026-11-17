@@ -23,9 +23,11 @@ function normalizeStylesheetPath(href) {
         const origin = (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null')
             ? window.location.origin
             : 'https://clashcalc.com';
-        return new URL(href, origin).pathname;
+        const pathname = new URL(href, origin).pathname;
+        return pathname.replace(/\.min\.css$/, '.css');
     } catch (_) {
-        return href.split(/[?#]/)[0];
+        const stripped = href.split(/[?#]/)[0];
+        return stripped.replace(/\.min\.css$/, '.css');
     }
 }
 
@@ -94,10 +96,15 @@ class ShellStylesheetManager {
             }
 
             const loadPromise = new Promise((resolve) => {
-                newLink.onload = () => resolve(undefined);
-                newLink.onerror = () => resolve(undefined);
+                let timer;
+                const done = () => {
+                    clearTimeout(timer);
+                    resolve(undefined);
+                };
+                newLink.onload = done;
+                newLink.onerror = done;
                 // Timeout safeguard prevents hanging on slow connections
-                setTimeout(() => resolve(undefined), 250);
+                timer = setTimeout(done, 250);
             });
 
             pendingPromises.push(loadPromise);
@@ -215,7 +222,7 @@ export function computeSynchronizedBodyClasses(currentClassName, nextRoute, hasP
         classes.push(routeBodyClass);
     }
 
-    if (hasPlayer || currentClassName.includes('has-player')) {
+    if (hasPlayer) {
         classes.push('has-player');
     }
 

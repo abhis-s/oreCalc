@@ -7,7 +7,7 @@
 
 import { isModalHistoryPopping, dismissModalsForNavigation } from '../utils/modalHistoryManager.js';
 import { APP_ROUTES } from '../data/appRoutesData.js';
-import { findRouteByPath } from './languageRouter.js';
+import { findRouteByPath, registerLanguageUrlSyncHandler } from './languageRouter.js';
 import {
     computeSynchronizedBodyClasses,
     ensureStylesheets,
@@ -177,12 +177,12 @@ export function isNavigableLink(anchor, event) {
             return { isNavigable: false, route: null, url };
         }
 
-        const route = resolveAppRoute(url.pathname);
-        if (!route) {
+        const routeObj = findRouteByPath(url.pathname);
+        if (!routeObj || routeObj.requiresStandalone) {
             return { isNavigable: false, route: null, url: null };
         }
 
-        return { isNavigable: true, route, url };
+        return { isNavigable: true, route: routeObj.id, url };
     } catch (_) {
         return { isNavigable: false, route: null, url: null };
     }
@@ -202,13 +202,14 @@ async function navigateTo(targetUrl, options = {}) {
     if (typeof window === 'undefined' || typeof document === 'undefined') return false;
 
     const url = new URL(targetUrl, window.location.href);
-    const targetRoute = resolveAppRoute(url.pathname);
-    if (!targetRoute) return false;
+    const routeObj = findRouteByPath(url.pathname);
+    if (!routeObj || routeObj.requiresStandalone) return false;
+    const targetRoute = routeObj.id;
 
     // Guard against redundant navigation when already on target URL and route
     if (options.isPopState) {
         if (targetRoute === currentActiveRoute &&
-            url.pathname === lastCommittedPathname &&
+            (url.pathname + url.search) === lastCommittedPathname &&
             !url.hash) {
             return false;
         }
@@ -296,17 +297,6 @@ async function navigateTo(targetUrl, options = {}) {
                 activeExtras.innerHTML = '';
             }
 
-            if (!options.isPopState) {
-                const shouldReplace = Boolean(options.replaceHistory) ||
-                    Boolean(typeof window !== 'undefined' && window.history?.state?.modalStateId) ||
-                    (typeof navigator !== 'undefined' && navigator.userActivation?.hasBeenActive === false);
-                if (shouldReplace && typeof window !== 'undefined' && window.history && typeof window.history.replaceState === 'function') {
-                    window.history.replaceState({}, document.title, url.href);
-                } else if (typeof window !== 'undefined' && window.history && typeof window.history.pushState === 'function') {
-                    window.history.pushState({}, document.title, url.href);
-                }
-            }
-
             navigatorUiHooks.onUpdateDrawer?.({ activeTool: targetRoute });
             navigatorUiHooks.onAfterRouteSwap?.(targetRoute);
 
@@ -327,22 +317,39 @@ async function navigateTo(targetUrl, options = {}) {
                 }
             }
 
+            if (!options.isPopState) {
+                const shouldReplace = Boolean(options.replaceHistory) ||
+                    Boolean(typeof window !== 'undefined' && window.history?.state?.modalStateId) ||
+                    (typeof navigator !== 'undefined' && navigator.userActivation?.hasBeenActive === false);
+                if (shouldReplace && typeof window !== 'undefined' && window.history && typeof window.history.replaceState === 'function') {
+                    window.history.replaceState({}, document.title, url.href);
+                } else if (typeof window !== 'undefined' && window.history && typeof window.history.pushState === 'function') {
+                    window.history.pushState({}, document.title, url.href);
+                }
+            }
+
             currentActiveRoute = targetRoute;
-            lastCommittedPathname = url.pathname;
+            lastCommittedPathname = url.pathname + url.search;
         };
 
         document.documentElement.dataset.transitionType = 'page-switch';
 
         const documentWithViewTransition = /** @type {Document & { startViewTransition?: (cb: () => Promise<void>) => { updateCallbackDone?: Promise<void>, finished?: Promise<void>, ready?: Promise<void> } }} */ (document);
         if (typeof documentWithViewTransition.startViewTransition === 'function' && !document.hidden) {
+            let updateCallbackFailed = false;
             try {
-                const transition = documentWithViewTransition.startViewTransition(performSwap);
+                const transition = documentWithViewTransition.startViewTransition(async () => {
+                    try {
+                        await performSwap();
+                    } catch (swapErr) {
+                        updateCallbackFailed = true;
+                        throw swapErr;
+                    }
+                });
                 transition.ready?.catch(() => {});
                 transition.finished?.catch(() => {});
                 if (transition.updateCallbackDone) {
-                    try {
-                        await transition.updateCallbackDone;
-                    } catch (_) {}
+                    await transition.updateCallbackDone;
                 }
                 if (transition.finished) {
                     try {
@@ -351,7 +358,10 @@ async function navigateTo(targetUrl, options = {}) {
                         // Visual transition animation was skipped by browser engine; DOM swap in performSwap already completed.
                     }
                 }
-            } catch (_) {
+            } catch (err) {
+                if (updateCallbackFailed) {
+                    throw err;
+                }
                 await performSwap();
             }
         } else {
@@ -399,12 +409,29 @@ async function navigateTo(targetUrl, options = {}) {
 }
 
 /**
+ * Synchronizes the last committed pathname and search string when the URL is updated
+ * externally (e.g. by languageRouter.syncLanguageUrl).
+ *
+ * @param {string} pathAndSearch
+ */
+export function syncLastCommittedPathname(pathAndSearch) {
+    if (typeof pathAndSearch === 'string' && pathAndSearch) {
+        lastCommittedPathname = pathAndSearch;
+    }
+}
+
+// Automatically subscribe to language router URL sync updates
+registerLanguageUrlSyncHandler((pathAndSearch) => {
+    syncLastCommittedPathname(pathAndSearch);
+});
+
+/**
  * Initializes global click and popstate listeners for the persistent app shell navigator.
  */
 export function initAppShellNavigator() {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
     currentActiveRoute = resolveAppRoute(window.location.pathname) || 'hub';
-    lastCommittedPathname = window.location.pathname || '/';
+    lastCommittedPathname = (window.location.pathname || '/') + (window.location.search || '');
     if (boundNavigatorDocs.has(document)) return;
     boundNavigatorDocs.add(document);
 
@@ -465,7 +492,7 @@ export function initAppShellNavigator() {
         if (!targetRoute) return;
 
         if (targetRoute === currentActiveRoute &&
-            targetUrl.pathname === lastCommittedPathname &&
+            (targetUrl.pathname + targetUrl.search) === lastCommittedPathname &&
             !targetUrl.hash) {
             return;
         }

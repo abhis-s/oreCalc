@@ -1,6 +1,6 @@
 import { fetchPlayerData } from '../../services/apiService.js';
 import { processPlayerDataResponse } from '../../services/serverResponseHandler.js';
-import { sanitizeHTML } from '../../ui/noticeModal.js';
+import { sanitizeHTML } from '../../utils/stringUtils.js';
 import { logger } from '../../utils/logger.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
 import { translate } from '../../i18n/translator.js';
@@ -99,7 +99,7 @@ export function renderSavedProfilesList(onSelectProfile) {
             </div>
             <div class="account-card-meta">
                 <div class="account-card-clan">
-                    ${clanBadge ? `<clashcalc-assets-image class="clan-badge-img-tiny" src="${clanBadge}" alt="" size="standard"></clashcalc-assets-image>` : ''}
+                    ${clanBadge ? `<clashcalc-assets-image class="clan-badge-img-tiny" src="${escapeHTML(clanBadge)}" alt="" size="standard"></clashcalc-assets-image>` : ''}
                     <span class="clan-name-text">${escapeHTML(clanName || translate('views.guidedSetup.noClan'))}</span>
                 </div>
                 <div class="account-card-stats">
@@ -108,7 +108,7 @@ export function renderSavedProfilesList(onSelectProfile) {
                         <span>${trophies != null ? formatNumber(Number(trophies) || 0) : 0}</span>
                     </span>
                     <span class="account-card-league" title="${escapeHTML(leagueNameDisplay)}">
-                        <clashcalc-assets-image class="league-badge-img-tiny" src="${leagueIcon}" alt="${escapeHTML(leagueNameDisplay)}" size="standard"></clashcalc-assets-image>
+                        <clashcalc-assets-image class="league-badge-img-tiny" src="${escapeHTML(leagueIcon)}" alt="${escapeHTML(leagueNameDisplay)}" size="standard"></clashcalc-assets-image>
                     </span>
                 </div>
             </div>

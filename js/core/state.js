@@ -11,7 +11,7 @@ import { compareVersions } from '../utils/versionUtils.js';
 
 import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel, resolveHeroJourneyTrack } from '../domain/income/heroJourneyResolution.js';
 import { getISOWeekNumber } from '../utils/dateUtils.js';
-import { migrateComingSoonEquipment, attachHeroStateAliases, normalizeHeroesState } from './stateCleanup.js';
+import { migrateComingSoonEquipment, attachHeroStateAliases, normalizeHeroesState, migrateHeroesToKeys } from './stateCleanup.js';
 
 /** @type {import('./types.js').AppState | any} */
 export let state = {};
@@ -233,7 +233,7 @@ export function initializeState(savedState) {
             state.appVersion = savedVersion;
         }
 
-        if (savedState.savedPlayerTags) {
+        if (Array.isArray(savedState.savedPlayerTags)) {
             const hasRealTags = savedState.savedPlayerTags.some(t => t && t !== 'DEFAULT0');
             if (hasRealTags) {
                 state.savedPlayerTags = savedState.savedPlayerTags.filter(t => t && t !== 'DEFAULT0');
@@ -249,8 +249,9 @@ export function initializeState(savedState) {
         const activePlayerTag = state.savedPlayerTags[0];
         const hasRealPlayer = state.savedPlayerTags.some(t => t !== 'DEFAULT0');
 
-        if (savedState.allPlayersData) {
+        if (savedState.allPlayersData && typeof savedState.allPlayersData === 'object') {
             for (const playerTag in savedState.allPlayersData) {
+                if (!Object.hasOwn(savedState.allPlayersData, playerTag)) continue;
                 if (playerTag === 'GUEST') continue;
                 if (hasRealPlayer && playerTag === 'DEFAULT0') continue;
                 let savedPlayerState = savedState.allPlayersData[playerTag];
@@ -284,7 +285,15 @@ export function initializeState(savedState) {
                 }
                 const playerState = state.allPlayersData[playerTag];
 
-                Object.assign(playerState.heroes, savedPlayerState.heroes || {});
+                if (savedPlayerState.heroes && typeof savedPlayerState.heroes === 'object') {
+                    const clonedHeroes = structuredClone(savedPlayerState.heroes);
+                    migrateHeroesToKeys(clonedHeroes);
+                    for (const hKey in clonedHeroes) {
+                        if (Object.hasOwn(clonedHeroes, hKey)) {
+                            playerState.heroes[hKey] = { ...(playerState.heroes[hKey] || {}), ...clonedHeroes[hKey] };
+                        }
+                    }
+                }
                 Object.assign(playerState.storedOres, savedPlayerState.storedOres || {});
                 Object.assign(playerState.income, savedPlayerState.income || {});
                 Object.assign(playerState.planner, savedPlayerState.planner || {});
@@ -550,7 +559,7 @@ function ensureStateDefaults(s) {
             }
             if (!ps.planner.calendar.view) ps.planner.calendar.view = {};
 
-            if (!ps.planner.calendar.view.month) {
+            if (!ps.planner.calendar.view.month || typeof ps.planner.calendar.view.month !== 'string') {
                 ps.planner.calendar.view.month = defaultMonth;
             } else {
                 const parts = ps.planner.calendar.view.month.split('-');
@@ -563,7 +572,7 @@ function ensureStateDefaults(s) {
                 }
             }
 
-            if (!ps.planner.calendar.view.week) {
+            if (!ps.planner.calendar.view.week || typeof ps.planner.calendar.view.week !== 'string') {
                 ps.planner.calendar.view.week = defaultWeek;
             } else {
                 const parts = ps.planner.calendar.view.week.split('-');

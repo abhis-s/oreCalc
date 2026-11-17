@@ -2,6 +2,26 @@ import { getLocale } from '../data/languagesData.js';
 import { state } from '../core/state.js';
 
 const numberFormatCache = new Map();
+let currentLocaleCode = 'en';
+
+/**
+ * Resolves current language code for formatting, prioritizing state if available.
+ * @returns {string}
+ */
+function resolveLanguage() {
+    return state?.uiSettings?.language || currentLocaleCode || 'en';
+}
+
+/**
+ * Sets the active locale used for number and currency formatting.
+ * Decouples formatting utility from Tier 3 state.
+ * @param {string} [lang]
+ */
+export function setNumberFormatterLocale(lang) {
+    if (typeof lang === 'string' && lang.trim()) {
+        currentLocaleCode = lang.trim();
+    }
+}
 
 /**
  * Retrieves a cached Intl.NumberFormat instance.
@@ -27,7 +47,7 @@ function getCachedNumberFormat(locale, options) {
  * @returns {string} Formatted string.
  */
 export function formatNumber(number) {
-    const language = state.uiSettings?.language || 'en';
+    const language = resolveLanguage();
     const locale = getLocale(language);
     return getCachedNumberFormat(locale).format(number);
 }
@@ -39,7 +59,7 @@ export function formatNumber(number) {
  * @returns {string} Formatted currency string.
  */
 export function formatCurrency(number) {
-    const language = state.uiSettings?.language || 'en';
+    const language = resolveLanguage();
     const locale = getLocale(language);
     return getCachedNumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
 }
@@ -127,7 +147,7 @@ export function animateValue(element, start, end, duration = 750, formatFn = val
  */
 export function formatFloat(number, decimals, integerDigits = 1) {
     const safeNum = (typeof number === 'number' && !isNaN(number)) ? number : (Number(number) || 0);
-    const language = state.uiSettings?.language || 'en';
+    const language = resolveLanguage();
     const locale = getLocale(language);
     const clampedDecimals = Math.min(5, Math.max(0, decimals));
     const clampedIntegers = Math.min(5, Math.max(1, integerDigits));
@@ -136,6 +156,24 @@ export function formatFloat(number, decimals, integerDigits = 1) {
         minimumFractionDigits: clampedDecimals,
         maximumFractionDigits: clampedDecimals
     }).format(safeNum);
+}
+
+function parseLocalizedFloat(str) {
+    if (!str || typeof str !== 'string') return 0;
+    const clean = str.replace(/[^0-9.,-]/g, '').trim();
+    if (!clean) return 0;
+    const hasDot = clean.includes('.');
+    const hasComma = clean.includes(',');
+    if (hasDot && hasComma) {
+        if (clean.lastIndexOf(',') > clean.lastIndexOf('.')) {
+            return parseFloat(clean.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+        return parseFloat(clean.replace(/,/g, '')) || 0;
+    }
+    if (hasComma) {
+        return parseFloat(clean.replace(',', '.')) || 0;
+    }
+    return parseFloat(clean) || 0;
 }
 
 /**
@@ -152,10 +190,9 @@ export function updateCalculatedValue(element, targetValue, decimalPlaces = 0, i
     if (decimalPlaces > 0 || integerDigits > 1) {
         const decimals = Math.min(5, decimalPlaces);
         const integers = Math.min(5, integerDigits);
-        const cleanText = element.textContent.replace(/[^0-9.,-]/g, '').replace(',', '.');
         const prevVal = typeof element._currentNumericValue === 'number'
             ? element._currentNumericValue
-            : (parseFloat(cleanText) || 0);
+            : parseLocalizedFloat(element.textContent);
         const endVal = targetValue || 0;
         element._currentNumericValue = endVal;
 

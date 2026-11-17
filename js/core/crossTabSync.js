@@ -7,6 +7,7 @@ import { syncLanguageUrl } from './languageRouter.js';
 import { getStorageItem, normalizePlayerTag } from './storageKeys.js';
 import { loadPlayerData } from './playerStorage.js';
 import { syncPlayerTagToUrl } from './playerUrlRouter.js';
+import { setDefaultDateLocale } from '../utils/dateUtils.js';
 
 import { CANONICAL_PLAYER_PREFIX, LEGACY_PLAYER_PREFIX, STORAGE_KEY_MAP } from './constants.js';
 
@@ -45,23 +46,26 @@ export function initMainAppCrossTabSync() {
                     if (cleanStoredActive !== currentActive) {
                         const cleanedTags = storedTags.map(normalizePlayerTag).filter(Boolean);
                         if (cleanStoredActive === 'DEFAULT0') {
+                            switchActivePlayer('DEFAULT0', { skipSave: true });
                             handleStateUpdate(() => {
                                 state.savedPlayerTags = ['DEFAULT0'];
                             }, false, { skipSave: true });
+                            if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                                document.documentElement.classList.remove('has-player');
+                            }
                             syncPlayerTagToUrl(null);
                         } else {
-                            if (!state.allPlayersData?.[cleanStoredActive] || !state.allPlayersData[cleanStoredActive].heroes) {
-                                const cached = loadPlayerData(cleanStoredActive);
-                                if (cached && cached.heroes) {
-                                    if (!state.allPlayersData) state.allPlayersData = {};
-                                    state.allPlayersData[cleanStoredActive] = cached;
-                                }
-                            }
-                            if (state.allPlayersData?.[cleanStoredActive]?.heroes) {
+                            const diskData = loadPlayerData(cleanStoredActive);
+                            if (diskData && diskData.heroes) {
+                                if (!state.allPlayersData) state.allPlayersData = {};
+                                state.allPlayersData[cleanStoredActive] = diskData;
                                 switchActivePlayer(cleanStoredActive, { skipSave: true });
                                 handleStateUpdate(() => {
                                     state.savedPlayerTags = cleanedTags;
                                 }, false, { skipSave: true });
+                                if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                                    document.documentElement.classList.add('has-player');
+                                }
                                 syncPlayerTagToUrl(cleanStoredActive);
                             }
                         }
@@ -94,7 +98,79 @@ export function initMainAppCrossTabSync() {
     }
 
     window.addEventListener('storage', async (event) => {
-        if (!event.key || !event.newValue) return;
+        if (event.key === null) {
+            // Storage was cleared across tabs (e.g. localStorage.clear())
+            state.allPlayersData = {};
+            switchActivePlayer('DEFAULT0', { skipSave: true });
+            handleStateUpdate(() => {
+                state.savedPlayerTags = ['DEFAULT0'];
+            }, false, { skipSave: true });
+            if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                document.documentElement.classList.remove('has-player');
+            }
+            syncPlayerTagToUrl(null);
+            if (typeof document?.dispatchEvent === 'function') {
+                document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
+            }
+            return;
+        }
+
+        if (!event.newValue) {
+            // Key was removed across tabs (e.g. localStorage.removeItem(key))
+            if (event.key === PLAYER_TAGS_CANONICAL || event.key === PLAYER_TAGS_LEGACY) {
+                switchActivePlayer('DEFAULT0', { skipSave: true });
+                handleStateUpdate(() => {
+                    state.savedPlayerTags = ['DEFAULT0'];
+                }, false, { skipSave: true });
+                if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                    document.documentElement.classList.remove('has-player');
+                }
+                syncPlayerTagToUrl(null);
+                if (typeof document?.dispatchEvent === 'function') {
+                    document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
+                }
+                return;
+            }
+            if (event.key.startsWith(CANONICAL_PLAYER_PREFIX) || event.key.startsWith(LEGACY_PLAYER_PREFIX)) {
+                const prefix = event.key.startsWith(CANONICAL_PLAYER_PREFIX) ? CANONICAL_PLAYER_PREFIX : LEGACY_PLAYER_PREFIX;
+                const rawTag = event.key.slice(prefix.length);
+                const tag = String(rawTag).replace(/^#+/, '').trim().toUpperCase();
+                if (tag && state.allPlayersData) {
+                    delete state.allPlayersData[tag];
+                }
+                const activeTag = state.savedPlayerTags ? String(state.savedPlayerTags[0] || '').replace(/^#+/, '').trim().toUpperCase() : '';
+                if (activeTag === tag) {
+                    const remainingTags = (state.savedPlayerTags || []).filter(t => normalizePlayerTag(t) !== tag && normalizePlayerTag(t) !== 'DEFAULT0');
+                    const nextActive = remainingTags[0] || 'DEFAULT0';
+                    if (nextActive === 'DEFAULT0') {
+                        switchActivePlayer('DEFAULT0', { skipSave: true });
+                        handleStateUpdate(() => {
+                            state.savedPlayerTags = ['DEFAULT0'];
+                        }, false, { skipSave: true });
+                        if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                            document.documentElement.classList.remove('has-player');
+                        }
+                        syncPlayerTagToUrl(null);
+                    } else {
+                        const diskData = loadPlayerData(nextActive);
+                        if (diskData && diskData.heroes) {
+                            if (!state.allPlayersData) state.allPlayersData = {};
+                            state.allPlayersData[nextActive] = diskData;
+                        }
+                        switchActivePlayer(nextActive, { skipSave: true });
+                        handleStateUpdate(() => {
+                            state.savedPlayerTags = remainingTags;
+                        }, false, { skipSave: true });
+                        syncPlayerTagToUrl(nextActive);
+                    }
+                    if (typeof document?.dispatchEvent === 'function') {
+                        document.dispatchEvent(new CustomEvent('app:playerDropdownSync'));
+                    }
+                }
+                return;
+            }
+            return;
+        }
 
         // Partitioned per-player storage sync
         let matchedPrefix = null;
@@ -197,6 +273,7 @@ export function initMainAppCrossTabSync() {
             if (newSettings.language && newSettings.language !== state.uiSettings?.language) {
                 const newLang = newSettings.language;
                 await loadTranslations(newLang);
+                setDefaultDateLocale(newLang);
                 handleStateUpdate(() => {
                     if (!state.uiSettings) state.uiSettings = {};
                     state.uiSettings.language = newLang;
@@ -228,23 +305,26 @@ export function initMainAppCrossTabSync() {
 
                 if (newActiveTag !== currentActiveTag) {
                     if (newActiveTag === 'DEFAULT0') {
+                        switchActivePlayer('DEFAULT0', { skipSave: true });
                         handleStateUpdate(() => {
                             state.savedPlayerTags = ['DEFAULT0'];
                         }, false, { skipSave: true });
+                        if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                            document.documentElement.classList.remove('has-player');
+                        }
                         syncPlayerTagToUrl(null);
                     } else {
-                        if (!state.allPlayersData?.[newActiveTag] || !state.allPlayersData[newActiveTag].heroes) {
-                            const cached = loadPlayerData(newActiveTag);
-                            if (cached && cached.heroes) {
-                                if (!state.allPlayersData) state.allPlayersData = {};
-                                state.allPlayersData[newActiveTag] = cached;
-                            }
-                        }
-                        if (state.allPlayersData?.[newActiveTag]?.heroes) {
+                        const diskData = loadPlayerData(newActiveTag);
+                        if (diskData && diskData.heroes) {
+                            if (!state.allPlayersData) state.allPlayersData = {};
+                            state.allPlayersData[newActiveTag] = diskData;
                             switchActivePlayer(newActiveTag, { skipSave: true });
                             handleStateUpdate(() => {
                                 state.savedPlayerTags = cleanedTags;
                             }, false, { skipSave: true });
+                            if (typeof document !== 'undefined' && document?.documentElement?.classList) {
+                                document.documentElement.classList.add('has-player');
+                            }
                             syncPlayerTagToUrl(newActiveTag);
                         } else {
                             handleStateUpdate(() => {

@@ -92,7 +92,7 @@ export function renderAccountsGrid(savedProfiles, activeTag, onSelectAccount, on
             </div>
             <div class="landing-account-card__meta account-card-meta">
                 <div class="landing-account-card__clan account-card-clan">
-                    ${clanBadge ? `<clashcalc-assets-image class="clan-badge-img-tiny" src="${clanBadge}" alt="" size="standard"></clashcalc-assets-image>` : ''}
+                    ${clanBadge ? `<clashcalc-assets-image class="clan-badge-img-tiny" src="${escapeHTML(clanBadge)}" alt="" size="standard"></clashcalc-assets-image>` : ''}
                     <span class="clan-name-text">${escapeHTML(clanName || translate('views.guidedSetup.noClan'))}</span>
                 </div>
                 <div class="landing-account-card__stats account-card-stats">
@@ -101,11 +101,11 @@ export function renderAccountsGrid(savedProfiles, activeTag, onSelectAccount, on
                         <span>${trophies != null ? formatNumber(Number(trophies) || 0) : 0}</span>
                     </span>
                     <span class="landing-account-card__league account-card-league" title="${escapeHTML(leagueNameDisplay)}">
-                        <clashcalc-assets-image class="league-badge-img-tiny" src="${leagueIcon}" alt="${escapeHTML(leagueNameDisplay)}" size="standard"></clashcalc-assets-image>
+                        <clashcalc-assets-image class="league-badge-img-tiny" src="${escapeHTML(leagueIcon)}" alt="${escapeHTML(leagueNameDisplay)}" size="standard"></clashcalc-assets-image>
                     </span>
                 </div>
             </div>
-            <button type="button" class="landing-account-card__delete-btn account-card-delete-btn" data-tag="${profile.cleanTag}" aria-label="${translate('player.removePlayer')}: ${escapeHTML(profile.name)}" title="${translate('player.removePlayer')}">
+            <button type="button" class="landing-account-card__delete-btn account-card-delete-btn" data-tag="${escapeHTML(profile.cleanTag)}" aria-label="${escapeHTML(translate('player.removePlayer'))}: ${escapeHTML(profile.name)}" title="${escapeHTML(translate('player.removePlayer'))}">
                 <clashcalc-assets-svg name="trash" width="13" height="13" class="landing-account-card__delete-icon delete-icon" aria-hidden="true"></clashcalc-assets-svg>
                 <span class="landing-account-card__delete-confirm-text delete-confirm-text">${translate('actions.confirm')}</span>
             </button>

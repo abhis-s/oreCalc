@@ -112,7 +112,9 @@ async function handleResponseError(response) {
     }
 
     if (response.status === 426) {
-        sessionStorage.setItem('oreCalcUpdateDetectedAt', '1');
+        if (!sessionStorage.getItem('oreCalcUpdateDetectedAt')) {
+            sessionStorage.setItem('oreCalcUpdateDetectedAt', Date.now().toString());
+        }
         document.dispatchEvent(new CustomEvent('app:api-version-force-update'));
         return 'apiErrors.updateRequired';
     }
@@ -312,7 +314,7 @@ export async function markUserMigrated(userId) {
 export async function loadUserData(userId) {
     checkApiBlock();
 
-    const url = `${BASE_URL}/api/user-data/load/${userId}`;
+    const url = `${BASE_URL}/api/user-data/load/${encodeURIComponent(userId)}`;
     const response = await fetch(url, {
         cache: 'no-store',
         headers: getAuthHeaders({
@@ -340,10 +342,13 @@ export async function loadUserData(userId) {
 export async function deleteUserData(userId) {
     checkApiBlock();
 
-    const url = `${BASE_URL}/api/user-data/delete/${userId}`;
+    const url = `${BASE_URL}/api/user-data/delete/${encodeURIComponent(userId)}`;
     try {
         const response = await fetch(url, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getAuthHeaders({
+                'x-user-id': userId
+            })
         });
 
         if (!response.ok) {
@@ -374,10 +379,10 @@ export async function erasePlayerTagFromAllUsers(playerTag, token) {
     try {
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
+            headers: getAuthHeaders({
                 'Content-Type': 'application/json',
                 'x-user-id': getActiveUserId()
-            },
+            }),
             body: JSON.stringify({ playerTag, token })
         });
 

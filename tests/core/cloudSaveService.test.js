@@ -44,7 +44,7 @@ if (typeof globalThis.document === 'undefined') {
 }
 
 const { state } = await import('../../js/core/state.js');
-const { triggerCloudSave, initializeAppData } = await import('../../js/services/cloudSaveService.js');
+const { triggerCloudSave, initializeAppData, triggerPreferencesSave, cancelPreferencesSaveTimer } = await import('../../js/services/cloudSaveService.js');
 const { handleStateUpdate } = await import('../../js/core/stateManager.js');
 
 describe('cloudSaveService - Defensive State & Guest Profile Invariants', () => {
@@ -376,5 +376,17 @@ describe('cloudSaveService - Defensive State & Guest Profile Invariants', () => 
         } finally {
             globalThis.fetch = originalFetch;
         }
+    });
+
+    test('cancelPreferencesSaveTimer cleanly resolves pending save promises with false', async () => {
+        globalThis.localStorage.setItem('clashCalc_userId', 'test-uuid-preferences');
+        state.savedPlayerTags = ['8PJYGUJC'];
+        state.uiSettings = { cloudSync: true };
+
+        const savePromise = triggerPreferencesSave({ silent: true });
+        cancelPreferencesSaveTimer();
+
+        const result = await savePromise;
+        assert.equal(result, false, 'Cancelled preferences save must resolve with false');
     });
 });

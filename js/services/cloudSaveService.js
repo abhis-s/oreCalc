@@ -13,7 +13,35 @@ import { normalizeHeroesState, migrateHeroesToKeys } from '../core/stateCleanup.
 
 import { loadUserData, markUserMigrated, saveSinglePlayerData, saveUserData, saveUserPreferences } from './apiService.js';
 import { isAuthenticated, purgeAccountDataOnLogout } from './authClientService.js';
-import { showAlert, showConfirm } from '../ui/noticeModal.js';
+
+/** @type {{ showAlert: (message: string, titleKey?: any, okBtnKey?: any) => Promise<boolean>, showConfirm: (message: string, titleKey?: any, okBtnKey?: any, cancelBtnKey?: any) => Promise<boolean> }} */
+let cloudDialogHandler = {
+    showAlert: async (msg) => {
+        if (typeof window !== 'undefined' && typeof window.alert === 'function') {
+            window.alert(msg);
+        }
+        return true;
+    },
+    showConfirm: async (msg) => {
+        if (typeof window !== 'undefined' && typeof window.confirm === 'function') {
+            return window.confirm(msg);
+        }
+        return false;
+    }
+};
+
+/**
+ * Registers external dialog handlers to decouple cloud network service from UI layer modals.
+ * @param {{ showAlert: (message: string, titleKey?: any, okBtnKey?: any) => Promise<boolean>, showConfirm: (message: string, titleKey?: any, okBtnKey?: any, cancelBtnKey?: any) => Promise<boolean> }} handler
+ */
+export function registerCloudSaveDialogHandler(handler) {
+    if (handler && typeof handler.showAlert === 'function' && typeof handler.showConfirm === 'function') {
+        cloudDialogHandler = handler;
+    }
+}
+
+const showAlert = (message, titleKey, okBtnKey) => cloudDialogHandler.showAlert(message, titleKey, okBtnKey);
+const showConfirm = (message, titleKey, okBtnKey, cancelBtnKey) => cloudDialogHandler.showConfirm(message, titleKey, okBtnKey, cancelBtnKey);
 
 /**
  * Emits saving status event to decoupled UI listeners.
@@ -41,6 +69,37 @@ export function setJustSyncedFromQr(value) {
  */
 export function isJustSyncedFromQr() {
     return justSyncedFromQr;
+}
+
+/**
+ * Hydrates any player partitions present in cloud but missing locally to local storage.
+ *
+ * @param {any} cloudData
+ */
+function hydrateMissingCloudPartitions(cloudData) {
+    if (!cloudData?.allPlayersData || typeof cloudData.allPlayersData !== 'object') return;
+    const activePrefix = getActivePlayerPrefix();
+    for (const [tag, cPlayerData] of Object.entries(cloudData.allPlayersData)) {
+        if (!tag || tag === 'DEFAULT0') continue;
+        if (cPlayerData?.heroes) {
+            normalizeHeroesState(cPlayerData.heroes);
+        }
+        const clean = normalizePlayerTag(tag);
+        const localKey = getPlayerStorageKey(clean, activePrefix);
+        const localStr = typeof localStorage !== 'undefined' ? localStorage.getItem(localKey) : null;
+        const localObj = localStr ? safeJsonParse(localStr, null) : null;
+        if (!localObj || (!localObj.playerProfile && cPlayerData?.playerProfile)) {
+            try {
+                const mergedObj = localObj ? { ...localObj, playerProfile: cPlayerData.playerProfile } : cPlayerData;
+                if (typeof localStorage !== 'undefined') {
+                    localStorage.setItem(localKey, JSON.stringify(mergedObj));
+                }
+                if (state?.allPlayersData) {
+                    state.allPlayersData[clean] = mergedObj;
+                }
+            } catch (_) {}
+        }
+    }
 }
 
 /**
@@ -125,6 +184,7 @@ export async function initializeAppData() {
         const hasOnlyDefaultLocal = localData && Array.isArray(localData.savedPlayerTags) && !localData.savedPlayerTags.some(t => t && t !== 'DEFAULT0');
         if (!localData || hasOnlyDefaultLocal) {
             logger.log("Fresh local install or empty cache detected. Restoring data from cloud.");
+            hydrateMissingCloudPartitions(cloudData);
             return cloudData;
         }
 
@@ -135,39 +195,16 @@ export async function initializeAppData() {
             logger.log("Server state reset detected. Discarding stale local data and adopting cloud state.");
             if (!cloudData.uiSettings) cloudData.uiSettings = {};
             cloudData.uiSettings.stateResetEpoch = cloudResetEpoch;
+            hydrateMissingCloudPartitions(cloudData);
             return cloudData;
         }
 
-        // Ensure any player partitions present in cloud but missing locally are hydrated to local storage
-        if (cloudData.allPlayersData && typeof cloudData.allPlayersData === 'object') {
-            const activePrefix = getActivePlayerPrefix();
-            for (const [tag, cPlayerData] of Object.entries(cloudData.allPlayersData)) {
-                if (!tag || tag === 'DEFAULT0') continue;
-                if (cPlayerData?.heroes) {
-                    normalizeHeroesState(cPlayerData.heroes);
-                }
-                const clean = normalizePlayerTag(tag);
-                const localKey = getPlayerStorageKey(clean, activePrefix);
-                const localStr = typeof localStorage !== 'undefined' ? localStorage.getItem(localKey) : null;
-                const localObj = localStr ? safeJsonParse(localStr, null) : null;
-                if (!localObj || (!localObj.playerProfile && cPlayerData?.playerProfile)) {
-                    try {
-                        const mergedObj = localObj ? { ...localObj, playerProfile: cPlayerData.playerProfile } : cPlayerData;
-                        if (typeof localStorage !== 'undefined') {
-                            localStorage.setItem(localKey, JSON.stringify(mergedObj));
-                        }
-                        if (state?.allPlayersData) {
-                            state.allPlayersData[clean] = mergedObj;
-                        }
-                    } catch (_) {}
-                }
-            }
-        }
-
         if (localData) {
-            const cloudTimestamp = new Date(cloudData.timestamp || 0);
-            const localTimestamp = new Date(localData.timestamp || 0);
-            const timeDifference = Math.abs(cloudTimestamp.getTime() - localTimestamp.getTime());
+            const rawCloudTime = new Date(cloudData.timestamp || 0).getTime();
+            const rawLocalTime = new Date(localData.timestamp || 0).getTime();
+            const cloudTimestamp = isNaN(rawCloudTime) ? 0 : rawCloudTime;
+            const localTimestamp = isNaN(rawLocalTime) ? 0 : rawLocalTime;
+            const timeDifference = Math.abs(cloudTimestamp - localTimestamp);
             const timeTolerance = 5 * 1000;
 
             if (timeDifference < timeTolerance) {
@@ -188,6 +225,7 @@ export async function initializeAppData() {
 
                 if (confirmed) {
                     logger.log("User chose to sync. Using cloud data.");
+                    hydrateMissingCloudPartitions(cloudData);
                     return cloudData;
                 } else {
                     logger.log("User chose not to sync. Using local data and pushing to cloud.");
@@ -326,14 +364,21 @@ export async function importUserData(importId) {
 }
 
 let preferencesSaveTimeout = null;
+/** @type {Array<(value: boolean) => void>} */
+let pendingPreferencesResolvers = [];
 
 /**
- * Cancels any active pending debounced preferences save timer.
+ * Cancels any active pending debounced preferences save timer and resolves pending promises.
  */
 export function cancelPreferencesSaveTimer() {
     if (preferencesSaveTimeout) {
         clearTimeout(preferencesSaveTimeout);
         preferencesSaveTimeout = null;
+    }
+    if (pendingPreferencesResolvers.length > 0) {
+        const resolvers = pendingPreferencesResolvers;
+        pendingPreferencesResolvers = [];
+        resolvers.forEach(r => r(false));
     }
 }
 
@@ -372,8 +417,11 @@ export async function triggerPreferencesSave(options = {}) {
     }
 
     return new Promise((resolve) => {
+        pendingPreferencesResolvers.push(resolve);
         preferencesSaveTimeout = setTimeout(async () => {
             preferencesSaveTimeout = null;
+            const resolvers = pendingPreferencesResolvers;
+            pendingPreferencesResolvers = [];
             try {
                 if (!silent) emitSavingStatus('saving');
                 const preferences = { ...(state.uiSettings || {}) };
@@ -381,11 +429,11 @@ export async function triggerPreferencesSave(options = {}) {
 
                 await saveUserPreferences(currentUserId, preferences);
                 if (!silent) emitSavingStatus('success');
-                resolve(true);
+                resolvers.forEach(r => r(true));
             } catch (error) {
                 logger.error('Failed to save decoupled user preferences:', error);
                 if (!silent) emitSavingStatus('error');
-                resolve(false);
+                resolvers.forEach(r => r(false));
             }
         }, 500);
     });
@@ -433,6 +481,9 @@ export async function triggerCloudSave(options = {}) {
                 const rawPlayer = state.allPlayersData[targetTag];
                 const sanitizedPlayer = { ...rawPlayer };
                 if (sanitizedPlayer.heroes) {
+                    sanitizedPlayer.heroes = typeof structuredClone === 'function'
+                        ? structuredClone(sanitizedPlayer.heroes)
+                        : safeJsonParse(JSON.stringify(sanitizedPlayer.heroes), {});
                     migrateHeroesToKeys(sanitizedPlayer.heroes);
                 }
                 if (sanitizedPlayer.playerProfile) {
@@ -458,6 +509,9 @@ export async function triggerCloudSave(options = {}) {
                     }
                     const cleanP = { ...pData };
                     if (cleanP.heroes) {
+                        cleanP.heroes = typeof structuredClone === 'function'
+                            ? structuredClone(cleanP.heroes)
+                            : safeJsonParse(JSON.stringify(cleanP.heroes), {});
                         migrateHeroesToKeys(cleanP.heroes);
                     }
                     if (cleanP.playerProfile) {

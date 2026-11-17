@@ -41,6 +41,9 @@ export function getDraggedChipData() {
  */
 export function cancelActiveDrag() {
     if (activeDragState) {
+        if (typeof activeDragState.cleanupListeners === 'function') {
+            activeDragState.cleanupListeners();
+        }
         if (activeDragState.holdTimer) {
             clearTimeout(activeDragState.holdTimer);
             activeDragState.holdTimer = null;
@@ -117,6 +120,35 @@ export function attachChipPointerListeners(chip, chipData) {
             holdTimer: null
         };
 
+        const onActivePointerMove = (moveEv) => {
+            if (!activeDragState || moveEv.pointerId !== pointerId || !activeDragState.isDragging) return;
+            if (moveEv.cancelable) moveEv.preventDefault();
+            updateDragPosition(activeDragState, moveEv.clientX, moveEv.clientY);
+        };
+
+        const cleanupActivePointerListeners = () => {
+            window.removeEventListener('pointermove', onActivePointerMove);
+            window.removeEventListener('pointerup', onActivePointerUp);
+            window.removeEventListener('pointercancel', onActivePointerCancel);
+        };
+
+        const onActivePointerCancel = (cancelEv) => {
+            if (cancelEv && cancelEv.pointerId !== pointerId) return;
+            cleanupActivePointerListeners();
+            cancelActiveDrag();
+        };
+
+        const onActivePointerUp = (upEv) => {
+            if (upEv.pointerId !== pointerId) return;
+            cleanupActivePointerListeners();
+
+            if (activeDragState && activeDragState.isDragging) {
+                finishDrag(upEv.clientX, upEv.clientY);
+            }
+        };
+
+        dragContext.cleanupListeners = cleanupActivePointerListeners;
+
         const startDragging = () => {
             if (isDragStarted) return;
             isDragStarted = true;
@@ -135,6 +167,10 @@ export function attachChipPointerListeners(chip, chipData) {
 
             dragContext.ghost = createDragGhost(chip, rect, startX, startY, offsetX, offsetY);
             startBoundaryAutoScroll(() => activeDragState, () => autoScrollRafId, (id) => { autoScrollRafId = id; });
+
+            window.addEventListener('pointermove', onActivePointerMove, { passive: false });
+            window.addEventListener('pointerup', onActivePointerUp, { passive: false });
+            window.addEventListener('pointercancel', onActivePointerCancel, { passive: false });
         };
 
         if (pointerType === 'mouse') {
@@ -197,27 +233,6 @@ export function attachChipPointerListeners(chip, chipData) {
             window.addEventListener('pointerup', onTouchUpPreDrag, { passive: false });
             window.addEventListener('pointercancel', onTouchUpPreDrag, { passive: false });
         }
-
-        const onActivePointerMove = (moveEv) => {
-            if (!activeDragState || moveEv.pointerId !== pointerId || !activeDragState.isDragging) return;
-            if (moveEv.cancelable) moveEv.preventDefault();
-            updateDragPosition(activeDragState, moveEv.clientX, moveEv.clientY);
-        };
-
-        const onActivePointerUp = (upEv) => {
-            if (!activeDragState || upEv.pointerId !== pointerId) return;
-            window.removeEventListener('pointermove', onActivePointerMove);
-            window.removeEventListener('pointerup', onActivePointerUp);
-            window.removeEventListener('pointercancel', onActivePointerUp);
-
-            if (activeDragState.isDragging) {
-                finishDrag(upEv.clientX, upEv.clientY);
-            }
-        };
-
-        window.addEventListener('pointermove', onActivePointerMove, { passive: false });
-        window.addEventListener('pointerup', onActivePointerUp, { passive: false });
-        window.addEventListener('pointercancel', onActivePointerUp, { passive: false });
     });
 }
 
@@ -234,7 +249,7 @@ function finishDrag(clientX, clientY) {
         autoScrollRafId = null;
     }
 
-    const { chip, chipData, ghost, startX, startY } = activeDragState;
+    const { chip, chipData, ghost, startX, startY, offsetX, offsetY } = activeDragState;
     const elements = document.elementsFromPoint(clientX, clientY) || [];
 
     let resolvedDropTarget = null;
@@ -265,7 +280,7 @@ function finishDrag(clientX, clientY) {
         }
     }
 
-    animateGhostTransition(ghost, isSuccessfulDrop ? resolvedDropTarget : null, startX, startY, () => {
+    animateGhostTransition(ghost, isSuccessfulDrop ? resolvedDropTarget : null, startX - offsetX, startY - offsetY, () => {
         chip.classList.remove('dragging');
         clearDropTargetHighlights();
         state.isChipDragging = false;

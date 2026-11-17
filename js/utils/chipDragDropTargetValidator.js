@@ -195,7 +195,7 @@ export function highlightDropTargets(chip, chipData) {
             const baseExistingType = cleanExistingId.split('-')[0];
 
             if (baseDraggedType.startsWith('starBonus') && baseExistingType.startsWith('starBonus')) {
-                if (chipData.isCustom && existingChipId.endsWith('-auto')) {
+                if (existingChipId.endsWith('-auto')) {
                     hasConflictingBonus = true;
                 }
             }

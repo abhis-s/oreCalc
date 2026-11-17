@@ -1,4 +1,5 @@
 import { state } from '../core/state.js';
+import { setNumberFormatterLocale } from '../utils/numberFormatter.js';
 
 const translations = {};
 
@@ -8,9 +9,8 @@ const translations = {};
  * @returns {Promise<void>}
  */
 export async function loadTranslations(language) {
-    if (state.uiSettings?.language === 'auto') {
-        state.uiSettings.language = 'en';
-    }
+    const targetLanguage = (!language || language === 'auto') ? 'en' : language;
+    setNumberFormatterLocale(targetLanguage);
 
     const loadLocale = async (lang) => {
         try {
@@ -27,8 +27,8 @@ export async function loadTranslations(language) {
         }
     };
 
-    const promises = [loadLocale(language)];
-    if (language !== 'en' && !translations['en']) {
+    const promises = [loadLocale(targetLanguage)];
+    if (targetLanguage !== 'en' && !translations['en']) {
         promises.push(loadLocale('en'));
     }
     await Promise.all(promises);
@@ -42,7 +42,10 @@ function getNestedTranslation(language, key) {
     const keyParts = key.split('.');
     let current = translations[language];
     for (const part of keyParts) {
-        if (current === undefined || typeof current !== 'object') {
+        if (current === undefined || current === null || typeof current !== 'object') {
+            return undefined;
+        }
+        if (!Object.hasOwn(current, part)) {
             return undefined;
         }
         current = current[part];
@@ -64,8 +67,9 @@ export function translate(key, ...args) {
     const language = state.uiSettings?.language || 'en';
 
     if (typeof key === 'string' && key.startsWith('apiErrors.rateLimitedWithTime:')) {
-        const seconds = parseInt(key.split(':')[1], 10);
-        const minutes = Math.ceil(seconds / 60);
+        const rawSec = key.split(':')[1];
+        const seconds = Number(rawSec) || 0;
+        const minutes = Math.max(1, Math.ceil(seconds / 60));
         let translation;
         let isFallbackToEnglish = false;
 
@@ -74,7 +78,7 @@ export function translate(key, ...args) {
             translation = getNestedTranslation('en', 'apiErrors.rateLimitedWithTimeMinutes') || "Too many requests. Please try again after {minutes} minutes.";
             isFallbackToEnglish = true;
         }
-        translation = translation.replace('{minutes}', minutes);
+        translation = translation.replace('{minutes}', String(minutes));
 
         if (isFallbackToEnglish && language !== 'en') {
             return `[EN] ${translation}`;

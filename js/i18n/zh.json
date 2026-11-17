@@ -431,8 +431,8 @@
             "counterDamage": "反制伤害",
             "counterRange": "反制范围",
             "damage": "伤害",
-            "damageIncrease": "冷却时间",
-            "damagePerHit": "伤害提升",
+            "damageIncrease": "伤害提升",
+            "damagePerHit": "每次伤害",
             "damagePerSecond": "每秒伤害",
             "damagePerSecondIncrease": "每秒伤害提升",
             "damagePerShotIncrease": "每发伤害提升",
@@ -1468,11 +1468,11 @@
         },
         "shortcuts": {
             "keys": {
-                "keyboardSpace": "空间"
+                "keyboardSpace": "空格"
             }
         },
         "spotright": {
-            "activeVillage": "主动"
+            "activeVillage": "当前"
         },
         "tour": {
             "backupSyncDesc": "启用云同步，自动备份数据，并在多个设备之间保持同步。",

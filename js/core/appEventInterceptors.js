@@ -23,8 +23,10 @@ function handleDynamicImportError(err) {
     const errorMsg = String(err?.message || err?.reason?.message || err?.reason || err || '');
     if (errorMsg.includes('dynamically imported module') || errorMsg.includes('Importing a module script failed')) {
         logger.warn('Dynamic import chunk missing due to app update. Triggering self-healing reload...');
-        if (!sessionStorage.getItem('orecalc_module_reload_triggered')) {
-            sessionStorage.setItem('orecalc_module_reload_triggered', 'true');
+        const lastReload = Number(sessionStorage.getItem('orecalc_module_reload_triggered') || 0);
+        const now = Date.now();
+        if (!lastReload || (now - lastReload > 15000)) {
+            sessionStorage.setItem('orecalc_module_reload_triggered', String(now));
             window.location.reload();
             return true;
         }
@@ -99,10 +101,6 @@ export function registerGlobalErrorBoundaries() {
     window.__APP_INITIALIZED__ = true;
     window.isAppStartingUp = true;
 
-    try {
-        sessionStorage.removeItem('orecalc_module_reload_triggered');
-    } catch (_) {}
-
     window.addEventListener('error', (event) => {
         if (isInjectedScriptError(event)) return;
         logger.error('Uncaught error:', event.error || event.message);
@@ -170,7 +168,8 @@ export function initializeGlobalInterceptors() {
     boundInterceptorDocs.add(document);
 
     document.addEventListener('click', (e) => {
-        const target = /** @type {HTMLElement} */ (e.target);
+        const target = /** @type {HTMLElement|null} */ (e.target);
+        if (!target || typeof target.closest !== 'function' || typeof target.classList?.contains !== 'function') return;
         if (target.closest('#close-update-modal-btn')) {
             const modal = document.getElementById('update-available-modal');
             if (modal) {
@@ -179,7 +178,7 @@ export function initializeGlobalInterceptors() {
             return;
         }
 
-        if (target.classList.contains('modal') || target.id === 'overlay' || (target.tagName === 'DIALOG' && target.classList.contains('modal'))) {
+        if (target.classList?.contains('modal') || target.id === 'overlay' || (target.tagName === 'DIALOG' && target.classList?.contains('modal'))) {
             const openModals = typeof document.querySelectorAll === 'function'
                 ? Array.from(document.querySelectorAll('.modal.show, dialog.modal[open]'))
                 : [];

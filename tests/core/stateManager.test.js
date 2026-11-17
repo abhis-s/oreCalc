@@ -171,3 +171,17 @@ test('autoPlaceIncomeChipsForRange handles missing calendar gracefully without t
         autoPlaceIncomeChipsForRange(1, 2026, 12, 2026, true);
     });
 });
+
+test('handleStateUpdate rolls back timestamp and dirty flag if updateFn throws', () => {
+    const originalTimestamp = state.timestamp;
+    state.planner.calendar.isDirty = false;
+
+    assert.throws(() => {
+        handleStateUpdate(() => {
+            throw new Error('Simulation of catastrophic update error');
+        });
+    }, { message: 'Simulation of catastrophic update error' });
+
+    assert.equal(state.timestamp, originalTimestamp);
+    assert.equal(state.planner.calendar.isDirty, false);
+});

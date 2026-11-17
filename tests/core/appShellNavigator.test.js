@@ -7,6 +7,7 @@ import {
     getAppRouteHandler,
     registerNavigatorUiHooks,
     initAppShellNavigator,
+    syncLastCommittedPathname,
     ROUTE_SCRIPT_MAP,
     NAVIGATION_TIMEOUT_MS
 } from '../../js/core/appShellNavigator.js';
@@ -161,6 +162,13 @@ describe('Persistent App Shell Navigator Suite', () => {
             assert.equal(isNavigableLink(anchorTerms).isNavigable, false);
         });
 
+        test('rejects standalone-required tool routes from soft navigation', () => {
+            const anchor = createMockAnchor({ href: '/app-management/' });
+            assert.equal(isNavigableLink(anchor).isNavigable, false);
+            const anchorLocalized = createMockAnchor({ href: '/de/app-management/' });
+            assert.equal(isNavigableLink(anchorLocalized).isNavigable, false);
+        });
+
         test('rejects modal target triggers and modal dismissal links', () => {
             const anchorModal = createMockAnchor({
                 href: '/about/',
@@ -230,6 +238,14 @@ describe('Persistent App Shell Navigator Suite', () => {
     });
 
     describe('Route Lifecycle Registry', () => {
+        test('syncLastCommittedPathname accepts valid path and query string', () => {
+            assert.doesNotThrow(() => {
+                syncLastCommittedPathname('/de/hero-journey/?tag=8PJYGUJC');
+                syncLastCommittedPathname('');
+                syncLastCommittedPathname(null);
+            });
+        });
+
         test('correctly registers and retrieves lifecycle mount/destroy handlers', () => {
             let mounted = false;
             let destroyed = false;

@@ -4,8 +4,7 @@
  */
 
 import { translate } from '../../i18n/translator.js';
-import { escapeHTML } from '../../utils/stringUtils.js';
-import { sanitizeHTML } from '../../ui/noticeModal.js';
+import { escapeHTML, sanitizeHTML } from '../../utils/stringUtils.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { renderTownHallBadge } from '../common/townHallBadge.js';
 
@@ -252,7 +251,7 @@ export function renderSpotrightResults(container, matches, selectedIndex, curren
             subtitleHtml = `<span class="spotright-item-subtitle spotright-item-subtitle--error">${sanitizeHTML(item.errorMessage)}</span>`;
         } else if (item.isVillage) {
             const clanBadgeHtml = item.clanBadge
-                ? `<clashcalc-assets-image src="${item.clanBadge}" alt="" class="spotright-meta-clan-badge" size="standard"></clashcalc-assets-image>`
+                ? `<clashcalc-assets-image src="${escapeHTML(item.clanBadge)}" alt="" class="spotright-meta-clan-badge" size="standard"></clashcalc-assets-image>`
                 : '';
             const clanNameText = item.clanName || translate('views.guidedSetup.noClan') || 'No Clan';
             const clanHtml = `<span class="spotright-meta-clan">${clanBadgeHtml}<span class="spotright-meta-clan-name">${escapeHTML(clanNameText)}</span></span>`;
@@ -265,7 +264,7 @@ export function renderSpotrightResults(container, matches, selectedIndex, curren
             `;
 
             const leagueHtml = item.leagueIcon
-                ? `<clashcalc-assets-image src="${item.leagueIcon}" alt="${escapeHTML(item.leagueName || '')}" class="spotright-meta-league-icon" size="standard" title="${escapeHTML(item.leagueName || '')}"></clashcalc-assets-image>`
+                ? `<clashcalc-assets-image src="${escapeHTML(item.leagueIcon)}" alt="${escapeHTML(item.leagueName || '')}" class="spotright-meta-league-icon" size="standard" title="${escapeHTML(item.leagueName || '')}"></clashcalc-assets-image>`
                 : '';
 
             subtitleHtml = `

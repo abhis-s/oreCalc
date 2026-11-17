@@ -69,11 +69,19 @@ export function setPlayerLastRefreshed(playerTag, timestamp = Date.now()) {
     }
 
     try {
-        const activeKey = getPlayerStorageKey(cleanTag);
-        const playerStr = localStorage.getItem(activeKey);
+        const activePrefix = isClashCalcHost() ? CANONICAL_PLAYER_PREFIX : PLAYER_PREFIX;
+        const inactivePrefix = isClashCalcHost() ? PLAYER_PREFIX : CANONICAL_PLAYER_PREFIX;
+        const activeKey = getPlayerStorageKey(cleanTag, activePrefix);
+        const fallbackKey = getPlayerStorageKey(cleanTag, inactivePrefix);
+        let playerStr = localStorage.getItem(activeKey);
+        let targetKey = activeKey;
+        if (!playerStr && localStorage.getItem(fallbackKey)) {
+            playerStr = localStorage.getItem(fallbackKey);
+            targetKey = fallbackKey;
+        }
         const parsed = safeJsonParse(playerStr, {}) || {};
         parsed.lastRefreshedAt = timestamp;
-        localStorage.setItem(activeKey, JSON.stringify(parsed));
+        localStorage.setItem(targetKey, JSON.stringify(parsed));
     } catch {}
 }
 
@@ -91,11 +99,15 @@ export function isPlayerRefreshStale(playerTag, cooldownMs = ACCOUNT_REFRESH_COO
     const lastRefreshed = getPlayerLastRefreshed(cleanTag);
     if (!lastRefreshed || !Number.isFinite(lastRefreshed) || lastRefreshed <= 0) return true;
 
+    const effectiveCooldown = Number.isFinite(cooldownMs) && cooldownMs > 0
+        ? cooldownMs
+        : ACCOUNT_REFRESH_COOLDOWN_MS;
+
     const now = Date.now();
     // Clock anomaly guard: if timestamp is significantly in the future (> 60s), treat as stale
     if (lastRefreshed > now + 60000) return true;
 
-    return (now - lastRefreshed) >= cooldownMs;
+    return (now - lastRefreshed) >= effectiveCooldown;
 }
 
 /**

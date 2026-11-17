@@ -59,9 +59,6 @@ export function positionPopover(popover, inputElement, options = {}) {
     popover.style.bottom = 'auto';
     popover.style.right = 'auto';
 
-    const vvTop = vv ? (vv.offsetTop || 0) : 0;
-    const vvLeft = vv ? (vv.offsetLeft || 0) : 0;
-
     let top = 0;
     let left = 0;
 
@@ -69,51 +66,51 @@ export function positionPopover(popover, inputElement, options = {}) {
     popover.classList.add(`position-${finalPlacement}`);
 
     if (finalPlacement === 'above') {
-        top = vvTop + inputRect.top - popoverHeight - 6;
+        top = inputRect.top - popoverHeight - 6;
         if (options.align === 'right') {
-            left = vvLeft + inputRect.right - popoverWidth;
+            left = inputRect.right - popoverWidth;
         } else if (options.align === 'left') {
-            left = vvLeft + inputRect.left;
+            left = inputRect.left;
         } else {
-            left = vvLeft + inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
+            left = inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
         }
     } else if (finalPlacement === 'below') {
-        top = vvTop + inputRect.bottom + 6;
+        top = inputRect.bottom + 6;
         if (options.align === 'right') {
-            left = vvLeft + inputRect.right - popoverWidth;
+            left = inputRect.right - popoverWidth;
         } else if (options.align === 'left') {
-            left = vvLeft + inputRect.left;
+            left = inputRect.left;
         } else {
-            left = vvLeft + inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
+            left = inputRect.left + (inputRect.width / 2) - (popoverWidth / 2);
         }
     } else if (finalPlacement === 'right') {
-        top = vvTop + inputRect.top + (inputRect.height / 2) - (popoverHeight / 2);
-        left = vvLeft + inputRect.right + 8;
+        top = inputRect.top + (inputRect.height / 2) - (popoverHeight / 2);
+        left = inputRect.right + 8;
     } else if (finalPlacement === 'left') {
-        top = vvTop + inputRect.top + (inputRect.height / 2) - (popoverHeight / 2);
-        left = vvLeft + inputRect.left - popoverWidth - 8;
+        top = inputRect.top + (inputRect.height / 2) - (popoverHeight / 2);
+        left = inputRect.left - popoverWidth - 8;
     }
 
-    left = Math.max(vvLeft + 8, Math.min(left, vvLeft + viewportWidth - popoverWidth - 8));
+    left = Math.max(8, Math.min(left, viewportWidth - popoverWidth - 8));
 
     if (finalPlacement === 'below') {
-        const minTopBelow = vvTop + inputRect.bottom + 4;
-        top = Math.max(minTopBelow, Math.min(top, vvTop + viewportHeight - popoverHeight - 8));
+        const minTopBelow = inputRect.bottom + 4;
+        top = Math.max(minTopBelow, Math.min(top, viewportHeight - popoverHeight - 8));
         if (top < minTopBelow) {
             top = minTopBelow;
         }
     } else if (finalPlacement === 'above') {
-        const maxTopAbove = vvTop + inputRect.top - popoverHeight - 4;
-        top = Math.max(vvTop + 8, Math.min(top, maxTopAbove));
+        const maxTopAbove = inputRect.top - popoverHeight - 4;
+        top = Math.max(8, Math.min(top, maxTopAbove));
         if (top > maxTopAbove) {
             top = maxTopAbove;
         }
     } else {
-        top = Math.max(vvTop + 8, Math.min(top, vvTop + viewportHeight - popoverHeight - 8));
-        if (finalPlacement === 'left' && left + popoverWidth > vvLeft + inputRect.left) {
-            left = Math.max(vvLeft + 8, vvLeft + inputRect.left - popoverWidth - 4);
-        } else if (finalPlacement === 'right' && left < vvLeft + inputRect.right) {
-            left = Math.min(vvLeft + viewportWidth - popoverWidth - 8, vvLeft + inputRect.right + 4);
+        top = Math.max(8, Math.min(top, viewportHeight - popoverHeight - 8));
+        if (finalPlacement === 'left' && left + popoverWidth > inputRect.left) {
+            left = Math.max(8, inputRect.left - popoverWidth - 4);
+        } else if (finalPlacement === 'right' && left < inputRect.right) {
+            left = Math.min(viewportWidth - popoverWidth - 8, inputRect.right + 4);
         }
     }
 

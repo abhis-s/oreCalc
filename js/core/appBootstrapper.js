@@ -54,7 +54,8 @@ import { initShortcutsModalListener } from '../components/shortcuts/shortcutsMod
 import { initClipboardInputs } from '../components/common/clipboardInputController.js';
 import { handleSpotrightDeepLink } from '../components/spotright/spotrightNavigator.js';
 import { initializeGlobalHaptics } from '../services/hapticService.js';
-import { initializeCloudSaveButtons } from '../services/cloudSaveService.js';
+import { initializeCloudSaveButtons, registerCloudSaveDialogHandler } from '../services/cloudSaveService.js';
+import { showAlert, showConfirm } from '../ui/noticeModal.js';
 import { applyCardLayout, initCardLayoutManager, destroyCardLayoutManager } from '../ui/cardLayoutManager.js';
 
 /**
@@ -192,6 +193,7 @@ export async function bootstrapUIComponents(initialLang, lifecycleScope = null) 
     }
     applyCardLayout(layoutMode || 'cozy', false, false);
 
+    registerCloudSaveDialogHandler({ showAlert, showConfirm });
     initializeCloudSaveButtons();
 
     validateAllInputs();

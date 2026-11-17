@@ -8,14 +8,16 @@ if (typeof globalThis.localStorage === 'undefined') {
         setItem: (key, val) => store.set(key, String(val)),
         removeItem: (key) => store.delete(key),
         clear: () => store.clear(),
+        key: (i) => Array.from(store.keys())[i] || null,
         get length() { return store.size; }
     };
 }
 
 import { state } from '../../js/core/state.js';
 import { MAX_SAVED_PLAYERS } from '../../js/core/constants.js';
-import { saveState } from '../../js/core/localStorageManager.js';
-import { updateSavedPlayerTags, updateAllPlayersData, getSavedProfiles, getSavedPlayerTagsList } from '../../js/core/playerStorage.js';
+import { saveState, loadState } from '../../js/core/localStorageManager.js';
+import { updateSavedPlayerTags, updateAllPlayersData, getSavedProfiles, getSavedPlayerTagsList, removePlayerTag } from '../../js/core/playerStorage.js';
+import { getActivePlayerTagsKey, getPlayerStorageKey } from '../../js/core/storageKeys.js';
 
 test('localStorageManager supports up to MAX_SAVED_PLAYERS (12) without truncating', () => {
     state.uiSettings = { currency: { code: 'USD' } };
@@ -108,4 +110,46 @@ test('getSavedProfiles immediately reflects newly added player tags and profiles
     assert.equal(profiles[0].name, 'Sync Chief');
     assert.equal(profiles[0].townHallLevel, 17);
     assert.equal(profiles[0].trophies, 5400);
+});
+
+test('removePlayerTag with empty string or null does not mutate tags or delete accounts', () => {
+    state.savedPlayerTags = ['DEFAULT0'];
+    localStorage.setItem('clashCalc_playerTags', JSON.stringify(['DEFAULT0']));
+    removePlayerTag('');
+    removePlayerTag(null);
+    removePlayerTag(undefined);
+
+    const tags = JSON.parse(localStorage.getItem('clashCalc_playerTags') || '[]');
+    assert.deepEqual(tags, ['DEFAULT0']);
+});
+
+test('updateSavedPlayerTags with empty string does not remove DEFAULT0 or add empty tag', () => {
+    state.savedPlayerTags = ['DEFAULT0'];
+    updateSavedPlayerTags('');
+    updateSavedPlayerTags(null);
+
+    assert.ok(state.savedPlayerTags.includes('DEFAULT0'));
+    assert.ok(!state.savedPlayerTags.includes(''));
+});
+
+test('loadState preserves storedOres and other slices on partial partitions lacking heroes', () => {
+    const testTag = 'PARTIALTAG1';
+    state.savedPlayerTags = [testTag];
+    const tagsKey = getActivePlayerTagsKey();
+    localStorage.setItem(tagsKey, JSON.stringify([testTag]));
+    const storageKey = getPlayerStorageKey(testTag);
+    localStorage.setItem(storageKey, JSON.stringify({
+        storedOres: { shiny: 8888, glowy: 444, starry: 22 },
+        heroJourney: { acceleratedRewards: true, revealBeyondTH: true, hidden: false },
+        playerProfile: { name: 'Partial Tester', tag: `#${testTag}`, townHallLevel: 16 }
+    }));
+
+    const loaded = loadState();
+
+    assert.ok(loaded, 'loadState must return a reconstructed state object');
+    const partition = loaded.allPlayersData[testTag];
+    assert.ok(partition, 'Player partition must be loaded in allPlayersData');
+    assert.equal(partition.storedOres?.shiny, 8888, 'storedOres must not be wiped');
+    assert.equal(partition.heroJourney?.acceleratedRewards, true, 'heroJourney must not be wiped');
+    assert.ok(partition.heroes, 'Default heroes must be populated additively');
 });

@@ -2,9 +2,8 @@ import { enabledLanguages, SUPPORTED_LANGUAGES } from '../../data/languagesData.
 import { getLanguageFromPath, syncLanguageUrl } from '../../core/languageRouter.js';
 import { loadTranslations, translate } from '../../i18n/translator.js';
 import { updateUIWithTranslations } from '../../i18n/uiTranslator.js';
-import { safeJsonParse } from '../../utils/jsonUtils.js';
-import { STORAGE_KEY_MAP } from '../../core/constants.js';
 import { applyThemeSettings } from '../../core/themeManager.js';
+import { initMainAppCrossTabSync } from '../../core/crossTabSync.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 import { setDefaultDateLocale } from '../../utils/dateUtils.js';
@@ -122,28 +121,10 @@ class AppSettingsController {
     }
 
     /**
-     * Registers cross-tab storage, browser history popstate, and document theme/translation listeners.
+     * Registers browser history popstate and document theme/translation listeners.
      */
     #attachGlobalListeners() {
-        window.addEventListener('storage', async (event) => {
-            if (!event.key || !event.newValue) return;
-            if (event.key === STORAGE_KEY_MAP.appSettings.canonical || event.key === STORAGE_KEY_MAP.appSettings.legacy) {
-                const newSettings = safeJsonParse(event.newValue, null);
-                if (!newSettings || typeof newSettings !== 'object') return;
-
-                const current = getAppSettings();
-                const themeToApply = newSettings.theme === 'light' ? 'light' : 'dark';
-                const accentToApply = newSettings.accentColor || current.accentColor;
-
-                if (themeToApply !== current.theme || accentToApply !== current.accentColor) {
-                    applyAppTheme(themeToApply, accentToApply, true, false);
-                }
-
-                if (newSettings.language && newSettings.language !== current.language) {
-                    await applyAppLanguage(newSettings.language, false);
-                }
-            }
-        });
+        initMainAppCrossTabSync();
 
         window.addEventListener('popstate', async () => {
             const pathLang = getLanguageFromPath() || 'en';

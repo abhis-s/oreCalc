@@ -1,9 +1,9 @@
 import { loadTranslations, translate } from '../i18n/translator.js';
 import { updateUIWithTranslations } from '../i18n/uiTranslator.js';
 
-import { registerGlobalErrorBoundaries } from './appEventInterceptors.js';
+import { registerGlobalErrorBoundaries, initializeGlobalInterceptors } from './appEventInterceptors.js';
 import { initAppShellNavigator, isNavigatorTransitioning, registerAppRoute } from './appShellNavigator.js';
-import { getLanguageFromPath, syncLanguageUrl } from './languageRouter.js';
+import { detectLanguage, getLanguageFromPath, syncLanguageUrl } from './languageRouter.js';
 import { loadState } from './localStorageManager.js';
 import { getSavedProfiles } from './playerStorage.js';
 import { initializeState, state } from './state.js';
@@ -38,6 +38,7 @@ import { initScreenWakeLock } from '../services/appManagementService.js';
  */
 export async function bootstrapShellLanguageAndStorage(options = {}) {
     registerGlobalErrorBoundaries();
+    initializeGlobalInterceptors();
     consolidateLocalStorageKeys();
 
     if (typeof navigator !== 'undefined' && typeof navigator.storage?.persisted === 'function' && typeof navigator.storage?.persist === 'function') {
@@ -52,7 +53,7 @@ export async function bootstrapShellLanguageAndStorage(options = {}) {
 
     const pathLang = getLanguageFromPath();
     const appSettings = getAppSettings();
-    const targetLang = pathLang || (appSettings.language && appSettings.language !== 'auto' ? appSettings.language : 'en');
+    const targetLang = detectLanguage();
 
     if (options.hydrateState) {
         let savedState = null;

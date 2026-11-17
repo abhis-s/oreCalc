@@ -146,24 +146,13 @@ export function animateGhostTransition(ghost, dropTarget, startX, startY, onComp
 
     if (dropTarget) {
         const targetRect = dropTarget.getBoundingClientRect();
-        const targetCenterX = targetRect.left + (targetRect.width / 2);
-        const targetCenterY = targetRect.top + (targetRect.height / 2);
-        const currentCenterX = ghostRect.left + (ghostRect.width / 2);
-        const currentCenterY = ghostRect.top + (ghostRect.height / 2);
+        const targetX = targetRect.left + (targetRect.width - ghostRect.width) / 2;
+        const targetY = targetRect.top + (targetRect.height - ghostRect.height) / 2;
 
-        const deltaX = targetCenterX - currentCenterX;
-        const deltaY = targetCenterY - currentCenterY;
-
-        ghost.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(0.75)`;
+        ghost.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(0.75)`;
         ghost.style.opacity = '0';
     } else {
-        const currentCenterX = ghostRect.left + (ghostRect.width / 2);
-        const currentCenterY = ghostRect.top + (ghostRect.height / 2);
-
-        const deltaX = startX - currentCenterX;
-        const deltaY = startY - currentCenterY;
-
-        ghost.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(0.85)`;
+        ghost.style.transform = `translate3d(${startX}px, ${startY}px, 0) scale(0.85)`;
         ghost.style.opacity = '0';
     }
 

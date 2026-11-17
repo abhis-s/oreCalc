@@ -167,19 +167,14 @@ function startCardDrag(layout, cardContainer, touchOrPointer, touchId = null) {
     activePreviewPill.style.left = `${touchOrPointer.clientX - 30}px`;
     activePreviewPill.style.top = `${touchOrPointer.clientY - 20}px`;
 
-    activePreviewPill.innerHTML = `
-        <div class="drag-preview-handle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="9" cy="12" r="1.5"></circle>
-                <circle cx="9" cy="5" r="1.5"></circle>
-                <circle cx="9" cy="19" r="1.5"></circle>
-                <circle cx="15" cy="12" r="1.5"></circle>
-                <circle cx="15" cy="5" r="1.5"></circle>
-                <circle cx="15" cy="19" r="1.5"></circle>
-            </svg>
-        </div>
-        <span class="drag-preview-title">${titleText}</span>
-    `;
+    const handleWrapper = document.createElement('div');
+    handleWrapper.className = 'drag-preview-handle';
+    handleWrapper.innerHTML = `<clashcalc-assets-svg name="drag-indicator" fill="currentColor"></clashcalc-assets-svg>`;
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'drag-preview-title';
+    titleSpan.textContent = titleText;
+    activePreviewPill.appendChild(handleWrapper);
+    activePreviewPill.appendChild(titleSpan);
     document.body.appendChild(activePreviewPill);
 
     if (touchId !== null) {
@@ -349,7 +344,12 @@ function handleGlobalTouchMove(e) {
 function handleGlobalTouchRelease(e) {
     if (!activeDragCard) return;
 
-    if (e && e.type !== 'blur' && e.type !== 'touchcancel') {
+    if (e && e.type === 'touchcancel') {
+        cleanupActiveCardDrag();
+        return;
+    }
+
+    if (e && e.type !== 'blur') {
         let touchEnded = false;
         if (e.changedTouches) {
             for (let i = 0; i < e.changedTouches.length; i++) {
@@ -410,7 +410,9 @@ export function initCardDragReordering(layout, currentMode, isCompact, onRepack)
     }
 
     layout.originalCards.forEach(container => {
-        if (container.id === 'orecalc-planner-hero-carousel-card' || container.id === 'orecalc-equipment-settings-card') {
+        if (container.id === 'orecalc-planner-hero-carousel-card' ||
+            container.id === 'orecalc-planner-priority-list-card' ||
+            container.id === 'orecalc-equipment-settings-card') {
             return;
         }
 
@@ -432,7 +434,7 @@ export function initCardDragReordering(layout, currentMode, isCompact, onRepack)
         const MOVE_THRESHOLD = 8;
 
         const handleStart = (e) => {
-            if (currentActiveMode === 'compact1') return;
+            if (currentActiveMode === 'compact0' || currentActiveMode === 'compact1') return;
             const containerCard = e.target.closest(layout.config.containerSelector);
             if (!containerCard) return;
 

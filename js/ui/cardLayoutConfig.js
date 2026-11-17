@@ -181,7 +181,10 @@ export function saveCustomCardOrder(layout, currentMode = 'cozy') {
         return;
     }
 
-    const currentCards = Array.from(layout.gridEl.querySelectorAll(':scope > ' + layout.config.containerSelector));
+    let currentCards = Array.from(layout.gridEl.querySelectorAll(':scope > ' + layout.config.containerSelector));
+    if (currentCards.length === 0) {
+        currentCards = Array.from(layout.gridEl.querySelectorAll(layout.config.containerSelector));
+    }
 
     layout.originalCards = currentCards;
     layout.originalIndices.clear();
@@ -189,13 +192,17 @@ export function saveCustomCardOrder(layout, currentMode = 'cozy') {
 
     const cardIds = currentCards.map(container => {
         if (layout.config.useHeroNameForId) {
-            return container.dataset.heroName;
+            return container.dataset.heroName || container.dataset.heroKey || null;
         }
-        return container.id || null;
+        if (container.id) return container.id;
+        const innerWithId = container.querySelector('[id*="card"], [id*="panel"]');
+        return innerWithId ? innerWithId.id : null;
     }).filter(Boolean);
 
-    handleStateUpdate(() => {
-        if (!state.uiSettings) state.uiSettings = {};
-        state.uiSettings[layout.config.orderKey] = cardIds;
-    }, true);
+    if (cardIds.length > 0) {
+        handleStateUpdate(() => {
+            if (!state.uiSettings) state.uiSettings = {};
+            state.uiSettings[layout.config.orderKey] = cardIds;
+        }, true);
+    }
 }

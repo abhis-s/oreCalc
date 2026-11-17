@@ -3,8 +3,25 @@
  * Tier 2: Pure Storage Sanitizer.
  */
 
+import { MAX_TOWN_HALL } from './constants.js';
 import { formatDisplayTag, normalizePlayerTag } from './storageKeys.js';
 import { LAB_SCALING_TROOP_KEYS } from '../data/labTroopsData.js';
+
+/**
+ * Validates and sanitizes image URLs, permitting only the Supercell API CDN
+ * or relative/absolute local assets paths.
+ *
+ * @param {string} [url] - Candidate image URL.
+ * @returns {string} Sanitized URL or empty string.
+ */
+export function sanitizeImageUrl(url) {
+    if (!url || typeof url !== 'string') return '';
+    const trimmed = url.trim();
+    if (/^(https:\/\/api-assets\.clashofclans\.com\/|\/?assets\/)/i.test(trimmed)) {
+        return trimmed;
+    }
+    return '';
+}
 
 /**
  * Strips auto-placed calendar chips (-cal-auto) from planner dates,
@@ -17,10 +34,12 @@ export function stripAutoPlacedCalendarChips(dates) {
     if (!dates || typeof dates !== 'object') return {};
     const cleanDates = {};
     for (const monthKey in dates) {
+        if (!Object.hasOwn(dates, monthKey)) continue;
         const monthDays = dates[monthKey];
         if (!monthDays || typeof monthDays !== 'object') continue;
         const cleanDays = {};
         for (const dayKey in monthDays) {
+            if (!Object.hasOwn(monthDays, dayKey)) continue;
             const chips = monthDays[dayKey];
             if (Array.isArray(chips)) {
                 const cleanChips = chips.filter(id => typeof id === 'string' && !id.endsWith('-cal-auto'));
@@ -100,9 +119,9 @@ export function sanitizePlayerProfile(rawProfile) {
         tag: rawProfile.clan.tag || '',
         name: rawProfile.clan.name || '',
         badgeUrls: {
-            small: rawProfile.clan.badgeUrls?.small || '',
-            medium: rawProfile.clan.badgeUrls?.medium || '',
-            large: rawProfile.clan.badgeUrls?.large || ''
+            small: sanitizeImageUrl(rawProfile.clan.badgeUrls?.small),
+            medium: sanitizeImageUrl(rawProfile.clan.badgeUrls?.medium),
+            large: sanitizeImageUrl(rawProfile.clan.badgeUrls?.large)
         }
     } : null;
 
@@ -110,15 +129,15 @@ export function sanitizePlayerProfile(rawProfile) {
         id: rawProfile.leagueTier.id,
         name: rawProfile.leagueTier.name,
         iconUrls: {
-            small: rawProfile.leagueTier.iconUrls?.small || '',
-            large: rawProfile.leagueTier.iconUrls?.large || ''
+            small: sanitizeImageUrl(rawProfile.leagueTier.iconUrls?.small),
+            large: sanitizeImageUrl(rawProfile.leagueTier.iconUrls?.large)
         }
     } : (rawProfile.league ? {
         id: rawProfile.league.id,
         name: rawProfile.league.name,
         iconUrls: {
-            small: rawProfile.league.iconUrls?.small || '',
-            large: rawProfile.league.iconUrls?.large || ''
+            small: sanitizeImageUrl(rawProfile.league.iconUrls?.small),
+            large: sanitizeImageUrl(rawProfile.league.iconUrls?.large)
         }
     } : null);
 
@@ -126,8 +145,8 @@ export function sanitizePlayerProfile(rawProfile) {
     const cleanProfile = {
         tag: cleanTag,
         name: rawProfile.name || formatDisplayTag(cleanTag),
-        townHallLevel: Number(rawProfile.townHallLevel) || 1,
-        clanBadgeUrl: rawProfile.clanBadgeUrl || rawProfile.clan?.badgeUrls?.small || '',
+        townHallLevel: Math.max(1, Math.min(MAX_TOWN_HALL, Number(rawProfile.townHallLevel) || 1)),
+        clanBadgeUrl: sanitizeImageUrl(rawProfile.clanBadgeUrl || rawProfile.clan?.badgeUrls?.small),
         clan,
         role: rawProfile.role || null,
         leagueTier,

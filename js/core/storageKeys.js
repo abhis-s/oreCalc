@@ -127,7 +127,11 @@ function getAuthTokenUserId() {
         const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
         const json = atob(payloadBase64);
         const data = safeJsonParse(json, null);
-        return data && typeof data.userId === 'string' ? data.userId : null;
+        if (!data || typeof data.userId !== 'string') return null;
+        if (typeof data.exp === 'number' && Date.now() >= data.exp * 1000) {
+            return null;
+        }
+        return data.userId;
     } catch (_) {
         return null;
     }

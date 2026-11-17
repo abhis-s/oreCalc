@@ -221,15 +221,13 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
         return !placedChipIdsInCurrentMonth.has(chipId);
     });
 
-    let clanWarToPlace = unplacedChips.filter(c => c.type === 'clanWar');
-    if (manualClanWarChipsInMonth.length > 0) {
-        clanWarToPlace = clanWarToPlace.slice(0, Math.max(0, clanWarToPlace.length - manualClanWarChipsInMonth.length));
-    }
+    const potentialClanWar = allPotentialChips.filter(c => c.type === 'clanWar');
+    const targetClanWarCount = Math.max(0, potentialClanWar.length - manualClanWarChipsInMonth.length);
+    const clanWarToPlace = unplacedChips.filter(c => c.type === 'clanWar').slice(0, targetClanWarCount);
 
-    let cwlToPlace = unplacedChips.filter(c => c.type === 'cwl');
-    if (manualCwlChipsInMonth.length > 0) {
-        cwlToPlace = cwlToPlace.slice(0, Math.max(0, cwlToPlace.length - manualCwlChipsInMonth.length));
-    }
+    const potentialCwl = allPotentialChips.filter(c => c.type === 'cwl');
+    const targetCwlCount = Math.max(0, potentialCwl.length - manualCwlChipsInMonth.length);
+    const cwlToPlace = unplacedChips.filter(c => c.type === 'cwl').slice(0, targetCwlCount);
 
     const otherUnplacedChips = unplacedChips.filter(c => c.type !== 'clanWar' && c.type !== 'cwl');
     const filteredUnplacedChips = [...otherUnplacedChips, ...cwlToPlace];
@@ -314,9 +312,11 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
                         const manualChipId = newCalendarDates[monthYearKey][String(manual2xDay).padStart(2, '0')].find(id => idMatchesType(id, 'starBonus2x-') && !id.endsWith('-auto'));
                         if (manualChipId) {
                             if (manualChipId.startsWith('custom-')) {
-                                manualInstance = Number(manualChipId.split('-')[3]) + 1;
+                                const parsed = Number(manualChipId.split('-')[3]);
+                                manualInstance = Number.isFinite(parsed) ? parsed + 1 : 1;
                             } else {
-                                manualInstance = Number(manualChipId.split('-')[1]);
+                                const parsed = Number(manualChipId.split('-')[1]);
+                                manualInstance = Number.isFinite(parsed) ? parsed : 1;
                             }
                         }
                         targetDay = manual2xDay + (chip.instance - manualInstance);
@@ -351,7 +351,7 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
                         }
                     }
                     const daysInMonth2xFinal = getDaysInMonth(currentYear, currentMonth);
-                    if (targetDay > daysInMonth2xFinal || targetDay < 1) targetDay = null;
+                    if (!Number.isFinite(targetDay) || targetDay > daysInMonth2xFinal || targetDay < 1) targetDay = null;
                     break;
                 }
                 case 'starBonus4x': {
@@ -376,12 +376,23 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
                             } else if (twoXStart - duration4x >= 1) {
                                 startDay4x = twoXStart - duration4x;
                             } else {
-                                startDay4x = 1;
+                                let foundOpen = false;
+                                for (let s = 1; s <= daysInMonth4x - duration4x + 1; s++) {
+                                    const sEnd = s + duration4x - 1;
+                                    if (sEnd < twoXStart || s > twoXEnd) {
+                                        startDay4x = s;
+                                        foundOpen = true;
+                                        break;
+                                    }
+                                }
+                                if (!foundOpen) {
+                                    startDay4x = 1;
+                                }
                             }
                         }
                     }
                     targetDay = startDay4x + (chip.instance - 1);
-                    if (targetDay > daysInMonth4x || targetDay < 1) targetDay = null;
+                    if (!Number.isFinite(targetDay) || targetDay > daysInMonth4x || targetDay < 1) targetDay = null;
                     break;
                 }
                 case 'clanWar':
@@ -389,7 +400,7 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
             }
         }
 
-        if (targetDay !== null) {
+        if (targetDay !== null && Number.isFinite(targetDay)) {
             const newChipId = `${chip.type}-${String(chip.instance).padStart(2, '0')}-${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-cal-auto`;
             const paddedTargetDay = String(targetDay).padStart(2, '0');
             if (!newCalendarDates[monthYearKey][paddedTargetDay]) newCalendarDates[monthYearKey][paddedTargetDay] = [];

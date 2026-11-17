@@ -389,6 +389,96 @@ describe('Module Dependency Graph & Invariant Re-Export Guardrail Suite', () => 
         assert.equal(violations.length, 0);
     });
 
+    test('Tier 3 Services (js/services/) never import Tier 4 (components/ui/layout/apps)', () => {
+        const serviceFiles = scanJsFiles('js/services');
+        assert.ok(serviceFiles.length > 0, 'Must find service files');
+        const violations = [];
+
+        function isTier4Path(rel) {
+            return rel.startsWith('js/components/') ||
+                rel.startsWith('js/ui/') ||
+                rel.startsWith('js/layout/') ||
+                rel === 'js/app.js' ||
+                rel === 'js/damageApp.js' ||
+                rel === 'js/heroJourneyApp.js' ||
+                rel === 'js/console.js' ||
+                rel === 'js/landingApp.js';
+        }
+
+        for (const file of serviceFiles) {
+            const relPath = path.relative(projectRoot, file).replace(/\\/g, '/');
+            const rawContent = fs.readFileSync(file, 'utf8');
+            const content = stripComments(rawContent);
+            const dir = path.dirname(file);
+
+            const importRegex = /(?:from\s*['"]|import\s*\(\s*['"])([^'"]+)['"]/g;
+            let match;
+            while ((match = importRegex.exec(content)) !== null) {
+                const importPath = match[1];
+                if (importPath.startsWith('.')) {
+                    const resolved = path.resolve(dir, importPath);
+                    const resolvedRel = path.relative(projectRoot, resolved).replace(/\\/g, '/');
+                    if (isTier4Path(resolvedRel)) {
+                        violations.push({
+                            file: relPath,
+                            target: resolvedRel,
+                            reason: 'Service module must never import Tier 4 UI components or application controllers'
+                        });
+                    }
+                }
+            }
+        }
+
+        if (violations.length > 0) {
+            const formatted = violations.map(v => `  - [TIER VIOLATION] ${v.file} imports ${v.target} (${v.reason})`).join('\n');
+            assert.fail(`Found ${violations.length} Service-to-Tier 4 violation(s):\n${formatted}`);
+        }
+        assert.equal(violations.length, 0);
+    });
+
+    test('Tier 1 Data (js/data/) never imports Tier 3 (state/selectors/services) or Tier 4', () => {
+        const dataFiles = scanJsFiles('js/data');
+        assert.ok(dataFiles.length > 0, 'Must find data files');
+        const violations = [];
+
+        for (const file of dataFiles) {
+            const relPath = path.relative(projectRoot, file).replace(/\\/g, '/');
+            const rawContent = fs.readFileSync(file, 'utf8');
+            const content = stripComments(rawContent);
+            const dir = path.dirname(file);
+
+            const importRegex = /(?:from\s*['"]|import\s*\(\s*['"])([^'"]+)['"]/g;
+            let match;
+            while ((match = importRegex.exec(content)) !== null) {
+                const importPath = match[1];
+                if (importPath.startsWith('.')) {
+                    const resolved = path.resolve(dir, importPath);
+                    const resolvedRel = path.relative(projectRoot, resolved).replace(/\\/g, '/');
+                    const isTier3or4 = resolvedRel.startsWith('js/services/') ||
+                        resolvedRel.startsWith('js/components/') ||
+                        resolvedRel.startsWith('js/ui/') ||
+                        resolvedRel.startsWith('js/layout/') ||
+                        resolvedRel === 'js/core/state.js' ||
+                        resolvedRel === 'js/core/selectors.js' ||
+                        resolvedRel === 'js/core/stateManager.js';
+                    if (isTier3or4) {
+                        violations.push({
+                            file: relPath,
+                            target: resolvedRel,
+                            reason: 'Data module must never import Tier 3 Core State/Selectors or Tier 4 UI'
+                        });
+                    }
+                }
+            }
+        }
+
+        if (violations.length > 0) {
+            const formatted = violations.map(v => `  - [TIER VIOLATION] ${v.file} imports ${v.target} (${v.reason})`).join('\n');
+            assert.fail(`Found ${violations.length} Data-to-higher-tier violation(s):\n${formatted}`);
+        }
+        assert.equal(violations.length, 0);
+    });
+
     test('Display modules have zero state mutations and zero interactive event listeners', () => {
         const allSourceFiles = scanJsFiles('js');
         const displayFiles = allSourceFiles.filter(file => {

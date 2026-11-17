@@ -283,6 +283,10 @@ export function applyCardLayout(mode, animate = true, isUserSwitch = true) {
             layout.gridEl.classList.remove(COMPACT_CLASS);
             layout.gridEl.classList.remove('layout-compact-dev');
         }
+        layout.resizeObserver?.disconnect();
+        layout.resizeObserver = new ResizeObserver((entries) => {
+            onContainerResize(layout, entries, isCompact, currentMode);
+        });
         observeContainers(layout);
         initCardDragReordering(layout, currentMode, isCompact, repackCards);
     }

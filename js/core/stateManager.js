@@ -41,13 +41,25 @@ export function registerStateUpdateCallback(callback) {
  * @param {{ skipSave?: boolean, preferencesOnly?: boolean, skipRecalculate?: boolean, isTabSwitch?: boolean }} [options={}] - Optional execution flags (e.g. skipSave for cross-tab sync, preferencesOnly for decoupled preferences, isTabSwitch/skipRecalculate for view updates).
  */
 export function handleStateUpdate(updateFn, silent = false, options = {}) {
+    const prevTimestamp = state.timestamp;
+    const prevDirty = state.planner?.calendar?.isDirty;
     if (!silent && !options.isTabSwitch && state.planner?.calendar) {
         state.planner.calendar.isDirty = true;
     }
     if (!options.isTabSwitch) {
         state.timestamp = new Date().toISOString();
     }
-    updateFn();
+    try {
+        updateFn();
+    } catch (err) {
+        if (!options.isTabSwitch) {
+            state.timestamp = prevTimestamp;
+        }
+        if (!silent && !options.isTabSwitch && state.planner?.calendar) {
+            state.planner.calendar.isDirty = prevDirty;
+        }
+        throw err;
+    }
 
     if (stateUpdateCallback) {
         stateUpdateCallback(state, silent, options);
@@ -95,7 +107,7 @@ export function switchActivePlayer(newTag, options = {}) {
         const cleanTag = normalizePlayerTag(newTag);
         let newPlayerData = state.allPlayersData[cleanTag] || state.allPlayersData[newTag];
         if (!newPlayerData) {
-            if (state.savedPlayerTags.some(t => normalizePlayerTag(t) === cleanTag)) {
+            if (cleanTag === 'DEFAULT0' || (Array.isArray(state.savedPlayerTags) && state.savedPlayerTags.some(t => normalizePlayerTag(t) === cleanTag))) {
                 newPlayerData = getDefaultPlayerState();
                 state.allPlayersData[cleanTag] = newPlayerData;
             } else {
@@ -120,15 +132,21 @@ export function switchActivePlayer(newTag, options = {}) {
 
         // ponytail: direct reference binding over JSON clone. Active player references point to partition.
         const defaultState = getDefaultPlayerState();
-        state.heroes = newPlayerData.heroes || defaultState.heroes;
-        state.storedOres = newPlayerData.storedOres || defaultState.storedOres;
-        state.income = newPlayerData.income || defaultState.income;
-        state.planner = newPlayerData.planner || defaultState.planner;
+        if (!newPlayerData.heroes) newPlayerData.heroes = defaultState.heroes;
+        if (!newPlayerData.storedOres) newPlayerData.storedOres = defaultState.storedOres;
+        if (!newPlayerData.income) newPlayerData.income = defaultState.income;
+        if (!newPlayerData.planner) newPlayerData.planner = defaultState.planner;
+        if (!newPlayerData.heroJourney) newPlayerData.heroJourney = defaultState.heroJourney;
+
+        state.heroes = newPlayerData.heroes;
+        state.storedOres = newPlayerData.storedOres;
+        state.income = newPlayerData.income;
+        state.planner = newPlayerData.planner;
         if (state.planner?.calendar) {
             state.planner.calendar.isHydrated = false;
         }
         state.playerProfile = newPlayerData.playerProfile || null;
-        state.heroJourney = newPlayerData.heroJourney || defaultState.heroJourney;
+        state.heroJourney = newPlayerData.heroJourney;
         state.onboardingTimestamp = newPlayerData.onboardingTimestamp ?? null;
 
         if (newPlayerData.currency && typeof newPlayerData.currency === 'object') {
@@ -197,6 +215,8 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
 
                 const url = `${getApiBaseUrl()}/api/user-data/save`;
                 const payload = JSON.stringify({ userId: currentUserId, data: stateToSave });
+                if (payload.length > 64 * 1024) return;
+
                 const headers = { 'Content-Type': 'application/json' };
                 const token = typeof localStorage !== 'undefined' ? localStorage.getItem('clashCalc_authToken') : null;
                 if (token) {
@@ -209,7 +229,7 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
                         body: payload,
                         keepalive: true
                     }).catch(() => {});
-                } else if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+                } else if (!token && typeof navigator !== 'undefined' && navigator.sendBeacon) {
                     const blob = new Blob([payload], { type: 'application/json' });
                     navigator.sendBeacon(url, blob);
                 }

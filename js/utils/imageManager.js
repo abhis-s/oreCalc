@@ -4,6 +4,8 @@
  * Provides a helper to generate HTML <picture> markup and defines the custom element <orecalc-assets-image>.
  */
 
+import { escapeHTML } from './stringUtils.js';
+
 /**
  * Returns the HTML <picture> markup for a given image source path.
  * Resolves standard (200px) and thumbnail (72px) versions for sub-folder assets.
@@ -19,18 +21,26 @@
  * @returns {string} The HTML <picture> markup.
  */
 function getImage(src, className = '', size = 'standard', alt = '', width = null, height = null, loading = 'lazy', fetchpriority = null) {
-    if (!src) return '';
+    if (!src || typeof src !== 'string') return '';
+
+    // Disallow data URIs completely
+    if (src.startsWith('data:')) {
+        return '';
+    }
 
     const defaultDimension = size === 'thumbnail' ? '100' : '200';
-    const imgWidth = width || defaultDimension;
-    const imgHeight = height || defaultDimension;
+    const imgWidth = escapeHTML(width || defaultDimension);
+    const imgHeight = escapeHTML(height || defaultDimension);
 
     const loadingAttr = loading === 'eager' ? 'loading="eager"' : 'loading="lazy"';
-    const priorityAttr = fetchpriority ? ` fetchpriority="${fetchpriority}"` : '';
+    const priorityAttr = fetchpriority ? ` fetchpriority="${escapeHTML(fetchpriority)}"` : '';
+    const safeAlt = escapeHTML(alt);
+    const safeClass = escapeHTML(className);
 
-    // Handle external URLs or data URIs directly without optimization
-    if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
-        return `<img src="${src}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" ${loadingAttr}${priorityAttr} decoding="async" draggable="false">`;
+    // Handle external URLs (HTTP / HTTPS)
+    if (src.startsWith('http://') || src.startsWith('https://')) {
+        const safeSrc = escapeHTML(src);
+        return `<img src="${safeSrc}" alt="${safeAlt}" class="${safeClass}" width="${imgWidth}" height="${imgHeight}" ${loadingAttr}${priorityAttr} decoding="async" draggable="false">`;
     }
 
     let base = src;
@@ -46,8 +56,8 @@ function getImage(src, className = '', size = 'standard', alt = '', width = null
     // We serve the original raw PNG file directly.
     const isDev = typeof location !== 'undefined' && location.port === '8080';
     if (isDev) {
-        const pngUrl = `${base}.png`;
-        return `<img src="${pngUrl}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" ${loadingAttr}${priorityAttr} decoding="async" draggable="false">`;
+        const pngUrl = escapeHTML(`${base}.png`);
+        return `<img src="${pngUrl}" alt="${safeAlt}" class="${safeClass}" width="${imgWidth}" height="${imgHeight}" ${loadingAttr}${priorityAttr} decoding="async" draggable="false">`;
     }
 
     // Sub-folder assets (equipment, heroes, guardians, supercharge, etc.) are resized and get suffixes.
@@ -56,13 +66,13 @@ function getImage(src, className = '', size = 'standard', alt = '', width = null
 
     const suffix = isSubfolderAsset ? (size === 'thumbnail' ? '-100' : '-200') : '';
 
-    const avifUrl = `${base}${suffix}.avif`;
-    const webpUrl = `${base}${suffix}.webp`;
+    const avifUrl = escapeHTML(`${base}${suffix}.avif`);
+    const webpUrl = escapeHTML(`${base}${suffix}.webp`);
 
-    return `<picture class="${className}">
+    return `<picture class="${safeClass}">
         <source srcset="${avifUrl}" type="image/avif">
         <source srcset="${webpUrl}" type="image/webp">
-        <img src="${webpUrl}" alt="${alt}" class="${className}" width="${imgWidth}" height="${imgHeight}" ${loadingAttr}${priorityAttr} decoding="async" draggable="false">
+        <img src="${webpUrl}" alt="${safeAlt}" class="${safeClass}" width="${imgWidth}" height="${imgHeight}" ${loadingAttr}${priorityAttr} decoding="async" draggable="false">
     </picture>`;
 }
 
@@ -81,7 +91,9 @@ if (typeof HTMLElement !== 'undefined') {
         }
 
         connectedCallback() {
-            this.render();
+            if (!this._hasRendered) {
+                this.render();
+            }
         }
 
         attributeChangedCallback() {
@@ -89,6 +101,7 @@ if (typeof HTMLElement !== 'undefined') {
         }
 
         render() {
+            this._hasRendered = true;
             const src = this.getAttribute('src');
             const className = this.getAttribute('class') || '';
             const size = this.getAttribute('size') || 'standard';
@@ -98,9 +111,12 @@ if (typeof HTMLElement !== 'undefined') {
             const loading = this.getAttribute('loading') || 'lazy';
             const fetchpriority = this.getAttribute('fetchpriority');
 
-            if (src) {
-                this.innerHTML = getImage(src, className, size, alt, width, height, loading, fetchpriority);
+            if (!src) {
+                this.innerHTML = '';
+                return;
             }
+
+            this.innerHTML = getImage(src, className, size, alt, width, height, loading, fetchpriority);
         }
     }
 

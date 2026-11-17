@@ -13,6 +13,18 @@ import { renderCalendar } from './calendarDisplay.js';
 import { renderIncomeChips } from './incomeChipsDisplay.js';
 
 /**
+ * Cleans up stored custom chip metadata when a chip is displaced or removed from the calendar.
+ *
+ * @param {string} chipId
+ */
+function handleDisplacedChip(chipId) {
+    if (!chipId) return;
+    if (chipId.startsWith('custom-') && state.planner?.calendar?.customChipData?.[chipId]) {
+        delete state.planner.calendar.customChipData[chipId];
+    }
+}
+
+/**
  * Handles HTML5 dragover events on calendar day chip containers and toggles drop feedback classes.
  * @param {DragEvent} e - Native dragover event object.
  */
@@ -235,7 +247,8 @@ export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
                         return cleanId.startsWith(effectiveType) || storedCustomType === effectiveType || id.startsWith(effectiveType);
                     });
                     if (existingIdx > -1) {
-                        curDays[curDayKey].splice(existingIdx, 1);
+                        const [displaced] = curDays[curDayKey].splice(existingIdx, 1);
+                        handleDisplacedChip(displaced);
                         if (curDays[curDayKey].length === 0) {
                             delete curDays[curDayKey];
                         }
@@ -256,9 +269,10 @@ export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
             }
             const existingManualIndex = existingChips.findIndex(id => id.startsWith('starBonus') && !id.endsWith('-auto'));
             if (existingManualIndex > -1) {
-                existingChips.splice(existingManualIndex, 1);
+                const [displaced] = existingChips.splice(existingManualIndex, 1);
+                handleDisplacedChip(displaced);
             }
-        } else if (baseDraggedType === 'shopOffers' || baseDraggedType === 'eventTrader' || baseDraggedType === 'supercellEvents') {
+        } else if (baseDraggedType === 'shopOffers' || baseDraggedType === 'eventTrader' || baseDraggedType === 'eventPass' || baseDraggedType === 'supercellEvents') {
             const hasAutoChip = existingChips.some(id => id.startsWith(baseDraggedType) && id.endsWith('-auto'));
             if (hasAutoChip) {
                 console.warn(`[Calendar] Cannot place manual chip on an auto-placed ${baseDraggedType}`);
@@ -266,7 +280,8 @@ export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
             }
             const existingManualIndex = existingChips.findIndex(id => id.startsWith(baseDraggedType) && !id.endsWith('-auto'));
             if (existingManualIndex > -1) {
-                existingChips.splice(existingManualIndex, 1);
+                const [displaced] = existingChips.splice(existingManualIndex, 1);
+                handleDisplacedChip(displaced);
             }
         } else if (baseDraggedType === 'clanWar' || baseDraggedType === 'cwl' || baseDraggedType === 'prospector') {
             const existingIndex = existingChips.findIndex(id => {
@@ -274,7 +289,8 @@ export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
                 return cleanId.startsWith(baseDraggedType);
             });
             if (existingIndex > -1) {
-                existingChips.splice(existingIndex, 1);
+                const [displaced] = existingChips.splice(existingIndex, 1);
+                handleDisplacedChip(displaced);
             }
         } else if (draggedType === 'custom' || draggedType === 'extras' || draggedType.startsWith('custom-') || draggedType.startsWith('extras')) {
             const draggedCustomType = incomeChipData.customType || '';
@@ -283,7 +299,8 @@ export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
                 return existingCustomType === draggedCustomType && id !== newId;
             });
             if (existingIdx > -1) {
-                existingChips.splice(existingIdx, 1);
+                const [displaced] = existingChips.splice(existingIdx, 1);
+                handleDisplacedChip(displaced);
             }
         } else {
             const hasDuplicate = existingChips.some(id => {

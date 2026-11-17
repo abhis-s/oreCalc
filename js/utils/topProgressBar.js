@@ -8,11 +8,14 @@ let containerEl = null;
 let fillEl = null;
 let currentProgress = 0;
 let trickleTimer = null;
+let activeCount = 0;
+let fadeTimeout = null;
+let resetTimeout = null;
 
 function ensureElements() {
     if (!containerEl) {
         containerEl = document.getElementById('top-progress-bar-container');
-        if (!containerEl) {
+        if (!containerEl && typeof document !== 'undefined' && document.body) {
             containerEl = document.createElement('div');
             containerEl.id = 'top-progress-bar-container';
             containerEl.className = 'top-progress-bar-container';
@@ -25,6 +28,8 @@ function ensureElements() {
             `;
             document.body.appendChild(containerEl);
         }
+    }
+    if (!fillEl && typeof document !== 'undefined') {
         fillEl = document.getElementById('top-progress-bar-fill');
     }
 }
@@ -33,10 +38,26 @@ function ensureElements() {
  * Starts the YouTube/GitHub-style top progress bar with trickle animation during async requests.
  */
 export function startTopProgressBar() {
+    activeCount++;
     ensureElements();
+    if (!containerEl || !fillEl) return;
+
+    if (fadeTimeout) {
+        clearTimeout(fadeTimeout);
+        fadeTimeout = null;
+    }
+    if (resetTimeout) {
+        clearTimeout(resetTimeout);
+        resetTimeout = null;
+    }
+
+    if (activeCount > 1 && trickleTimer) {
+        return;
+    }
+
     if (trickleTimer) clearInterval(trickleTimer);
 
-    currentProgress = 15;
+    currentProgress = Math.max(currentProgress, 15);
     fillEl.style.transition = 'transform 0.2s cubic-bezier(0.1, 0.7, 0.1, 1)';
     fillEl.style.transform = `translate3d(-${100 - currentProgress}%, 0, 0)`;
     containerEl.classList.add('is-active');
@@ -55,19 +76,32 @@ export function startTopProgressBar() {
  * Completes the top progress bar to 100% and smoothly fades it out.
  */
 export function finishTopProgressBar() {
+    if (activeCount > 0) {
+        activeCount--;
+    }
+    if (activeCount > 0) {
+        return;
+    }
+
     ensureElements();
     if (trickleTimer) {
         clearInterval(trickleTimer);
         trickleTimer = null;
     }
+    if (!containerEl || !fillEl) return;
 
     currentProgress = 100;
     fillEl.style.transition = 'transform 0.15s ease-out';
     fillEl.style.transform = 'translate3d(0%, 0, 0)';
 
-    setTimeout(() => {
+    if (fadeTimeout) clearTimeout(fadeTimeout);
+    fadeTimeout = setTimeout(() => {
+        fadeTimeout = null;
         containerEl.classList.remove('is-active');
-        setTimeout(() => {
+
+        if (resetTimeout) clearTimeout(resetTimeout);
+        resetTimeout = setTimeout(() => {
+            resetTimeout = null;
             fillEl.style.transition = 'none';
             fillEl.style.transform = 'translate3d(-100%, 0, 0)';
             currentProgress = 0;

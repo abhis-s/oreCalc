@@ -14,14 +14,9 @@ import {
 import { translate } from '../i18n/translator.js';
 import { logger } from '../utils/logger.js';
 import { getApiBaseUrl } from './apiService.js';
-import { getActiveUserIdKey } from '../core/storageKeys.js';
 import {
-    AUTH_AVATAR_KEY,
-    AUTH_HAS_PASSWORD_KEY,
-    AUTH_TOKEN_KEY,
-    AUTH_USERNAME_KEY,
+    applyAuthSession,
     getRequestHeaders,
-    purgeLocalDataOnLogin,
     resolveCurrentUserId,
     throwApiError
 } from './authClientService.js';
@@ -135,19 +130,19 @@ export function normalizeWebAuthnError(err) {
         return new Error('passkeyAlreadyRegistered');
     }
 
-    if (name === 'NotAllowedError' || message.includes('timed out') || message.includes('not allowed') || message.includes('privacy-considerations')) {
-        if (message.includes('timed out') && !message.includes('not allowed')) {
-            return new Error('passkeyTimeout');
-        }
-        return new Error('passkeyCancelled');
-    }
-
     if (name === 'NotSupportedError' || code === 'ERROR_AUTHENTICATOR_NO_SUPPORTED_PUBKEYCREDPARAMS_ALG') {
         return new Error('passkeyNotSupported');
     }
 
     if (name === 'SecurityError' || code === 'ERROR_INVALID_DOMAIN' || code === 'ERROR_INVALID_RP_ID') {
         return new Error('passkeySecurityError');
+    }
+
+    if (name === 'NotAllowedError' || message.includes('timed out') || message.includes('not allowed') || message.includes('privacy-considerations')) {
+        if (message.includes('timed out') && !message.includes('not allowed')) {
+            return new Error('passkeyTimeout');
+        }
+        return new Error('passkeyCancelled');
     }
 
     return new Error('passkeyFailed');
@@ -214,13 +209,7 @@ export async function registerWithPasskey(username, deviceName = '', turnstileTo
     }
 
     const data = await verifyRes.json();
-    localStorage.setItem(AUTH_TOKEN_KEY, data.token);
-    localStorage.setItem(AUTH_USERNAME_KEY, data.username);
-    localStorage.setItem(AUTH_HAS_PASSWORD_KEY, 'false');
-    if (data.avatar) {
-        localStorage.setItem(AUTH_AVATAR_KEY, data.avatar);
-    }
-    document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: 'register', user: data } }));
+    applyAuthSession(data, 'register');
     return data;
 }
 
@@ -272,17 +261,7 @@ export async function loginWithPasskey(username = '') {
     }
 
     const data = await verifyRes.json();
-    purgeLocalDataOnLogin(data.userId);
-    localStorage.setItem(AUTH_TOKEN_KEY, data.token);
-    localStorage.setItem(AUTH_USERNAME_KEY, data.username);
-    if (typeof data.hasPassword === 'boolean') {
-        localStorage.setItem(AUTH_HAS_PASSWORD_KEY, String(data.hasPassword));
-    }
-    localStorage.setItem(getActiveUserIdKey(), data.userId);
-    if (data.avatar) {
-        localStorage.setItem(AUTH_AVATAR_KEY, data.avatar);
-    }
-    document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: 'login', user: data } }));
+    applyAuthSession(data, 'login');
     return data;
 }
 
@@ -418,17 +397,7 @@ export async function authenticateWithPasskeyAutofill() {
     if (!verifyRes?.ok) return null;
 
     const data = await verifyRes.json();
-    purgeLocalDataOnLogin(data.userId);
-    localStorage.setItem(AUTH_TOKEN_KEY, data.token);
-    localStorage.setItem(AUTH_USERNAME_KEY, data.username);
-    if (typeof data.hasPassword === 'boolean') {
-        localStorage.setItem(AUTH_HAS_PASSWORD_KEY, String(data.hasPassword));
-    }
-    localStorage.setItem(getActiveUserIdKey(), data.userId);
-    if (data.avatar) {
-        localStorage.setItem(AUTH_AVATAR_KEY, data.avatar);
-    }
-    document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: 'login', user: data } }));
+    applyAuthSession(data, 'login');
     return data;
 }
 
