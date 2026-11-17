@@ -1,3 +1,4 @@
+import { ORE_TYPES } from '../../core/constants.js';
 import { translate } from '../../i18n/translator.js';
 
 function createTimeframeGrid(timeframes, idPrefix) {
@@ -15,8 +16,7 @@ function createTimeframeGrid(timeframes, idPrefix) {
         label.textContent = translate(i18nKey);
         row.appendChild(label);
 
-        const oreTypes = ['shiny', 'glowy', 'starry'];
-        oreTypes.forEach(ore => {
+        ORE_TYPES.forEach(ore => {
             const valDisplay = document.createElement('div');
             valDisplay.className = 'grid-value-display';
 

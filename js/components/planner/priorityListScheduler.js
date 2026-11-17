@@ -1,4 +1,4 @@
-import { heroData } from '../../data/heroData.js';
+import { heroData, HERO_NAME_TO_KEY } from '../../data/heroData.js';
 
 import { state } from '../../core/state.js';
 
@@ -46,20 +46,6 @@ export function getGlobalPriorityList() {
     }
 
     const globalPriorityList = [];
-    const heroNameMap = {
-        'Barbarian King': 'barbarianKing',
-        'Archer Queen': 'archerQueen',
-        'Minion Prince': 'minionPrince',
-        'Grand Warden': 'grandWarden',
-        'Royal Champion': 'royalChampion',
-        'Dragon Duke': 'dragonDuke',
-        barbarianKing: 'barbarianKing',
-        archerQueen: 'archerQueen',
-        minionPrince: 'minionPrince',
-        grandWarden: 'grandWarden',
-        royalChampion: 'royalChampion',
-        dragonDuke: 'dragonDuke'
-    };
 
     for (const heroKey in state.heroes) {
         const hero = state.heroes[heroKey];
@@ -70,7 +56,7 @@ export function getGlobalPriorityList() {
                     const stepData = equipment.upgradePlan[stepNum];
                     const currentLevel = state.heroes[heroKey]?.equipment[equipName]?.level || 1;
                     if (stepData.enabled && stepData.targetLevel > currentLevel) {
-                        const heroDataKey = heroNameMap[heroKey] || heroKey;
+                        const heroDataKey = HERO_NAME_TO_KEY[heroKey] || heroKey;
                         const heroEntry = heroData[heroDataKey];
                         if (!heroEntry) continue;
 

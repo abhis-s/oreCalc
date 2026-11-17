@@ -218,6 +218,10 @@ export const incomeData = {
             dateEnd: 28,
             availableMonths: {
                 2026: [4, 6, 8, 10, 12],
+                2027: [2, 4, 6, 8, 10, 12],
+                2028: [2, 4, 6, 8, 10, 12],
+                2029: [2, 4, 6, 8, 10, 12],
+                2030: [2, 4, 6, 8, 10, 12]
             },
         },
         getIncome: (state) => selectDerivedSourceIncome(state, 'eventPass', 'bimonthly'),
@@ -243,6 +247,10 @@ export const incomeData = {
             dateEnd: 28,
             availableMonths: {
                 2026: [4, 6, 8, 10, 12],
+                2027: [2, 4, 6, 8, 10, 12],
+                2028: [2, 4, 6, 8, 10, 12],
+                2029: [2, 4, 6, 8, 10, 12],
+                2030: [2, 4, 6, 8, 10, 12]
             },
         },
         getIncome: (state) => selectDerivedSourceIncome(state, 'eventTrader', 'bimonthly'),

@@ -4,6 +4,7 @@
  */
 
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
+import { EQUIPMENT_MAX_LEVELS } from '../../data/equipmentCommonData.js';
 import { spellsData } from '../../data/spellsData.js';
 import {
     getEffectiveEquipmentLevel,
@@ -38,8 +39,7 @@ export function getEquipmentStatsPopoverContent(equipmentId, level, options = {}
     if (!equip) return null;
 
     const modifierKey = options.modifier || options.modifierKey || options.leagueId || 'standard';
-    const isEpic = equip.rarity === 'epic';
-    const maxLvl = equip.maxLevel || (isEpic ? 27 : 18);
+    const maxLvl = equip.maxLevel || (equip.rarity ? EQUIPMENT_MAX_LEVELS[equip.rarity] : EQUIPMENT_MAX_LEVELS.common);
     const rawLevel = options.rawLevel != null ? options.rawLevel : level;
     const safeRawLvl = Math.min(Math.max(1, rawLevel || maxLvl), maxLvl);
     const effectiveLvl = getEffectiveEquipmentLevel(equipmentId, safeRawLvl, modifierKey);
@@ -64,60 +64,36 @@ export function getEquipmentStatsPopoverContent(equipmentId, level, options = {}
         bullets.push(`<li><strong>${escapeHTML(heroLabel)}:</strong> ${escapeHTML(heroName)}</li>`);
     }
 
-    switch (equipmentId) {
-        case 'giant_arrow': {
-            const dmg = equip.damageByLevel[safeLvl] || 0;
+    const targets = equip.targetsByLevel?.[safeLvl] || equip.numberOfTargets;
+    const isMultiTarget = typeof targets === 'number' && targets > 1;
+
+    if (equip.damageType === 'percentage') {
+        const pct = Math.round((equip.buildingDamagePctByLevel?.[safeLvl] || 0) * 100);
+        bullets.push(`<li><strong>${escapeHTML(damageLabel)}:</strong> ${pct}%</li>`);
+    } else if (equip.damageByLevel) {
+        const dmg = equip.damageByLevel[safeLvl] || 0;
+        const dmgLabel = isMultiTarget ? damagePerHitLabel : damageLabel;
+        bullets.push(`<li><strong>${escapeHTML(dmgLabel)}:</strong> ${formatNumber(dmg)} ${hpUnit}</li>`);
+
+        if (equip.id === 'giant_arrow') {
             const adMultiplier = equip.airDefenseMultiplier || 2.0;
             const adDmg = Math.floor(dmg * adMultiplier);
-            const radius = equip.radius || 1.0;
             const adDisplayName = getDefenseDisplayName('air_defense');
-            bullets.push(`<li><strong>${escapeHTML(damageLabel)}:</strong> ${formatNumber(dmg)} ${hpUnit}</li>`);
             bullets.push(`<li><strong>${escapeHTML(favoriteTargetLabel)}:</strong> ${escapeHTML(adDisplayName)} (2x · ${formatNumber(adDmg)} ${hpUnit})</li>`);
-            bullets.push(`<li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>`);
-            break;
         }
+    }
 
-        case 'fireball': {
-            const dmg = equip.damageByLevel[safeLvl] || 0;
-            const radius = equip.radiusByLevel?.[safeLvl] || 4.0;
-            bullets.push(`<li><strong>${escapeHTML(damageLabel)}:</strong> ${formatNumber(dmg)} ${hpUnit}</li>`);
-            bullets.push(`<li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>`);
-            break;
-        }
+    if (isMultiTarget) {
+        bullets.push(`<li><strong>${escapeHTML(numberOfTargetsLabel)}:</strong> ${targets}</li>`);
+    }
 
-        case 'spiky_ball': {
-            const dmg = equip.damageByLevel[safeLvl] || 0;
-            const targets = equip.targetsByLevel?.[safeLvl] || 2;
-            bullets.push(`<li><strong>${escapeHTML(damagePerHitLabel)}:</strong> ${formatNumber(dmg)} ${hpUnit}</li>`);
-            bullets.push(`<li><strong>${escapeHTML(numberOfTargetsLabel)}:</strong> ${targets}</li>`);
-            break;
-        }
+    if (equip.id === 'seeking_shield') {
+        bullets.push(`<li><strong>${escapeHTML(favoriteTargetLabel)}:</strong> ${escapeHTML(translate('views.damageCalc.filters.filterDefenses'))}</li>`);
+    }
 
-        case 'seeking_shield': {
-            const dmg = equip.damageByLevel[safeLvl] || 0;
-            const targets = equip.numberOfTargets || 4;
-            bullets.push(`<li><strong>${escapeHTML(damagePerHitLabel)}:</strong> ${formatNumber(dmg)} ${hpUnit}</li>`);
-            bullets.push(`<li><strong>${escapeHTML(numberOfTargetsLabel)}:</strong> ${targets}</li>`);
-            bullets.push(`<li><strong>${escapeHTML(favoriteTargetLabel)}:</strong> ${escapeHTML(translate('views.damageCalc.filters.filterDefenses'))}</li>`);
-            break;
-        }
-
-        case 'flame_blower': {
-            const dmg = equip.damageByLevel[safeLvl] || 0;
-            bullets.push(`<li><strong>${escapeHTML(damageLabel)}:</strong> ${formatNumber(dmg)} ${hpUnit}</li>`);
-            break;
-        }
-
-        case 'rocket_backpack': {
-            const dmg = equip.damageByLevel[safeLvl] || 0;
-            const radius = equip.radius || 4.0;
-            bullets.push(`<li><strong>${escapeHTML(damageLabel)}:</strong> ${formatNumber(dmg)} ${hpUnit}</li>`);
-            bullets.push(`<li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>`);
-            break;
-        }
-
-        default:
-            break;
+    const radius = equip.radiusByLevel?.[safeLvl] || equip.radius;
+    if (radius) {
+        bullets.push(`<li><strong>${escapeHTML(damageRadiusLabel)}:</strong> ${formatFloat(radius, 1)} ${escapeHTML(tilesText)}</li>`);
     }
 
     const headerTitle = `${escapeHTML(eqName)} (${escapeHTML(lvlShort)} ${safeLvl})`;
@@ -482,7 +458,7 @@ export function getDamageSourcePopoverContent(sourceKey, level, state) {
         return getEarthquakeStatsPopoverContent({ level: ccEqLvl, count: 1, isCombo: false, isCc: true });
     }
     if (equipmentDamageData[sourceKey]) {
-        const rawLvl = state?.offense?.equipment?.[sourceKey] || equipmentDamageData[sourceKey].maxLevel || (equipmentDamageData[sourceKey].rarity === 'epic' ? 27 : 18);
+        const rawLvl = state?.offense?.equipment?.[sourceKey] || equipmentDamageData[sourceKey].maxLevel || (equipmentDamageData[sourceKey].rarity ? EQUIPMENT_MAX_LEVELS[equipmentDamageData[sourceKey].rarity] : EQUIPMENT_MAX_LEVELS.common);
         const activeMod = getActiveModifier(state);
         return getEquipmentStatsPopoverContent(sourceKey, level, { modifier: activeMod, leagueId: activeMod, rawLevel: rawLvl, isDamageSource: true });
     }

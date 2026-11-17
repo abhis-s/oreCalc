@@ -32,11 +32,7 @@ const DEFENSE_GROUPS = Object.freeze({
     get all() {
         if (!_defenseGroupsAll) _defenseGroupsAll = Object.freeze(Object.keys(getDefensesData()));
         return _defenseGroupsAll;
-    },
-    fortifications: Object.freeze([
-        'gold_storage',
-        'elixir_storage', 'dark_elixir_storage'
-    ])
+    }
 });
 
 /**

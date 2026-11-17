@@ -291,7 +291,7 @@ router.get('/clans/:clanTag/currentwar', async (req, res) => {
                 console.warn(`[Cache] Clash API ${reason}. Serving STALE current war data for ${cleanedTag}`);
                 res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
                 if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
-                const actualStaleData = stale.isPrivateWarLog ? stale.data : stale.data || stale;
+                const actualStaleData = stale.data || stale;
                 return res.json(actualStaleData);
             }
 
@@ -397,7 +397,7 @@ router.get('/clans/:clanTag/currentwar', async (req, res) => {
                 console.warn(`[Cache] Clash API returned status ${response.status}. Serving STALE current war data for ${cleanedTag}`);
                 res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
                 if (stale.etag) res.setHeader('ETag', `"${stale.etag}"`);
-                const actualStaleData = stale.isPrivateWarLog ? stale.data : stale.data || stale;
+                const actualStaleData = stale.data || stale;
                 return res.json(actualStaleData);
             }
 

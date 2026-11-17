@@ -394,12 +394,20 @@ export function cleanupOrphanedPlayerPartitions(stateObj = null) {
                     if (parsed && typeof parsed === 'object') {
                         let shouldWrite = false;
                         if (parsed.heroJourney && typeof parsed.heroJourney === 'object') {
-                            parsed.heroJourney = {
-                                acceleratedRewards: Boolean(parsed.heroJourney.acceleratedRewards ?? parsed.heroJourney.accelerated ?? (parsed.heroJourney.rewardMode === 'accelerated')),
-                                revealBeyondTH: Boolean(parsed.heroJourney.revealBeyondTH),
-                                hidden: Boolean(parsed.heroJourney.hidden)
+                            const prevHj = parsed.heroJourney;
+                            const nextHj = {
+                                acceleratedRewards: Boolean(prevHj.acceleratedRewards ?? prevHj.accelerated ?? (prevHj.rewardMode === 'accelerated')),
+                                revealBeyondTH: Boolean(prevHj.revealBeyondTH),
+                                hidden: Boolean(prevHj.hidden)
                             };
-                            shouldWrite = true;
+                            if (prevHj.acceleratedRewards !== nextHj.acceleratedRewards ||
+                                prevHj.revealBeyondTH !== nextHj.revealBeyondTH ||
+                                prevHj.hidden !== nextHj.hidden ||
+                                prevHj.accelerated !== undefined ||
+                                prevHj.rewardMode !== undefined) {
+                                parsed.heroJourney = nextHj;
+                                shouldWrite = true;
+                            }
                         }
                         if (parsed.heroes && typeof parsed.heroes === 'object') {
                             if (migrateComingSoonEquipment(parsed.heroes)) {

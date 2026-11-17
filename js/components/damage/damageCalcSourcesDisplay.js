@@ -7,6 +7,7 @@ import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
+import { EQUIPMENT_MAX_LEVELS } from '../../data/equipmentCommonData.js';
 import {
     getEffectiveEquipmentLevel,
     getMaxSpellLevel,
@@ -39,17 +40,10 @@ export function getDamageSourcesGridHtml(state) {
     const enabledSources = state.offense?.enabledSources || {};
     const leagueId = getActiveModifier(state);
 
-    const equipKeys = [
-        'spiky_ball',
-        'giant_arrow',
-        'fireball',
-        'seeking_shield',
-        'flame_blower',
-        'rocket_backpack'
-    ];
+    const equipKeys = Object.keys(equipmentDamageData);
     const equipSources = equipKeys.map(key => {
         const equip = equipmentDamageData[key];
-        const defaultLvl = equip?.rarity === 'epic' ? 27 : 18;
+        const defaultLvl = equip?.maxLevel || (equip?.rarity && EQUIPMENT_MAX_LEVELS[equip.rarity]) || EQUIPMENT_MAX_LEVELS.common;
         const rawLvl = state.offense?.equipment?.[key] || defaultLvl;
         const effectiveLvl = getEffectiveEquipmentLevel(key, rawLvl, leagueId);
         return {

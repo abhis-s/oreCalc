@@ -1,3 +1,4 @@
+import { ORE_TYPES } from '../../core/constants.js';
 import { getOverallGradient } from '../../domain/equipment/equipmentProgressDomain.js';
 import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 import { heroData } from '../../data/heroData.js';
@@ -165,7 +166,7 @@ export function renderLiveDashboards(oreProgress, hjProgress, thLevel = 18) {
             if (orePctEl) animateValue(orePctEl, prevOre.overall, oreProgress.overall, 2000, val => `${Math.round(val)}%`);
             if (oreBadge) animateValue(oreBadge, prevOre.overall, oreProgress.overall, 2000, val => translate('views.landing.pctMaxed', { pct: Math.round(val) }));
 
-            for (const key of ['shiny', 'glowy', 'starry']) {
+            for (const key of ORE_TYPES) {
                 const el = landingOreProgress.querySelector(`[data-live-ore-val="${key}"]`);
                 if (el) animateValue(el, prevOre[key] ?? 0, oreProgress[key], 1800, val => `${Math.round(val)}%`);
             }
@@ -382,7 +383,7 @@ export function renderLiveDashboards(oreProgress, hjProgress, thLevel = 18) {
                 if (orePctEl) animateValue(orePctEl, 0, oreProgress.overall, 2000, val => `${Math.round(val)}%`);
                 if (oreBadge) animateValue(oreBadge, 0, oreProgress.overall, 2000, val => translate('views.landing.pctMaxed', { pct: Math.round(val) }));
 
-                for (const key of ['shiny', 'glowy', 'starry']) {
+                for (const key of ORE_TYPES) {
                     const el = landingOreProgress?.querySelector(`[data-live-ore-val="${key}"]`);
                     if (el) animateValue(el, 0, oreProgress[key], 1800, val => `${Math.round(val)}%`);
                 }

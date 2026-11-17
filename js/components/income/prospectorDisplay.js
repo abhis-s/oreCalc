@@ -1,3 +1,4 @@
+import { ORE_TYPES } from '../../core/constants.js';
 import { oreMaxValues } from '../../data/oreConversionData.js';
 import { translate } from '../../i18n/translator.js';
 
@@ -84,7 +85,7 @@ function generateRecommendationHtml(title, req, stored, baseIncome, isActualDays
     } else {
         const roundedOptimal = Math.ceil(opt.completionDays);
         let maxNatural = 0;
-        for (const ore of ['shiny', 'glowy', 'starry']) {
+        for (const ore of ORE_TYPES) {
             if (opt.naturalDays && opt.naturalDays[ore] > maxNatural) {
                 maxNatural = opt.naturalDays[ore];
             }

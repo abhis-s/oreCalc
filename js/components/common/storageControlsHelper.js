@@ -3,7 +3,7 @@
  * Tier 4: Common UI Helper (Cohesive component presentation & popover options).
  */
 
-import { STORAGE_LIMITS, STORAGE_OVERFLOW_LIMITS } from '../../core/constants.js';
+import { ORE_TYPES, STORAGE_LIMITS, STORAGE_OVERFLOW_LIMITS } from '../../core/constants.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 import { getActiveCustomComingSoon } from '../../domain/equipment/comingSoonEquipmentDomain.js';
@@ -55,8 +55,7 @@ function ensureGoalContainerClickListener(container) {
 export function syncStoredOreInputBounds(inputsMap, allowOverflow) {
     if (!inputsMap || typeof inputsMap !== 'object') return;
 
-    const ores = ['shiny', 'glowy', 'starry'];
-    for (const ore of ores) {
+    for (const ore of ORE_TYPES) {
         const input = inputsMap[ore];
         if (!input) continue;
 

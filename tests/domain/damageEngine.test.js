@@ -801,7 +801,7 @@ test('Attack Sequence Simulator - Shared Diminishing Returns & Timing', async (t
 
         // Step 1: Strike 1 deals 29% (1798 dmg)
         assert.equal(sim.timeline[0].strikeIndex, 1);
-        assert.equal(sim.timeline[0].damageDealt, Math.floor(hp * 0.29));
+        assert.equal(sim.timeline[0].damageDealt, 1798);
 
         // Step 2: Strike 2 deals (29% / 3) = 9.667% (599 dmg)
         assert.equal(sim.timeline[1].strikeIndex, 2);
@@ -1040,7 +1040,7 @@ test('Whole-Village Attack Sequence Simulator', async (t) => {
             { eqCount: 0, zapCount: 2, regZapCount: 1, ccZapCount: 1, lightningLevel: 13, ccLightningLevel: 13, equipment: [] }
         ]), [{ eqCount: 0, zapCount: 2, regZapCount: 2, ccZapCount: 0, lightningLevel: 13, ccLightningLevel: 13, equipment: [] }]);
 
-        // Different levels, tied count: lower-level option is kept, higher-level option is pruned
+        // Different levels, tied count: regular spell option is kept, CC donation option is pruned
         assert.deepEqual(filterDominatedCombos([
             { eqCount: 1, regEqCount: 1, ccEqCount: 0, eqLevel: 7, ccEqLevel: 8, equipment: [] },
             { eqCount: 1, regEqCount: 0, ccEqCount: 1, eqLevel: 7, ccEqLevel: 8, equipment: [] }
@@ -1049,6 +1049,12 @@ test('Whole-Village Attack Sequence Simulator', async (t) => {
             { eqCount: 0, zapCount: 2, regZapCount: 2, ccZapCount: 0, lightningLevel: 10, ccLightningLevel: 11, equipment: [] },
             { eqCount: 0, zapCount: 2, regZapCount: 0, ccZapCount: 2, lightningLevel: 10, ccLightningLevel: 11, equipment: [] }
         ]), [{ eqCount: 0, zapCount: 2, regZapCount: 2, ccZapCount: 0, lightningLevel: 10, ccLightningLevel: 11, equipment: [] }]);
+
+        // When player's zap level exceeds CC zap level, 0 CC option is still preserved
+        assert.deepEqual(filterDominatedCombos([
+            { eqCount: 0, zapCount: 2, regZapCount: 2, ccZapCount: 0, lightningLevel: 11, ccLightningLevel: 10, equipment: [] },
+            { eqCount: 0, zapCount: 2, regZapCount: 0, ccZapCount: 2, lightningLevel: 11, ccLightningLevel: 10, equipment: [] }
+        ]), [{ eqCount: 0, zapCount: 2, regZapCount: 2, ccZapCount: 0, lightningLevel: 11, ccLightningLevel: 10, equipment: [] }]);
     });
 
     await t.test('getComboSignature produces deterministic unique signatures', () => {

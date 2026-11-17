@@ -29,12 +29,12 @@ test('calculateRequiredOres accurately calculates ores for common equipment upgr
             }
         }
     };
-    const storedOres = { shiny: 1000, glowy: 100, starry: 0 };
-    const plannerMaxLevels = { barbarianPuppet: 5 };
+    const storedOres = { shiny: 1000, glowy: 10, starry: 0 };
+    const plannerMaxLevels = { customMaxLevel: { common: 5 } };
 
     const result = calculateRequiredOres(heroesState, storedOres, plannerMaxLevels);
-    assert.ok(result.shiny > 0);
-    assert.ok(result.glowy > 0);
+    assert.equal(result.shiny, 360);
+    assert.equal(result.glowy, 10);
     assert.equal(result.starry, 0);
 });
 
@@ -49,7 +49,7 @@ test('calculateRequiredOres accurately calculates starry ore for epic equipment 
         }
     };
     const storedOres = { shiny: 0, glowy: 0, starry: 0 };
-    const plannerMaxLevels = { giantGauntlet: 27 };
+    const plannerMaxLevels = { customMaxLevel: { epic: 27 } };
 
     const result = calculateRequiredOres(heroesState, storedOres, plannerMaxLevels);
     assert.ok(result.shiny > 0, 'Epic upgrade must require shiny ore');
@@ -69,7 +69,7 @@ test('calculateRequiredOres clamps required ores to zero when stored ores exceed
         }
     };
     const storedOres = { shiny: 999999, glowy: 999999, starry: 999999 };
-    const plannerMaxLevels = { barbarianPuppet: 5 };
+    const plannerMaxLevels = { customMaxLevel: { common: 5 } };
 
     const result = calculateRequiredOres(heroesState, storedOres, plannerMaxLevels);
     assert.equal(result.shiny, 0, 'Shiny ore must clamp to 0');
@@ -88,7 +88,7 @@ test('calculateRequiredOres properly deducts upcoming Hero Journey rewards', () 
         }
     };
     const storedOres = { shiny: 0, glowy: 0, starry: 0 };
-    const plannerMaxLevels = { giantGauntlet: 27 };
+    const plannerMaxLevels = { customMaxLevel: { epic: 27 } };
     const upcomingHJ = { shiny: 5000, glowy: 500, starry: 50 };
 
     const withoutHJ = calculateRequiredOres(heroesState, storedOres, plannerMaxLevels, {});

@@ -5,6 +5,7 @@
 
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
+import { EQUIPMENT_MAX_LEVELS } from '../../data/equipmentCommonData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import {
     getEffectiveEquipmentLevel,
@@ -149,7 +150,7 @@ export function renderClusterSolutionCardHtml({
 
     const equipButtonsHtml = DAMAGE_EQUIPMENT_KEYS.map(key => {
         const equip = equipmentDamageData[key];
-        const defaultLvl = equip?.rarity === 'epic' ? 27 : 18;
+        const defaultLvl = equip?.maxLevel || (equip?.rarity && EQUIPMENT_MAX_LEVELS[equip.rarity]) || EQUIPMENT_MAX_LEVELS.common;
         const rawLvl = state.offense?.equipment?.[key] || defaultLvl;
         const effectiveLvl = getEffectiveEquipmentLevel(key, rawLvl, getActiveModifier(state));
         const isDowngraded = effectiveLvl < rawLvl;

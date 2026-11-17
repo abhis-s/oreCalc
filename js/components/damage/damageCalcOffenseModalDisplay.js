@@ -6,6 +6,7 @@
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { spellsData } from '../../data/spellsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
+import { EQUIPMENT_MAX_LEVELS } from '../../data/equipmentCommonData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import {
     getEffectiveEquipmentLevel,
@@ -99,12 +100,13 @@ export function renderOffenseEditModal(state, container) {
 
     const activeModifier = getActiveModifier(state);
 
-    const equipOrder = ['spiky_ball', 'giant_arrow', 'fireball', 'seeking_shield', 'earthquake_boots', 'flame_blower', 'rocket_backpack'];
+    const equipOrder = Object.keys(equipmentDamageData);
     const equipRowsHtml = equipOrder.map(eqId => {
         const eqData = equipmentDamageData[eqId];
         if (!eqData) return '';
-        const eqMaxLvl = eqData.maxLevel || (eqData.rarity === 'epic' ? 27 : 18);
-        const eqDefaultLvl = eqData.rarity === 'epic' ? 27 : 18;
+        const maxRarityLvl = eqData.rarity ? EQUIPMENT_MAX_LEVELS[eqData.rarity] : EQUIPMENT_MAX_LEVELS.common;
+        const eqMaxLvl = eqData.maxLevel || maxRarityLvl;
+        const eqDefaultLvl = maxRarityLvl;
         const eqLvl = equipment[eqId] || eqDefaultLvl;
         const equipName = getEquipmentDisplayName(eqId);
 

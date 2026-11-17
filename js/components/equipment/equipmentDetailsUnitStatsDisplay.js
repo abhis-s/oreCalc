@@ -401,9 +401,13 @@ export function updateUnitStatsHover(unitStatsContent, data, levelsArray, curren
             const formattedHover = formatVal(safeHover, meta.valueUnit);
             const deltaTextClass = isGain ? 'val-increase' : (isSame ? '' : 'val-decrease');
 
-            const prevHoverVal = /** @type {any} */ (unitStatsContent).__lastHoveredUnitValues[meta.key];
+            const statKey = meta.key ? `${meta.key}_${idx}` : `stat_${idx}`;
+            if (!/** @type {any} */ (unitStatsContent).__lastHoveredUnitValues) {
+                /** @type {any} */ (unitStatsContent).__lastHoveredUnitValues = {};
+            }
+            const prevHoverVal = /** @type {any} */ (unitStatsContent).__lastHoveredUnitValues[statKey];
             const startVal = (prevHoverVal !== undefined && typeof prevHoverVal === 'number') ? prevHoverVal : safeBase;
-            /** @type {any} */ (unitStatsContent).__lastHoveredUnitValues[meta.key] = safeHover;
+            /** @type {any} */ (unitStatsContent).__lastHoveredUnitValues[statKey] = safeHover;
 
             rowEl.classList.toggle('is-comparing', isComparing);
             const valEl = rowEl.querySelector('.stat-val');
@@ -446,9 +450,9 @@ export function updateUnitStatsHover(unitStatsContent, data, levelsArray, curren
                         const animDuration = Math.min(450, Math.max(150, Math.round(Math.log10(stepDelta + 1) * 160)));
                         animateValue(existingHoverSpan, startVal, safeHover, animDuration, (v) => `${formatAnimVal(v, meta.valueUnit)} (${diffSign})`);
                     }
+                } else {
+                    valEl.innerHTML = `<span class="unit-stat-val-number ${modClass}">${formatVal(safeBase, meta.valueUnit)}</span>`;
                 }
-            } else {
-                valEl.innerHTML = `<span class="unit-stat-val-number ${modClass}">${formatVal(safeBase, meta.valueUnit)}</span>`;
             }
         } else {
             rowEl.classList.remove('is-comparing');

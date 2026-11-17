@@ -283,13 +283,13 @@ test('sortDetailedCombos - Preserves canonical solver tiebreakers when target co
     sortDetailedCombos(housingCombos);
     assert.strictEqual(housingCombos[0].combo.key, 'space1', 'Lower housing space must come first on tie');
 
-    // Tiebreaker 3: equipment count descending
+    // Tiebreaker 3: equipment count ascending (fewer equipment dependencies preferred)
     const equipCountCombos = [
         { combo: { key: 'eq1', housingSpace: 0, equipment: [{ id: 'e1' }] }, filteredDefenses: [{}] },
         { combo: { key: 'eq2', housingSpace: 0, equipment: [{ id: 'e1' }, { id: 'e2' }] }, filteredDefenses: [{}] }
     ];
     sortDetailedCombos(equipCountCombos);
-    assert.strictEqual(equipCountCombos[0].combo.key, 'eq2', 'More equipment items must come first on tie');
+    assert.strictEqual(equipCountCombos[0].combo.key, 'eq1', 'Fewer equipment items must come first on tie');
 
     // Tiebreaker 4: same hero equipment priority
     const sameHeroCombos = [

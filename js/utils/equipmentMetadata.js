@@ -4,17 +4,11 @@
  */
 
 import { equipmentDamageData } from '../data/equipmentDamageData.js';
+import { HERO_KEY_TO_NAME } from '../data/heroData.js';
 import { translate } from '../i18n/translator.js';
 import { toCamelCase } from './stringUtils.js';
 
-const HERO_NAME_MAP = Object.freeze({
-    archerQueen: 'Archer Queen',
-    barbarianKing: 'Barbarian King',
-    grandWarden: 'Grand Warden',
-    royalChampion: 'Royal Champion',
-    minionPrince: 'Minion Prince',
-    dragonDuke: 'Dragon Duke'
-});
+const HERO_NAME_MAP = HERO_KEY_TO_NAME;
 
 /**
  * Resolves localized display name for hero equipment.

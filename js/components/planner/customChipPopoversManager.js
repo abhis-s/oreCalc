@@ -1,7 +1,7 @@
 import { getWarOreValue, WAR_ORE_MAX_LIMITS } from '../../data/incomeSources/warOres.js';
 import { translate } from '../../i18n/translator.js';
 
-import { CUSTOM_CHIP_LIMITS } from '../../core/constants.js';
+import { CUSTOM_CHIP_LIMITS, ORE_TYPES } from '../../core/constants.js';
 import { state } from '../../core/state.js';
 
 import { convertOres } from '../../domain/income/prospectorManager.js';
@@ -336,8 +336,7 @@ export function registerCustomChipsPopovers() {
                 if (rec) return rec.toAmount;
                 const gpFromOre = state.income?.prospector?.fromOre || 'shiny';
                 const activeToOre = state.income?.prospector?.toOre || 'glowy';
-                const allOres = ['shiny', 'glowy', 'starry'];
-                const otherOres = allOres.filter(ore => ore !== gpFromOre);
+                const otherOres = ORE_TYPES.filter(ore => ore !== gpFromOre);
                 const gpToOre = otherOres.find(ore => ore !== activeToOre) || activeToOre;
                 const gpFromAmount = state.income?.prospector?.fromAmount || 0;
                 const toVal = convertOres(gpFromOre, gpToOre, gpFromAmount);

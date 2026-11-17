@@ -112,6 +112,18 @@ export function isUnitTarget(targetDefOrKey) {
 }
 
 /**
+ * Resolves the active tournament/league modifier key with canonical precedence.
+ * Precedence: explicit modifier -> modifierKey -> leagueId -> 'standard'.
+ *
+ * @param {Object} [options={}] - Options object.
+ * @returns {string} Canonical modifier key ('standard', 'esports', 'legend1', etc.).
+ */
+export function resolveBattleModifier(options = {}) {
+    if (!options) return 'standard';
+    return options.modifier || options.modifierKey || options.leagueId || 'standard';
+}
+
+/**
  * Resolves the effective HP of a target structure based on level, weapon stars, and supercharge tier.
  *
  * @param {string} defenseKey - Defense identifier (e.g. 'air_defense', 'inferno_tower').
@@ -140,7 +152,7 @@ export function getDefenseMaxHp(defenseKey, level, options = {}) {
         }
     }
 
-    const modifierKey = options.leagueId || options.modifierKey || options.modifier;
+    const modifierKey = resolveBattleModifier(options);
     if (modifierKey && modifierKey !== 'standard') {
         const league = battleModifiersData.leagues[modifierKey];
         if (league) {

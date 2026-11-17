@@ -41,7 +41,11 @@ export function getCurrentStatsStateMap(data, levelsArray, currentLevel, calcula
             const baseNumVal = (typeof rawNumVal === 'number') ? Math.round(rawNumVal * multiplier * 100) / 100 : rawNumVal;
             const maxVal = (typeof rawTrueMaxVal === 'number' && rawTrueMaxVal > 0) ? rawTrueMaxVal : 1;
             const basePct = Math.min(100, Math.max(0, Math.round(((typeof baseNumVal === 'number' ? baseNumVal : 0) / maxVal) * 100)));
-            map[meta.key] = { numVal: baseNumVal, pct: basePct };
+            const statKey = meta.key ? `${meta.key}_${idx}` : `stat_${idx}`;
+            map[statKey] = { numVal: baseNumVal, pct: basePct };
+            if (!map[meta.key]) {
+                map[meta.key] = map[statKey];
+            }
         });
     }
     return map;
@@ -121,7 +125,7 @@ export function renderStatsProgressList(statsProgressList, data, levelsArray, cu
         const multiplier = isMod ? (MODIFIER_HERO_BOOST_MULTIPLIERS[activeModifierTab] || 1.00) : 1.00;
 
         const baseNumVal = (typeof rawNumVal === 'number') ? Math.round(rawNumVal * multiplier * 100) / 100 : rawNumVal;
-        const standardNumVal = (typeof rawStandardNumVal === 'number') ? rawStandardNumVal : rawStandardNumVal;
+        const standardNumVal = (typeof rawStandardNumVal === 'number') ? Math.round(rawStandardNumVal * 100) / 100 : rawStandardNumVal;
         const maxVal = (typeof rawTrueMaxVal === 'number' && rawTrueMaxVal > 0) ? rawTrueMaxVal : 1;
 
         const statLabel = translate(`entities.stats.${meta.key}`);
@@ -283,7 +287,7 @@ export function updateStatsProgressHover(statsProgressList, data, levelsArray, c
         let isComparing = false;
 
         const rawStandardNumVal = getStatValue(standardLevelObj);
-        const standardNumVal = (typeof rawStandardNumVal === 'number') ? rawStandardNumVal : rawStandardNumVal;
+        const standardNumVal = (typeof rawStandardNumVal === 'number') ? Math.round(rawStandardNumVal * 100) / 100 : rawStandardNumVal;
 
         const isModified = typeof baseNumVal === 'number' && typeof standardNumVal === 'number'
             ? baseNumVal !== standardNumVal
@@ -345,9 +349,13 @@ export function updateStatsProgressHover(statsProgressList, data, levelsArray, c
                 const isGain = isLowerBetter ? diff < 0 : diff > 0;
                 const deltaTextClass = isGain ? 'val-increase' : (isSame ? '' : 'val-decrease');
 
-                const prevHoverVal = /** @type {any} */ (statsProgressList).__lastHoveredValues[meta.key];
+                const statKey = meta.key ? `${meta.key}_${idx}` : `stat_${idx}`;
+                if (!/** @type {any} */ (statsProgressList).__lastHoveredValues) {
+                    /** @type {any} */ (statsProgressList).__lastHoveredValues = {};
+                }
+                const prevHoverVal = /** @type {any} */ (statsProgressList).__lastHoveredValues[statKey];
                 const startVal = (prevHoverVal !== undefined && typeof prevHoverVal === 'number') ? prevHoverVal : baseNumVal;
-                /** @type {any} */ (statsProgressList).__lastHoveredValues[meta.key] = hoverNumVal;
+                /** @type {any} */ (statsProgressList).__lastHoveredValues[statKey] = hoverNumVal;
 
                 const existingCompare = valEl.querySelector('.stat-val-compare');
                 const existingHoverSpan = valEl.querySelector('.stat-val-hover');

@@ -1,8 +1,10 @@
+import { ORE_TYPES } from '../../core/constants.js';
 import { upgradeCosts } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
 import { prospectorData } from '../../data/incomeSources/prospector.js';
 import { conversionRates, oreMaxValues } from '../../data/oreConversionData.js';
 import { currencyData } from '../../data/pricingData.js';
+import { DAYS_IN_MONTH_AVERAGE } from '../../data/timeConstants.js';
 
 import { getPriceForTier } from '../../utils/incomeUtils.js';
 
@@ -93,7 +95,7 @@ export function findOptimalConversionSchedule(req, stored, baseIncome) {
     };
 
     const naturalDays = {};
-    for (const ore of ['shiny', 'glowy', 'starry']) {
+    for (const ore of ORE_TYPES) {
         if (missing[ore] === 0) {
             naturalDays[ore] = 0;
         } else if (baseIncome[ore] <= 0) {
@@ -116,7 +118,7 @@ export function findOptimalConversionSchedule(req, stored, baseIncome) {
         return { completionDays: 0, conversions: [], naturalDays: naturalDays };
     }
 
-    const sortedOres = ['shiny', 'glowy', 'starry'].sort((a, b) => naturalDays[a] - naturalDays[b]);
+    const sortedOres = [...ORE_TYPES].sort((a, b) => naturalDays[a] - naturalDays[b]);
     const oFast = sortedOres[0];
     const oMid = sortedOres[1];
     const oSlow = sortedOres[2];
@@ -310,9 +312,9 @@ export function getProspectorConversions(state) {
         }
     }
     const baseIncome = {
-        shiny: baseMonthly.shiny / 30.44,
-        glowy: baseMonthly.glowy / 30.44,
-        starry: baseMonthly.starry / 30.44,
+        shiny: baseMonthly.shiny / DAYS_IN_MONTH_AVERAGE,
+        glowy: baseMonthly.glowy / DAYS_IN_MONTH_AVERAGE,
+        starry: baseMonthly.starry / DAYS_IN_MONTH_AVERAGE,
     };
 
     const missing = {
@@ -388,19 +390,23 @@ export function getProspectorIncomeForDate(date, state) {
     const pState = state.income?.prospector || {};
     const req = state.derived?.requiredOres || {};
 
-    // Calculate base monthly income sum to detect income setting changes
-    let baseMonthlySum = 0;
+    // Calculate base monthly income per ore to detect income setting changes
+    let baseMonthlyShiny = 0;
+    let baseMonthlyGlowy = 0;
+    let baseMonthlyStarry = 0;
     if (state.derived?.incomeSources) {
         for (const key in state.derived.incomeSources) {
             if (key === 'prospector') continue;
             const monthly = state.derived.incomeSources[key]?.monthly;
             if (monthly) {
-                baseMonthlySum += (monthly.shiny || 0) + (monthly.glowy || 0) + (monthly.starry || 0);
+                baseMonthlyShiny += monthly.shiny || 0;
+                baseMonthlyGlowy += monthly.glowy || 0;
+                baseMonthlyStarry += monthly.starry || 0;
             }
         }
     }
 
-    const cacheKey = `${pState.goldPass}-${pState.assistedConversion}-${pState.fromOre}-${pState.toOre}-${pState.fromAmount}-${req.shiny}-${req.glowy}-${req.starry}-${baseMonthlySum}`;
+    const cacheKey = `${pState.goldPass}-${pState.assistedConversion}-${pState.fromOre}-${pState.toOre}-${pState.fromAmount}-${req.shiny}-${req.glowy}-${req.starry}-${baseMonthlyShiny}-${baseMonthlyGlowy}-${baseMonthlyStarry}`;
 
     if (cacheKey !== lastCacheKey || !cachedPattern) {
         const conversions = getProspectorConversions(state);
@@ -412,14 +418,14 @@ export function getProspectorIncomeForDate(date, state) {
         return { shiny: 0, glowy: 0, starry: 0 };
     }
 
-    const dayIndex = (date.getUTCDate() - 1) % 30;
+    const dayIndex = Math.min(29, date.getUTCDate() - 1);
     const item = cachedPattern[dayIndex];
 
     if (!item || item.type === 'none') {
         return { shiny: 0, glowy: 0, starry: 0 };
     }
 
-    const fromRate = item.amount || oreMaxValues[item.from];
+    const fromRate = typeof item.amount === 'number' ? item.amount : oreMaxValues[item.from];
     const toRate = convertOres(item.from, item.to, fromRate);
 
     const income = { shiny: 0, glowy: 0, starry: 0 };
@@ -467,7 +473,7 @@ export function calculateProspectorIncome(prospectorState = {}, assistedContext 
         }
 
         // Derive other timeframes without premature rounding
-        for (const ore of ['shiny', 'glowy', 'starry']) {
+        for (const ore of ORE_TYPES) {
             daily[ore] = monthly[ore] / 30;
             weekly[ore] = monthly[ore] * (7 / 30);
             bimonthly[ore] = monthly[ore] * 2;
@@ -478,7 +484,7 @@ export function calculateProspectorIncome(prospectorState = {}, assistedContext 
         daily[fromOre] -= fromAmount;
         daily[toOre]   += toAmount;
 
-        for (const ore of ['shiny', 'glowy', 'starry']) {
+        for (const ore of ORE_TYPES) {
             monthly[ore] = daily[ore] * 30;
             weekly[ore] = daily[ore] * 7;
             bimonthly[ore] = monthly[ore] * 2;
@@ -558,8 +564,8 @@ export function getBaseIncome(appState) {
         baseMonthlyIncome.starry += monthly.starry || 0;
     }
     return {
-        shiny: baseMonthlyIncome.shiny / 30.44,
-        glowy: baseMonthlyIncome.glowy / 30.44,
-        starry: baseMonthlyIncome.starry / 30.44
+        shiny: baseMonthlyIncome.shiny / DAYS_IN_MONTH_AVERAGE,
+        glowy: baseMonthlyIncome.glowy / DAYS_IN_MONTH_AVERAGE,
+        starry: baseMonthlyIncome.starry / DAYS_IN_MONTH_AVERAGE
     };
 }

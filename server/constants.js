@@ -80,6 +80,27 @@ function getRandomAvatar() {
     return AUTH_CONSTANTS.VALID_AVATARS[Math.floor(Math.random() * AUTH_CONSTANTS.VALID_AVATARS.length)];
 }
 
+const LAB_SCALING_TROOP_KEYS = deepFreeze({
+    Barbarian: 'barbarian',
+    Archer: 'archer'
+});
+
+const VALID_LEAGUE_MODIFIERS = deepFreeze([
+    'standard',
+    'legend3',
+    'legend2',
+    'legend1',
+    'esports'
+]);
+
+const VALID_LANGUAGES = deepFreeze([
+    'auto',
+    'en',
+    'de',
+    'tr',
+    'zh'
+]);
+
 const SERVER_CONSTANTS = deepFreeze({
     PORT_DEFAULT: 3000,
     INACTIVE_USER_DAYS_THRESHOLD: 90,
@@ -97,6 +118,9 @@ module.exports = {
     RATE_LIMIT_DEFAULTS,
     SERVER_CONSTANTS,
     AUTH_CONSTANTS,
+    LAB_SCALING_TROOP_KEYS,
+    VALID_LEAGUE_MODIFIERS,
+    VALID_LANGUAGES,
     getRandomAvatar,
     getClientIp
 };

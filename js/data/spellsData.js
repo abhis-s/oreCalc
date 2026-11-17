@@ -43,7 +43,9 @@ export const spellsData = Object.freeze({
             immunities: Object.freeze({
                 gold_storage: true,
                 elixir_storage: true,
-                dark_elixir_storage: true
+                dark_elixir_storage: true,
+                minion_prince: true,
+                dragon_duke: true
             }),
             diminishingReturnsDivider: 2,
             levels: Object.freeze({

@@ -1,4 +1,9 @@
-const { SERVER_CONSTANTS } = require('../constants.js');
+const {
+    SERVER_CONSTANTS,
+    LAB_SCALING_TROOP_KEYS,
+    VALID_LEAGUE_MODIFIERS,
+    VALID_LANGUAGES
+} = require('../constants.js');
 const { compareVersions } = require('../utils/validation.js');
 const { db } = require('./firebase.js');
 const { resolveEmailDomain } = require('./alertDiagnostics.js');
@@ -109,8 +114,8 @@ function sanitizePlayerData(playerData) {
             ? p.labTroops
             : Object.fromEntries(
                 (Array.isArray(p.troops) ? p.troops.filter(t => t && t.village === 'home') : [])
-                    .filter(t => t.name === 'Barbarian' || t.name === 'Archer')
-                    .map(t => [t.name.toLowerCase(), t.level])
+                    .filter(t => t?.name && LAB_SCALING_TROOP_KEYS[t.name])
+                    .map(t => [LAB_SCALING_TROOP_KEYS[t.name], t.level])
             );
 
         const clan = p.clan ? {
@@ -215,8 +220,7 @@ function sanitizePreferences(prefs) {
         }
     }
     if (typeof prefs.language === 'string') {
-        const allowedLangs = ['en', 'de', 'tr', 'zh'];
-        if (allowedLangs.includes(prefs.language)) {
+        if (VALID_LANGUAGES.includes(prefs.language)) {
             sanitized.language = prefs.language;
         }
     }
@@ -234,15 +238,20 @@ function sanitizePreferences(prefs) {
     if (typeof prefs.summaryTimeframe === 'string' && ['monthly', 'weekly'].includes(prefs.summaryTimeframe)) {
         sanitized.summaryTimeframe = prefs.summaryTimeframe;
     }
-    if (typeof prefs.leagueModifier === 'string' && ['standard', 'esports'].includes(prefs.leagueModifier)) {
+    if (typeof prefs.leagueModifier === 'string' && VALID_LEAGUE_MODIFIERS.includes(prefs.leagueModifier)) {
         sanitized.leagueModifier = prefs.leagueModifier;
+    }
+    if (typeof prefs.startupRoute === 'string' && /^\/[a-zA-Z0-9_\/-]{0,64}$/.test(prefs.startupRoute)) {
+        sanitized.startupRoute = prefs.startupRoute;
     }
     const booleanFields = [
         'enableLevelInput',
         'hideMaxedEquipment',
         'hideLockedEquipment',
         'hideProfileStats',
-        'cloudSync'
+        'cloudSync',
+        'screenWakeLock',
+        'hapticsEnabled'
     ];
     for (const field of booleanFields) {
         if (typeof prefs[field] === 'boolean') {

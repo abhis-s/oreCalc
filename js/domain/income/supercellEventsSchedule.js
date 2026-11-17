@@ -93,6 +93,10 @@ export function isSupercellEventLive(event, now = new Date()) {
         return false;
     }
 
+    if (!now || isNaN(now.getTime())) {
+        return false;
+    }
+
     const startDate = new Date(event.start);
     const endDate = new Date(event.end);
     const nowTime = now.getTime();

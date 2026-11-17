@@ -497,9 +497,12 @@ export function savePlayerProfileToStorage(data, updateOrder = true) {
     const canonicalKey = getPlayerStorageKey(serverTag);
     const existingStr = localStorage.getItem(canonicalKey);
     const existing = safeJsonParse(existingStr, null);
-    const partition = (existing && typeof existing === 'object' && existing.heroes)
-        ? existing
+    const partition = (existing && typeof existing === 'object')
+        ? { ...initializeDefaultPlayerState(), ...existing }
         : initializeDefaultPlayerState();
+    if (!partition.heroes || typeof partition.heroes !== 'object') {
+        partition.heroes = initializeDefaultPlayerState().heroes;
+    }
 
     const homeHeroes = data.heroes?.filter(h => h.village === 'home' || !h.village) || [];
 

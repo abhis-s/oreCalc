@@ -50,16 +50,7 @@ export function isStatModifiable(meta) {
     if (meta.isModifiable !== undefined) {
         return Boolean(meta.isModifiable);
     }
-    return meta.category === 'heroBoost' && [
-        'dpsIncrease',
-        'damagePerSecondIncrease',
-        'damagePerShotIncrease',
-        'hitpointIncrease',
-        'hpIncrease',
-        'maxHealthIncrease',
-        'selfHealingPerSecond',
-        'healthRecovery'
-    ].includes(meta.key);
+    return meta.category === 'heroBoost';
 }
 
 /**

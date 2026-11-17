@@ -6,6 +6,7 @@
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { spellsData } from '../../data/spellsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
+import { EQUIPMENT_MAX_LEVELS } from '../../data/equipmentCommonData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import { solveZapQuakeCombinations } from '../../domain/damage/zapQuakeSolver.js';
 import { calculateEquipmentDamage } from '../../domain/damage/equipmentDamage.js';
@@ -114,7 +115,7 @@ export function getComboBreakdownPopoverContent(elem, state) {
             } else if (state?.offense?.enabledSources) {
                 for (const [key, enabled] of Object.entries(state.offense.enabledSources)) {
                     if (enabled && equipmentDamageData[key] && canEquipmentTarget(key, buildingKey, level)) {
-                        const rawLvl = state.offense.equipment?.[key] || (equipmentDamageData[key].rarity === 'epic' ? 27 : 18);
+                        const rawLvl = state.offense.equipment?.[key] || (equipmentDamageData[key].rarity ? EQUIPMENT_MAX_LEVELS[equipmentDamageData[key].rarity] : EQUIPMENT_MAX_LEVELS.common);
                         enabledEquipment.push({ id: key, level: rawLvl, rawLevel: rawLvl });
                     }
                 }
@@ -247,7 +248,7 @@ export function getComboBreakdownPopoverContent(elem, state) {
     if (Array.isArray(equip)) {
         for (const eqItem of equip) {
             const eqData = equipmentDamageData[eqItem.id];
-            const rawLvl = eqItem.rawLevel || eqItem.level || state?.offense?.equipment?.[eqItem.id] || (eqData?.rarity === 'epic' ? 27 : 18);
+            const rawLvl = eqItem.rawLevel || eqItem.level || state?.offense?.equipment?.[eqItem.id] || (eqData?.rarity ? EQUIPMENT_MAX_LEVELS[eqData.rarity] : EQUIPMENT_MAX_LEVELS.common);
             const activeMod = getActiveModifier(state);
             const effLvl = getEffectiveEquipmentLevel(eqItem.id, rawLvl, activeMod);
             const eqResult = calculateEquipmentDamage(eqItem.id, rawLvl, buildingKey || '', level, {

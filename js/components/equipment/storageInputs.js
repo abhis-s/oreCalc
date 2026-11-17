@@ -1,3 +1,4 @@
+import { ORE_TYPES } from '../../core/constants.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
@@ -21,8 +22,7 @@ export function initializeStorageInputs() {
         });
     }
 
-    const ores = /** @type {Array<'shiny' | 'glowy' | 'starry'>} */ (['shiny', 'glowy', 'starry']);
-    ores.forEach(oreType => {
+    ORE_TYPES.forEach(oreType => {
         const input = dom.equipment?.storage?.quantity?.[oreType];
         if (!input) return;
 

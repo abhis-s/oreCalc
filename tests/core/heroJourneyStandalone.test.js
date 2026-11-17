@@ -1,5 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
+import { ORE_TYPES } from '../../js/core/constants.js';
 import { heroJourneyNodes, oreChestRewardsNormal, oreChestRewardsAccelerated } from '../../js/data/heroJourneyData.js';
 import { getMaxCumulativeHeroLevel, getMaxCumulativeLevelForTH, getMaxCumulativeLevelsByTH, getNodeTownHallLevel, isTrueMaxCumulativeLevel } from '../../js/domain/income/heroJourneyLevels.js';
 import { getQuestChestReward } from '../../js/domain/income/heroJourneyIncome.js';
@@ -96,7 +97,7 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
             if (node.type === 'ore') {
                 const resourceType = node.resourceType || node.oreType;
                 assert.ok(resourceType, `Ore node at level ${node.level} must have resourceType`);
-                assert.ok(['shiny', 'glowy', 'starry'].includes(resourceType), `Invalid ore resourceType: ${resourceType}`);
+                assert.ok(ORE_TYPES.includes(resourceType), `Invalid ore resourceType: ${resourceType}`);
                 assert.ok(typeof node.amount === 'number' && node.amount > 0, 'Ore amount must be positive');
             } else if (node.type === 'resource') {
                 assert.ok(node.resourceType, `Resource node at level ${node.level} must have resourceType`);

@@ -1,5 +1,5 @@
 import { translate } from '../../i18n/translator.js';
-import { STORAGE_LIMITS } from '../../core/constants.js';
+import { ORE_TYPES, STORAGE_LIMITS } from '../../core/constants.js';
 
 function createOreDisplay(config, oreType) {
     const container = document.createElement('div');
@@ -91,8 +91,7 @@ export function populateOreContainer(containerId, config) {
         oresContainer.innerHTML = '';
     }
 
-    const oreTypes = ['shiny', 'glowy', 'starry'];
-    oreTypes.forEach(ore => {
+    ORE_TYPES.forEach(ore => {
         oresContainer.appendChild(createOreDisplay(config, ore));
     });
 }

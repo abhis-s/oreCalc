@@ -176,6 +176,7 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
                         income: state.income,
                         planner: state.planner,
                         playerProfile: state.playerProfile,
+                        heroJourney: state.heroJourney,
                         onboardingTimestamp: existing.onboardingTimestamp !== undefined
                             ? existing.onboardingTimestamp
                             : (state.onboardingTimestamp ?? null),

@@ -3,7 +3,7 @@
  * Tier 2: Pure Domain Calculations (Zero DOM dependencies, zero side effects).
  */
 
-import { STORAGE_LIMITS } from '../../core/constants.js';
+import { ORE_TYPES, STORAGE_LIMITS } from '../../core/constants.js';
 import { getISOWeekNumber } from '../../utils/dateUtils.js';
 import { calculateDailyCalendarIncome } from '../income/calendarDayIncome.js';
 
@@ -26,7 +26,7 @@ import { calculateDailyCalendarIncome } from '../income/calendarDayIncome.js';
  * }}
  */
 export function calculateStorageForecast(appState, startDate, endDate, equipmentSchedule = null) {
-    const ores = ['shiny', 'glowy', 'starry'];
+    const ores = ORE_TYPES;
     const stored = appState?.storedOres || {};
 
     const balance = {

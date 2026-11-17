@@ -22,14 +22,7 @@ import {
     syncStateSpellCaps
 } from './damageCalcState.js';
 
-const ALL_HERO_EQUIPMENT_KEYS = [
-    'spiky_ball',
-    'giant_arrow',
-    'fireball',
-    'seeking_shield',
-    'flame_blower',
-    'rocket_backpack'
-];
+const ALL_HERO_EQUIPMENT_KEYS = Object.keys(equipmentDamageData);
 
 /**
  * Synchronizes active Damage Calculator state with verified Player Data from Village Profiles.
@@ -164,12 +157,7 @@ export function syncPlayerVillageData(playerData, options = {}) {
             damageCalcState.offense.enabledSources = {
                 lightning: true,
                 earthquake: true,
-                spiky_ball: true,
-                giant_arrow: true,
-                fireball: true,
-                seeking_shield: true,
-                flame_blower: true,
-                rocket_backpack: true,
+                ...Object.fromEntries(ALL_HERO_EQUIPMENT_KEYS.map(k => [k, true])),
                 cc_lightning: true,
                 cc_earthquake: true
             };

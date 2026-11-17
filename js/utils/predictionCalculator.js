@@ -34,7 +34,7 @@ export function calculateCompletionDates(priorityList) {
     let cannotCompletePriorItem = false;
 
     const simulatedLevels = {};
-    const stopDate = new Date('2027-12-31T23:59:59Z');
+    const stopDate = new Date(Date.UTC(currentDate.getUTCFullYear() + 5, 11, 31, 23, 59, 59));
 
     const lastProcessedStep = {};
 
@@ -115,7 +115,8 @@ export function calculateCompletionDates(priorityList) {
             if (equipmentType === 'epic') {
                 const shinyReady = simulatedOres.shiny >= requiredShiny;
                 const glowyReady = simulatedOres.glowy >= requiredGlowy;
-                if (shinyReady && glowyReady) {
+                const starryReady = simulatedOres.starry >= requiredStarry;
+                if (shinyReady && glowyReady && !starryReady) {
                     isStarryBottleneck = true;
                 }
             }

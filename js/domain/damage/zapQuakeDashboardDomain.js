@@ -206,7 +206,7 @@ export function sortDetailedCombos(activeCombos) {
 
         const aEq = aCombo.equipment ? aCombo.equipment.length : 0;
         const bEq = bCombo.equipment ? bCombo.equipment.length : 0;
-        if (aEq !== bEq) return bEq - aEq;
+        if (aEq !== bEq) return aEq - bEq;
 
         if (aEq >= 2 && bEq >= 2) {
             const aSame = isSameHeroEquipment(aCombo.equipment) ? 1 : 0;

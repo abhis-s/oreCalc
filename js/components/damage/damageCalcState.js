@@ -6,6 +6,8 @@
 import { safeJsonParse } from '../../utils/jsonUtils.js';
 import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
+import { equipmentDamageData } from '../../data/equipmentDamageData.js';
+import { EQUIPMENT_MAX_LEVELS } from '../../data/equipmentCommonData.js';
 import { clampSpellLevelToTownHall, getMaxSpellLevel } from '../../domain/damage/damageFormulas.js';
 import {
     getDefaultSuperchargeTier,
@@ -65,23 +67,18 @@ function createDefaultState() {
                 lightning: defaultCcZapLevel,
                 earthquake: defaultCcEqLevel
             },
-            equipment: {
-                spiky_ball: 27,
-                giant_arrow: 18,
-                fireball: 27,
-                seeking_shield: 18,
-                flame_blower: 18,
-                rocket_backpack: 27
-            },
+            /** @type {Record<string, number>} */
+            equipment: Object.fromEntries(
+                Object.entries(equipmentDamageData).map(([id, data]) => [
+                    id,
+                    data.maxLevel || (data.rarity ? EQUIPMENT_MAX_LEVELS[data.rarity] : EQUIPMENT_MAX_LEVELS.common)
+                ])
+            ),
+            /** @type {Record<string, boolean>} */
             enabledSources: {
                 lightning: true,
                 earthquake: true,
-                spiky_ball: true,
-                giant_arrow: true,
-                fireball: true,
-                seeking_shield: true,
-                flame_blower: true,
-                rocket_backpack: true,
+                ...Object.fromEntries(Object.keys(equipmentDamageData).map(id => [id, true])),
                 cc_lightning: true,
                 cc_earthquake: true
             }

@@ -21,7 +21,8 @@ import {
     getDefaultSuperchargeTier,
     isDefenseInSeason,
     getBuildingGroupId,
-    getMaxDefenseLevelForTownHall
+    getMaxDefenseLevelForTownHall,
+    resolveBattleModifier
 } from './defenseProgressionDomain.js';
 import { solveZapQuakeCombinations, getComboSignature } from './zapQuakeSolver.js';
 
@@ -235,7 +236,13 @@ export function solveClusteredZapQuake(
                 break;
             }
 
-            const { zapsNeeded } = calculateRequiredZaps(remainingHp, zapDmg, ccZapDmg);
+            const zapRes = calculateRequiredZaps(remainingHp, zapDmg, ccZapDmg);
+            if (remainingHp > 0 && (!zapRes.possible || zapRes.zapsNeeded === 0)) {
+                clusterPossible = false;
+                break;
+            }
+
+            const zapsNeeded = zapRes.zapsNeeded;
             isolatedZapsSum += zapsNeeded;
 
             targetBreakdowns.push({
@@ -339,6 +346,11 @@ export function solveClusteredZapQuake(
  * @param {Object} [options.enabledSpells] - Allowed spells map.
  * @param {Array<Object>} [options.enabledEquipment] - Allowed equipment array.
  * @param {string} [options.leagueId='standard'] - Battle modifier / league id.
+ * @param {string} [options.modifier] - Battle modifier key.
+ * @param {string} [options.modifierKey] - Battle modifier key alias.
+ * @param {number} [options.regularSpellCapacity] - Regular spell housing space override.
+ * @param {number} [options.ccSpellCapacity] - Clan Castle spell housing space override.
+ * @param {number} [options.maxHousingSpace] - Total housing space limit.
  * @param {{ lightning?: number, earthquake?: number }} [options.ccSpells] - Donated Clan Castle spell levels.
  * @param {Date|string|number} [options.referenceDate=new Date()] - Reference date for seasonal filtering.
  * @param {Object} [options.enabledBuildingGroups] - Group visibility states.
@@ -390,13 +402,18 @@ export function solveAllDefensesZapQuake(options = {}) {
                 ? (hasSupercharge ? Math.min(options.superchargeTier || 0, getMaxSuperchargeTier(key, level)) : 0)
                 : getDefaultSuperchargeTier(key, level, townHall != null ? townHall : MAX_TOWN_HALL));
 
+        const modifierKey = resolveBattleModifier(options);
         const solverOpts = {
             superchargeTier: activeSupercharge,
             townHallLevel: townHall,
             enabledSpells: options.enabledSpells,
             enabledEquipment: options.enabledEquipment,
-            leagueId: options.leagueId,
-            ccSpells: options.ccSpells
+            leagueId: modifierKey,
+            modifier: modifierKey,
+            ccSpells: options.ccSpells,
+            regularSpellCapacity: options.regularSpellCapacity,
+            ccSpellCapacity: options.ccSpellCapacity,
+            maxHousingSpace: options.maxHousingSpace
         };
         const maxHp = getDefenseMaxHp(key, level, solverOpts);
         const solution = solveZapQuakeCombinations(key, level, lightningLevel, eqLevel, solverOpts);
@@ -446,11 +463,15 @@ const MAX_CACHE_SIZE = 25;
  */
 function getGroupDefensesCacheKey(options = {}) {
     const th = options.townHallLevel ?? (/** @type {any} */ (options)).playerTownHall ?? MAX_TOWN_HALL;
-    const mod = options.modifier || options.leagueId || 'standard';
+    const mod = resolveBattleModifier(options);
     const zap = options.lightningLevel ?? getMaxSpellLevel('lightning');
     const eq = options.earthquakeLevel ?? getMaxSpellLevel('earthquake');
-    const sc = options.superchargeTier ?? 0;
+    const sc = options.superchargeTier !== undefined ? String(options.superchargeTier) : 'default';
     const rem = options.includeRemaining !== false ? '1' : '0';
+    const regCap = options.regularSpellCapacity ?? '';
+    const ccCap = options.ccSpellCapacity ?? '';
+    const maxHs = options.maxHousingSpace ?? '';
+    const refDate = options.referenceDate ? new Date(options.referenceDate).toISOString() : '';
 
     const spells = options.enabledSpells
         ? `${options.enabledSpells.lightning !== false ? 1 : 0}${options.enabledSpells.earthquake !== false ? 1 : 0}${options.enabledSpells.cc_lightning !== false ? 1 : 0}${options.enabledSpells.cc_earthquake !== false ? 1 : 0}`
@@ -468,7 +489,7 @@ function getGroupDefensesCacheKey(options = {}) {
     const selCombos = options.selectedCombos ? JSON.stringify(options.selectedCombos) : '';
     const bldGroups = options.enabledBuildingGroups ? JSON.stringify(options.enabledBuildingGroups) : '';
 
-    return `${th}|${mod}|${zap}|${eq}|${sc}|${rem}|${spells}|${ccZ}|${ccE}|${eqList}|${defLvl}|${defSc}|${selCombos}|${bldGroups}`;
+    return `${th}|${mod}|${zap}|${eq}|${sc}|${rem}|${regCap}|${ccCap}|${maxHs}|${refDate}|${spells}|${ccZ}|${ccE}|${eqList}|${defLvl}|${defSc}|${selCombos}|${bldGroups}`;
 }
 
 /**
@@ -480,7 +501,10 @@ function getGroupDefensesCacheKey(options = {}) {
 export function groupDefensesBySpellCombo(options = {}) {
     const cacheKey = getGroupDefensesCacheKey(options);
     if (groupDefensesCache.has(cacheKey)) {
-        return /** @type {Array<Object>} */ (groupDefensesCache.get(cacheKey));
+        const cached = groupDefensesCache.get(cacheKey);
+        groupDefensesCache.delete(cacheKey);
+        groupDefensesCache.set(cacheKey, cached);
+        return [...cached];
     }
 
     const allDefenses = solveAllDefensesZapQuake(options);
@@ -550,7 +574,7 @@ export function groupDefensesBySpellCombo(options = {}) {
         if (a.housingSpace !== b.housingSpace) return a.housingSpace - b.housingSpace;
         const aEq = a.equipment ? a.equipment.length : 0;
         const bEq = b.equipment ? b.equipment.length : 0;
-        if (aEq !== bEq) return bEq - aEq;
+        if (aEq !== bEq) return aEq - bEq;
         if (aEq >= 2 && bEq >= 2) {
             const aSame = isSameHeroEquipment(a.equipment) ? 1 : 0;
             const bSame = isSameHeroEquipment(b.equipment) ? 1 : 0;
@@ -590,5 +614,5 @@ export function groupDefensesBySpellCombo(options = {}) {
     }
     groupDefensesCache.set(cacheKey, groups);
 
-    return groups;
+    return [...groups];
 }

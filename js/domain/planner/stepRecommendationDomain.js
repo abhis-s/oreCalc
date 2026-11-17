@@ -152,7 +152,8 @@ export function calculateUpgradePlanPriorities(oldUpgradePlan = {}, rawUiSteps =
         });
     } else if (N_new <= N_old) {
         enabledSteps.forEach((step, index) => {
-            step.priorityIndex = oldSteps[index].priorityIndex;
+            const matchingOld = oldSteps.find(o => o.level === step.level);
+            step.priorityIndex = matchingOld ? matchingOld.priorityIndex : oldSteps[index].priorityIndex;
         });
     } else {
         const newHighest = enabledSteps[N_new - 1];
@@ -167,7 +168,7 @@ export function calculateUpgradePlanPriorities(oldUpgradePlan = {}, rawUiSteps =
         if (N_old === 1) {
             const anchor = oldHighest.priorityIndex;
             for (let i = 0; i < N_new - 1; i++) {
-                enabledSteps[i].priorityIndex = anchor - 0.002 + (i * 0.001);
+                enabledSteps[i].priorityIndex = Math.max(0.001, anchor - 0.002 + (i * 0.001));
             }
         } else if (N_old === 2) {
             const S_low = enabledSteps[0];
@@ -179,15 +180,20 @@ export function calculateUpgradePlanPriorities(oldUpgradePlan = {}, rawUiSteps =
                 if (S_low.level === O_low.level) {
                     S_low.priorityIndex = O_low.priorityIndex;
                 } else {
-                    S_low.priorityIndex = O_low.priorityIndex - 0.001;
+                    S_low.priorityIndex = Math.max(0.001, O_low.priorityIndex - 0.001);
                 }
             } else {
                 S_low.priorityIndex = O_low.priorityIndex;
                 S_mid.priorityIndex = O_low.priorityIndex + 0.001;
             }
-        } else if (N_old >= 3) {
+        } else {
             enabledSteps.forEach((step, index) => {
-                step.priorityIndex = oldSteps[index].priorityIndex;
+                if (index < N_old) {
+                    const matchingOld = oldSteps.find(o => o.level === step.level);
+                    step.priorityIndex = matchingOld ? matchingOld.priorityIndex : oldSteps[index].priorityIndex;
+                } else if (step.priorityIndex === undefined) {
+                    step.priorityIndex = maxPriority + 1 + (index - N_old);
+                }
             });
         }
     }

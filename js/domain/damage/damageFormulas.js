@@ -7,6 +7,7 @@ import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { spellsData } from '../../data/spellsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
+import { EQUIPMENT_MAX_LEVELS } from '../../data/equipmentCommonData.js';
 import { battleModifiersData } from '../../data/battleModifiersData.js';
 import { canEquipmentTarget, isUnitTarget } from './defenseProgressionDomain.js';
 
@@ -106,7 +107,7 @@ export function getEffectiveEquipmentLevel(equipmentId, requestedLevel, modifier
     const isEpic = equip.rarity === 'epic';
     const loss = isEpic ? (league.equipLevelLossEpic || 0) : (league.equipLevelLossCommon || 0);
 
-    const maxLevel = equip.maxLevel || (isEpic ? 27 : 18);
+    const maxLevel = equip.maxLevel || EQUIPMENT_MAX_LEVELS[equip.rarity] || EQUIPMENT_MAX_LEVELS.common;
     const validLevel = Math.min(Math.max(1, requestedLevel || 1), maxLevel);
 
     return Math.max(1, validLevel - loss);
@@ -131,22 +132,17 @@ export function calculateEquipmentTargetDamage(equipmentId, effectiveLevel, defe
     const validLevel = Math.max(1, effectiveLevel || 1);
     const def = getDefensesData()[defenseKey];
 
-    switch (equip.id) {
-        case 'giant_arrow': {
-            const base = equip.damageByLevel[validLevel] || 0;
-            const mult = (def?.damageMultipliers?.giant_arrow) || (defenseKey === 'air_defense' ? (equip.airDefenseMultiplier || 2.0) : 1.0);
-            return Math.floor(base * mult);
-        }
-        case 'fireball':
-        case 'spiky_ball':
-        case 'seeking_shield':
-        case 'flame_blower':
-        case 'rocket_backpack': {
-            return equip.damageByLevel[validLevel] || 0;
-        }
-        default:
-            return 0;
+    if (equip.damageType === 'percentage' || !equip.damageByLevel) {
+        return 0;
     }
+
+    if (equip.id === 'giant_arrow') {
+        const base = equip.damageByLevel?.[validLevel] || 0;
+        const mult = (def?.damageMultipliers?.giant_arrow) || (defenseKey === 'air_defense' ? (equip.airDefenseMultiplier || 2.0) : 1.0);
+        return Math.floor(base * mult);
+    }
+
+    return equip.damageByLevel?.[validLevel] || 0;
 }
 
 /**
@@ -164,7 +160,7 @@ export function calculateEarthquakeDamage(maxHp, eqLevel, strikeIndex = 1, targe
     if (maxHp <= 0 || strikeIndex < 1) return 0;
 
     if (targetDefOrKey) {
-        const defKey = typeof targetDefOrKey === 'string' ? targetDefOrKey : targetDefOrKey.id;
+        const defKey = typeof targetDefOrKey === 'string' ? targetDefOrKey : (targetDefOrKey?.id || targetDefOrKey?.defenseKey || targetDefOrKey?.key);
         if (defKey && isTargetImmuneToSpell(defKey, 'earthquake')) return 0;
         if (typeof targetDefOrKey === 'object' && targetDefOrKey.immunities?.earthquake === true) return 0;
     }
@@ -178,9 +174,9 @@ export function calculateEarthquakeDamage(maxHp, eqLevel, strikeIndex = 1, targe
     if (basePct <= 0) return 0;
 
     const divider = (2 * strikeIndex) - 1;
-    const damageFraction = basePct / divider;
+    const basisPoints = Math.round(basePct * 10000);
 
-    return Math.floor(maxHp * damageFraction);
+    return Math.floor((maxHp * basisPoints) / (10000 * divider));
 }
 
 /**
@@ -440,12 +436,15 @@ export function calculateRequiredZapsTwoPools(remainingHp, zapDmg, ccZapDmg, max
  * @param {number} ccZapDmg - Donated lightning damage.
  * @param {number} [maxRegZap=11] - Max regular zaps.
  * @param {number} [maxCcZap=4] - Max CC zaps.
- * @returns {{ zapsNeeded: number, totalZapDamage: number }}
+ * @returns {{ possible: boolean, zapsNeeded: number, regZapCount: number, ccZapCount: number, totalZapDamage: number }}
  */
 export function calculateRequiredZaps(remainingHp, zapDmg, ccZapDmg, maxRegZap = 11, maxCcZap = 4) {
     const res = calculateRequiredZapsTwoPools(remainingHp, zapDmg, ccZapDmg, maxRegZap, maxCcZap);
     return {
+        possible: res.possible,
         zapsNeeded: res.zapsNeeded,
+        regZapCount: res.regZapCount,
+        ccZapCount: res.ccZapCount,
         totalZapDamage: res.totalZapDamage
     };
 }

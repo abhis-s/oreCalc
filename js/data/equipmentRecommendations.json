@@ -292,12 +292,9 @@
     "recStatus": "recommended"
   },
   "revengeDeck": {
-    "recStatus": "recommended"
-  },
-  "eternalChalice": {
     "recStatus": "recommended",
     "recommendedLevels": {
-      "default": 9
+      "default": 18
     }
   }
 }

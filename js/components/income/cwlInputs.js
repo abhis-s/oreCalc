@@ -1,3 +1,4 @@
+import { ORE_TYPES } from '../../core/constants.js';
 import { getWarOreValue } from '../../data/incomeSources/warOres.js';
 import { translate } from '../../i18n/translator.js';
 
@@ -469,7 +470,7 @@ export function initializeCwlInputs() {
         onUpdate: (value) => updateCwlRateState('drawRate', value)
     });
 
-    ['shiny', 'glowy', 'starry'].forEach((oreType) => {
+    ORE_TYPES.forEach((oreType) => {
         bindNumericInput(inputs.oresPerAttack[`${oreType}Input`], {
             inputName: translate(`entities.ores.${oreType}`),
             popover: getWarOrePopoverConfig(oreType),

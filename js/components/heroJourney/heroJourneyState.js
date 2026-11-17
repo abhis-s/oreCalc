@@ -61,14 +61,7 @@ export const hjState = {
  */
 export function computePlayerCumulativeLevel(playerData) {
     if (!playerData || typeof playerData !== 'object') return 0;
-    const activeHeroes = [
-        { key: 'barbarianKing', name: 'Barbarian King' },
-        { key: 'archerQueen', name: 'Archer Queen' },
-        { key: 'grandWarden', name: 'Grand Warden' },
-        { key: 'royalChampion', name: 'Royal Champion' },
-        { key: 'minionPrince', name: 'Minion Prince' },
-        { key: 'dragonDuke', name: 'Dragon Duke' }
-    ];
+    const activeHeroes = Object.values(heroData).map(h => ({ key: h.key, name: h.name }));
     let total = 0;
 
     if (Array.isArray(playerData.heroes)) {

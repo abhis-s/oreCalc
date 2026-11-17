@@ -3,6 +3,7 @@
  * Tier 4: Presentation / DOM Updates (Pure visual rendering, zero event listeners).
  */
 
+import { ORE_TYPES } from '../../core/constants.js';
 import { selectIsEquipmentMaxed } from '../../core/selectors.js';
 import { state } from '../../core/state.js';
 import { dom } from '../../dom/domElements.js';
@@ -35,8 +36,7 @@ export function renderStorageInputs(storedOres, storageMetrics = null) {
     }
 
     const metrics = storageMetrics || state.derived?.storageMetrics;
-    const ores = /** @type {Array<'shiny' | 'glowy' | 'starry'>} */ (['shiny', 'glowy', 'starry']);
-    ores.forEach(ore => {
+    ORE_TYPES.forEach(ore => {
         const meter = dom.equipment?.storageMeters?.[ore];
         if (!meter?.wrapper) return;
 

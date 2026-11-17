@@ -58,9 +58,10 @@ export function consolidateLocalStorageKeys() {
             }
 
             if (legacySettings.currency || canonicalSettings.currency) {
+                const normalizeCurrency = curr => (typeof curr === 'string' ? { code: curr } : (curr && typeof curr === 'object' ? curr : {}));
                 mergedSettings.currency = {
-                    ...(legacySettings.currency || {}),
-                    ...(canonicalSettings.currency || {})
+                    ...normalizeCurrency(legacySettings.currency),
+                    ...normalizeCurrency(canonicalSettings.currency)
                 };
             }
 

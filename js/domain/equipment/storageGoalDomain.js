@@ -4,6 +4,7 @@
  */
 
 import {
+    ORE_TYPES,
     STORAGE_GOAL_PRESETS,
     STORAGE_LIMITS
 } from '../../core/constants.js';
@@ -24,7 +25,7 @@ import { getActiveCustomComingSoon } from './comingSoonEquipmentDomain.js';
  * @returns {import('../../core/types.js').OreQuantity} Total required shiny, glowy, and starry ores.
  */
 function getEquipmentRemainingUpgradeCost(rarity, fromLevel = 1, toLevel = null) {
-    const maxLevel = toLevel || EQUIPMENT_MAX_LEVELS[rarity] || (rarity === 'epic' ? 27 : 18);
+    const maxLevel = toLevel || EQUIPMENT_MAX_LEVELS[rarity] || EQUIPMENT_MAX_LEVELS.common;
     const cost = { shiny: 0, glowy: 0, starry: 0 };
 
     for (let level = Math.max(2, fromLevel + 1); level <= maxLevel; level++) {
@@ -86,7 +87,7 @@ function getStorageGoalTargetOres(storageGoal, heroesState = null) {
  * @returns {import('../../core/types.js').StorageCapacityMetrics} Detailed capacity metrics.
  */
 export function getStorageCapacityMetrics(storedOres) {
-    const oreTypes = ['shiny', 'glowy', 'starry'];
+    const oreTypes = ORE_TYPES;
     const metrics = {};
 
     let anyFull = false;

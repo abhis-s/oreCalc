@@ -4,9 +4,10 @@
  */
 
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
+import { EQUIPMENT_MAX_LEVELS } from '../../data/equipmentCommonData.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { getEffectiveEquipmentLevel, calculateEquipmentTargetDamage } from './damageFormulas.js';
-import { getDefenseMaxHp, canEquipmentTarget } from './defenseProgressionDomain.js';
+import { getDefenseMaxHp, canEquipmentTarget, resolveBattleModifier } from './defenseProgressionDomain.js';
 
 /**
  * Calculates damage dealt by hero equipment to a specific defensive structure.
@@ -37,7 +38,7 @@ import { getDefenseMaxHp, canEquipmentTarget } from './defenseProgressionDomain.
 export function calculateEquipmentDamage(equipmentId, equipmentLevel, targetDefenseKey, targetLevel, options = {}) {
     const equip = equipmentDamageData[equipmentId];
     const def = getDefensesData()[targetDefenseKey];
-    const modifier = options.modifier || options.modifierKey || options.leagueId || 'standard';
+    const modifier = resolveBattleModifier(options);
 
     const targetMaxHp = def ? getDefenseMaxHp(targetDefenseKey, targetLevel, options) : 0;
     const effectiveLevel = getEffectiveEquipmentLevel(equipmentId, equipmentLevel, modifier);
@@ -128,19 +129,12 @@ export function getEnabledEquipmentList(state) {
         ? state.modifier
         : (state?.leagueId || state?.modifier || 'standard');
     const enabledSources = state?.offense?.enabledSources || {};
-    const equipKeys = [
-        'spiky_ball',
-        'giant_arrow',
-        'fireball',
-        'seeking_shield',
-        'flame_blower',
-        'rocket_backpack'
-    ];
+    const equipKeys = Object.keys(equipmentDamageData);
     const enabledEquipment = [];
     for (const eqKey of equipKeys) {
         if (enabledSources[eqKey] !== false) {
             const equip = equipmentDamageData[eqKey];
-            const defaultLvl = equip?.rarity === 'epic' ? 27 : 18;
+            const defaultLvl = equip?.maxLevel || (equip?.rarity && EQUIPMENT_MAX_LEVELS[equip.rarity]) || EQUIPMENT_MAX_LEVELS.common;
             const rawLvl = state?.offense?.equipment?.[eqKey] || defaultLvl;
             const effectiveLvl = getEffectiveEquipmentLevel(eqKey, rawLvl, modifier);
             enabledEquipment.push({

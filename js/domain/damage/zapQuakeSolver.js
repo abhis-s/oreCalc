@@ -20,7 +20,8 @@ import {
 } from './damageFormulas.js';
 import {
     getDefenseMaxHp,
-    canEquipmentTarget
+    canEquipmentTarget,
+    resolveBattleModifier
 } from './defenseProgressionDomain.js';
 
 /**
@@ -59,11 +60,11 @@ export function solveZapQuakeCombinations(
         return { optimalCombination: null, candidates: [], totalCombinationsTested: 0, reason: 'invalid_defense' };
     }
 
+    const modifier = resolveBattleModifier(options);
     const superchargeTier = options.superchargeTier || 0;
     const targetHp = getDefenseMaxHp(defenseKey, defenseLevel, {
-        modifier: options.modifier,
-        superchargeTier,
-        leagueId: options.leagueId
+        modifier,
+        superchargeTier
     });
 
     // Explicit immunities check
@@ -115,7 +116,7 @@ export function solveZapQuakeCombinations(
     const candidates = [];
 
     // Build combination search space: pure spells, single equipment, or equipment pairs (for high HP)
-    const leagueId = options.leagueId || 'standard';
+    const leagueId = modifier;
     const rawEquipmentList = options.enabledEquipment || [];
     const enabledEquipment = rawEquipmentList
         .filter(eqItem => canEquipmentTarget(eqItem.id, defenseKey, defenseLevel))
@@ -134,7 +135,7 @@ export function solveZapQuakeCombinations(
         equipCombos.push([eqItem]);
     }
 
-    if (targetHp >= 3500 && enabledEquipment.length >= 2) {
+    if (enabledEquipment.length >= 2) {
         for (let i = 0; i < enabledEquipment.length; i++) {
             for (let j = i + 1; j < enabledEquipment.length; j++) {
                 equipCombos.push([enabledEquipment[i], enabledEquipment[j]]);
@@ -478,20 +479,9 @@ export function getComboSignature(combo) {
  * @returns {{ eqBurden: number, zapBurden: number }}
  */
 function getSpellTierBurden(combo) {
-    const eqLvl = combo.eqLevel ?? getMaxSpellLevel('earthquake');
-    const ccEqLvl = combo.ccEqLevel ?? eqLvl;
-    const zapLvl = combo.lightningLevel ?? getMaxSpellLevel('lightning');
-    const ccZapLvl = combo.ccLightningLevel ?? zapLvl;
-
     const ccEq = combo.ccEqCount ?? 0;
-    const regEq = combo.regEqCount ?? combo.eqCount ?? 0;
     const ccZap = combo.ccZapCount ?? 0;
-    const regZap = combo.regZapCount ?? combo.zapCount ?? 0;
-
-    const eqBurden = eqLvl <= ccEqLvl ? ccEq : regEq;
-    const zapBurden = zapLvl <= ccZapLvl ? ccZap : regZap;
-
-    return { eqBurden, zapBurden };
+    return { eqBurden: ccEq, zapBurden: ccZap };
 }
 
 /**
@@ -502,12 +492,9 @@ function getSpellTierBurden(combo) {
  *    A candidate is pruned if another candidate requires less than or equal counts
  *    of every spell type and strictly fewer in at least one spell type.
  * 2. Equal Count Spell Tier & Duplicate Pruning:
- *    When two candidates share identical equipment and identical total spell counts:
- *    - If spell levels are identical, exact duplicate combinations using CC spells
- *      are pruned in favor of regular spells.
- *    - If spell levels differ, the candidate using higher-level spells is pruned
- *      in favor of the lower-level spell option when the spell count for destruction
- *      is the same.
+ *    When two candidates share identical equipment and identical total spell counts,
+ *    exact duplicate combinations using CC spells are pruned in favor of regular spells,
+ *    ensuring players are not burdened with CC donation requests when regular spells suffice.
  *
  * @param {Array<Object>} candidates - Combination candidates.
  * @returns {Array<Object>} Filtered candidates with dominated combinations removed.

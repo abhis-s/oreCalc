@@ -5,6 +5,8 @@ import { state } from '../../core/state.js';
 
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 
+const SUPPORTED_LEGAL_LANGS = Object.freeze(['de']);
+
 /**
  * Opens the Open Source Licenses legal dialog and renders license packages.
  */
@@ -153,7 +155,6 @@ export function openPrivacyModal() {
     const externalBtn = document.getElementById('privacy-open-external-btn');
     const translateBtn = document.getElementById('privacy-translate-btn');
 
-    const SUPPORTED_LEGAL_LANGS = ['de'];
     const currentLang = state.uiSettings?.language || 'en';
     const hasTranslation = currentLang !== 'en' && SUPPORTED_LEGAL_LANGS.includes(currentLang);
     let showingEnglish = !hasTranslation;
@@ -161,7 +162,6 @@ export function openPrivacyModal() {
 
     if (translateBtn) {
         translateBtn.hidden = !hasTranslation;
-        translateBtn.style.display = hasTranslation ? 'inline-flex' : 'none';
         if (hasTranslation) {
             translateBtn.onclick = (e) => {
                 e.preventDefault();
@@ -284,7 +284,6 @@ export function openTermsOfUseModal() {
     const externalBtn = document.getElementById('terms-open-external-btn');
     const translateBtn = document.getElementById('terms-translate-btn');
 
-    const SUPPORTED_LEGAL_LANGS = ['de'];
     const currentLang = state.uiSettings?.language || 'en';
     const hasTranslation = currentLang !== 'en' && SUPPORTED_LEGAL_LANGS.includes(currentLang);
     let showingEnglish = !hasTranslation;
@@ -292,7 +291,6 @@ export function openTermsOfUseModal() {
 
     if (translateBtn) {
         translateBtn.hidden = !hasTranslation;
-        translateBtn.style.display = hasTranslation ? 'inline-flex' : 'none';
         if (hasTranslation) {
             translateBtn.onclick = (e) => {
                 e.preventDefault();

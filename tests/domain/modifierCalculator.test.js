@@ -74,15 +74,15 @@ test('getRecommendedLevelForTownHall returns appropriate TH recommendation or fa
 
 test('isStatModifiable accurately detects modifiable heroBoost stats and custom overrides', () => {
     assert.equal(isStatModifiable({ isModifiable: true }), true);
-    assert.equal(isStatModifiable({ isModifiable: false, category: 'heroBoost', key: 'dpsIncrease' }), false);
+    assert.equal(isStatModifiable({ isModifiable: false, category: 'heroBoost' }), false);
 
-    assert.equal(isStatModifiable({ category: 'heroBoost', key: 'dpsIncrease' }), true);
+    assert.equal(isStatModifiable({ category: 'heroBoost' }), true);
+    assert.equal(isStatModifiable({ category: 'heroBoost', key: 'damagePerSecondIncrease' }), true);
     assert.equal(isStatModifiable({ category: 'heroBoost', key: 'hitpointIncrease' }), true);
-    assert.equal(isStatModifiable({ category: 'heroBoost', key: 'selfHealingPerSecond' }), true);
-    assert.equal(isStatModifiable({ category: 'heroBoost', key: 'healthRecovery' }), true);
 
-    assert.equal(isStatModifiable({ category: 'heroBoost', key: 'speedIncrease' }), false);
-    assert.equal(isStatModifiable({ category: 'ability', key: 'dpsIncrease' }), false);
+    assert.equal(isStatModifiable({ category: 'ability' }), false);
+    assert.equal(isStatModifiable({ category: 'ability', key: 'damagePerShotIncrease' }), false);
+    assert.equal(isStatModifiable({ category: 'ability', key: 'healthRecovery' }), false);
     assert.equal(isStatModifiable(null), false);
     assert.equal(isStatModifiable(undefined), false);
 });

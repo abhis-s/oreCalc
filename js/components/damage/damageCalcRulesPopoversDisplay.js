@@ -6,6 +6,7 @@
 import { battleModifiersData } from '../../data/battleModifiersData.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
+import { EQUIPMENT_MAX_LEVELS } from '../../data/equipmentCommonData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
@@ -130,7 +131,7 @@ export function getActionInfoPopoverContent(actionKey, state = null) {
     if (!actionKey) return null;
 
     if (equipmentDamageData[actionKey]) {
-        const rawLvl = state?.offense?.equipment?.[actionKey] || equipmentDamageData[actionKey].maxLevel || (equipmentDamageData[actionKey].rarity === 'epic' ? 27 : 18);
+        const rawLvl = state?.offense?.equipment?.[actionKey] || equipmentDamageData[actionKey].maxLevel || (equipmentDamageData[actionKey].rarity ? EQUIPMENT_MAX_LEVELS[equipmentDamageData[actionKey].rarity] : EQUIPMENT_MAX_LEVELS.common);
         const activeMod = getActiveModifier(state);
         return getEquipmentStatsPopoverContent(actionKey, rawLvl, { modifier: activeMod, leagueId: activeMod, rawLevel: rawLvl, isAction: true });
     }

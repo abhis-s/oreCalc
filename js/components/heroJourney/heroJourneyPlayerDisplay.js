@@ -4,7 +4,7 @@ import { heroJourneyNodes } from '../../data/heroJourneyData.js';
 import { getMaxCumulativeHeroLevel, getMaxCumulativeLevelsByTH, getNodeTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
 import { getQuestChestReward } from '../../domain/income/heroJourneyIncome.js';
 import { resolveHeroJourneyTrack } from '../../domain/income/heroJourneyResolution.js';
-import { MAX_TOWN_HALL } from '../../core/constants.js';
+import { MAX_TOWN_HALL, ORE_TYPES } from '../../core/constants.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
 import { hjState, buildStateFromPlayerData } from './heroJourneyState.js';
@@ -477,8 +477,7 @@ function triggerHeroJourneyFillAnimation(container, metrics) {
                 }
             }
 
-            const oreKeys = ['shiny', 'glowy', 'starry'];
-            for (const key of oreKeys) {
+            for (const key of ORE_TYPES) {
                 const valEl = container.querySelector(`[data-ore-value="${key}"]`);
                 if (valEl) {
                     const targetVal = metrics[key] || 0;

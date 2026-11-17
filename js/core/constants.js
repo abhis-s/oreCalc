@@ -11,6 +11,8 @@ export const LEGENDS_LEAGUE_ID = 105000036;
 
 export const FREE_WEEKLY_GLOWY = 10;
 
+export const ORE_TYPES = Object.freeze(/** @type {const} */ (['shiny', 'glowy', 'starry']));
+
 export const STORAGE_LIMITS = Object.freeze({
     shiny: 50000,
     glowy: 5000,

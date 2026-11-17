@@ -18,7 +18,8 @@ import {
     isDefenseInSeason,
     getBuildingGroupId,
     getMaxDefenseLevelForTownHall,
-    isUnitTarget
+    isUnitTarget,
+    resolveBattleModifier
 } from './defenseProgressionDomain.js';
 import { calculateEquipmentDamage } from './equipmentDamage.js';
 
@@ -62,7 +63,7 @@ export function simulateAttackSequence(targetDefenseKey, targetLevel, sequenceSt
         ? options.defenseSuperchargeOverrides[targetDefenseKey]
         : (options.superchargeTier || 0);
     const targetMaxHp = def ? getDefenseMaxHp(targetDefenseKey, targetLevel, { ...options, superchargeTier: activeSupercharge }) : 0;
-    const modifier = options.modifier || options.modifierKey || options.leagueId || 'standard';
+    const modifier = resolveBattleModifier(options);
 
     let currentHp = targetMaxHp;
     let eqStrikeCounter = 1;

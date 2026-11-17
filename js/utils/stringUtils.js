@@ -6,7 +6,12 @@
  */
 export function toCamelCase(str) {
     if (!str) return '';
-    const words = str.trim().toLowerCase().split(/[\s_]+/).filter(word => word.length > 0);
+    const trimmed = String(str).trim();
+    if (!trimmed) return '';
+    if (/^[a-z][a-zA-Z0-9]*$/.test(trimmed) && /[A-Z]/.test(trimmed)) {
+        return trimmed;
+    }
+    const words = trimmed.toLowerCase().split(/[\s_-]+/).filter(word => word.length > 0);
     if (words.length === 0) return '';
     return words[0] + words.slice(1).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 }

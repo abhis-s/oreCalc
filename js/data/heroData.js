@@ -94,6 +94,14 @@ export const heroData = deepFreeze({
     },
 });
 
+export const HERO_NAME_TO_KEY = deepFreeze(
+    Object.fromEntries(Object.values(heroData).map(h => [h.name, h.key]))
+);
+
+export const HERO_KEY_TO_NAME = deepFreeze(
+    Object.fromEntries(Object.values(heroData).map(h => [h.key, h.name]))
+);
+
 /**
  * Returns the pool of epic equipment (name and image icon) for a given hero key derived directly from heroData.
  *

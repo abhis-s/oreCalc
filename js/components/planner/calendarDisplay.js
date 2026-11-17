@@ -1,3 +1,4 @@
+import { ORE_TYPES } from '../../core/constants.js';
 import { translate } from '../../i18n/translator.js';
 
 import { selectIsEquipmentMaxed } from '../../core/selectors.js';
@@ -43,8 +44,7 @@ function renderStorageCountdownStrip(container, forecast) {
         return;
     }
 
-    const ores = /** @type {Array<'shiny'|'glowy'|'starry'>} */ (['shiny', 'glowy', 'starry']);
-    const pills = ores.map(ore => {
+    const pills = ORE_TYPES.map(ore => {
         const fullInfo = forecast.firstFullDates[ore];
         if (!fullInfo) return '';
 

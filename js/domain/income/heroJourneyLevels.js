@@ -1,5 +1,5 @@
 import { MAX_TOWN_HALL } from '../../core/constants.js';
-import { heroData } from '../../data/heroData.js';
+import { heroData, HERO_NAME_TO_KEY } from '../../data/heroData.js';
 import { heroMaxLevelsPerTH } from '../../data/heroJourneyData.js';
 
 let cachedMaxCumulativeLevelsByTH = null;
@@ -65,15 +65,6 @@ export function getMaxCumulativeLevelsByTH() {
     cachedMaxCumulativeLevelsByTH = Object.freeze(result);
     return cachedMaxCumulativeLevelsByTH;
 }
-
-const HERO_NAME_TO_KEY = Object.freeze({
-    'Barbarian King': 'barbarianKing',
-    'Archer Queen': 'archerQueen',
-    'Minion Prince': 'minionPrince',
-    'Grand Warden': 'grandWarden',
-    'Royal Champion': 'royalChampion',
-    'Dragon Duke': 'dragonDuke'
-});
 
 /**
  * Resolves the maximum cumulative hero level cap for a Town Hall by walking down to the highest defined cap.

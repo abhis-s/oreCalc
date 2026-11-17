@@ -26,8 +26,11 @@ export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels,
             const equipData = getEquipmentData(heroName, equipName, plannerMaxLevels, equip);
             if (!equipData) continue;
 
-            const currentLevel = equip.level || 1;
-            for (let i = currentLevel + 1; i <= equipData.maxLevel; i++) {
+            const equipMax = getEquipmentMaxLevel(equipData.type);
+            const currentLevel = Math.max(1, Math.min(equipMax, Number(equip.level) || 1));
+            const targetLevel = Math.max(currentLevel, Math.min(equipMax, equipData.maxLevel));
+
+            for (let i = currentLevel + 1; i <= targetLevel; i++) {
                 if (upgradeCosts[i]) {
                     totalRequired.shiny += upgradeCosts[i].shiny || 0;
                     totalRequired.glowy += upgradeCosts[i].glowy || 0;
@@ -64,11 +67,24 @@ export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels,
  * @returns {{ type: string, maxLevel: number } | null} Equipment data or null.
  */
 function getEquipmentData(heroName, equipName, plannerMaxLevels = {}, equipState = null) {
-    const customMaxLevel = plannerMaxLevels?.customMaxLevel;
     const hero = Object.values(heroData).find(h => h.name === heroName || h.key === heroName);
     const equipment = findHeroEquipment(hero, equipName, equipState);
     if (!equipment) return null;
 
-    const maxLevel = customMaxLevel?.[equipment.type] || getEquipmentMaxLevel(equipment.type);
-    return { type: equipment.type, maxLevel: maxLevel };
+    const equipMaxCap = getEquipmentMaxLevel(equipment.type);
+    const customMaxLevel = plannerMaxLevels?.customMaxLevel;
+
+    let targetMax = customMaxLevel?.[equipment.type] ??
+                    customMaxLevel?.[equipName] ??
+                    plannerMaxLevels?.[equipment.type] ??
+                    plannerMaxLevels?.[equipName] ??
+                    equipMaxCap;
+
+    if (typeof targetMax === 'number' && Number.isFinite(targetMax)) {
+        targetMax = Math.max(1, Math.min(equipMaxCap, targetMax));
+    } else {
+        targetMax = equipMaxCap;
+    }
+
+    return { type: equipment.type, maxLevel: targetMax };
 }

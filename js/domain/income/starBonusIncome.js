@@ -1,4 +1,4 @@
-import { MAX_TOWN_HALL } from '../../core/constants.js';
+import { MAX_TOWN_HALL, STAR_BONUS_2X_DEFAULTS } from '../../core/constants.js';
 import { getStarBonusForTownHall } from '../../data/incomeSources/starBonus.js';
 import { DAYS_IN_MONTH, DAYS_IN_WEEK, MONTHS_IN_BIMONTH } from '../../data/timeConstants.js';
 import { getTownHallIconUrl } from '../townHall/townHallSchedule.js';
@@ -18,8 +18,8 @@ export function calculateStarBonusIncome(townHallLevel, starBonusState = {}) {
 
     const stateObj = (starBonusState && typeof starBonusState === 'object') ? /** @type {any} */ (starBonusState) : {};
     const config2x = stateObj["2x"] || {};
-    const eventFrequency = config2x.frequency !== undefined ? config2x.frequency : 2;
-    const eventDuration = config2x.duration !== undefined ? config2x.duration : 0;
+    const eventFrequency = config2x.frequency !== undefined ? config2x.frequency : STAR_BONUS_2X_DEFAULTS.frequency;
+    const eventDuration = config2x.duration !== undefined ? config2x.duration : STAR_BONUS_2X_DEFAULTS.duration;
     const duration4x = 6;
     const thUpgrades = stateObj.thUpgrades || {};
 

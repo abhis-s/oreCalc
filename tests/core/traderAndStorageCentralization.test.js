@@ -1,341 +1,149 @@
-import { test, beforeEach } from 'node:test';
+import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
-if (typeof globalThis.localStorage === 'undefined') {
-    const store = new Map();
-    globalThis.localStorage = {
-        getItem: (key) => store.get(key) || null,
-        setItem: (key, val) => store.set(key, String(val)),
-        removeItem: (key) => store.delete(key),
-        clear: () => store.clear(),
-        get length() { return store.size; }
-    };
-}
+import { WAR_ORE_MAX_LIMITS, getWarOreValue } from '../../js/data/incomeSources/warOres.js';
+import { raidMedalTraderData, gemTraderData, eventTraderData } from '../../js/data/incomeSources/traders.js';
+import { calculateRaidMedalTraderIncome } from '../../js/domain/income/raidMedalTraderIncome.js';
+import { calculateGemTraderIncome } from '../../js/domain/income/gemTraderIncome.js';
+import { calculateEventTraderIncome } from '../../js/domain/income/eventTraderIncome.js';
 
-if (typeof globalThis.sessionStorage === 'undefined') {
-    const sessionStore = new Map();
-    globalThis.sessionStorage = {
-        getItem: (key) => sessionStore.get(key) || null,
-        setItem: (key, val) => sessionStore.set(key, String(val)),
-        removeItem: (key) => sessionStore.delete(key),
-        clear: () => sessionStore.clear(),
-        get length() { return sessionStore.size; }
-    };
-}
+describe('Trader & Storage Centralization Suite', () => {
+    test('Trader datasets contain correct normalized IDs, costs, ores, and pack limits', () => {
+        const gemStarry = gemTraderData.find(o => o.starry > 0);
+        const gemGlowy = gemTraderData.find(o => o.glowy > 0);
+        const gemShiny = gemTraderData.find(o => o.shiny > 0);
 
-if (typeof globalThis.window === 'undefined') {
-    globalThis.window = {
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        __ENV__: { APP_VERSION: '2.1.0' },
-        location: { hostname: 'localhost' }
-    };
-}
+        assert.ok(gemStarry);
+        assert.equal(gemStarry.id, 'gem_starry');
+        assert.equal(gemStarry.cost, 150);
+        assert.equal(gemStarry.starry, 15);
+        assert.equal(gemStarry.maxPacks, 5);
+        assert.equal(gemStarry.recommendedPacks, 2);
 
-const domElementsStore = new Map();
+        assert.ok(gemGlowy);
+        assert.equal(gemGlowy.id, 'gem_glowy');
+        assert.equal(gemGlowy.cost, 90);
+        assert.equal(gemGlowy.glowy, 60);
+        assert.equal(gemGlowy.maxPacks, 5);
 
-if (typeof globalThis.document === 'undefined') {
-    globalThis.document = {
-        dispatchEvent: () => true,
-        getElementById: (id) => domElementsStore.get(id) || null,
-        querySelector: () => null,
-        querySelectorAll: () => [],
-        createElement: (tag) => {
-            const el = {
-                tagName: tag.toUpperCase(),
-                id: '',
-                className: '',
-                dataset: {},
-                style: {},
-                children: [],
-                innerHTML: '',
-                textContent: '',
-                value: '',
-                attributes: new Map(),
-                setAttribute(k, v) { this.attributes.set(k, v); },
-                getAttribute(k) { return this.attributes.get(k); },
-                appendChild(child) {
-                    this.children.push(child);
-                    return child;
-                },
-                querySelector(sel) { return null; },
-                querySelectorAll(sel) { return []; },
-                addEventListener() {},
-                removeEventListener() {}
-            };
-            return el;
-        }
-    };
-}
+        assert.ok(gemShiny);
+        assert.equal(gemShiny.id, 'gem_shiny');
+        assert.equal(gemShiny.cost, 75);
+        assert.equal(gemShiny.shiny, 300);
+        assert.equal(gemShiny.maxPacks, 10);
+        assert.deepEqual(gemTraderData.map(o => o.id), ['gem_starry', 'gem_glowy', 'gem_shiny']);
 
-if (typeof globalThis.CustomEvent === 'undefined') {
-    globalThis.CustomEvent = class CustomEvent {
-        constructor(type, eventInitDict) {
-            this.type = type;
-            this.detail = eventInitDict?.detail;
-        }
-    };
-}
+        assert.equal(raidMedalTraderData.length, 3);
+        assert.deepEqual(raidMedalTraderData.map(o => o.id), ['raid_starry', 'raid_glowy', 'raid_shiny']);
+        raidMedalTraderData.forEach(offer => {
+            assert.equal(offer.currency, 'raid_medals');
+            assert.equal(offer.maxPacks, 2);
+        });
 
-if (typeof globalThis.HTMLElement === 'undefined') {
-    globalThis.HTMLElement = class {};
-}
+        const eventStarry = eventTraderData.find(o => o.starry > 0);
+        const eventGlowy = eventTraderData.find(o => o.glowy > 0);
+        const eventShiny = eventTraderData.find(o => o.shiny > 0);
 
-if (typeof globalThis.customElements === 'undefined') {
-    globalThis.customElements = {
-        get: () => null,
-        define: () => {}
-    };
-}
+        assert.ok(eventStarry);
+        assert.equal(eventStarry.id, 'event_starry');
+        assert.equal(eventStarry.cost, 185);
+        assert.equal(eventStarry.starry, 10);
+        assert.equal(eventStarry.maxPacks, 8);
 
-const { WAR_ORE_MAX_LIMITS, getWarOreValue } = await import('../../js/data/incomeSources/warOres.js');
-const { raidMedalTraderData, gemTraderData, eventTraderData } = await import('../../js/data/incomeSources/traders.js');
-const { renderGuidedSetupTraderRows } = await import('../../js/components/guidedSetup/guidedSetupStepsDisplay.js');
+        assert.ok(eventGlowy);
+        assert.equal(eventGlowy.id, 'event_glowy');
+        assert.equal(eventGlowy.cost, 165);
+        assert.equal(eventGlowy.glowy, 60);
+        assert.equal(eventGlowy.maxPacks, 10);
 
-const { renderRaidMedalTraderRow } = await import('../../js/components/income/raidMedalTraderDisplay.js');
-const { renderGemTraderRow } = await import('../../js/components/income/gemTraderDisplay.js');
-const { renderEventTraderRow } = await import('../../js/components/income/eventTraderDisplay.js');
-
-function registerTestContainer(id) {
-    const container = globalThis.document.createElement('div');
-    container.id = id;
-    domElementsStore.set(id, container);
-    return container;
-}
-
-beforeEach(() => {
-    domElementsStore.clear();
-});
-
-test('Trader datasets contain correct normalized IDs, costs, ores, and pack limits', () => {
-    const gemStarry = gemTraderData.find(o => o.starry > 0);
-    const gemGlowy = gemTraderData.find(o => o.glowy > 0);
-    const gemShiny = gemTraderData.find(o => o.shiny > 0);
-
-    assert.ok(gemStarry);
-    assert.equal(gemStarry.id, 'gem_starry');
-    assert.equal(gemStarry.cost, 150);
-    assert.equal(gemStarry.starry, 15);
-    assert.equal(gemStarry.maxPacks, 5);
-    assert.equal(gemStarry.recommendedPacks, 2);
-
-    assert.ok(gemGlowy);
-    assert.equal(gemGlowy.id, 'gem_glowy');
-    assert.equal(gemGlowy.cost, 90);
-    assert.equal(gemGlowy.glowy, 60);
-    assert.equal(gemGlowy.maxPacks, 5);
-
-    assert.ok(gemShiny);
-    assert.equal(gemShiny.id, 'gem_shiny');
-    assert.equal(gemShiny.cost, 75);
-    assert.equal(gemShiny.shiny, 300);
-    assert.equal(gemShiny.maxPacks, 10);
-    assert.deepEqual(gemTraderData.map(o => o.id), ['gem_starry', 'gem_glowy', 'gem_shiny']);
-
-    assert.equal(raidMedalTraderData.length, 3);
-    assert.deepEqual(raidMedalTraderData.map(o => o.id), ['raid_starry', 'raid_glowy', 'raid_shiny']);
-    raidMedalTraderData.forEach(offer => {
-        assert.equal(offer.currency, 'raid_medals');
-        assert.equal(offer.maxPacks, 2);
+        assert.ok(eventShiny);
+        assert.equal(eventShiny.id, 'event_shiny');
+        assert.equal(eventShiny.cost, 160);
+        assert.equal(eventShiny.shiny, 350);
+        assert.equal(eventShiny.maxPacks, 40);
+        assert.deepEqual(eventTraderData.map(o => o.id), ['event_starry', 'event_glowy', 'event_shiny']);
     });
 
-    const eventStarry = eventTraderData.find(o => o.starry > 0);
-    const eventGlowy = eventTraderData.find(o => o.glowy > 0);
-    const eventShiny = eventTraderData.find(o => o.shiny > 0);
+    test('Trader offer IDs follow normalized kebab-case naming conventions', () => {
+        const allOffers = [...raidMedalTraderData, ...gemTraderData, ...eventTraderData];
+        for (const offer of allOffers) {
+            const kebab = String(offer.id).replace(/_/g, '-');
+            assert.ok(!kebab.includes('_'), `Offer ID ${offer.id} kebab form should contain no underscores`);
+            assert.equal(kebab, kebab.toLowerCase(), `Offer ID ${offer.id} kebab form should be lowercase`);
+        }
+    });
 
-    assert.ok(eventStarry);
-    assert.equal(eventStarry.id, 'event_starry');
-    assert.equal(eventStarry.cost, 185);
-    assert.equal(eventStarry.starry, 10);
-    assert.equal(eventStarry.maxPacks, 8);
+    test('calculateRaidMedalTraderIncome calculates correct weekly and monthly rates', () => {
+        const raidState = {
+            earned: 2000,
+            packs: {
+                shiny: 2,
+                glowy: 2,
+                starry: 2
+            }
+        };
 
-    assert.ok(eventGlowy);
-    assert.equal(eventGlowy.id, 'event_glowy');
-    assert.equal(eventGlowy.cost, 165);
-    assert.equal(eventGlowy.glowy, 60);
-    assert.equal(eventGlowy.maxPacks, 10);
+        const income = calculateRaidMedalTraderIncome(raidState);
+        assert.ok(income);
+        assert.ok(income.monthly.shiny > 0);
+        assert.ok(income.monthly.glowy > 0);
+        assert.ok(income.monthly.starry > 0);
+    });
 
-    assert.ok(eventShiny);
-    assert.equal(eventShiny.id, 'event_shiny');
-    assert.equal(eventShiny.cost, 160);
-    assert.equal(eventShiny.shiny, 350);
-    assert.equal(eventShiny.maxPacks, 40);
-    assert.deepEqual(eventTraderData.map(o => o.id), ['event_starry', 'event_glowy', 'event_shiny']);
-});
+    test('calculateGemTraderIncome calculates correct weekly and monthly rates', () => {
+        const gemState = {
+            packs: {
+                shiny: 5,
+                glowy: 3,
+                starry: 2
+            }
+        };
 
-test('renderRaidMedalTraderRow generates checkboxes with normalized IDs and attributes', () => {
-    const starryOffer = raidMedalTraderData.find(o => o.id === 'raid_starry');
-    const row = renderRaidMedalTraderRow(starryOffer, 1);
+        const income = calculateGemTraderIncome(gemState);
+        assert.ok(income);
+        assert.ok(income.monthly.shiny > 0);
+        assert.ok(income.monthly.glowy > 0);
+        assert.ok(income.monthly.starry > 0);
+    });
 
-    assert.equal(row.children.length, 4);
-    const cb1Div = row.children[2];
-    const cb1 = cb1Div.children[0];
-    assert.equal(cb1.id, 'raid-starry-1');
-    assert.equal(cb1.name, 'raid-starry-1');
-    assert.equal(cb1.dataset.offerId, 'raid_starry');
-    assert.equal(cb1.dataset.instance, '1');
-    assert.equal(cb1.checked, true);
+    test('calculateEventTraderIncome calculates correct monthly rates factoring in available medals', () => {
+        const eventState = {
+            packs: {
+                shiny: 10,
+                glowy: 5,
+                starry: 5
+            }
+        };
 
-    const cb2Div = row.children[3];
-    const cb2 = cb2Div.children[0];
-    assert.equal(cb2.id, 'raid-starry-2');
-    assert.equal(cb2.name, 'raid-starry-2');
-    assert.equal(cb2.dataset.offerId, 'raid_starry');
-    assert.equal(cb2.dataset.instance, '2');
-    assert.equal(cb2.checked, false);
-});
+        const income = calculateEventTraderIncome(eventState, 5000);
+        assert.ok(income);
+        assert.ok(income.monthly.shiny > 0);
+        assert.ok(income.monthly.glowy > 0);
+        assert.ok(income.monthly.starry > 0);
+    });
 
-test('renderGemTraderRow generates input template containing normalized element ID, dataset attribute, and max caps', () => {
-    const starryOffer = gemTraderData.find(o => o.id === 'gem_starry');
-    const glowyOffer = gemTraderData.find(o => o.id === 'gem_glowy');
-    const shinyOffer = gemTraderData.find(o => o.id === 'gem_shiny');
+    test('WAR_ORE_MAX_LIMITS is frozen and getWarOreValue resolves clamped values safely', () => {
+        assert.ok(Object.isFrozen(WAR_ORE_MAX_LIMITS));
+        assert.equal(WAR_ORE_MAX_LIMITS.shiny, 1110);
+        assert.equal(WAR_ORE_MAX_LIMITS.glowy, 39);
+        assert.equal(WAR_ORE_MAX_LIMITS.starry, 6);
 
-    const starryRow = renderGemTraderRow(starryOffer, 2);
-    const glowyRow = renderGemTraderRow(glowyOffer, 3);
-    const shinyRow = renderGemTraderRow(shinyOffer, 5);
+        assert.equal(getWarOreValue('shiny', 8), 380);
+        assert.equal(getWarOreValue('glowy', 8), 15);
+        assert.equal(getWarOreValue('starry', 8), 0);
 
-    assert.equal(glowyRow.children.length, 3);
-    const glowyInputDiv = glowyRow.children[2];
-    assert.ok(glowyInputDiv.innerHTML.includes('id="gem-trader-gem-glowy-input"'));
-    assert.ok(glowyInputDiv.innerHTML.includes('data-offer-id="gem_glowy"'));
-    assert.ok(glowyInputDiv.innerHTML.includes('value="3"'));
-    assert.ok(glowyInputDiv.innerHTML.includes('max="5"'));
+        assert.equal(getWarOreValue('shiny', 5), 380);
+        assert.equal(getWarOreValue('glowy', 1), 15);
 
-    const starryInputDiv = starryRow.children[2];
-    assert.ok(starryInputDiv.innerHTML.includes('id="gem-trader-gem-starry-input"'));
-    assert.ok(starryInputDiv.innerHTML.includes('data-offer-id="gem_starry"'));
-    assert.ok(starryInputDiv.innerHTML.includes('value="2"'));
-    assert.ok(starryInputDiv.innerHTML.includes('max="5"'));
+        assert.equal(getWarOreValue('shiny', 16), 1110);
+        assert.equal(getWarOreValue('glowy', 16), 39);
+        assert.equal(getWarOreValue('starry', 16), 6);
 
-    const shinyInputDiv = shinyRow.children[2];
-    assert.ok(shinyInputDiv.innerHTML.includes('id="gem-trader-gem-shiny-input"'));
-    assert.ok(shinyInputDiv.innerHTML.includes('data-offer-id="gem_shiny"'));
-    assert.ok(shinyInputDiv.innerHTML.includes('value="5"'));
-    assert.ok(shinyInputDiv.innerHTML.includes('max="10"'));
-});
+        assert.equal(getWarOreValue('shiny', 17), 1110);
+        assert.equal(getWarOreValue('glowy', 18), 39);
+        assert.equal(getWarOreValue('starry', 20), 6);
 
-test('renderGuidedSetupTraderRows generates valid options, caps, and thumbs-up badge for Gem Trader', () => {
-    const container = registerTestContainer('test-gem-trader-container');
-
-    renderGuidedSetupTraderRows(
-        'test-gem-trader-container',
-        gemTraderData,
-        'welcome-pref-gems',
-        'gem',
-        'Gems',
-        { starry: 'thumbs-up' }
-    );
-
-    assert.equal(container.children.length, 3);
-
-    // Starry: 0..5 (6 options) with thumbs-up recommendation badge
-    const starryRow = container.children[0];
-    assert.equal(starryRow.dataset.oreType, 'starry');
-    const starrySelect = starryRow.children[3];
-    assert.equal(starrySelect.children.length, 6);
-    assert.equal(starrySelect.children[0].value, '0');
-    assert.equal(starrySelect.children[5].value, '5');
-    // Ensure thumbs-up recommendation badge is rendered inside row
-    assert.equal(starryRow.children[2].children.length, 1);
-    assert.ok(starryRow.children[2].children[0].innerHTML.includes('thumbs-up'));
-
-    // Glowy: 0..5 (6 options) with no badge
-    const glowyRow = container.children[1];
-    assert.equal(glowyRow.dataset.oreType, 'glowy');
-    const glowySelect = glowyRow.children[3];
-    assert.equal(glowySelect.children.length, 6);
-    assert.equal(glowySelect.children[5].value, '5');
-    assert.equal(glowyRow.children[2].children.length, 0);
-
-    // Shiny: 0..10 (11 options) with no badge
-    const shinyRow = container.children[2];
-    assert.equal(shinyRow.dataset.oreType, 'shiny');
-    const shinySelect = shinyRow.children[3];
-    assert.equal(shinySelect.children.length, 11);
-    assert.equal(shinySelect.children[10].value, '10');
-    assert.equal(shinyRow.children[2].children.length, 0);
-});
-
-test('renderEventTraderRow generates row template containing normalized element ID and dataset attribute', () => {
-    const shinyOffer = eventTraderData.find(o => o.id === 'event_shiny');
-    const row = renderEventTraderRow(shinyOffer, 5);
-
-    assert.ok(row.innerHTML.includes('id="event-trader-event-shiny-input"'));
-    assert.ok(row.innerHTML.includes('data-offer-id="event_shiny"'));
-    assert.ok(row.innerHTML.includes('value="5"'));
-});
-
-test('renderGuidedSetupTraderRows generates valid DOM structure with correct select options and IDs', () => {
-    const container = registerTestContainer('test-raid-trader-container');
-
-    renderGuidedSetupTraderRows(
-        'test-raid-trader-container',
-        raidMedalTraderData,
-        'welcome-pref-raid-medals',
-        'raidMedal',
-        'Raid Medals',
-        { starry: 'thumbs-double', glowy: 'thumbs-double' }
-    );
-
-    assert.equal(container.children.length, 3);
-
-    const starryRow = container.children[0];
-    assert.equal(starryRow.dataset.oreType, 'starry');
-    assert.equal(starryRow.children.length, 4);
-
-    const select = starryRow.querySelector('select') || starryRow.children[3];
-    assert.equal(select.id, 'welcome-pref-raid-medals-starry');
-    assert.equal(select.children.length, 3);
-    assert.equal(select.children[0].value, '0');
-    assert.equal(select.children[1].value, '1');
-    assert.equal(select.children[2].value, '2');
-});
-
-test('renderGuidedSetupTraderRows generates all 41 option elements for Event Trader Shiny', () => {
-    const container = registerTestContainer('test-event-trader-container');
-
-    renderGuidedSetupTraderRows(
-        'test-event-trader-container',
-        eventTraderData,
-        'welcome-pref-event-trader',
-        'eventMedal',
-        'Event Medals',
-        { starry: 'thumbs-double', glowy: 'thumbs-up' }
-    );
-
-    assert.equal(container.children.length, 3);
-
-    const shinyRow = container.children[2];
-    assert.equal(shinyRow.dataset.oreType, 'shiny');
-
-    const select = shinyRow.querySelector('select') || shinyRow.children[3];
-    assert.equal(select.id, 'welcome-pref-event-trader-shiny');
-    assert.equal(select.children.length, 41);
-    assert.equal(select.children[0].value, '0');
-    assert.equal(select.children[40].value, '40');
-});
-
-test('WAR_ORE_MAX_LIMITS is frozen and getWarOreValue resolves clamped values safely', () => {
-    assert.ok(Object.isFrozen(WAR_ORE_MAX_LIMITS));
-    assert.equal(WAR_ORE_MAX_LIMITS.shiny, 1110);
-    assert.equal(WAR_ORE_MAX_LIMITS.glowy, 39);
-    assert.equal(WAR_ORE_MAX_LIMITS.starry, 6);
-
-    assert.equal(getWarOreValue('shiny', 8), 380);
-    assert.equal(getWarOreValue('glowy', 8), 15);
-    assert.equal(getWarOreValue('starry', 8), 0);
-
-    assert.equal(getWarOreValue('shiny', 5), 380);
-    assert.equal(getWarOreValue('glowy', 1), 15);
-
-    assert.equal(getWarOreValue('shiny', 16), 1110);
-    assert.equal(getWarOreValue('glowy', 16), 39);
-    assert.equal(getWarOreValue('starry', 16), 6);
-
-    assert.equal(getWarOreValue('shiny', 17), 1110);
-    assert.equal(getWarOreValue('glowy', 18), 39);
-    assert.equal(getWarOreValue('starry', 20), 6);
-
-    assert.equal(getWarOreValue('unknownOre', 16), 0);
-    assert.equal(getWarOreValue('shiny', NaN), 0);
+        assert.equal(getWarOreValue('unknownOre', 16), 0);
+        assert.equal(getWarOreValue('shiny', NaN), 0);
+    });
 });

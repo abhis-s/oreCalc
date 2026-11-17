@@ -297,7 +297,10 @@ export function getMonthlyOccurrences() {
  */
 export function getBimonthlyOccurrences(year, month, availableMonths) {
     if (!availableMonths) return 0;
-    return availableMonths[year] && availableMonths[year].includes(month + 1) ? 1 : 0;
+    if (availableMonths[year]) {
+        return availableMonths[year].includes(month + 1) ? 1 : 0;
+    }
+    return (month + 1) % 2 === 0 ? 1 : 0;
 }
 
 /**

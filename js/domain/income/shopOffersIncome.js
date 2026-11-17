@@ -33,12 +33,17 @@ export function calculateShopOfferIncome(shopOfferState = { selectedSet: 0, '0':
 
     let selected = shopOfferState.selectedSet;
     if (selected === undefined || selected === null) {
-        const firstKey = Object.keys(shopOfferState).find(k => k !== 'selectedSet');
+        const firstKey = Object.keys(shopOfferState).find(k => (
+            k !== 'selectedSet' &&
+            k !== 'enabled' &&
+            k !== 'purchases' &&
+            Object.hasOwn(shopOfferData, k)
+        ));
         selected = firstKey || '0';
     }
     const setKey = String(selected);
 
-    if (setKey && setKey !== '0') {
+    if (setKey && setKey !== '0' && shopOfferData[setKey]) {
         const currentSetData = shopOfferData[setKey];
         const currentSetPurchases = shopOfferState[setKey] || {};
 

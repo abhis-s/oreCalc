@@ -1,4 +1,4 @@
-import { getHeroEpicEquipmentPool, heroData } from '../../data/heroData.js';
+import { getHeroEpicEquipmentPool, heroData, HERO_KEY_TO_NAME } from '../../data/heroData.js';
 import { heroJourneyNodes } from '../../data/heroJourneyData.js';
 import {
     getCumulativeHeroLevel,
@@ -475,26 +475,42 @@ export function isEquipmentServerUnowned(equipNameOrKey, state) {
     if (!state?.playerProfile) {
         return true;
     }
-    const equipName = typeof equipNameOrKey === 'string' ? equipNameOrKey : equipNameOrKey?.name;
+    const equipName = typeof equipNameOrKey === 'string' ? equipNameOrKey : (equipNameOrKey?.name || equipNameOrKey?.key);
     const equipKey = typeof equipNameOrKey === 'string' ? equipNameOrKey : equipNameOrKey?.key;
 
     if (state.playerProfile.ownedEquipment) {
         const oe = state.playerProfile.ownedEquipment;
-        if (equipName && Object.hasOwn(oe, equipName)) return false;
-        if (equipKey && Object.hasOwn(oe, equipKey)) return false;
-        for (const hKey in heroData) {
-            const match = heroData[hKey]?.equipment?.find(e => e.key === equipKey || e.name === equipName || e.key === equipName || e.name === equipKey);
-            if (match) {
-                if (Object.hasOwn(oe, match.name) || Object.hasOwn(oe, match.key)) return false;
+        if (Array.isArray(oe)) {
+            if (oe.some(e => e === equipName || e === equipKey || e?.name === equipName || e?.key === equipKey)) return false;
+        } else {
+            if (equipName && Object.hasOwn(oe, equipName)) return false;
+            if (equipKey && Object.hasOwn(oe, equipKey)) return false;
+            for (const hKey in heroData) {
+                const match = heroData[hKey]?.equipment?.find(e => e.key === equipKey || e.name === equipName || e.key === equipName || e.name === equipKey);
+                if (match) {
+                    if (Object.hasOwn(oe, match.name) || Object.hasOwn(oe, match.key)) return false;
+                }
             }
         }
     }
 
     if (state.playerProfile.ownedHeroes) {
-        for (const hName in state.playerProfile.ownedHeroes) {
-            const h = state.playerProfile.ownedHeroes[hName];
-            if (h.equipment?.some(e => e.name === equipName || e.name === equipKey)) {
-                return false;
+        const heroesList = Array.isArray(state.playerProfile.ownedHeroes)
+            ? state.playerProfile.ownedHeroes
+            : Object.values(state.playerProfile.ownedHeroes);
+
+        const lowerEquipName = equipName ? equipName.toLowerCase().replace(/[\s_-]+/g, '') : '';
+        const lowerEquipKey = equipKey ? equipKey.toLowerCase().replace(/[\s_-]+/g, '') : '';
+
+        for (const h of heroesList) {
+            if (Array.isArray(h?.equipment)) {
+                const found = h.equipment.some(e => {
+                    const eName = (e?.name || '').toLowerCase().replace(/[\s_-]+/g, '');
+                    const eKey = (e?.key || '').toLowerCase().replace(/[\s_-]+/g, '');
+                    return (lowerEquipName && (eName === lowerEquipName || eKey === lowerEquipName)) ||
+                           (lowerEquipKey && (eName === lowerEquipKey || eKey === lowerEquipKey));
+                });
+                if (found) return false;
             }
         }
     }
@@ -552,16 +568,8 @@ export function isHeroJourneyFutureOrUnclaimedEquipment(heroNameOrKey, equipName
  * @returns {boolean} Whether auto-level adjustment applies.
  */
 export function shouldApplyHeroJourneyAutoLevel(heroNameOrKey, equipNameOrKey, state, precalculatedResolution = null) {
-    const heroNameMap = {
-        barbarianKing: 'Barbarian King',
-        archerQueen: 'Archer Queen',
-        minionPrince: 'Minion Prince',
-        grandWarden: 'Grand Warden',
-        royalChampion: 'Royal Champion',
-        dragonDuke: 'Dragon Duke'
-    };
-    const resolvedHeroName = heroNameMap[heroNameOrKey] || heroNameOrKey;
-    const equipName = typeof equipNameOrKey === 'string' ? equipNameOrKey : equipNameOrKey?.name;
+    const resolvedHeroName = HERO_KEY_TO_NAME[heroNameOrKey] || heroNameOrKey;
+    const equipName = typeof equipNameOrKey === 'string' ? equipNameOrKey : (equipNameOrKey?.name || equipNameOrKey?.key);
 
     if (!isEquipmentServerUnowned(equipName, state)) {
         return false;

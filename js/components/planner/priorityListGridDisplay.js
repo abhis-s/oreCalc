@@ -34,14 +34,7 @@ export function renderHeroEquipmentGrid(gridContainer, globalPriorityList) {
         const equipmentColumn = document.createElement('div');
         equipmentColumn.classList.add('equipment-chips-column');
 
-        const heroStateName = {
-            barbarianKing: 'Barbarian King',
-            archerQueen: 'Archer Queen',
-            minionPrince: 'Minion Prince',
-            grandWarden: 'Grand Warden',
-            royalChampion: 'Royal Champion',
-            dragonDuke: 'Dragon Duke'
-        }[heroKeyStr] || hero.name || heroKeyStr;
+        const heroStateName = hero.name || heroKeyStr;
 
         const userHeroState = state.heroes[heroStateName] || state.heroes[heroKeyStr];
         const equipmentList = getHeroEquipmentList(hero, userHeroState);

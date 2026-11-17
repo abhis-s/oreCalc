@@ -1,4 +1,5 @@
 import { currencyData } from '../data/pricingData.js';
+import { DAYS_IN_MONTH_AVERAGE } from '../data/timeConstants.js';
 
 import { MAX_TOWN_HALL } from './constants.js';
 import { getDefaultPlayerState, getDefaultState } from './state.js';
@@ -95,9 +96,9 @@ export function recalculateAll(state) {
             baseMonthly.starry += src?.monthly?.starry || 0;
         }
         const baseIncome = {
-            shiny: baseMonthly.shiny / 30.44,
-            glowy: baseMonthly.glowy / 30.44,
-            starry: baseMonthly.starry / 30.44,
+            shiny: baseMonthly.shiny / DAYS_IN_MONTH_AVERAGE,
+            glowy: baseMonthly.glowy / DAYS_IN_MONTH_AVERAGE,
+            starry: baseMonthly.starry / DAYS_IN_MONTH_AVERAGE,
         };
         const missing = state.derived.requiredOres;
         prospectorIncome = calculateProspectorIncome(state.income.prospector, { missing, baseIncome });

@@ -1,6 +1,11 @@
 import { heroData } from '../data/heroData.js';
 import { shopOfferData, resolveBestMatchShopOfferSet } from '../data/incomeSources/shopOffers.js';
-import { MAX_TOWN_HALL, STORAGE_LIMITS } from './constants.js';
+import {
+    CALENDAR_SETTINGS_DEFAULTS,
+    MAX_TOWN_HALL,
+    STAR_BONUS_2X_DEFAULTS,
+    STORAGE_LIMITS
+} from './constants.js';
 
 import { compareVersions } from '../utils/versionUtils.js';
 
@@ -141,8 +146,8 @@ function getDefaultPlayerStateProperties() {
             },
             starBonus: {
                 "2x": {
-                    frequency: 2,
-                    duration: 0,
+                    frequency: STAR_BONUS_2X_DEFAULTS.frequency,
+                    duration: STAR_BONUS_2X_DEFAULTS.duration,
                     lastEvent: '2026-05'
                 },
                 thUpgrades: {}
@@ -156,12 +161,12 @@ function getDefaultPlayerStateProperties() {
             calendar: {
                 isHydrated: false,
                 settings: {
-                    firstDayOfWeek: 'auto', // 'auto', 'monday', 'sunday'
-                    showChipIcons: true,
-                    autoPlaceScope: 'tillEnd', // 'month', 'tillEnd'
-                    showEquipmentMilestones: true,
-                    highlightUpgradeRanges: true,
-                    showStorageMilestones: true
+                    firstDayOfWeek: CALENDAR_SETTINGS_DEFAULTS.firstDayOfWeek,
+                    showChipIcons: CALENDAR_SETTINGS_DEFAULTS.showChipIcons,
+                    autoPlaceScope: CALENDAR_SETTINGS_DEFAULTS.autoPlaceScope,
+                    showEquipmentMilestones: CALENDAR_SETTINGS_DEFAULTS.showEquipmentMilestones,
+                    highlightUpgradeRanges: CALENDAR_SETTINGS_DEFAULTS.highlightUpgradeRanges,
+                    showStorageMilestones: CALENDAR_SETTINGS_DEFAULTS.showStorageMilestones
                 },
                 view: {
                     select: 'monthly',
@@ -326,6 +331,7 @@ export function initializeState(savedState) {
             state.planner = activePlayerState.planner;
             state.playerProfile = activePlayerState.playerProfile;
             state.onboardingTimestamp = activePlayerState.onboardingTimestamp ?? null;
+            state.heroJourney = activePlayerState.heroJourney || initializeDefaultPlayerState().heroJourney;
 
             // Ensure player-specific currency is also an object and sync it to UI settings
             if (activePlayerState.currency) {
@@ -488,7 +494,11 @@ function ensureStateDefaults(s) {
 
                 if (!ps.income.starBonus) {
                     ps.income.starBonus = {
-                        "2x": { frequency: 2, duration: 0, lastEvent: '2026-05' },
+                        "2x": {
+                            frequency: STAR_BONUS_2X_DEFAULTS.frequency,
+                            duration: STAR_BONUS_2X_DEFAULTS.duration,
+                            lastEvent: '2026-05'
+                        },
                         thUpgrades: {}
                     };
                 }
@@ -530,10 +540,10 @@ function ensureStateDefaults(s) {
             if (!ps.planner.calendar) ps.planner.calendar = {};
             if (!ps.planner.calendar.settings) {
                 ps.planner.calendar.settings = {
-                    firstDayOfWeek: 'auto',
-                    showChipIcons: true,
-                    autoPlaceScope: 'tillEnd',
-                    showStorageMilestones: true
+                    firstDayOfWeek: CALENDAR_SETTINGS_DEFAULTS.firstDayOfWeek,
+                    showChipIcons: CALENDAR_SETTINGS_DEFAULTS.showChipIcons,
+                    autoPlaceScope: CALENDAR_SETTINGS_DEFAULTS.autoPlaceScope,
+                    showStorageMilestones: CALENDAR_SETTINGS_DEFAULTS.showStorageMilestones
                 };
             } else if (ps.planner.calendar.settings.showStorageMilestones === undefined) {
                 ps.planner.calendar.settings.showStorageMilestones = true;
