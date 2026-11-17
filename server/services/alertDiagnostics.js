@@ -213,7 +213,8 @@ function parseDeviceSummary(userAgent = '') {
     else if (ua.includes('firefox/')) browser = 'Firefox';
 
     let os = 'OS';
-    if (ua.includes('iphone') || ua.includes('ipad') || ua.includes('ipod')) os = 'iOS';
+    if (ua.includes('ipad')) os = 'iPadOS';
+    else if (ua.includes('iphone') || ua.includes('ipod')) os = 'iOS';
     else if (ua.includes('android')) os = 'Android';
     else if (ua.includes('macintosh') || ua.includes('mac os x')) os = 'macOS';
     else if (ua.includes('windows')) os = 'Windows';

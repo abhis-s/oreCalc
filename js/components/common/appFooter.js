@@ -374,8 +374,15 @@ export function observeWrappedSeparators(container) {
         return () => {};
     }
 
+    let lastWidth = Math.round(container.getBoundingClientRect?.().width || container.offsetWidth || 0);
     let rafId = null;
-    const observer = new ResizeObserver(() => {
+    const observer = new ResizeObserver((entries) => {
+        const entry = entries?.[0];
+        const newWidth = Math.round(entry?.contentRect?.width ?? container.offsetWidth ?? 0);
+        if (lastWidth > 0 && Math.abs(newWidth - lastWidth) < 1) {
+            return;
+        }
+        lastWidth = newWidth;
         if (typeof cancelAnimationFrame === 'function' && rafId) {
             cancelAnimationFrame(rafId);
         }

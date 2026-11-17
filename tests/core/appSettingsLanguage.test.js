@@ -6,6 +6,7 @@ import {
     initAppSettings,
     resetAppSettingsListenersForTesting
 } from '../../js/components/common/appSettingsManager.js';
+import { populateDropdowns } from '../../js/components/appSettings/appSettingsDisplay.js';
 import { state } from '../../js/core/state.js';
 import { STORAGE_KEY_MAP } from '../../js/core/constants.js';
 
@@ -89,7 +90,15 @@ describe('App Settings Language Synchronization Suite', () => {
             }
         });
 
-        const selectAppLang = { id: 'app-language-select', value: 'en', appendChild: () => {} };
+        const selectAppLang = {
+            id: 'app-language-select',
+            value: 'en',
+            options: [],
+            appendChild(opt) {
+                this.options.push(opt);
+            },
+            addEventListener: () => {}
+        };
         const selectSettingsLang = { id: 'settings-language-select', value: 'en' };
         const selectWelcomeLang = { id: 'welcome-language-select', value: 'en' };
 
@@ -120,11 +129,28 @@ describe('App Settings Language Synchronization Suite', () => {
             },
             querySelector: () => null,
             querySelectorAll: () => [],
+            addEventListener: (type, handler) => {
+                if (!docListeners[type]) docListeners[type] = [];
+                docListeners[type].push(handler);
+            },
+            removeEventListener: (type, handler) => {
+                if (docListeners[type]) {
+                    docListeners[type] = docListeners[type].filter(h => h !== handler);
+                }
+            },
             dispatchEvent: (evt) => {
                 dispatchedEvents.push(evt.type);
+                docListeners[evt.type]?.forEach(fn => fn(evt));
                 return true;
             }
         };
+
+        const docListeners = {};
+        cleanups.push(() => {
+            for (const k of Object.keys(docListeners)) {
+                delete docListeners[k];
+            }
+        });
 
         cleanups.push(mockGlobal('document', mockDoc));
         cleanups.push(mockGlobal('CustomEvent', class CustomEvent {
@@ -233,5 +259,41 @@ describe('App Settings Language Synchronization Suite', () => {
         assert.equal(state.uiSettings.language, 'en', 'state.uiSettings.language must transition back to en');
         assert.equal(globalThis.document.documentElement.lang, 'en', 'document.documentElement.lang must update to en');
         assert.ok(dispatchedEvents.includes('languageChanged'), 'languageChanged must be dispatched');
+    });
+
+    test('initAppSettings prioritizes localized route path (/de/) over stored settings and initializes #app-language-select to de', () => {
+        globalThis.window.location.pathname = '/de/ore-calculator/';
+        storageMap.set(STORAGE_KEY_MAP.appSettings.legacy, JSON.stringify({ language: 'en', theme: 'dark' }));
+        state.uiSettings = {};
+
+        initAppSettings();
+
+        const appSelect = globalThis.document.getElementById('app-language-select');
+        assert.equal(appSelect.value, 'de', '#app-language-select must be initialized to de on /de/ route');
+    });
+
+    test('populateDropdowns preserves active language selection without reverting to en', () => {
+        globalThis.window.location.pathname = '/de/ore-calculator/';
+        state.uiSettings = { language: 'de' };
+
+        const appSelect = globalThis.document.getElementById('app-language-select');
+        appSelect.value = 'de';
+
+        populateDropdowns();
+
+        assert.equal(appSelect.value, 'de', '#app-language-select value must remain de after populateDropdowns');
+    });
+
+    test('app:translate event synchronizes #app-language-select value with state.uiSettings.language', () => {
+        const appSelect = globalThis.document.getElementById('app-language-select');
+        appSelect.value = 'en';
+        state.uiSettings = { language: 'de' };
+        globalThis.window.location.pathname = '/de/ore-calculator/';
+
+        initAppSettings();
+
+        globalThis.document.dispatchEvent(new CustomEvent('app:translate', { detail: { language: 'de' } }));
+
+        assert.equal(appSelect.value, 'de', '#app-language-select value must synchronize to de upon app:translate');
     });
 });

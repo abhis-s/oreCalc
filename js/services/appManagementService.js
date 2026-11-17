@@ -151,7 +151,17 @@ export function detectOperatingSystem() {
     const ua = navigator.userAgent || '';
     const platform = navigator.platform || '';
 
-    if (/iPad|iPhone|iPod/i.test(ua) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+    const isTouchMac = (platform === 'MacIntel' || /Macintosh/i.test(ua))
+        && typeof navigator.maxTouchPoints === 'number'
+        && navigator.maxTouchPoints > 1;
+    const hasIosTouchCallout = typeof CSS !== 'undefined' && typeof CSS.supports === 'function'
+        ? CSS.supports('-webkit-touch-callout', 'none')
+        : true;
+
+    if (/iPad/i.test(ua) || (isTouchMac && hasIosTouchCallout)) {
+        return 'iPadOS';
+    }
+    if (/iPhone|iPod/i.test(ua)) {
         return 'iOS';
     }
     if (/Android/i.test(ua)) return 'Android';

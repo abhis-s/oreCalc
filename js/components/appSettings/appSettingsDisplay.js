@@ -3,6 +3,7 @@ import { currencyData, priceTierRegistry } from '../../data/pricingData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
+import { getLanguageFromPath } from '../../core/languageRouter.js';
 
 import { addCurrencyValidation } from '../../utils/inputValidator.js';
 import { formatCurrency } from '../../utils/numberFormatter.js';
@@ -17,19 +18,36 @@ export function populateDropdowns() {
     const currencySelect = dom.appSettings?.currencySelect;
 
     if (languageSelect) {
-        languageSelect.innerHTML = '';
-        languagesData.filter(lang => lang.enabled).forEach(lang => {
-            const option = document.createElement('option');
-            option.value = lang.code;
-            option.dataset.i18nLangName = lang.nameI18n;
-            option.dataset.nativeName = lang.nativeName || '';
-            option.dataset.fallbackName = lang.fallbackName || 'Unknown';
+        const activeLang = getLanguageFromPath() || state.uiSettings?.language || 'en';
+        const existingOptions = Array.from(languageSelect.options || []);
+        const enabledLanguages = languagesData.filter(lang => lang.enabled);
+        const alreadyPopulated = existingOptions.length === enabledLanguages.length
+            && enabledLanguages.every((lang, index) => existingOptions[index]?.value === lang.code);
 
-            const name = lang.nativeName || lang.fallbackName;
-            const flag = lang.flag ? `${lang.flag} ` : '';
-            option.textContent = `${flag}${name}`;
-            languageSelect.appendChild(option);
-        });
+        if (alreadyPopulated) {
+            languageSelect.value = activeLang;
+            existingOptions.forEach(opt => {
+                opt.selected = opt.value === activeLang;
+            });
+        } else {
+            languageSelect.innerHTML = '';
+            enabledLanguages.forEach(lang => {
+                const option = document.createElement('option');
+                option.value = lang.code;
+                option.dataset.i18nLangName = lang.nameI18n;
+                option.dataset.nativeName = lang.nativeName || '';
+                option.dataset.fallbackName = lang.fallbackName || 'Unknown';
+
+                const name = lang.nativeName || lang.fallbackName;
+                const flag = lang.flag ? `${lang.flag} ` : '';
+                option.textContent = `${flag}${name}`;
+                if (lang.code === activeLang) {
+                    option.selected = true;
+                }
+                languageSelect.appendChild(option);
+            });
+            languageSelect.value = activeLang;
+        }
     }
 
     if (currencySelect) {
@@ -143,7 +161,7 @@ export function renderAppSettings(uiSettings) {
     }
 
     if (languageSelect) {
-        languageSelect.value = uiSettings.language || 'auto';
+        languageSelect.value = getLanguageFromPath() || uiSettings.language || 'en';
     }
 
     if (enableLevelInputToggle) {

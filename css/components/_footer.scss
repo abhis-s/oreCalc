@@ -307,6 +307,7 @@
 
         &__list {
             order: 2;
+            width: 100%;
             flex-direction: row;
             flex-wrap: wrap;
             justify-content: center;
@@ -327,9 +328,9 @@
                 }
 
                 &.is-row-start::before {
-                    content: none !important;
-                    display: none !important;
-                    margin-right: 0 !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
                 }
             }
         }

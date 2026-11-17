@@ -69,8 +69,15 @@ export function requestResponsiveTextUpdate() {
 }
 
 // Observe container/window resize automatically
+let lastBodyWidth = -1;
 if (typeof ResizeObserver !== 'undefined' && typeof document !== 'undefined' && document.body) {
-    const observer = new ResizeObserver(() => {
+    const observer = new ResizeObserver((entries) => {
+        const entry = entries?.[0];
+        const newWidth = Math.round(entry?.contentRect?.width ?? document.body.clientWidth ?? 0);
+        if (lastBodyWidth > 0 && Math.abs(newWidth - lastBodyWidth) < 1) {
+            return;
+        }
+        lastBodyWidth = newWidth;
         requestResponsiveTextUpdate();
     });
     observer.observe(document.body);

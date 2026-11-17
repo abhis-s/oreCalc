@@ -193,6 +193,11 @@ test('sessionService accurately parses user agent platforms and browsers', () =>
         browser: 'Safari'
     });
 
+    assert.deepEqual(parseUserAgent('Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'), {
+        platform: 'iPadOS',
+        browser: 'Safari'
+    });
+
     assert.deepEqual(parseUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0'), {
         platform: 'Windows',
         browser: 'Edge'

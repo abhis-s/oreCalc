@@ -134,9 +134,49 @@ describe('App Management Service & Storage Architecture', () => {
             maxTouchPoints: 5
         });
         try {
-            assert.equal(detectOperatingSystem(), 'iOS');
+            assert.equal(detectOperatingSystem(), 'iPadOS');
         } finally {
             restoreNaviPad();
+        }
+
+        // 3b. iPad legacy UA
+        const restoreNaviPadLegacy = mockGlobal('navigator', {
+            platform: 'iPad',
+            userAgent: 'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+            maxTouchPoints: 5
+        });
+        try {
+            assert.equal(detectOperatingSystem(), 'iPadOS');
+        } finally {
+            restoreNaviPadLegacy();
+        }
+
+        // 3c. iPhone iOS UA
+        const restoreNaviPhone = mockGlobal('navigator', {
+            platform: 'iPhone',
+            userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+            maxTouchPoints: 5
+        });
+        try {
+            assert.equal(detectOperatingSystem(), 'iOS');
+        } finally {
+            restoreNaviPhone();
+        }
+
+        // 3d. Mac with touch points where CSS -webkit-touch-callout is not supported
+        const restoreNavMacTouch = mockGlobal('navigator', {
+            platform: 'MacIntel',
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)',
+            maxTouchPoints: 5
+        });
+        const restoreCss = mockGlobal('CSS', {
+            supports: (prop) => prop !== '-webkit-touch-callout'
+        });
+        try {
+            assert.equal(detectOperatingSystem(), 'macOS');
+        } finally {
+            restoreCss();
+            restoreNavMacTouch();
         }
 
         // 4. Windows Firefox (Win32)

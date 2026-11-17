@@ -86,6 +86,9 @@ export function openDropdown(shouldFocusItem = false) {
  */
 export function closeDropdown() {
     const { dropdownButton, dropdownList } = getDropdownElements();
+    if (!dropdownList?.classList.contains('show') && !dropdownButton?.classList.contains('is-open')) {
+        return;
+    }
     if (dropdownList) dropdownList.classList.remove('show');
     if (dropdownButton) {
         dropdownButton.classList.remove('is-open');

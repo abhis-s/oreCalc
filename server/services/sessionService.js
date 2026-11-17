@@ -40,7 +40,9 @@ function parseUserAgent(ua) {
     }
 
     let platform = 'Other';
-    if (/iPhone|iPad|iPod/i.test(ua)) {
+    if (/iPad/i.test(ua)) {
+        platform = 'iPadOS';
+    } else if (/iPhone|iPod/i.test(ua)) {
         platform = 'iOS';
     } else if (/Android/i.test(ua)) {
         platform = 'Android';

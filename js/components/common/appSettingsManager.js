@@ -64,6 +64,7 @@ class AppSettingsController {
             }
             selectEl.appendChild(opt);
         }
+        selectEl.value = currentLang;
     }
 
     /**
@@ -104,7 +105,8 @@ class AppSettingsController {
 
         const langSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById('app-language-select'));
         if (langSelect) {
-            this.populateLanguageDropdown(langSelect, settings.language);
+            const activeLang = getLanguageFromPath() || (state.uiSettings?.language && state.uiSettings.language !== 'auto' ? state.uiSettings.language : null) || settings.language || 'en';
+            this.populateLanguageDropdown(langSelect, activeLang);
             if (!this.#boundLanguageSelects.has(langSelect) && typeof langSelect.addEventListener === 'function') {
                 this.#boundLanguageSelects.add(langSelect);
                 langSelect.addEventListener('change', async () => {
@@ -162,6 +164,13 @@ class AppSettingsController {
                     appThemeLabelEl.textContent = translate(labelKey);
                     appThemeLabelEl.setAttribute('data-i18n', labelKey);
                 }
+                const langSelectEl = /** @type {HTMLSelectElement | null} */ (document.getElementById('app-language-select'));
+                if (langSelectEl) {
+                    const effectiveLang = getLanguageFromPath() || (state.uiSettings?.language && state.uiSettings.language !== 'auto' ? state.uiSettings.language : null) || current.language || 'en';
+                    if (langSelectEl.value !== effectiveLang) {
+                        langSelectEl.value = effectiveLang;
+                    }
+                }
             });
         }
     }
@@ -177,7 +186,7 @@ export function getAppSettings() {
     try {
         const settings = loadStoredAppSettings();
         const pathLang = getLanguageFromPath();
-        const savedLang = pathLang || settings.language || 'en';
+        const savedLang = pathLang || (state.uiSettings?.language && state.uiSettings.language !== 'auto' ? state.uiSettings.language : null) || settings.language || 'en';
         return {
             theme: settings.theme === 'light' ? 'light' : 'dark',
             accentColor: settings.accentColor || 'blue',

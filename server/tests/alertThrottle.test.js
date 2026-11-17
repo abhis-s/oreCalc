@@ -278,6 +278,9 @@ describe('Server Alert Throttling and Diagnostic Rules Suite', () => {
         const iosUa = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
         assert.equal(parseDeviceSummary(iosUa).includes('iOS'), true);
 
+        const ipadUa = 'Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+        assert.equal(parseDeviceSummary(ipadUa), 'Safari on iPadOS');
+
         const macChromeUa = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36';
         assert.equal(parseDeviceSummary(macChromeUa), 'Chrome on macOS');
 
