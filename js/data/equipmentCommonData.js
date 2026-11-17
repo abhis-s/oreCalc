@@ -1,4 +1,4 @@
-export const EQUIPMENT_STATS_LAST_UPDATED = "2026-11-15";
+export const EQUIPMENT_STATS_LAST_UPDATED = "2026-11-17";
 export const EQUIPMENT_RECOMMENDATIONS_LAST_UPDATED = "2026-10-31";
 
 export const upgradeCosts = {
