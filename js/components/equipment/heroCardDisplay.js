@@ -162,7 +162,8 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             const inputContainerDisplay = /** @type {HTMLElement | null} */ (equipItem.querySelector('[data-mode="input-enabled"]'));
             const levelDisplay = equipItem.querySelector('.level-display');
             const levelInput = /** @type {HTMLInputElement | null} */ (equipItem.querySelector('input[type="number"]'));
-            const upgradeButton = /** @type {HTMLElement | null} */ (equipItem.querySelector('.upgrade-btn'));
+            const upgradeButton = /** @type {HTMLElement | null} */ (equipItem.querySelector('.upgrade-btn:not(.upgrade-btn--delete)'));
+            const deleteButton = /** @type {HTMLElement | null} */ (equipItem.querySelector('.upgrade-btn--delete, [data-action="delete-coming-soon"]'));
             const label = equipItem.querySelector('label');
             const equipmentImage = equipItem.querySelector('.equipment-image');
 
@@ -236,6 +237,24 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
                     name: translate('entities.equipment.' + equipKey) || equipName,
                     level: currentLevel + 1
                 }));
+                if (equip.isUnreleased) {
+                    upgradeButton.disabled = true;
+                    upgradeButton.setAttribute('disabled', '');
+                    upgradeButton.setAttribute('aria-disabled', 'true');
+                    upgradeButton.classList.add('disabled');
+                }
+            }
+
+            if (levelInput && equip.isUnreleased) {
+                levelInput.disabled = true;
+                levelInput.setAttribute('disabled', '');
+            }
+
+            if (deleteButton) {
+                deleteButton.setAttribute('aria-label', translate('views.equipment.confirmRemoveEquipment', {
+                    name: translate('entities.equipment.comingSoon') || 'Coming Soon',
+                    hero: heroName
+                }) || 'Delete Coming Soon Equipment');
             }
 
             let isOverLeveled = false;
@@ -247,8 +266,15 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             if (label) label.classList.toggle('over-leveled-glow', isOverLeveled);
             if (equipmentImage) equipmentImage.classList.toggle('over-leveled-glow', isOverLeveled);
 
-            if (upgradeBtnDisplay) upgradeBtnDisplay.style.display = isLevelInputEnabled ? 'none' : 'flex';
-            if (inputContainerDisplay) inputContainerDisplay.style.display = isLevelInputEnabled ? 'block' : 'none';
+            if (upgradeBtnDisplay) upgradeBtnDisplay.style.display = (isLevelInputEnabled && !equip.isCustom) ? 'none' : 'flex';
+            if (inputContainerDisplay) inputContainerDisplay.style.display = (isLevelInputEnabled && !equip.isCustom) ? 'block' : 'none';
+            if (levelDisplay) {
+                if (equip.isCustom) {
+                    levelDisplay.style.display = isLevelInputEnabled ? 'none' : 'flex';
+                } else if (levelDisplay.style.display) {
+                    levelDisplay.style.display = '';
+                }
+            }
 
             let isLocked = false;
             if (!equip.isCustom && state.playerProfile && state.playerProfile.ownedEquipment) {

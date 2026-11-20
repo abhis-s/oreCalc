@@ -12,7 +12,10 @@ function ensureGlobalScrollResizeListeners() {
 
     const handleGlobalScrollResize = () => {
         if (!activePopoverInstance) return;
-        if (document.activeElement === activePopoverInstance.inputElement) {
+        const active = document.activeElement;
+        const input = activePopoverInstance.inputElement;
+        const popover = input._popoverElement;
+        if (active === input || (popover && popover.contains(active)) || !active || active === document.body) {
             activePopoverInstance.positionThrottled();
         } else {
             activePopoverInstance.hide();
@@ -329,6 +332,8 @@ export function registerInputPopover(inputElement, options = {}) {
         };
 
         positionPopoverThrottled();
+        setTimeout(positionPopoverThrottled, 120);
+        setTimeout(positionPopoverThrottled, 280);
     };
 
     let blurTimeout = null;

@@ -9,6 +9,7 @@
         "close": "Kapat",
         "compressTable": "Tabloyu Sıkıştır",
         "confirm": "Onayla",
+        "copied": "Kopyalandı!",
         "copy": "Kopyala",
         "create": "Oluştur",
         "decrease": "Azalt",
@@ -32,6 +33,7 @@
         "ok": "OK",
         "openInNewTab": "Yeni sekmede aç",
         "openMailClient": "E-posta İstemcisini Aç",
+        "paste": "Yapıştır",
         "previous": "Önceki",
         "processing": "İşleniyor...",
         "refresh": "Yenile",
@@ -63,6 +65,7 @@
     "alerts": {
         "bugReportFailure": "Hata raporu gönderilemedi. Lütfen daha sonra tekrar deneyin.",
         "bugReportSuccess": "Hata raporu başarıyla gönderildi! Geri bildiriminiz için teşekkür ederiz.",
+        "clipboardPermissionDenied": "Panodan okuma işlemi başarısız oldu. Lütfen pano izninin verildiğinden emin olun.",
         "copiedFailed": "Kullanıcı kimliği kopyalanamadı.",
         "copySuccess": "Kullanıcı kimliği kopyalandı!",
         "deleteAccountFailed": "Hesap silinemedi",
@@ -132,11 +135,15 @@
         "metaTitle": "OreCalc — Clash of Clans Ekipman & Yükseltme Planlayıcı | ClashCalc",
         "none": "Hiçbiri",
         "supercellDisclaimer": "Bu materyal resmi değildir ve Supercell tarafından onaylanmamıştır. Daha fazla bilgi için Supercell'in Hayran İçeriği Politikası'na bakın: <a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">{displayUrl}</a>.",
-        "title": "Cevher Hesaplayıcı"
+        "title": "Cevher Hesaplayıcı",
+        "version": "Sürüm"
     },
     "auth": {
         "accountAndDataManagement": "Hesap ve Veri Yönetimi",
         "accountCardDesc": "Köy ilerlemenizi tüm cihazlarda senkronize etmek ve korumak için giriş yapın.",
+        "avatars": {
+            "skeleton": "İskelet"
+        },
         "dataBackupAndRestore": "Veri Yedekleme ve Geri Yükleme",
         "dataBackupAndRestoreDesc": "Yerel bir JSON arşivi dışa aktarın veya bir yedekleme dosyasından verilerinizi geri yükleyin.",
         "deleteAccount": "Hesabı Sil",
@@ -559,6 +566,9 @@
         "recommended": "Tavsiye edilen"
     },
     "views": {
+        "account": {
+            "guestDataErasure": "Veri Silme"
+        },
         "changelog": {
             "title": "Değişiklik Günlüğü",
             "type": {
@@ -574,6 +584,9 @@
             "title": "Küçük Güncellemeler"
         },
         "damageCalc": {
+            "filters": {
+                "filterHeroes": "Kahramanlar"
+            },
             "meta": {
                 "title": "Ekipman Hasarı & Yıldırım-Deprem Hesaplayıcı | Clash of Clans | ClashCalc"
             }
@@ -637,6 +650,7 @@
             "epicEquip": "Destansı Ekipman",
             "guest": "Misafir Profiliyle Keşfet",
             "guestProfileTag": "Misafir Profili",
+            "league": "Lig",
             "loadProfile": "Profili Yükle",
             "noClan": "Klan Yok",
             "profileTab": "Profil",
@@ -1188,6 +1202,9 @@
                 },
                 "title": "Proje Maliyetleri"
             }
+        },
+        "spotright": {
+            "activeVillage": "Aktif"
         },
         "tour": {
             "backupSyncDesc": "Verilerinizi yedeklemek ve birden fazla cihaz arasında otomatik olarak senkronize tutmak için bulut senkronizasyonunu etkinleştirin.",

@@ -276,6 +276,25 @@
         background-color: $btn-hover-blue-bg;
         border-color: $btn-border-blue-hover;
     }
+
+    &--delete {
+        background-color: color-mix(in srgb, $color-danger 12%, transparent);
+        border-color: color-mix(in srgb, $color-danger 30%, transparent);
+        color: $color-danger;
+
+        &:hover {
+            background-color: color-mix(in srgb, $color-danger 20%, transparent);
+            border-color: $color-danger;
+            color: $color-danger;
+        }
+    }
+
+    &:disabled,
+    &.disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
 }
 
 .icon-button {

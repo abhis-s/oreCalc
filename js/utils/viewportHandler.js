@@ -56,6 +56,44 @@ export function calculateToastKeyboardOffset({
 }
 
 /**
+ * Ensures an active input element is not occluded by floating chrome (top header or bottom navigation bar).
+ * If the input is behind or within the bottom chrome margin (or top header margin), scrolls it into view.
+ *
+ * @param {Element | HTMLElement | null} target
+ * @param {{ block?: ScrollLogicalPosition, behavior?: ScrollBehavior }} [options={}]
+ * @returns {boolean} True if a scroll adjustment was triggered.
+ */
+function ensureInputVisibleAboveChrome(target, { block = 'center', behavior = 'smooth' } = {}) {
+    if (!target || typeof target.getBoundingClientRect !== 'function' || typeof target.scrollIntoView !== 'function') {
+        return false;
+    }
+
+    const rect = target.getBoundingClientRect();
+    const vv = typeof window !== 'undefined' ? window.visualViewport : null;
+    const viewportHeight = vv ? vv.height : ((typeof window !== 'undefined' ? window.innerHeight : 0) || 800);
+
+    const bottomNav = typeof document !== 'undefined' ? document.querySelector('.bottom-nav-bar') : null;
+    let isBottomNavVisible = false;
+    if (bottomNav) {
+        if (typeof window !== 'undefined' && typeof window.getComputedStyle === 'function') {
+            isBottomNavVisible = window.getComputedStyle(bottomNav).display !== 'none';
+        } else {
+            isBottomNavVisible = true;
+        }
+    }
+
+    const bottomThreshold = isBottomNavVisible ? 96 : 40;
+    const topThreshold = 80;
+
+    if (rect.bottom > viewportHeight - bottomThreshold || rect.top < topThreshold) {
+        target.scrollIntoView({ block, inline: 'nearest', behavior });
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * Initializes virtual keyboard compensation listeners and visualViewport resize handlers for mobile inputs.
  */
 const boundViewportDocs = new WeakSet();
@@ -76,7 +114,7 @@ export function initializeViewportHandler() {
     boundViewportDocs.add(document);
 
     document.addEventListener('focusin', (event) => {
-        const target = event.target;
+        const target = /** @type {HTMLElement | null} */ (event.target);
         if (!target || !target.matches('input, select, textarea')) return;
 
         const modalContainer = target.closest('.modal-body, .modal-content, dialog.modal, .modal');
@@ -84,6 +122,10 @@ export function initializeViewportHandler() {
             setTimeout(() => {
                 target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
             }, 120);
+        } else if (isTouchDevice()) {
+            setTimeout(() => {
+                ensureInputVisibleAboveChrome(target);
+            }, 160);
         }
     }, { passive: true });
 
@@ -190,8 +232,16 @@ export function initializeViewportHandler() {
             });
         };
 
+        const handleVisualViewportResize = () => {
+            const activeEl = /** @type {HTMLElement | null} */ (document.activeElement);
+            if (activeEl && activeEl.matches('input, select, textarea') && !activeEl.closest('.modal-body, .modal-content, dialog.modal, .modal')) {
+                ensureInputVisibleAboveChrome(activeEl);
+            }
+        };
+
         window.visualViewport.addEventListener('scroll', syncToastVisualViewport, { passive: true });
         window.visualViewport.addEventListener('resize', syncToastVisualViewport, { passive: true });
+        window.visualViewport.addEventListener('resize', handleVisualViewportResize, { passive: true });
         window.addEventListener('scroll', syncToastVisualViewport, { passive: true });
         document.addEventListener('focusin', syncToastVisualViewport, { passive: true });
         document.addEventListener('focusout', syncToastVisualViewport, { passive: true });

@@ -6,9 +6,9 @@ module.exports = {
         '{de,tr,zh}/{index,ore-calculator/index,hero-journey/index,damage-calculator/index,account/index}.html',
         // Core App Shell Stylesheets
         'css/{main,landing,hero-journey,damage-calculator,account}.min.css',
-        // Core App Shell JavaScript and shared chunks
+        // Core App Shell JavaScript, shared chunks, and code-split dynamic imports
         'js/{app,landingApp,heroJourneyApp,damageApp,accountApp}.js',
-        'js/chunk-*.js',
+        'js/*.js',
         'js/workbox-window.js',
         'js/qr-code-styling.js',
         // Canonical dictionaries, progression data, and damage target matrices

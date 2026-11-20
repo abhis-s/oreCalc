@@ -517,6 +517,7 @@ textarea,
     -webkit-user-select: auto;
     user-select: auto;
     scroll-margin-top: 90px;
+    scroll-margin-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
 #player-tag-input-modal,

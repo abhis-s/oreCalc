@@ -301,9 +301,9 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels, s
         const target = /** @type {HTMLElement | null} */ (event.target);
         if (!target) return;
 
-        const customComingSoonImg = /** @type {HTMLElement | null} */ (target.closest('.is-custom-coming-soon-image, [data-action="delete-coming-soon"]'));
-        if (customComingSoonImg) {
-            const heroCard = /** @type {HTMLElement | null} */ (customComingSoonImg.closest('.hero-card'));
+        const deleteActionBtn = /** @type {HTMLElement | null} */ (target.closest('[data-action="delete-coming-soon"]'));
+        if (deleteActionBtn) {
+            const heroCard = /** @type {HTMLElement | null} */ (deleteActionBtn.closest('.hero-card'));
             const heroLookup = heroCard?.dataset.heroKey || heroCard?.dataset.heroName;
             const heroName = heroCard?.dataset.heroName;
             if (heroLookup) {
@@ -343,6 +343,7 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels, s
 
         switch(action) {
             case 'increment-level': {
+                if (actionElement.hasAttribute('disabled') || actionElement.classList.contains('disabled')) break;
                 const equipItem = /** @type {HTMLElement | null} */ (actionElement.closest('.equipment-item'));
                 const equipLookup = equipItem ? (equipItem.dataset.equipKey || equipItem.dataset.equipName) : null;
                 const equipName = equipItem ? equipItem.dataset.equipName : null;
@@ -377,10 +378,10 @@ export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels, s
             const target = /** @type {HTMLElement | null} */ (event.target);
             if (!target) return;
 
-            const customComingSoonImg = /** @type {HTMLElement | null} */ (target.closest('.is-custom-coming-soon-image, [data-action="delete-coming-soon"]'));
-            if (customComingSoonImg) {
+            const deleteActionBtn = /** @type {HTMLElement | null} */ (target.closest('[data-action="delete-coming-soon"]'));
+            if (deleteActionBtn) {
                 event.preventDefault();
-                const heroCard = /** @type {HTMLElement | null} */ (customComingSoonImg.closest('.hero-card'));
+                const heroCard = /** @type {HTMLElement | null} */ (deleteActionBtn.closest('.hero-card'));
                 const heroLookup = heroCard?.dataset.heroKey || heroCard?.dataset.heroName;
                 const heroName = heroCard?.dataset.heroName;
                 if (heroLookup) {

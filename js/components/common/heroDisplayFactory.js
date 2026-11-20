@@ -130,44 +130,75 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
         const displayContainer = document.createElement('div');
         displayContainer.className = 'level-display-container';
         displayContainer.dataset.mode = 'input-disabled';
-        displayContainer.style.display = isLevelInputEnabled ? 'none' : 'flex';
+        displayContainer.style.display = (isLevelInputEnabled && !equip.isCustom) ? 'none' : 'flex';
 
         const levelSpan = document.createElement('span');
         levelSpan.className = 'level-display';
         levelSpan.id = levelDisplayId;
         levelSpan.textContent = currentLevel;
+        if (equip.isCustom && isLevelInputEnabled) {
+            levelSpan.style.display = 'none';
+        }
         displayContainer.appendChild(levelSpan);
 
-        const upgradeBtn = document.createElement('button');
-        upgradeBtn.className = 'upgrade-btn';
-        upgradeBtn.dataset.action = 'increment-level';
-        upgradeBtn.dataset.maxLevel = String(maxLevel);
-        upgradeBtn.style.visibility = isMaxLevel ? 'hidden' : 'visible';
-        upgradeBtn.setAttribute('aria-label', translate('actions.upgradeToLevel', {
-            name: translate('entities.equipment.' + equipKey) || equip.name,
-            level: currentLevel + 1
-        }));
-        upgradeBtn.innerHTML = getSVG('arrow-up');
-        displayContainer.appendChild(upgradeBtn);
+        if (equip.isCustom) {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'upgrade-btn upgrade-btn--delete';
+            deleteBtn.dataset.action = 'delete-coming-soon';
+            deleteBtn.setAttribute('aria-label', translate('views.equipment.confirmRemoveEquipment', {
+                name: translate('entities.equipment.comingSoon') || 'Coming Soon',
+                hero: idPrefix
+            }) || 'Delete Coming Soon Equipment');
+            deleteBtn.innerHTML = getSVG('trash', 'trash-icon', 16, 16);
+            displayContainer.appendChild(deleteBtn);
+        } else {
+            const upgradeBtn = document.createElement('button');
+            upgradeBtn.type = 'button';
+            upgradeBtn.className = 'upgrade-btn';
+            upgradeBtn.dataset.action = 'increment-level';
+            upgradeBtn.dataset.maxLevel = String(maxLevel);
+            upgradeBtn.style.visibility = isMaxLevel ? 'hidden' : 'visible';
+            upgradeBtn.setAttribute('aria-label', translate('actions.upgradeToLevel', {
+                name: translate('entities.equipment.' + equipKey) || equip.name,
+                level: currentLevel + 1
+            }));
+            upgradeBtn.innerHTML = getSVG('arrow-up');
+
+            if (equip.isUnreleased) {
+                upgradeBtn.disabled = true;
+                upgradeBtn.setAttribute('disabled', '');
+                upgradeBtn.setAttribute('aria-disabled', 'true');
+                upgradeBtn.classList.add('disabled');
+            }
+
+            displayContainer.appendChild(upgradeBtn);
+        }
         levelControls.appendChild(displayContainer);
 
-        const inputContainer = document.createElement('div');
-        inputContainer.className = 'level-input-container';
-        inputContainer.dataset.mode = 'input-enabled';
-        inputContainer.style.display = isLevelInputEnabled ? 'block' : 'none';
+        if (!equip.isCustom) {
+            const inputContainer = document.createElement('div');
+            inputContainer.className = 'level-input-container';
+            inputContainer.dataset.mode = 'input-enabled';
+            inputContainer.style.display = isLevelInputEnabled ? 'block' : 'none';
 
-        const levelInput = document.createElement('input');
-        levelInput.type = 'number';
-        levelInput.id = inputId;
-        levelInput.name = inputId;
-        levelInput.className = 'updatable';
-        levelInput.maxLength = 2;
-        levelInput.setAttribute('maxlength', '2');
-        levelInput.min = '1';
-        levelInput.max = String(maxLevel);
-        levelInput.value = currentLevel;
-        inputContainer.appendChild(levelInput);
-        levelControls.appendChild(inputContainer);
+            const levelInput = document.createElement('input');
+            levelInput.type = 'number';
+            levelInput.id = inputId;
+            levelInput.name = inputId;
+            levelInput.className = 'updatable';
+            levelInput.maxLength = 2;
+            levelInput.setAttribute('maxlength', '2');
+            levelInput.min = '1';
+            levelInput.max = String(maxLevel);
+            levelInput.value = currentLevel;
+            if (equip.isUnreleased) {
+                levelInput.disabled = true;
+                levelInput.setAttribute('disabled', '');
+            }
+            inputContainer.appendChild(levelInput);
+            levelControls.appendChild(inputContainer);
+        }
 
         container.appendChild(levelControls);
     }
@@ -229,30 +260,6 @@ export function createHeroCard({ hero, heroState, heroKey, mode = 'interactive',
 
         if (equip.isCustom) {
             equipmentItem.classList.add('is-custom-coming-soon');
-
-            if (mode === 'interactive') {
-                const origImg = equipmentItem.querySelector('.equipment-image');
-                if (origImg && origImg.parentElement) {
-                    const imgContainer = document.createElement('div');
-                    imgContainer.className = 'equipment-image-container is-custom-coming-soon-image';
-                    imgContainer.dataset.action = 'delete-coming-soon';
-                    imgContainer.setAttribute('role', 'button');
-                    imgContainer.setAttribute('tabindex', '0');
-                    imgContainer.setAttribute('aria-label', translate('views.equipment.confirmRemoveEquipment', {
-                        name: translate('entities.equipment.comingSoon') || 'Coming Soon',
-                        hero: hero.name
-                    }) || 'Delete Coming Soon Equipment');
-
-                    origImg.parentElement.insertBefore(imgContainer, origImg);
-                    imgContainer.appendChild(origImg);
-
-                    const overlay = document.createElement('span');
-                    overlay.className = 'coming-soon-delete-overlay';
-                    overlay.setAttribute('aria-hidden', 'true');
-                    overlay.innerHTML = getSVG('trash', 'trash-icon', 20, 20);
-                    imgContainer.appendChild(overlay);
-                }
-            }
         }
 
         containerToAppendTo.appendChild(equipmentItem);

@@ -119,20 +119,26 @@ self.addEventListener('fetch', event => {
     }
 
     let cacheKey = precacheController.getCacheKeyForURL(event.request.url);
+    let targetUrl = event.request.url;
     if (!cacheKey && url.search) {
         const cleanUrl = new URL(event.request.url);
         cleanUrl.search = '';
         cacheKey = precacheController.getCacheKeyForURL(cleanUrl.href);
+        if (cacheKey) {
+            targetUrl = cleanUrl.href;
+        }
     }
 
     if (cacheKey) {
-        event.respondWith(
-            precacheController.strategy.handle({
+        event.respondWith((async () => {
+            const cached = await precacheController.matchPrecache(targetUrl);
+            if (cached) return cached;
+            return precacheController.strategy.handle({
                 event,
                 request: event.request,
                 params: { cacheKey }
-            })
-        );
+            });
+        })());
         return;
     }
     // No respondWith: Workbox routing handles this request.

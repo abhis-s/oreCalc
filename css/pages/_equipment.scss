@@ -458,60 +458,6 @@
     }
 }
 
-.is-custom-coming-soon-image {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    width: $icon-size-4xl;
-    height: $icon-size-4xl;
-    margin-right: $spacing-sm;
-    flex-shrink: 0;
-    overflow: visible;
-
-    .equipment-image {
-        display: block;
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        border-radius: $shape-corner-compact;
-        transition: filter $duration-fast $ease-smooth, transform $duration-fast $ease-smooth;
-    }
-
-    .coming-soon-delete-overlay {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: color-mix(in srgb, $bg-app 75%, transparent);
-        border-radius: $shape-corner-compact;
-        color: $color-danger;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity $duration-fast $ease-smooth;
-
-        svg {
-            width: $icon-size-md;
-            height: $icon-size-md;
-            fill: currentColor;
-        }
-    }
-
-    &:hover,
-    &:focus-visible {
-        .equipment-image {
-            filter: brightness(0.6) $filter-glow-epic;
-            transform: scale(0.96);
-        }
-
-        .coming-soon-delete-overlay {
-            opacity: 1;
-        }
-    }
-}
-
 .coming-soon-hero-options {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

@@ -147,6 +147,9 @@
         }
 
         function triggerSelfHealingChunkReload() {
+            if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                return false;
+            }
             var lastChunkReload = sessionStorage.getItem('oreCalc_lastChunkReload');
             var now = Date.now();
             if (!lastChunkReload || (now - parseInt(lastChunkReload, 10) > 15000)) {
@@ -302,6 +305,7 @@
 
         window.handleChunkError = function (error) {
             if (!error) return false;
+            if (typeof navigator !== 'undefined' && navigator.onLine === false) return false;
             var msg = error.message || error.toString() || '';
             var isChunk = msg.indexOf('Failed to fetch dynamically imported module') !== -1 ||
                          msg.indexOf('Importing a module script failed') !== -1 ||
@@ -389,7 +393,10 @@
             var target = event.target;
             if (target && (target.tagName === 'LINK' || target.tagName === 'SCRIPT')) {
                 var url = target.src || target.href || '';
-                if (url.indexOf('chunk-') !== -1 && url.indexOf('.js') !== -1) {
+                if (url.indexOf('.js') !== -1) {
+                    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                        return;
+                    }
                     var lastReload = sessionStorage.getItem('oreCalc_lastChunkReload');
                     var now = Date.now();
                     if (!lastReload || (now - parseInt(lastReload, 10) > 10000)) {
@@ -409,6 +416,9 @@
                 errorMsg.indexOf('Importing a module script failed') !== -1 ||
                 errorMsg.indexOf('error loading dynamically imported module') !== -1
             )) {
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                    return;
+                }
                 var lastReload = sessionStorage.getItem('oreCalc_lastChunkReload');
                 var now = Date.now();
                 if (!lastReload || (now - parseInt(lastReload, 10) > 10000)) {
