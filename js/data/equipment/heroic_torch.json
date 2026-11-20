@@ -6,7 +6,7 @@
     {"key": "abilityDuration", "category": "ability", "valueUnit": "seconds"},
     {"key": "movementSpeedIncrease", "category": "ability", "valueUnit": "number"},
     {"key": "incomingDamageReduction", "category": "ability", "valueUnit": "percentage"},
-    {"key": "healthRecovery", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "healthRecovery", "category": "ability", "valueUnit": "number"},
     {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
     {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],

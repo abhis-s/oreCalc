@@ -92,22 +92,38 @@ export function getLightningDamage(level) {
 }
 
 /**
+ * Resolves the default maximum level for a damaging equipment entry by id or metadata.
+ *
+ * @param {string | { rarity?: string, maxLevel?: number }} equipmentId - Equipment identifier or metadata object.
+ * @returns {number} Default maximum equipment level.
+ */
+export function getDefaultDamageEquipmentLevel(equipmentId) {
+    const equip = typeof equipmentId === 'string' ? equipmentDamageData[equipmentId] : equipmentId;
+    return equip?.maxLevel || (equip?.rarity && EQUIPMENT_MAX_LEVELS[equip.rarity]) || EQUIPMENT_MAX_LEVELS.common;
+}
+
+/**
  * Resolves the effective equipment level taking competitive modifier level loss into account (Esports Mode).
  *
- * @param {string} equipmentId - Equipment identifier.
+ * @param {string | { rarity: string, maxLevel?: number }} equipmentId - Equipment identifier or metadata object.
  * @param {number} requestedLevel - User's chosen level.
  * @param {string} [modifierKey='standard'] - Battle modifier key ('standard', 'legend3', 'legend2', 'legend1', 'esports').
  * @returns {number} Effective level after applying modifier level loss.
  */
 export function getEffectiveEquipmentLevel(equipmentId, requestedLevel, modifierKey = 'standard') {
-    const equip = equipmentDamageData[equipmentId];
+    const equip = typeof equipmentId === 'string' ? equipmentDamageData[equipmentId] : equipmentId;
     if (!equip) return Math.max(1, requestedLevel || 1);
 
     const league = battleModifiersData.leagues[modifierKey] || battleModifiersData.leagues.standard;
-    const isEpic = equip.rarity === 'epic';
-    const loss = isEpic ? (league.equipLevelLossEpic || 0) : (league.equipLevelLossCommon || 0);
+    const rarityLossKeyMap = {
+        legendary: 'equipLevelLossLegendary',
+        epic: 'equipLevelLossEpic',
+        common: 'equipLevelLossCommon'
+    };
+    const lossKey = rarityLossKeyMap[equip.rarity] || 'equipLevelLossCommon';
+    const loss = league[lossKey] || 0;
 
-    const maxLevel = equip.maxLevel || EQUIPMENT_MAX_LEVELS[equip.rarity] || EQUIPMENT_MAX_LEVELS.common;
+    const maxLevel = getDefaultDamageEquipmentLevel(equip);
     const validLevel = Math.min(Math.max(1, requestedLevel || 1), maxLevel);
 
     return Math.max(1, validLevel - loss);

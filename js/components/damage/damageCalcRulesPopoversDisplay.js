@@ -3,6 +3,7 @@
  * Tier 4: UI Presentation (Dedicated exclusively to popover HTML generation, 0 event listeners).
  */
 
+import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { battleModifiersData } from '../../data/battleModifiersData.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
@@ -16,6 +17,15 @@ import {
     getEquipmentStatsPopoverContent,
     getDamageSourcePopoverContent
 } from './damageCalcOffensePopoversDisplay.js';
+
+/**
+ * Resolves the latest Town Hall icon URL for spell-immunity popovers.
+ * @returns {string}
+ */
+function getTownHallPopoverAssetUrl() {
+    const thMaxLvl = getDefensesData().town_hall?.maxLevel || MAX_TOWN_HALL;
+    return getBuildingAssetUrl('town_hall', thMaxLvl) || `/assets/buildings/town_hall/level_${thMaxLvl}.png`;
+}
 
 /**
  * Resolves content for generic feature info popovers.
@@ -34,14 +44,15 @@ export function getGenericInfoPopoverContent(infoKey) {
             const defGuardian = Math.round((cfg.defGuardianBonus || 0) * 100);
             const atkHero = Math.round((1 - (cfg.atkHeroMultiplier ?? 1)) * 100);
             const label = getModifierLabel(modKey, true);
-            const desc = (cfg.equipLevelLossCommon > 0 || cfg.equipLevelLossEpic > 0)
+            const desc = (cfg.equipLevelLossCommon > 0 || cfg.equipLevelLossEpic > 0 || cfg.equipLevelLossLegendary > 0)
                 ? translate('views.damageCalc.popovers.modifierEsportsRules', {
                     defDps,
                     defHero,
                     defGuardian,
                     atkHero,
                     commonLoss: cfg.equipLevelLossCommon || 0,
-                    epicLoss: cfg.equipLevelLossEpic || 0
+                    epicLoss: cfg.equipLevelLossEpic || 0,
+                    legendaryLoss: cfg.equipLevelLossLegendary || 0
                 })
                 : translate('views.damageCalc.popovers.modifierLeagueRules', {
                     defDps,
@@ -108,7 +119,7 @@ export function getGenericInfoPopoverContent(infoKey) {
     if (infoKey === 'spell_immunity') {
         return {
             header: `
-                <clashcalc-assets-image src="/assets/buildings/town_hall/level_17.png" alt="Town Hall" class="popover-img"></clashcalc-assets-image>
+                <clashcalc-assets-image src="${getTownHallPopoverAssetUrl()}" alt="Town Hall" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.spellImmunityTitle') || 'Spell Immunity')}</span>
                     <span class="popover-badge">${escapeHTML(translate('views.damageCalc.zapQuake.immune') || 'Immune')}</span>
@@ -160,7 +171,7 @@ export function getNoteCodePopoverContent(noteCode) {
     if (noteCode === 'target_immune_to_lightning' || noteCode === 'target_immune_to_earthquake') {
         return {
             header: `
-                <clashcalc-assets-image src="/assets/buildings/town_hall/level_17.png" alt="Town Hall" class="popover-img"></clashcalc-assets-image>
+                <clashcalc-assets-image src="${getTownHallPopoverAssetUrl()}" alt="Town Hall" class="popover-img"></clashcalc-assets-image>
                 <div class="popover-title-group">
                     <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.spellImmunityTitle') || 'Spell Immunity Rules')}</span>
                     <span class="popover-badge">${escapeHTML(translate('views.damageCalc.zapQuake.immune') || 'Immune')}</span>

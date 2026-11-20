@@ -12,7 +12,7 @@ import { getPlayerStorageKey } from './storageKeys.js';
 import { getSavedProfiles } from './playerStorage.js';
 import { sanitizeImageUrl } from './playerStorageSanitizer.js';
 import { calculateEquipmentProgress } from '../domain/equipment/equipmentProgressDomain.js';
-import { getCumulativeHeroLevel, getMaxCumulativeHeroLevel } from '../domain/income/heroJourneyLevels.js';
+import { getCumulativeHeroLevel, getHeroMaxLevelForTH, getMaxCumulativeHeroLevel } from '../domain/income/heroJourneyLevels.js';
 import { heroJourneyNodes } from '../data/heroJourneyData.js';
 import { leagueTiers } from '../data/leagueTiers.js';
 import { heroData } from '../data/heroData.js';
@@ -59,7 +59,7 @@ export function resolvePlayerSummaryStats(cleanTag = '', explicitProfile = null)
         : (explicitProfile?.heroJourney?.cumulativeHeroLevel ?? null);
 
     let found = null;
-    if (rawTag && rawTag !== 'DEFAULT0' && rawTag !== 'GUEST') {
+    if (rawTag && rawTag !== 'DEFAULT0') {
         const savedProfiles = getSavedProfiles();
         found = savedProfiles.find(p => p.cleanTag === rawTag);
         if (found) {
@@ -112,7 +112,9 @@ export function resolvePlayerSummaryStats(cleanTag = '', explicitProfile = null)
                     const hero = heroData[heroKey];
                     const heroState = partition.heroes[heroKey] || partition.heroes[hero.name];
                     if (heroState && heroState.enabled !== false) {
-                        const hInfo = { level: heroState?.level || 1, maxLevel: 95 };
+                        const resolvedTh = townHallLevel || partition?.playerProfile?.townHallLevel || MAX_TOWN_HALL;
+                        const resolvedMaxLevel = getHeroMaxLevelForTH(heroKey, resolvedTh) || 1;
+                        const hInfo = { level: heroState?.level || 1, maxLevel: resolvedMaxLevel };
                         ownedHeroes[heroKey] = hInfo;
                         ownedHeroes[hero.name] = hInfo;
                         if (heroState?.equipment) {

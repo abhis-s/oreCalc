@@ -21,13 +21,21 @@ export function renderModifierTabs(modifierTabsContainer, hasValidLevels, hasSta
     if (!modifierTabsContainer) return;
     if (!hasValidLevels || !hasStatsMeta) {
         modifierTabsContainer.hidden = true;
+        modifierTabsContainer.style.display = '';
         modifierTabsContainer.innerHTML = '';
         return;
     }
 
     modifierTabsContainer.hidden = false;
+    modifierTabsContainer.style.display = '';
     renderBattleModifierSwitcher(modifierTabsContainer, activeModifierTab, { includePercentages: false });
 }
+
+const RARITY_BADGE_CLASS_MAP = {
+    common: 'badge-common',
+    epic: 'badge-epic',
+    legendary: 'badge-legendary'
+};
 
 /**
  * Renders modal header elements (hero emblem, item image, title, badges).
@@ -76,7 +84,8 @@ export function renderModalHeader(modal, data, equipmentName, heroInfo, equipInf
     if (rarityBadge) {
         rarityBadge.style.display = '';
         rarityBadge.textContent = translatedRarity;
-        rarityBadge.className = `eq-badge badge-${effectiveRarity.toLowerCase()}`;
+        const rarityBadgeClass = RARITY_BADGE_CLASS_MAP[effectiveRarity.toLowerCase()] || 'badge-common';
+        rarityBadge.className = `eq-badge ${rarityBadgeClass}`;
         rarityBadge.setAttribute('data-info', 'views.equipment.badgeRarityHelp');
         rarityBadge.setAttribute('data-info-rarity', translatedRarity);
     }
@@ -151,7 +160,8 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
     if (rarityBadge) {
         rarityBadge.style.display = '';
         rarityBadge.textContent = translatedRarity;
-        rarityBadge.className = `eq-badge badge-${equipmentRarity.toLowerCase()}`;
+        const rarityBadgeClass = RARITY_BADGE_CLASS_MAP[equipmentRarity.toLowerCase()] || 'badge-common';
+        rarityBadge.className = `eq-badge ${rarityBadgeClass}`;
         rarityBadge.setAttribute('data-info', 'views.equipment.badgeRarityHelp');
         rarityBadge.setAttribute('data-info-rarity', translatedRarity);
     }
@@ -169,7 +179,8 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
     if (propsGrid) propsGrid.style.display = 'none';
     if (recBannerContainer) recBannerContainer.innerHTML = '';
     if (modifierTabsContainer) {
-        modifierTabsContainer.style.display = 'none';
+        modifierTabsContainer.hidden = true;
+        modifierTabsContainer.style.display = '';
         modifierTabsContainer.innerHTML = '';
     }
     if (staticStatsContent) {
@@ -177,10 +188,14 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
         staticStatsContent.innerHTML = '';
     }
     if (unitStatsContent) {
-        unitStatsContent.style.display = 'none';
+        unitStatsContent.hidden = true;
+        unitStatsContent.style.display = '';
         unitStatsContent.innerHTML = '';
     }
-    if (unitStatsToggleBtn) unitStatsToggleBtn.style.display = 'none';
+    if (unitStatsToggleBtn) {
+        unitStatsToggleBtn.hidden = true;
+        unitStatsToggleBtn.style.display = '';
+    }
     if (boxesRow) boxesRow.style.display = 'flex';
     if (staticBox) staticBox.style.display = 'block';
     if (currentLvlBox) currentLvlBox.style.display = 'block';
@@ -238,7 +253,8 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
     if (tableWrapper) tableWrapper.style.display = 'none';
 
     if (emptyStateContainer) {
-        emptyStateContainer.style.display = 'block';
+        emptyStateContainer.hidden = false;
+        emptyStateContainer.style.display = '';
         emptyStateContainer.innerHTML = `
             <div class="eq-details-empty-state">
                 <div class="empty-state-icon">

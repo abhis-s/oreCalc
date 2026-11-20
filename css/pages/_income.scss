@@ -77,6 +77,22 @@
                 }
             }
 
+            &:has(.form-label-inline) {
+                flex-wrap: nowrap;
+                justify-content: space-between !important;
+
+                .form-label-inline {
+                    flex-direction: row;
+                    width: auto !important;
+                    margin-right: 0 !important;
+
+                    span {
+                        width: auto !important;
+                        margin-right: 0 !important;
+                    }
+                }
+            }
+
             label,
             span:not(.slider):not(.currency-symbol):not(.calculated) {
                 margin-right: 5px !important;
@@ -155,18 +171,28 @@
         .rates-grid {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            padding: 0 !important;
-        }
+            gap: $spacing-sm;
+            padding: 0;
 
-        .rate-column {
-            flex-direction: row;
-            justify-content: space-between;
-            width: 100%;
+            .rate-column {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
 
-            label {
-                text-align: left;
-                width: calc(100% - 100px);
+                label {
+                    margin-bottom: 0;
+                    text-align: left;
+                    width: calc(100% - 100px);
+                    flex: 1 1 auto;
+                }
+
+                .popover-wrapper,
+                input[type="number"] {
+                    flex-shrink: 0;
+                    margin-top: 0;
+                }
             }
         }
 
@@ -250,9 +276,12 @@
             }
         }
 
-        .supercell-events-container {
+        .supercell-events-container,
+        .craft-pass-trader-container {
             padding: 0 !important;
+        }
 
+        .supercell-events-container {
             .supercell-events-table {
                 .countdown-text {
                     display: none;
@@ -293,17 +322,24 @@
     gap: 10px;
     grid-template-columns: 1fr 1fr 1fr;
     margin-bottom: 15px;
+    padding: 0;
 
     .rate-column {
         align-items: center;
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
 
         label {
             color: $text-secondary;
             margin-bottom: 5px;
             text-align: center;
             overflow-wrap: break-word;
+        }
+
+        .popover-wrapper,
+        input[type="number"] {
+            margin-top: auto;
         }
 
         input[type="number"] {
@@ -579,17 +615,32 @@
     }
 }
 
-// --- 4. SUPERCELL EVENTS & TOURNAMENTS ---
+// --- 4. SUPERCELL EVENTS, CRAFT PASS TRADER & TOURNAMENTS ---
+
+.supercell-events-container,
+.craft-pass-trader-container {
+    padding: 0 ($spacing-lg + $spacing-xs);
+    margin-bottom: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .notice {
+        margin: auto 0;
+        padding: 0;
+        font-style: italic;
+        text-align: center;
+    }
+}
 
 .supercell-events-container {
-    padding: 0 20px;
-    margin-bottom: 20px;
 
     .supercell-events-table {
         width: 100%;
         border-collapse: collapse;
         font-size: $font-size-sm;
         color: $text-secondary;
+        margin-bottom: $spacing-md;
 
         th, td {
             padding: 10px;
@@ -738,12 +789,6 @@
             font-variant-numeric: tabular-nums;
             margin-right: 5px;
         }
-    }
-
-    .notice {
-        margin-top: 10px;
-        padding: 0;
-        font-style: italic;
     }
 }
 

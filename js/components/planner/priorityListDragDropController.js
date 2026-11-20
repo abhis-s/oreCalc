@@ -117,6 +117,7 @@ export function initPriorityDragAndDrop(modalBody) {
         wasErrorBeforeDrag = getStepOrderErrors(currentList).hasError;
         dragStartSnapshot = currentList.map(i => ({
             heroName: i.heroName,
+            equipKey: i.key,
             equipName: i.name,
             step: i.step,
             priorityIndex: i.priorityIndex
@@ -310,9 +311,10 @@ export function initPriorityDragAndDrop(modalBody) {
             window.__IS_REORDERING__ = true;
             handleStateUpdate(() => {
                 newOrderedItems.forEach((domItem, index) => {
-                    const { heroName, equipName, step } = domItem.dataset;
-                    if (heroName && equipName && step) {
-                        const plan = state.heroes[heroName]?.equipment[equipName]?.upgradePlan[step];
+                    const { heroName, equipKey, equipName, step } = domItem.dataset;
+                    if (heroName && (equipKey || equipName) && step) {
+                        const heroEq = state.heroes[heroName]?.equipment;
+                        const plan = (heroEq?.[equipKey] || heroEq?.[equipName])?.upgradePlan?.[step];
                         if (plan) {
                             plan.priorityIndex = index + 1;
                         }

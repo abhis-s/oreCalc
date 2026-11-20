@@ -86,7 +86,8 @@ function initializeCarouselEventListeners() {
                 });
             } else if (target.matches('.equipment-item-planner input[type="checkbox"]')) {
                 const heroName = target.closest('.hero-page')?.dataset.heroName;
-                const equipName = target.closest('.equipment-item-planner')?.dataset.equipName;
+                const equipEl = target.closest('.equipment-item-planner');
+                const equipName = equipEl?.dataset.equipKey || equipEl?.dataset.equipName;
                 if (!heroName || !equipName) return;
                 handleStateUpdate(() => {
                     if (!state.heroes[heroName]) state.heroes[heroName] = { equipment: {} };

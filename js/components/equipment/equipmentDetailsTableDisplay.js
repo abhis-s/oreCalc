@@ -1,4 +1,4 @@
-import { getEquipmentUpgradeCost, getRequiredTownHall } from '../../data/equipmentCommonData.js';
+import { getEquipmentUpgradeCost, getRequiredTownHall, usesStarryOre } from '../../data/equipmentCommonData.js';
 import { translate } from '../../i18n/translator.js';
 
 import {
@@ -31,7 +31,8 @@ import { computeStatDelta } from './equipmentDetailsModalData.js';
 export function renderLevelTable(tableHead, tableBody, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, heroKey, userTH, activeModifierTab, rec) {
     if (!tableHead || !tableBody) return;
 
-    const isEpic = (data?.rarity || equipmentRarity || '').toLowerCase() === 'epic';
+    const rarityStr = (data?.rarity || equipmentRarity || '').toLowerCase();
+    const isStarry = usesStarryOre(rarityStr);
     const levelLabel = translate('validation.level');
     const shinyText = translate('entities.ores.shiny');
     const glowyText = translate('entities.ores.glowy');
@@ -54,15 +55,26 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
         return `<th colspan="${group.count}" class="category-header category-${group.category}" data-i18n="views.equipment.${group.category}">${title}</th>`;
     }).join('');
 
-    const oreCostCount = isEpic ? 3 : 2;
+    const oreCostCount = isStarry ? 3 : 2;
     const costTitle = translate('views.equipment.cost');
     const costSuperHeaderHTML = `<th colspan="${oreCostCount}" class="category-header category-cost" data-i18n="views.equipment.cost">${costTitle}</th>`;
 
     const subHeadersStatHTML = (data?.statsMeta || []).map(meta => `<th><span class="stat-name" data-i18n="entities.stats.${meta.key}">${translate(`entities.stats.${meta.key}`)}</span></th>`).join('');
+    const safeShinyText = escapeHTML(shinyText);
+    const safeGlowyText = escapeHTML(glowyText);
+    const safeStarryText = escapeHTML(starryText);
+
     const subHeadersOreHTML = `
-        <th data-i18n="entities.ores.shiny">${shinyText}</th>
-        <th data-i18n="entities.ores.glowy">${glowyText}</th>
-        ${isEpic ? `<th data-i18n="entities.ores.starry">${starryText}</th>` : ''}
+        <th class="ore-header-cell" data-i18n-title="entities.ores.shiny" title="${safeShinyText}" data-i18n-aria-label="entities.ores.shiny" aria-label="${safeShinyText}">
+            <clashcalc-assets-image src="assets/shiny_ore.png" alt="${safeShinyText}" data-i18n-alt="entities.ores.shiny" class="ore-header-icon" size="thumbnail"></clashcalc-assets-image>
+        </th>
+        <th class="ore-header-cell" data-i18n-title="entities.ores.glowy" title="${safeGlowyText}" data-i18n-aria-label="entities.ores.glowy" aria-label="${safeGlowyText}">
+            <clashcalc-assets-image src="assets/glowy_ore.png" alt="${safeGlowyText}" data-i18n-alt="entities.ores.glowy" class="ore-header-icon" size="thumbnail"></clashcalc-assets-image>
+        </th>
+        ${isStarry ? `
+        <th class="ore-header-cell" data-i18n-title="entities.ores.starry" title="${safeStarryText}" data-i18n-aria-label="entities.ores.starry" aria-label="${safeStarryText}">
+            <clashcalc-assets-image src="assets/starry_ore.png" alt="${safeStarryText}" data-i18n-alt="entities.ores.starry" class="ore-header-icon" size="thumbnail"></clashcalc-assets-image>
+        </th>` : ''}
     `;
 
     tableHead.innerHTML = `
@@ -108,7 +120,8 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
         const isUnavailableInEsports = activeModifierTab === 'esports' && levelNumber > activeMaxLevel;
         const isPast = levelNumber < activeCurrentLevel || isUnavailableInEsports;
         const isActive = !isUnavailableInEsports && levelNumber === activeCurrentLevel;
-        const cost = getEquipmentUpgradeCost(levelNumber);
+        const costSchedule = data?.costSchedule || 'classic';
+        const cost = getEquipmentUpgradeCost(levelNumber, rarityStr, costSchedule);
         const reqTH = getRequiredTownHall(levelNumber, data?.rarity || equipmentRarity, heroKey);
         const isUnreachableTH = activeModifierTab === 'standard' && userTH && reqTH > userTH;
 
@@ -193,9 +206,9 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
             ? `<span class="starry-cost-highlight">${formatNumber(cost.starry)}</span>`
             : '-';
 
-        const starryCellHTML = isEpic ? `<td><div class="ore-cost-cell">${starryDisplay}</div></td>` : '';
+        const starryCellHTML = isStarry ? `<td><div class="ore-cost-cell">${starryDisplay}</div></td>` : '';
 
-        const activeRecRes = resolveModifierRecommendation(rec, activeModifierTab, userTH, calculatedMaxLevel);
+        const activeRecRes = resolveModifierRecommendation(rec, activeModifierTab, userTH, calculatedMaxLevel, Boolean(data?.isUnreleased));
         const activeTargetLevel = activeRecRes.targetRecLevel;
         const isRecTarget = !isEquipmentMaxed && activeTargetLevel && levelNumber === activeTargetLevel;
         const recTargetIcon = isRecTarget ? `<clashcalc-assets-svg name="thumbs-up" class="rec-level-icon" title="${escapeHTML(translate('views.equipment.targetLevel'))}"></clashcalc-assets-svg>` : '';
@@ -226,13 +239,14 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
         let totalGlowy = 0;
         let totalStarry = 0;
 
+        const costSchedule = data?.costSchedule || 'classic';
         levelsArray.forEach((lvlObj, index) => {
             const levelNumber = index + 1;
-            if (levelNumber > currentLevel && levelNumber <= activeMaxLevel) {
-                const cost = getEquipmentUpgradeCost(levelNumber);
+            if (levelNumber > currentLevel && levelNumber <= calculatedMaxLevel) {
+                const cost = getEquipmentUpgradeCost(levelNumber, rarityStr, costSchedule);
                 totalShiny += (cost.shiny || 0);
                 totalGlowy += (cost.glowy || 0);
-                if (isEpic) {
+                if (isStarry) {
                     totalStarry += (cost.starry || 0);
                 }
             }
@@ -241,7 +255,7 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
         const totalShinyDisplay = totalShiny > 0 ? `<span class="shiny-cost-highlight">${formatNumber(totalShiny)}</span>` : '-';
         const totalGlowyDisplay = totalGlowy > 0 ? `<span class="glowy-cost-highlight">${formatNumber(totalGlowy)}</span>` : '-';
         const totalStarryDisplay = totalStarry > 0 ? `<span class="starry-cost-highlight">${formatNumber(totalStarry)}</span>` : '-';
-        const totalStarryCellHTML = isEpic ? `<td><div class="ore-cost-cell">${totalStarryDisplay}</div></td>` : '';
+        const totalStarryCellHTML = isStarry ? `<td><div class="ore-cost-cell">${totalStarryDisplay}</div></td>` : '';
         const totalLabel = translate('views.equipment.totalCost');
 
         const statsCount = data?.statsMeta ? data.statsMeta.length : 0;

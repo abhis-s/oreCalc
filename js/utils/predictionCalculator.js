@@ -1,5 +1,5 @@
-import { resolveEquipmentType } from '../domain/equipment/comingSoonEquipmentDomain.js';
-import { upgradeCosts } from '../data/equipmentCommonData.js';
+import { resolveEquipmentType, findHeroEquipment } from '../domain/equipment/comingSoonEquipmentDomain.js';
+import { getEquipmentUpgradeCost, usesStarryOre } from '../data/equipmentCommonData.js';
 import { heroData } from '../data/heroData.js';
 import { translate } from '../i18n/translator.js';
 
@@ -66,7 +66,7 @@ export function calculateCompletionDates(priorityList) {
         }
 
         const hero = state.heroes[item.heroName];
-        const actualCurrentLevel = hero?.equipment[item.name]?.level || 1;
+        const actualCurrentLevel = (hero?.equipment?.[item.key] || hero?.equipment?.[item.name])?.level || 1;
         const effectiveStartLevel = simulatedLevels[equipmentKey] || actualCurrentLevel;
 
         if (effectiveStartLevel >= item.targetLevel) {
@@ -79,13 +79,16 @@ export function calculateCompletionDates(priorityList) {
         let totalRequiredShiny = 0;
         let totalRequiredGlowy = 0;
         let totalRequiredStarry = 0;
+        const equipObj = findHeroEquipment(heroDataEntry, item.name, hero?.equipment?.[item.name]);
+        const costSchedule = equipObj?.costSchedule || 'classic';
+        const isStarryRarity = usesStarryOre(equipmentType);
 
         for (let level = effectiveStartLevel + 1; level <= item.targetLevel; level++) {
-            const cost = upgradeCosts[level];
+            const cost = getEquipmentUpgradeCost(level, equipmentType, costSchedule);
             if (!cost) continue;
             totalRequiredShiny += cost.shiny || 0;
             totalRequiredGlowy += cost.glowy || 0;
-            if (equipmentType === 'epic') {
+            if (isStarryRarity) {
                 totalRequiredStarry += cost.starry || 0;
             }
         }
@@ -112,7 +115,7 @@ export function calculateCompletionDates(priorityList) {
             simulatedOres.glowy += dailyIncome.glowy;
             simulatedOres.starry += dailyIncome.starry;
 
-            if (equipmentType === 'epic') {
+            if (isStarryRarity) {
                 const shinyReady = simulatedOres.shiny >= requiredShiny;
                 const glowyReady = simulatedOres.glowy >= requiredGlowy;
                 const starryReady = simulatedOres.starry >= requiredStarry;
@@ -122,7 +125,7 @@ export function calculateCompletionDates(priorityList) {
             }
 
             if (simulatedOres.shiny >= requiredShiny && simulatedOres.glowy >= requiredGlowy && simulatedOres.starry >= requiredStarry) {
-                if (!prevStarryReady && equipmentType === 'epic') bottleneckOre = 'starry';
+                if (!prevStarryReady && isStarryRarity) bottleneckOre = 'starry';
                 else if (!prevGlowyReady) bottleneckOre = 'glowy';
                 else if (!prevShinyReady) bottleneckOre = 'shiny';
 
@@ -169,13 +172,19 @@ export function calculateCompletionDates(priorityList) {
                     if (futureEquipmentType === 'common') {
                         let futureShinyCost = 0;
                         let futureGlowyCost = 0;
-                        const futureEffectiveStartLevel = simulatedLevels[`${futureItem.heroName}-${futureItem.name}`] || state.heroes[futureItem.heroName]?.equipment[futureItem.name]?.level || 1;
+                        const futureHeroEq = state.heroes[futureItem.heroName]?.equipment;
+                        const futureEquipState = futureHeroEq?.[futureItem.key] || futureHeroEq?.[futureItem.name];
+                        const futureEffectiveStartLevel = simulatedLevels[`${futureItem.heroName}-${futureItem.name}`] || futureEquipState?.level || 1;
 
                         if (futureEffectiveStartLevel >= futureItem.targetLevel) continue;
 
+                        const futureEquipObj = findHeroEquipment(futureHeroDataEntry, futureItem.name, state.heroes[futureItem.heroName]);
+                        const futureCostSchedule = futureEquipObj?.costSchedule || 'classic';
+
                         for (let level = futureEffectiveStartLevel + 1; level <= futureItem.targetLevel; level++) {
-                            futureShinyCost += upgradeCosts[level]?.shiny || 0;
-                            futureGlowyCost += upgradeCosts[level]?.glowy || 0;
+                            const cost = getEquipmentUpgradeCost(level, futureEquipmentType, futureCostSchedule);
+                            futureShinyCost += cost.shiny || 0;
+                            futureGlowyCost += cost.glowy || 0;
                         }
 
                         if (futureShinyCost <= surplusShiny && futureGlowyCost <= surplusGlowy) {
@@ -205,33 +214,39 @@ export function calculateCompletionDates(priorityList) {
                 }
             }
 
-            // Suggest prioritizing epic equipment when common upgrade has no starry demand
+            // Suggest prioritizing Starry-consuming equipment when common upgrade has no starry demand
             if (equipmentType === 'common') {
                 for (let j = i + 1; j < priorityList.length; j++) {
                     const futureItem = priorityList[j];
                     const futureHeroDataEntry = heroData[futureItem.heroName] || Object.values(heroData).find(h => h.name === futureItem.heroName || h.key === futureItem.heroName);
                     const futureEquipmentType = resolveEquipmentType(futureHeroDataEntry, futureItem.name, state.heroes[futureItem.heroName]);
 
-                    if (futureEquipmentType === 'epic') {
+                    if (usesStarryOre(futureEquipmentType)) {
                         let futureStarryCost = 0;
                         const futureSimulatedLevels = { ...simulatedLevels };
-                        const futureEffectiveStartLevel = futureSimulatedLevels[`${futureItem.heroName}-${futureItem.name}`] || state.heroes[futureItem.heroName]?.equipment[futureItem.name]?.level || 1;
+                        const futureHeroEq = state.heroes[futureItem.heroName]?.equipment;
+                        const futureEquipState = futureHeroEq?.[futureItem.key] || futureHeroEq?.[futureItem.name];
+                        const futureEffectiveStartLevel = futureSimulatedLevels[`${futureItem.heroName}-${futureItem.name}`] || futureEquipState?.level || 1;
 
                         if (futureEffectiveStartLevel >= futureItem.targetLevel) continue;
 
+                        const futureEquipObj = findHeroEquipment(futureHeroDataEntry, futureItem.name, state.heroes[futureItem.heroName]);
+                        const futureCostSchedule = futureEquipObj?.costSchedule || 'classic';
+
                         for (let level = futureEffectiveStartLevel + 1; level <= futureItem.targetLevel; level++) {
-                            futureStarryCost += upgradeCosts[level]?.starry || 0;
+                            const cost = getEquipmentUpgradeCost(level, futureEquipmentType, futureCostSchedule);
+                            futureStarryCost += cost.starry || 0;
                         }
 
                         if (currentOres.starry >= futureStarryCost) {
-                            if (!suggestions.some(s => s.type === 'move_epic_up')) {
+                            if (!suggestions.some(s => s.type === 'move_starry_up')) {
                                 const futureItemNameFormatted = translate('views.planner.nameStep', {
                                     equipmentName: `<b>${translate('entities.equipment.' + toCamelCase(futureItem.name))}</b>`,
                                     step: futureItem.step
                                 });
                                 suggestions.push({
-                                    type: 'move_epic_up',
-                                    message: translate('views.planner.suggestionEpicUp', { futureItemName: futureItemNameFormatted }),
+                                    type: 'move_starry_up',
+                                    message: translate('views.planner.suggestionStarryUp', { futureItemName: futureItemNameFormatted }),
                                     itemToMove: { heroName: futureItem.heroName, name: futureItem.name, step: futureItem.step },
                                     moveBefore: { heroName: item.heroName, name: item.name, step: item.step }
                                 });

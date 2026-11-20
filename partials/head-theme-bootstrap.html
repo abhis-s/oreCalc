@@ -6,10 +6,8 @@
                 if (raw) {
                     var parsed = JSON.parse(raw);
                     isLight = Boolean(parsed && (parsed.theme === 'light' || (parsed.settings && parsed.settings.theme === 'light')));
-                    var accent = parsed && (parsed.accentColor || (parsed.settings && parsed.settings.accentColor));
-                    if (accent) {
-                        document.documentElement.setAttribute('data-accent', accent);
-                    }
+                    var accent = (parsed && (parsed.accentColor || (parsed.settings && parsed.settings.accentColor))) || 'blue';
+                    document.documentElement.setAttribute('data-accent', accent);
                 }
 
                 // Immediate synchronous PWA startup route resolution (eliminates hub flash on cold launch)

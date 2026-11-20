@@ -71,32 +71,80 @@
             width: auto;
         }
     }
+
+    .income-table-resource {
+        .resource-cell-content {
+            align-items: center;
+            display: inline-flex;
+            gap: $spacing-xs;
+            justify-content: center;
+            vertical-align: middle;
+        }
+
+        .resource-cell-icon {
+            display: inline-block;
+            flex-shrink: 0;
+            height: $icon-size-md;
+            vertical-align: middle;
+            width: $icon-size-md;
+
+            img {
+                display: block;
+                height: 100%;
+                object-fit: contain;
+                width: 100%;
+            }
+        }
+
+        .resource-cell-text {
+            white-space: nowrap;
+        }
+    }
 }
 
 .required-resources-container {
     color: $text-secondary;
-    margin-top: 20px;
+    margin-top: $spacing-md;
     text-align: center;
 }
 
+$resource-item-asset-height: 22px;
+
 .resources-row {
+    align-items: stretch;
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: $spacing-xs $spacing-sm;
     justify-content: center;
-    margin-bottom: 10px;
+    margin-bottom: $spacing-xs;
 }
 
 .resource-item {
     align-items: center;
-    display: flex;
-    gap: 5px;
+    background-color: $bg-surface-secondary;
+    border: 1px solid $border-secondary;
+    border-radius: $shape-corner-compact;
+    box-shadow: $elevation-1;
+    color: $text-secondary;
+    display: inline-flex;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    gap: $spacing-xs;
+    padding: $spacing-2xs $spacing-sm $spacing-2xs $spacing-xs;
+    min-height: calc(#{$resource-item-asset-height} + (#{$spacing-2xs} * 2) + 2px);
+    box-sizing: border-box;
+    transition: background-color $transition-fast, border-color $transition-fast;
+
+    &:hover {
+        border-color: $border-card-hover;
+    }
 
     img,
     clashcalc-assets-image,
     orecalc-assets-image {
         align-self: center;
-        height: 24px;
-        width: 24px;
+        height: $resource-item-asset-height;
+        object-fit: contain;
+        width: $resource-item-asset-height;
     }
 }

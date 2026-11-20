@@ -10,7 +10,7 @@
     {"key": "cloneDuration", "category": "ability", "valueUnit": "seconds"},
     {"key": "cloneDps", "category": "ability", "valueUnit": "number"},
     {"key": "cloneHealth", "category": "ability", "valueUnit": "number"},
-    {"key": "healthRecovery", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "healthRecovery", "category": "ability", "valueUnit": "number"},
     {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {

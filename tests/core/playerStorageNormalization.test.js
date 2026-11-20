@@ -746,10 +746,11 @@ describe('Player Storage Normalization & Anti-Hashed Keys Suite', () => {
         it('inferTownHallLevel resolves correct thresholds from hero and war performance data', () => {
             assert.equal(inferTownHallLevel(null), MAX_TOWN_HALL);
             assert.equal(inferTownHallLevel({}), MAX_TOWN_HALL);
-            assert.equal(inferTownHallLevel({ heroes: { 'Dragon Duke': { level: 1 } } }), 18);
+            assert.equal(inferTownHallLevel({ heroes: { 'Dragon Duke': { level: 1 } } }), 15);
+            assert.equal(inferTownHallLevel({ heroes: { 'Dragon Duke': { level: 25 } } }), 18);
             assert.equal(inferTownHallLevel({ heroes: { 'Royal Champion': { level: 1 } } }), 13);
             assert.equal(inferTownHallLevel({ heroes: { 'Grand Warden': { level: 1 } } }), 11);
-            assert.equal(inferTownHallLevel({ heroes: { 'Archer Queen': { level: 1 } } }), 9);
+            assert.equal(inferTownHallLevel({ heroes: { 'Archer Queen': { level: 1 } } }), 8);
             assert.equal(inferTownHallLevel({ heroes: { 'Minion Prince': { level: 1 } } }), 9);
             assert.equal(inferTownHallLevel({ heroes: { 'Barbarian King': { level: 1 } } }), 7);
             assert.equal(inferTownHallLevel({ income: { clanWar: { warPerformance: { thLevel: 14 } } } }), 14);

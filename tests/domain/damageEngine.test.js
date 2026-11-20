@@ -23,6 +23,7 @@ import {
     getMaxSpellLevel,
     clampSpellLevelToTownHall,
     getLightningDamage,
+    getDefaultDamageEquipmentLevel,
     getEffectiveEquipmentLevel,
     isSameHeroEquipment,
     calculateEquipmentTargetDamage,
@@ -1561,5 +1562,20 @@ test('Equipment Targeting Validation - Seeking Shield, Spiky Ball, and Category 
             assert.deepEqual(valid, [2, 3, 4, 5, 6, 7, 8, 9]);
             assert.equal(valid.includes(1), false, 'Level 1 must not be in valid levels for builders_hut');
         });
+    });
+
+    await t.test('Equipment default levels resolve dynamically by rarity instead of fixed 18 fallback', () => {
+        assert.equal(getDefaultDamageEquipmentLevel('fireball'), 27);
+        assert.equal(getDefaultDamageEquipmentLevel('spiky_ball'), 27);
+        assert.equal(getDefaultDamageEquipmentLevel('giant_arrow'), 18);
+        assert.equal(getDefaultDamageEquipmentLevel('seeking_shield'), 18);
+
+        const defaultFireballRes = solveZapQuakeCombinations('elixir_storage', 17, 13, 8, {
+            enabledEquipment: [{ id: 'fireball' }]
+        });
+        assert.ok(defaultFireballRes.optimalCombination, 'Omitted Fireball level defaults to Lv 27 (destroys Elixir Storage 17 alone)');
+        assert.equal(defaultFireballRes.optimalCombination.totalHousingSpace, 0);
+        assert.equal(defaultFireballRes.optimalCombination.equipment[0].id, 'fireball');
+        assert.equal(defaultFireballRes.optimalCombination.equipment[0].level, 27);
     });
 });

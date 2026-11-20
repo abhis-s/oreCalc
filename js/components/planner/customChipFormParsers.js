@@ -1,5 +1,6 @@
 import { getSourceById } from '../../data/incomeSourceRegistry.js';
 import { translate } from '../../i18n/translator.js';
+import { toKebabCase } from '../../utils/stringUtils.js';
 
 import { showAlert } from '../../ui/noticeModal.js';
 
@@ -129,26 +130,21 @@ export async function parseCustomChipFormData(selectedType, state, customChips) 
             settings.starry = chipData.starry;
             chipData.isRecurring = settings.weekly;
             break;
-        case 'eventTrader':
-            chipData.shiny = getNum('custom-chip-event-trader-shiny', 0);
-            chipData.glowy = getNum('custom-chip-event-trader-glowy', 0);
-            chipData.starry = getNum('custom-chip-event-trader-starry', 0);
-            settings.monthly = getChecked('custom-chip-event-trader-monthly');
-            settings.shiny = chipData.shiny;
-            settings.glowy = chipData.glowy;
-            settings.starry = chipData.starry;
-            chipData.isRecurring = settings.monthly;
-            break;
         case 'eventPass':
-            chipData.shiny = getNum('custom-chip-event-pass-shiny', 0);
-            chipData.glowy = getNum('custom-chip-event-pass-glowy', 0);
-            chipData.starry = getNum('custom-chip-event-pass-starry', 0);
-            settings.monthly = getChecked('custom-chip-event-pass-monthly');
+        case 'eventTrader':
+        case 'craftPass':
+        case 'craftPassTrader': {
+            const prefix = toKebabCase(selectedType);
+            chipData.shiny = getNum(`custom-chip-${prefix}-shiny`, 0);
+            chipData.glowy = getNum(`custom-chip-${prefix}-glowy`, 0);
+            chipData.starry = getNum(`custom-chip-${prefix}-starry`, 0);
+            settings.monthly = getChecked(`custom-chip-${prefix}-monthly`);
             settings.shiny = chipData.shiny;
             settings.glowy = chipData.glowy;
             settings.starry = chipData.starry;
             chipData.isRecurring = settings.monthly;
             break;
+        }
         case 'clanWar': {
             chipData.result = getSelectVal('custom-chip-clan-war-result', 'win');
             const cwRawShiny = getNum('custom-chip-clan-war-shiny', 0);

@@ -4,6 +4,7 @@
  */
 
 import { isComingSoonEquipment } from '../../core/constants.js';
+import { CRAFT_PASS_PRELEVEL } from '../../data/incomeSources/craftPass.js';
 import { heroData } from '../../data/heroData.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 
@@ -69,8 +70,8 @@ export function hasComingSoonEquipment(heroState) {
 /**
  * Retrieves the Coming Soon equipment item from hero state or direct equipment state, if present.
  *
- * @param {import('../../core/types.js').HeroItem | { type?: 'common' | 'epic', level?: number, checked?: boolean, isCustom?: boolean } | null | undefined} heroOrEquipState
- * @returns {{ key: string, name: string, level: number, checked: boolean, type: 'common' | 'epic', isCustom: boolean } | null}
+ * @param {import('../../core/types.js').HeroItem | { type?: import('../../core/types.js').EquipmentRarity, level?: number, checked?: boolean, isCustom?: boolean } | null | undefined} heroOrEquipState
+ * @returns {{ key: string, name: string, level: number, checked: boolean, type: import('../../core/types.js').EquipmentRarity, isCustom: boolean } | null}
  */
 export function getComingSoonEquipment(heroOrEquipState) {
     if (!heroOrEquipState || typeof heroOrEquipState !== 'object') return null;
@@ -79,12 +80,14 @@ export function getComingSoonEquipment(heroOrEquipState) {
             if (isComingSoonEquipment(key)) {
                 const equip = heroOrEquipState.equipment[key];
                 if (!equip) continue;
+                const rawType = (equip.type || '').toLowerCase();
+                const resolvedType = (rawType === 'common' || rawType === 'legendary') ? rawType : 'epic';
                 return {
                     key: COMING_SOON_KEY,
                     name: COMING_SOON_DISPLAY_NAME,
                     level: Number(equip.level) || 1,
                     checked: equip.checked !== false,
-                    type: equip.type === 'common' ? 'common' : 'epic',
+                    type: resolvedType,
                     isCustom: Boolean(equip.isCustom ?? true)
                 };
             }
@@ -92,12 +95,14 @@ export function getComingSoonEquipment(heroOrEquipState) {
         return null;
     }
     if ('type' in heroOrEquipState && heroOrEquipState.type) {
+        const rawType = (heroOrEquipState.type || '').toLowerCase();
+        const resolvedType = (rawType === 'common' || rawType === 'legendary') ? rawType : 'epic';
         return {
             key: COMING_SOON_KEY,
             name: COMING_SOON_DISPLAY_NAME,
             level: Number(heroOrEquipState.level) || 1,
             checked: heroOrEquipState.checked !== false,
-            type: heroOrEquipState.type === 'common' ? 'common' : 'epic',
+            type: resolvedType,
             isCustom: Boolean(heroOrEquipState.isCustom ?? true)
         };
     }
@@ -139,13 +144,16 @@ export function canAddComingSoonEquipment(heroesStateOrHero, heroKey = null) {
  * Creates a normalized Custom Coming Soon equipment item descriptor.
  * Pure factory with zero side effects.
  *
- * @param {'common' | 'epic'} [rarity='epic'] - Equipment rarity.
- * @returns {{ level: number, checked: boolean, type: 'common' | 'epic', isCustom: boolean }}
+ * @param {'common' | 'epic' | 'legendary'} [rarity='epic'] - Equipment rarity.
+ * @param {boolean} [isCraftPassBought=false] - Whether Craft Pass is active.
+ * @returns {{ level: number, checked: boolean, type: import('../../core/types.js').EquipmentRarity, isCustom: boolean }}
  */
-export function createComingSoonEquipmentItem(rarity = 'epic') {
-    const validatedRarity = rarity === 'common' ? 'common' : 'epic';
+export function createComingSoonEquipmentItem(rarity = 'epic', isCraftPassBought = false) {
+    const r = (rarity || '').toLowerCase();
+    const validatedRarity = (r === 'common' || r === 'legendary') ? r : 'epic';
+    const initialLevel = (validatedRarity === 'legendary' && isCraftPassBought) ? CRAFT_PASS_PRELEVEL : 1;
     return {
-        level: 1,
+        level: initialLevel,
         checked: true,
         type: validatedRarity,
         isCustom: true
@@ -156,18 +164,20 @@ export function createComingSoonEquipmentItem(rarity = 'epic') {
  * Returns the unified equipment list for a given hero definition, appending active dynamic
  * custom/coming-soon equipment if present in hero state.
  *
- * @param {{ name: string, equipment?: Array<{ key?: string, name: string, type: string, image?: string }> } | null | undefined} heroDef
- * @param {import('../../core/types.js').HeroItem | { type?: 'common' | 'epic', level?: number, checked?: boolean, isCustom?: boolean } | null | undefined} [heroOrEquipState=null]
- * @returns {Array<{ name: string, key: string, type: 'common' | 'epic', image: string, isCustom: boolean }>}
+ * @param {{ name: string, equipment?: Array<{ key?: string, name: string, type: string, costSchedule?: string, image?: string, isUnreleased?: boolean }> } | null | undefined} heroDef
+ * @param {import('../../core/types.js').HeroItem | { type?: import('../../core/types.js').EquipmentRarity, level?: number, checked?: boolean, isCustom?: boolean } | null | undefined} [heroOrEquipState=null]
+ * @returns {Array<{ name: string, key: string, type: import('../../core/types.js').EquipmentRarity, costSchedule?: import('../../core/types.js').CostSchedule, image: string, isCustom: boolean, isUnreleased: boolean }>}
  */
 export function getHeroEquipmentList(heroDef, heroOrEquipState = null) {
     if (!heroDef) return [];
     const baseEquipment = (heroDef.equipment || []).map(equip => ({
         name: equip.name,
         key: equip.key || toCamelCase(equip.name || ''),
-        type: /** @type {'common' | 'epic'} */ (equip.type || 'common'),
+        type: /** @type {import('../../core/types.js').EquipmentRarity} */ (equip.type || 'common'),
+        costSchedule: /** @type {import('../../core/types.js').CostSchedule | undefined} */ (equip.costSchedule === 'modern' ? 'modern' : (equip.costSchedule === 'classic' ? 'classic' : undefined)),
         image: equip.image || '',
-        isCustom: false
+        isCustom: false,
+        isUnreleased: Boolean(equip.isUnreleased)
     }));
 
     const csItem = getComingSoonEquipment(heroOrEquipState);
@@ -176,8 +186,10 @@ export function getHeroEquipmentList(heroDef, heroOrEquipState = null) {
             name: COMING_SOON_DISPLAY_NAME,
             key: COMING_SOON_KEY,
             type: csItem.type,
+            costSchedule: csItem.type === 'legendary' ? 'modern' : 'classic',
             image: COMING_SOON_IMAGE,
-            isCustom: true
+            isCustom: true,
+            isUnreleased: false
         });
     }
 
@@ -187,10 +199,10 @@ export function getHeroEquipmentList(heroDef, heroOrEquipState = null) {
 /**
  * Finds an equipment item from a hero definition and state matching an identifier (key, name, or camelCase).
  *
- * @param {{ name: string, equipment?: Array<{ key?: string, name: string, type: string, image?: string }> } | null | undefined} heroDef
+ * @param {{ name: string, equipment?: Array<{ key?: string, name: string, type: string, costSchedule?: string, image?: string }> } | null | undefined} heroDef
  * @param {string | null | undefined} equipNameOrKey
- * @param {import('../../core/types.js').HeroItem | { type?: 'common' | 'epic', level?: number, checked?: boolean, isCustom?: boolean } | null | undefined} [heroOrEquipState=null]
- * @returns {{ name: string, key: string, type: 'common' | 'epic', image: string, isCustom: boolean } | null}
+ * @param {import('../../core/types.js').HeroItem | { type?: import('../../core/types.js').EquipmentRarity, level?: number, checked?: boolean, isCustom?: boolean } | null | undefined} [heroOrEquipState=null]
+ * @returns {{ name: string, key: string, type: import('../../core/types.js').EquipmentRarity, costSchedule?: import('../../core/types.js').CostSchedule, image: string, isCustom: boolean } | null}
  */
 export function findHeroEquipment(heroDef, equipNameOrKey, heroOrEquipState = null) {
     if (!heroDef || !equipNameOrKey) return null;
@@ -208,12 +220,12 @@ export function findHeroEquipment(heroDef, equipNameOrKey, heroOrEquipState = nu
 }
 
 /**
- * Resolves the equipment rarity/type ('common' | 'epic') for an equipment item.
+ * Resolves the equipment rarity/type ('common' | 'epic' | 'legendary') for an equipment item.
  *
- * @param {{ name: string, equipment?: Array<{ key?: string, name: string, type: string, image?: string }> } | null | undefined} heroDef
+ * @param {{ name: string, equipment?: Array<{ key?: string, name: string, type: string, costSchedule?: string, image?: string }> } | null | undefined} heroDef
  * @param {string | null | undefined} equipNameOrKey
- * @param {import('../../core/types.js').HeroItem | { type?: 'common' | 'epic', level?: number, checked?: boolean, isCustom?: boolean } | null | undefined} [heroOrEquipState=null]
- * @returns {'common' | 'epic'}
+ * @param {import('../../core/types.js').HeroItem | { type?: import('../../core/types.js').EquipmentRarity, level?: number, checked?: boolean, isCustom?: boolean } | null | undefined} [heroOrEquipState=null]
+ * @returns {import('../../core/types.js').EquipmentRarity}
  */
 export function resolveEquipmentType(heroDef, equipNameOrKey, heroOrEquipState = null) {
     const item = findHeroEquipment(heroDef, equipNameOrKey, heroOrEquipState);

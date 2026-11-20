@@ -89,7 +89,7 @@ export function resetGuidedSetupState() {
     guidedSetupState.isProfileLoaded = false;
     guidedSetupState.isInputProfileLoading = false;
     guidedSetupState.wasAlreadyOnboarded = false;
-    guidedSetupState.selectedTH = 16;
+    guidedSetupState.selectedTH = MAX_TOWN_HALL;
     guidedSetupState.selectedLeague = 105000000;
 
     guidedSetupState.tempStoredShiny = 0;
@@ -205,7 +205,7 @@ export function applyPreferencesToProfile(playerObj) {
         playerObj.income.gems.packs.starry = 0;
     }
 
-    const thLevel = playerObj?.playerProfile?.townHallLevel || guidedSetupState.selectedTH || 16;
+    const thLevel = playerObj?.playerProfile?.townHallLevel || guidedSetupState.selectedTH || MAX_TOWN_HALL;
 
     // Shop Offers
     if (!playerObj.income.shopOffers) {

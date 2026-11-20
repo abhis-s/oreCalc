@@ -26,6 +26,7 @@ import { initializeHeroCards } from '../components/equipment/heroCard.js';
 import { initializeStorageInputs } from '../components/equipment/storageInputs.js';
 import { initializeFab } from '../components/fab/fab.js';
 import { initializeClanWarInputs } from '../components/income/clanWarInputs.js';
+import { initializeCraftPassInputs } from '../components/income/craftPassInputs.js';
 import { initializeCwlInputs } from '../components/income/cwlInputs.js';
 import { initializeEventPassInputs } from '../components/income/eventPassInputs.js';
 import { initializeEventTrader } from '../components/income/eventTraderInputs.js';
@@ -113,7 +114,7 @@ export async function bootstrapUIComponents(initialLang, lifecycleScope = null) 
 
     autoDetectCurrency();
 
-    applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'random');
+    applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'blue');
     updateUIWithTranslations(true);
     updateResponsiveText();
 
@@ -164,6 +165,7 @@ export async function bootstrapUIComponents(initialLang, lifecycleScope = null) 
     initializeClanWarInputs();
     initializeCwlInputs();
     initializeEventPassInputs();
+    initializeCraftPassInputs();
     initializeRaidMedalTrader();
     initializeGemTrader();
     initializeEventTrader();

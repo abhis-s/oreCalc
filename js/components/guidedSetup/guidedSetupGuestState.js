@@ -95,7 +95,7 @@ export function initializeGuestHeroesState(guestPlayerState) {
                 const equipKey = equip.key || equip.name;
                 heroState.equipment[equipKey] = {
                     level: 1,
-                    checked: true,
+                    checked: !equip.isUnreleased,
                     targetLevel: maxLevel
                 };
             });

@@ -228,4 +228,29 @@ describe('Storage Goal & Capacity Domain Engine (storageGoalDomain.js)', () => {
         assert.equal(shouldPromptStoredOresReminder({ storedOres: fullOverflowOres, lastUpdated: now - (8 * 24 * hour), now }), true);
     });
 
+    test('resolveActiveStorageGoal calculates remaining modern costs for active Legendary Coming Soon equipment', () => {
+        const heroesState = {
+            barbarianKing: {
+                enabled: true,
+                equipment: {
+                    comingSoon: {
+                        level: 1,
+                        checked: true,
+                        type: 'legendary',
+                        isCustom: true
+                    }
+                }
+            }
+        };
+        const goal = resolveActiveStorageGoal({
+            isEquipmentMaxed: true,
+            storageGoal: { preset: STORAGE_GOAL_PRESETS.NEXT_EPIC },
+            storedOres: { shiny: 0, glowy: 0, starry: 0 },
+            heroesState
+        });
+        assert.equal(goal.isGoalActive, true);
+        assert.equal(goal.preset, STORAGE_GOAL_PRESETS.NEXT_EPIC);
+        assert.deepEqual(goal.targetOres, { shiny: 79760, glowy: 5100, starry: 705 });
+    });
+
 });

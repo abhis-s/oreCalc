@@ -60,22 +60,29 @@ export function initializeCreateCustomChipsModalListeners() {
             const selectedType = target.value;
             const sections = modal.querySelectorAll('.custom-chip-section');
             sections.forEach(sec => {
-                /** @type {HTMLElement} */ (sec).style.display = 'none';
+                const htmlSec = /** @type {HTMLElement} */ (sec);
+                htmlSec.hidden = true;
+                htmlSec.style.display = '';
             });
 
             if (selectedType) {
-                if (dynamicInputsContainer) dynamicInputsContainer.style.display = 'block';
+                if (dynamicInputsContainer) {
+                    dynamicInputsContainer.hidden = false;
+                    dynamicInputsContainer.style.display = '';
+                }
                 const activeSection = document.getElementById(`custom-chip-section-${toKebabCase(selectedType)}`);
                 if (activeSection) {
-                    activeSection.style.display = 'block';
+                    activeSection.hidden = false;
+                    activeSection.style.display = '';
                 }
                 if (selectedType === 'prospector') {
                     syncProspectorUI();
                 } else {
                     prefillModalInputs(selectedType);
                 }
-            } else {
-                if (dynamicInputsContainer) dynamicInputsContainer.style.display = 'none';
+            } else if (dynamicInputsContainer) {
+                dynamicInputsContainer.hidden = true;
+                dynamicInputsContainer.style.display = '';
             }
             updatePerChipRewardsPreview();
         });

@@ -1,5 +1,4 @@
-import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
-import { heroData } from '../../data/heroData.js';
+import { calculateMaxedEquipmentCount } from '../../domain/equipment/equipmentProgressDomain.js';
 import { leagueTiers } from '../../data/leagueTiers.js';
 import { translate } from '../../i18n/translator.js';
 import { MAX_TOWN_HALL, UNRANKED_LEAGUE_ID } from '../../core/constants.js';
@@ -62,18 +61,19 @@ export function renderProfilePreviewCard(playerData) {
             clanName.removeAttribute('data-i18n');
         }
         if (clanBadge) {
-            if (playerData.clan.badgeUrls && playerData.clan.badgeUrls.small) {
-                clanBadge.setAttribute('src', playerData.clan.badgeUrls.small);
-                clanBadge.style.display = 'block';
-            } else {
-                clanBadge.style.display = 'none';
+            const clanBadgeUrl = playerData.clan.badgeUrls?.small;
+            if (clanBadgeUrl) {
+                clanBadge.setAttribute('src', clanBadgeUrl);
             }
+            clanBadge.hidden = !clanBadgeUrl;
+            clanBadge.style.display = '';
         }
-        if (clanRole && playerData.role) {
-            clanRole.textContent = `(${formatClanRole(playerData.role)})`;
-            clanRole.style.display = 'inline-block';
-        } else if (clanRole) {
-            clanRole.style.display = 'none';
+        if (clanRole) {
+            if (playerData.role) {
+                clanRole.textContent = `(${formatClanRole(playerData.role)})`;
+            }
+            clanRole.hidden = !playerData.role;
+            clanRole.style.display = '';
         }
         if (clanSection) clanSection.style.display = 'flex';
     } else {
@@ -82,8 +82,14 @@ export function renderProfilePreviewCard(playerData) {
             clanName.textContent = noClanText;
             clanName.setAttribute('data-i18n', 'views.guidedSetup.noClan');
         }
-        if (clanBadge) clanBadge.style.display = 'none';
-        if (clanRole) clanRole.style.display = 'none';
+        if (clanBadge) {
+            clanBadge.hidden = true;
+            clanBadge.style.display = '';
+        }
+        if (clanRole) {
+            clanRole.hidden = true;
+            clanRole.style.display = '';
+        }
     }
 
     const leagueIcon = document.getElementById('guided-setup-profile-league-icon');
@@ -111,12 +117,22 @@ export function renderProfilePreviewCard(playerData) {
         if (leagueImgUrl) {
             if (leagueIcon) {
                 leagueIcon.setAttribute('src', leagueImgUrl);
-                leagueIcon.style.display = 'block';
+                leagueIcon.hidden = false;
+                leagueIcon.style.display = '';
             }
-            if (leagueDefaultIcon) leagueDefaultIcon.style.display = 'none';
+            if (leagueDefaultIcon) {
+                leagueDefaultIcon.hidden = true;
+                leagueDefaultIcon.style.display = '';
+            }
         } else {
-            if (leagueIcon) leagueIcon.style.display = 'none';
-            if (leagueDefaultIcon) leagueDefaultIcon.style.display = 'block';
+            if (leagueIcon) {
+                leagueIcon.hidden = true;
+                leagueIcon.style.display = '';
+            }
+            if (leagueDefaultIcon) {
+                leagueDefaultIcon.hidden = false;
+                leagueDefaultIcon.style.display = '';
+            }
         }
     }
 
@@ -125,57 +141,46 @@ export function renderProfilePreviewCard(playerData) {
 
     const maxedEquipEl = document.getElementById('guided-setup-profile-maxed-equip');
     if (maxedEquipEl) {
-        let totalCount = 0;
-        let maxedCount = 0;
-        for (const heroKey in heroData) {
-            for (const equip of heroData[heroKey].equipment) {
-                totalCount++;
-                const maxLevel = getEquipmentMaxLevel(equip.type);
-                const currentLevel = ownedEquip[equip.name];
-                if (currentLevel !== undefined && currentLevel >= maxLevel) {
-                    maxedCount++;
-                }
-            }
-        }
+        const { maxedCount, totalCount } = calculateMaxedEquipmentCount(ownedEquip);
         maxedEquipEl.textContent = `${maxedCount}/${totalCount}`;
     }
 
     const progress = calculateEquipmentProgress(effectiveProfile);
 
-    const commonAvgEl = document.getElementById('guided-setup-profile-common-avg');
-    const commonShinyPctEl = document.getElementById('guided-setup-profile-common-shiny-pct');
-    const commonShinyFillEl = document.getElementById('guided-setup-profile-common-shiny-fill');
-    const commonGlowyPctEl = document.getElementById('guided-setup-profile-common-glowy-pct');
-    const commonGlowyFillEl = document.getElementById('guided-setup-profile-common-glowy-fill');
+    const rarityTiers = [
+        { key: 'common', hasStarry: false, groupId: null },
+        { key: 'epic', hasStarry: true, groupId: null },
+        { key: 'legendary', hasStarry: true, groupId: 'guided-setup-profile-legendary-group' }
+    ];
 
-    if (commonAvgEl) commonAvgEl.textContent = `${progress.common.avg}%`;
-    if (commonShinyPctEl) commonShinyPctEl.textContent = `${progress.common.shiny}%`;
-    if (commonShinyFillEl) commonShinyFillEl.style.width = `${progress.common.shiny}%`;
-    if (commonGlowyPctEl) commonGlowyPctEl.textContent = `${progress.common.glowy}%`;
-    if (commonGlowyFillEl) commonGlowyFillEl.style.width = `${progress.common.glowy}%`;
+    for (const tier of rarityTiers) {
+        const stats = progress[tier.key] || { avg: 0, shiny: 0, glowy: 0, starry: 0, total: { shiny: 0 } };
+        const isDisabled = tier.key === 'legendary' && (stats.total?.shiny || 0) === 0;
+        const groupEl = tier.groupId ? document.getElementById(tier.groupId) : null;
+        if (groupEl) {
+            groupEl.classList.toggle('is-disabled', isDisabled);
+        }
 
-    const epicAvgEl = document.getElementById('guided-setup-profile-epic-avg');
-    const epicShinyPctEl = document.getElementById('guided-setup-profile-epic-shiny-pct');
-    const epicShinyFillEl = document.getElementById('guided-setup-profile-epic-shiny-fill');
-    const epicGlowyPctEl = document.getElementById('guided-setup-profile-epic-glowy-pct');
-    const epicGlowyFillEl = document.getElementById('guided-setup-profile-epic-glowy-fill');
-    const epicStarryPctEl = document.getElementById('guided-setup-profile-epic-starry-pct');
-    const epicStarryFillEl = document.getElementById('guided-setup-profile-epic-starry-fill');
+        const ores = tier.hasStarry ? ['shiny', 'glowy', 'starry'] : ['shiny', 'glowy'];
+        const avgEl = document.getElementById(`guided-setup-profile-${tier.key}-avg`);
+        if (avgEl) avgEl.textContent = isDisabled ? '-' : `${stats.avg}%`;
 
-    if (epicAvgEl) epicAvgEl.textContent = `${progress.epic.avg}%`;
-    if (epicShinyPctEl) epicShinyPctEl.textContent = `${progress.epic.shiny}%`;
-    if (epicShinyFillEl) epicShinyFillEl.style.width = `${progress.epic.shiny}%`;
-    if (epicGlowyPctEl) epicGlowyPctEl.textContent = `${progress.epic.glowy}%`;
-    if (epicGlowyFillEl) epicGlowyFillEl.style.width = `${progress.epic.glowy}%`;
-    if (epicStarryPctEl) epicStarryPctEl.textContent = `${progress.epic.starry}%`;
-    if (epicStarryFillEl) epicStarryFillEl.style.width = `${progress.epic.starry}%`;
+        for (const ore of ores) {
+            const pctEl = document.getElementById(`guided-setup-profile-${tier.key}-${ore}-pct`);
+            const fillEl = document.getElementById(`guided-setup-profile-${tier.key}-${ore}-fill`);
+            const pct = stats[ore] || 0;
+            if (pctEl) pctEl.textContent = isDisabled ? '-' : `${pct}%`;
+            if (fillEl) fillEl.style.width = isDisabled ? '0%' : `${pct}%`;
+        }
+    }
 
     const equipmentListContainer = document.getElementById('guided-setup-profile-heroes-equipment-list');
     if (equipmentListContainer) {
         renderHeroEquipmentList(effectiveProfile, equipmentListContainer);
     }
 
-    container.style.display = 'block';
+    container.hidden = false;
+    container.style.display = '';
 
     const infoTabBtn = document.getElementById('guided-setup-tab-btn-info');
     if (infoTabBtn && typeof infoTabBtn.click === 'function') infoTabBtn.click();

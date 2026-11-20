@@ -375,7 +375,8 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
         assert.ok(Array.isArray(guestData.heroEquipment));
     });
 
-    test('initializeGuestHeroesState sets default checked: true for heroes and equipment', () => {
+    test('initializeGuestHeroesState sets default checked: !isUnreleased for heroes and equipment', async () => {
+        const { heroData } = await import('../../js/data/heroData.js');
         const guestState = {
             playerProfile: { townHallLevel: 16 },
             heroes: {}
@@ -392,7 +393,8 @@ describe('Guided Setup Comprehensive Feature Suite', () => {
             const equipKeys = Object.keys(hero.equipment);
             assert.ok(equipKeys.length > 0);
             equipKeys.forEach(eqKey => {
-                assert.equal(hero.equipment[eqKey].checked, true);
+                const equipMeta = heroData[hKey]?.equipment?.find(e => (e.key || e.name) === eqKey);
+                assert.equal(hero.equipment[eqKey].checked, !equipMeta?.isUnreleased);
             });
         });
     });

@@ -391,6 +391,11 @@ dialog.modal,
             margin: $spacing-2xs 0;
             color: $accent-primary;
         }
+
+        .modal-info-text {
+            padding: 0;
+            margin-top: 0;
+        }
     }
 
     .modal-info-text {
@@ -589,6 +594,10 @@ dialog.modal,
         .modal-body {
             padding: $spacing-md 20px 20px;
             font-size: $font-size-md;
+        }
+
+        .modal-info-text {
+            padding: 0 ($spacing-lg + $spacing-xs);
         }
 
         .modal-actions {

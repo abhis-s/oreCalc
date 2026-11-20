@@ -19,7 +19,6 @@ const HTML_ALLOWED_JS_HOOKS = [
     { name: 'auth-view', rationale: 'Queried by accountPageDisplay.js and authModalDisplay.js for view switching' },
     { name: 'custom-chip-section', rationale: 'Queried by createCustomChipsModalInputs.js to toggle section visibility' },
     { name: 'income-table-value', rationale: 'Queried by homeTableNumberAnimation.js to animate calculated ore income cells' },
-    { name: 'income-table-resource', rationale: 'Queried by homeTableNumberAnimation.js to animate calculated ore income cells' },
     { name: 'calendar-track', rationale: 'Queried by calendarInputs.js to coordinate calendar scroll and chip placements' }
 ];
 
@@ -29,9 +28,9 @@ const HTML_ALLOWED_JS_HOOKS = [
 const DYNAMIC_TEMPLATE_ALLOWLIST = [
     { name: 'star-bonus-${n}x', pattern: /^star-bonus-\d+x$/ },
     { name: 'type-${commitType}', pattern: /^type-(?:feat|fix|chore|docs|perf|refactor|style|test)$/ },
-    { name: 'spotright-tag--${rarity}', pattern: /^spotright-tag--(?:common|epic)$/ },
+    { name: 'spotright-tag--${rarity}', pattern: /^spotright-tag--(?:common|epic|legendary)$/ },
     { name: 'badge-result-${result}', pattern: /^badge-result-(?:win|loss|draw)$/ },
-    { name: 'badge-${type/rarity}', pattern: /^badge-(?:active|passive|common|epic)$/ },
+    { name: 'badge-${type/rarity}', pattern: /^badge-(?:active|passive|common|epic|legendary)$/ },
     { name: 'ore-text-${ore}', pattern: /^ore-text-(?:shiny|glowy|starry)$/ },
     { name: 'ore-badge-${ore}', pattern: /^ore-badge-(?:shiny|glowy|starry)$/ },
     { name: 'toast-${type}', pattern: /^toast-(?:info|success|warning|error)$/ },

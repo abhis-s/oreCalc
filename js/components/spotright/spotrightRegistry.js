@@ -4,6 +4,7 @@
  * Tier 4: Search Component Registry.
  */
 
+import { EQUIPMENT_MAX_LEVELS } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
 import { getSavedProfiles } from '../../core/playerStorage.js';
 import { formatDisplayTag, normalizePlayerTag } from '../../core/storageKeys.js';
@@ -26,6 +27,11 @@ import {
     navigateToTarget
 } from './spotrightNavigator.js';
 
+const RARITY_PRIORITY_BY_CONTEXT = {
+    damagecalc: { legendary: 40, epic: 35, common: 32 },
+    default: { legendary: 25, epic: 20, common: 10 }
+};
+
 /**
  * @typedef {Object} SpotrightItem
  * @property {string} id - Canonical '<type>-<canonical-name>' entity identifier.
@@ -33,7 +39,7 @@ import {
  * @property {import('./spotrightMatcher.js').SpotrightScope[]} [scopes] - Filter scopes where this item is included.
  * @property {import('./spotrightNavigator.js').SpotrightParent} [parent] - Primary owning parent context.
  * @property {import('./spotrightNavigator.js').SpotrightParent[]} [parents] - Ordered list of owning parent contexts for multi-parent items.
- * @property {'epic' | 'common'} [rarity] - Equipment rarity tier (strictly for type === 'equipment').
+ * @property {'legendary' | 'epic' | 'common'} [rarity] - Equipment rarity tier (strictly for type === 'equipment').
  * @property {string} [defaultTab] - Default active tab identifier for a parent page item.
  * @property {string[]} [defaultTabs] - Set of tab identifiers considered equivalent to the home view of a parent page.
  * @property {string} [tabId] - Target sub-tab identifier for type === 'tab'.
@@ -92,7 +98,7 @@ export const HERO_ACRONYMS = {
 /** @type {Record<string, string>} Canonical 2-letter Equipment Acronyms */
 export const EQUIPMENT_ACRONYMS = {
     barbarianPuppet: 'bp', rageVial: 'rv', earthquakeBoots: 'eb', vampstache: 'va',
-    giantGauntlet: 'gg', spikyBall: 'sb', snakeBracelet: 'sb', stickHorse: 'sh',
+    giantGauntlet: 'gg', spikyBall: 'sb', snakeBracelet: 'sb', stickHorse: 'sh', blizzardAxe: 'ba',
     archerPuppet: 'ap', invisibilityVial: 'iv', giantArrow: 'ga', healerPuppet: 'hp',
     frozenArrow: 'fa', magicMirror: 'mm', actionFigure: 'af', monolithArrow: 'ma',
     henchmenPuppet: 'hp', darkOrb: 'do', metalPants: 'mp', nobleIron: 'ni',
@@ -424,13 +430,14 @@ export function buildSpotrightRegistry() {
             const translatedEquip = translate(equipKeyPath);
             const localizedEquipName = (translatedEquip && translatedEquip !== equipKeyPath) ? translatedEquip : canonicalEquipName;
             const equipAcronym = EQUIPMENT_ACRONYMS[equipKey] || canonicalEquipName.slice(0, 2).toLowerCase();
-            const rarity = equip.type === 'epic' ? 'epic' : 'common';
+            const rarity = Object.hasOwn(EQUIPMENT_MAX_LEVELS, equip.type) ? equip.type : 'common';
             const damageEquipKey = DAMAGE_EQUIPMENT_MAP[equipKey];
             /** @type {import('./spotrightNavigator.js').SpotrightParent[]} */
             const parents = damageEquipKey ? ['damagecalc', 'orecalc'] : ['orecalc'];
-            const priorityTier = (routeCtx.page === 'damagecalc' && damageEquipKey)
-                ? (rarity === 'epic' ? 35 : 32)
-                : (rarity === 'epic' ? 20 : 10);
+            const priorityMap = (routeCtx.page === 'damagecalc' && damageEquipKey)
+                ? RARITY_PRIORITY_BY_CONTEXT.damagecalc
+                : RARITY_PRIORITY_BY_CONTEXT.default;
+            const priorityTier = priorityMap[rarity] ?? priorityMap.common;
 
             items.push({
                 id: `equip-${heroKey}-${equipKey}`,

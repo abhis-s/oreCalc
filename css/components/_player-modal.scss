@@ -11,6 +11,27 @@
         gap: 0;
     }
 
+    .player-name-input-container {
+        padding: 0 $spacing-xl;
+        margin: 20px 0;
+
+        @media (max-width: $breakpoint-modal) {
+            padding: 0 ($spacing-lg + $spacing-xs);
+            margin: 15px 0;
+        }
+    }
+
+    .privacy-notice {
+        padding-left: $spacing-xl;
+        padding-right: $spacing-xl;
+        margin-top: 0;
+
+        @media (max-width: $breakpoint-modal) {
+            padding-left: $spacing-lg + $spacing-xs;
+            padding-right: $spacing-lg + $spacing-xs;
+        }
+    }
+
     .modal-actions {
         display: flex;
         justify-content: space-between;
@@ -53,8 +74,6 @@
 
 #add-player-modal, #delete-player-modal {
     .player-name-input-container {
-        padding: 0 $spacing-xl;
-        margin: 20px 0;
         position: relative;
 
         label {
@@ -99,9 +118,6 @@
 
     @media (max-width: $breakpoint-modal) {
         .player-name-input-container {
-            padding: 0 20px;
-            margin: 15px 0;
-
             label {
                 font-size: 13px;
                 margin-bottom: 6px;

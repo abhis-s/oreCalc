@@ -1,4 +1,4 @@
-import { getEquipmentMaxLevel, upgradeCosts } from '../data/equipmentCommonData.js';
+import { getEquipmentMaxLevel, getEquipmentUpgradeCost, usesStarryOre } from '../data/equipmentCommonData.js';
 import { heroData } from '../data/heroData.js';
 import { findHeroEquipment } from '../domain/equipment/comingSoonEquipmentDomain.js';
 
@@ -31,12 +31,11 @@ export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels,
             const targetLevel = Math.max(currentLevel, Math.min(equipMax, equipData.maxLevel));
 
             for (let i = currentLevel + 1; i <= targetLevel; i++) {
-                if (upgradeCosts[i]) {
-                    totalRequired.shiny += upgradeCosts[i].shiny || 0;
-                    totalRequired.glowy += upgradeCosts[i].glowy || 0;
-                    if (equipData.type === 'epic') {
-                        totalRequired.starry += upgradeCosts[i].starry || 0;
-                    }
+                const stepCost = getEquipmentUpgradeCost(i, equipData.type, equipData.costSchedule);
+                totalRequired.shiny += stepCost.shiny || 0;
+                totalRequired.glowy += stepCost.glowy || 0;
+                if (usesStarryOre(equipData.type)) {
+                    totalRequired.starry += stepCost.starry || 0;
                 }
             }
         }
@@ -64,7 +63,7 @@ export function calculateRequiredOres(heroesState, storedOres, plannerMaxLevels,
  * @param {string} equipName - Equipment name.
  * @param {import('./types.js').PlannerState} [plannerMaxLevels={}] - Planner configuration.
  * @param {any} [equipState=null] - Equipment state slice.
- * @returns {{ type: string, maxLevel: number } | null} Equipment data or null.
+ * @returns {{ type: string, maxLevel: number, costSchedule?: import('./types.js').CostSchedule } | null} Equipment data or null.
  */
 function getEquipmentData(heroName, equipName, plannerMaxLevels = {}, equipState = null) {
     const hero = Object.values(heroData).find(h => h.name === heroName || h.key === heroName);
@@ -86,5 +85,9 @@ function getEquipmentData(heroName, equipName, plannerMaxLevels = {}, equipState
         targetMax = equipMaxCap;
     }
 
-    return { type: equipment.type, maxLevel: targetMax };
+    return {
+        type: equipment.type,
+        maxLevel: targetMax,
+        costSchedule: /** @type {import('./types.js').CostSchedule} */ (equipment.costSchedule || equipState?.costSchedule || 'classic')
+    };
 }

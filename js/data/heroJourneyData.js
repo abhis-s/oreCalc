@@ -18,7 +18,8 @@ export const oreChestRewardsNormal = {
     15: { shiny: { min: 1325, max: 1525, avg: 1425 }, glowy: { min: 60, max: 80, avg: 70 }, starry: { min: 25, max: 35, avg: 30 } },
     16: { shiny: { min: 1550, max: 1750, avg: 1650 }, glowy: { min: 70, max: 90, avg: 80 }, starry: { min: 30, max: 40, avg: 35 } },
     17: { shiny: { min: 1750, max: 1950, avg: 1850 }, glowy: { min: 80, max: 100, avg: 90 }, starry: { min: 40, max: 50, avg: 45 } },
-    18: { shiny: { min: 1950, max: 2150, avg: 2050 }, glowy: { min: 90, max: 110, avg: 100 }, starry: { min: 50, max: 60, avg: 55 } }
+    18: { shiny: { min: 1950, max: 2150, avg: 2050 }, glowy: { min: 90, max: 110, avg: 100 }, starry: { min: 50, max: 60, avg: 55 } },
+    19: { shiny: { min: 2150, max: 2350, avg: 2250 }, glowy: { min: 100, max: 120, avg: 110 }, starry: { min: 60, max: 70, avg: 65 } }
 };
 
 export const oreChestRewardsAccelerated = {
@@ -32,7 +33,8 @@ export const oreChestRewardsAccelerated = {
     15: { shiny: { min: 2750, max: 2950, avg: 2850 }, glowy: { min: 130, max: 150, avg: 140 }, starry: { min: 70, max: 80, avg: 75 } },
     16: { shiny: { min: 3200, max: 3400, avg: 3300 }, glowy: { min: 150, max: 170, avg: 160 }, starry: { min: 80, max: 90, avg: 85 } },
     17: { shiny: { min: 3600, max: 3800, avg: 3700 }, glowy: { min: 170, max: 190, avg: 180 }, starry: { min: 95, max: 105, avg: 100 } },
-    18: { shiny: { min: 4000, max: 4200, avg: 4100 }, glowy: { min: 190, max: 210, avg: 200 }, starry: { min: 110, max: 120, avg: 115 } }
+    18: { shiny: { min: 4000, max: 4200, avg: 4100 }, glowy: { min: 190, max: 210, avg: 200 }, starry: { min: 110, max: 120, avg: 115 } },
+    19: { shiny: { min: 4400, max: 4600, avg: 4500 }, glowy: { min: 210, max: 230, avg: 220 }, starry: { min: 125, max: 135, avg: 130 } }
 };
 
 export const heroJourneyNodes = [

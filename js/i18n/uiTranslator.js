@@ -114,7 +114,7 @@ export function updateUIWithTranslations(isInitialLoad = false) {
     if (ogTitle) ogTitle.setAttribute('content', translatedTitle);
 
     if (!isInitialLoad && state.uiSettings) {
-        applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'random');
+        applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'blue');
     }
 
     document.documentElement.lang = state.uiSettings?.language || 'auto';

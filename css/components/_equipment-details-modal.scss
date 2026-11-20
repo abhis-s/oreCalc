@@ -163,6 +163,11 @@
             thead tr.sub-header-row th {
                 font-size: 0.72rem;
                 top: 23px !important;
+
+                &.ore-header-cell .ore-header-icon {
+                    width: 18px;
+                    height: 18px;
+                }
             }
 
             .delta-tag {
@@ -264,6 +269,11 @@
             thead tr.sub-header-row th {
                 font-size: 0.66rem;
                 top: 20px !important;
+
+                &.ore-header-cell .ore-header-icon {
+                    width: 16px;
+                    height: 16px;
+                }
             }
 
             .delta-tag {
@@ -387,6 +397,13 @@
             color: $color-rarity-epic;
             border: 1px solid color-mix(in srgb, $color-rarity-epic 35%, transparent);
             text-shadow: 0 0 8px color-mix(in srgb, $color-rarity-epic 40%, transparent);
+        }
+
+        &.badge-legendary {
+            background-color: color-mix(in srgb, $color-rarity-legendary 15%, transparent);
+            color: $color-rarity-legendary;
+            border: 1px solid color-mix(in srgb, $color-rarity-legendary 35%, transparent);
+            text-shadow: 0 0 8px color-mix(in srgb, $color-rarity-legendary 40%, transparent);
         }
 
         &.badge-not-recommended {
@@ -955,6 +972,28 @@
             color: $text-secondary;
             border-bottom: 1.5px solid color-mix(in srgb, $border-primary 40%, transparent);
             border-right: 1px solid color-mix(in srgb, $border-primary 15%, transparent);
+
+            &.ore-header-cell {
+                text-align: center;
+                vertical-align: middle;
+                padding: $spacing-xs $spacing-sm;
+
+                .ore-header-icon {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 20px;
+                    height: 20px;
+                    vertical-align: middle;
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: contain;
+                        display: block;
+                    }
+                }
+            }
         }
     }
 

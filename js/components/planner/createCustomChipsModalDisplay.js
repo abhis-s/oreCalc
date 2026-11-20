@@ -344,21 +344,16 @@ export function prefillModalInputs(type) {
             break;
         }
 
-        case 'eventTrader': {
-            const eventTraderOres = state.derived?.incomeSources?.eventTrader?.bimonthly || {};
-            setVal('custom-chip-event-trader-shiny', eventTraderOres.shiny || settings.shiny || 0);
-            setVal('custom-chip-event-trader-glowy', eventTraderOres.glowy || settings.glowy || 0);
-            setVal('custom-chip-event-trader-starry', eventTraderOres.starry || settings.starry || 0);
-            setChecked('custom-chip-event-trader-monthly', settings.monthly || false);
-            break;
-        }
-
-        case 'eventPass': {
-            const eventPassOres = state.derived?.incomeSources?.eventPass?.bimonthly || {};
-            setVal('custom-chip-event-pass-shiny', eventPassOres.shiny || settings.shiny || 0);
-            setVal('custom-chip-event-pass-glowy', eventPassOres.glowy || settings.glowy || 0);
-            setVal('custom-chip-event-pass-starry', eventPassOres.starry || settings.starry || 0);
-            setChecked('custom-chip-event-pass-monthly', settings.monthly || false);
+        case 'eventPass':
+        case 'eventTrader':
+        case 'craftPass':
+        case 'craftPassTrader': {
+            const prefix = toKebabCase(type);
+            const sourceOres = state.derived?.incomeSources?.[type]?.bimonthly || {};
+            setVal(`custom-chip-${prefix}-shiny`, sourceOres.shiny || settings.shiny || 0);
+            setVal(`custom-chip-${prefix}-glowy`, sourceOres.glowy || settings.glowy || 0);
+            setVal(`custom-chip-${prefix}-starry`, sourceOres.starry || settings.starry || 0);
+            setChecked(`custom-chip-${prefix}-monthly`, settings.monthly || false);
             break;
         }
 
@@ -465,12 +460,15 @@ export function openCreateCustomChipsModal() {
 
     const dynamicInputsContainer = document.getElementById('custom-chip-dynamic-inputs');
     if (dynamicInputsContainer) {
-        dynamicInputsContainer.style.display = 'none';
+        dynamicInputsContainer.hidden = true;
+        dynamicInputsContainer.style.display = '';
     }
 
     const sections = modal.querySelectorAll('.custom-chip-section');
     sections.forEach(sec => {
-        /** @type {HTMLElement} */ (sec).style.display = 'none';
+        const htmlSec = /** @type {HTMLElement} */ (sec);
+        htmlSec.hidden = true;
+        htmlSec.style.display = '';
     });
 
     const numInputs = modal.querySelectorAll('input[type="number"]');

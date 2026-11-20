@@ -480,8 +480,12 @@ export function isEquipmentServerUnowned(equipNameOrKey, state) {
 
     if (state.playerProfile.ownedEquipment) {
         const oe = state.playerProfile.ownedEquipment;
+        const targetNorm = (equipKey || equipName || '').toLowerCase().replace(/[\s_-]+/g, '');
         if (Array.isArray(oe)) {
-            if (oe.some(e => e === equipName || e === equipKey || e?.name === equipName || e?.key === equipKey)) return false;
+            if (oe.some(e => {
+                const val = typeof e === 'string' ? e : (e?.name || e?.key);
+                return val === equipName || val === equipKey || (val && String(val).toLowerCase().replace(/[\s_-]+/g, '') === targetNorm);
+            })) return false;
         } else {
             if (equipName && Object.hasOwn(oe, equipName)) return false;
             if (equipKey && Object.hasOwn(oe, equipKey)) return false;

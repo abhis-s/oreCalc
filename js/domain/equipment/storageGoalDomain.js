@@ -11,7 +11,8 @@ import {
 import {
     EQUIPMENT_MAX_LEVELS,
     getEquipmentMaxLevel,
-    upgradeCosts
+    getEquipmentUpgradeCost,
+    usesStarryOre
 } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
 import { getActiveCustomComingSoon } from './comingSoonEquipmentDomain.js';
@@ -19,21 +20,23 @@ import { getActiveCustomComingSoon } from './comingSoonEquipmentDomain.js';
 /**
  * Calculates remaining upgrade ore costs from an initial level to a target level.
  *
- * @param {'common' | 'epic'} rarity - Equipment rarity.
+ * @param {'common' | 'epic' | 'legendary'} rarity - Equipment rarity.
  * @param {number} [fromLevel=1] - Starting level.
  * @param {number | null} [toLevel=null] - Destination level (defaults to max level).
+ * @param {import('../../core/types.js').CostSchedule} [costSchedule='classic'] - Pricing schedule.
  * @returns {import('../../core/types.js').OreQuantity} Total required shiny, glowy, and starry ores.
  */
-function getEquipmentRemainingUpgradeCost(rarity, fromLevel = 1, toLevel = null) {
+function getEquipmentRemainingUpgradeCost(rarity, fromLevel = 1, toLevel = null, costSchedule = 'classic') {
     const maxLevel = toLevel || EQUIPMENT_MAX_LEVELS[rarity] || EQUIPMENT_MAX_LEVELS.common;
     const cost = { shiny: 0, glowy: 0, starry: 0 };
+    const isStarry = usesStarryOre(rarity);
 
     for (let level = Math.max(2, fromLevel + 1); level <= maxLevel; level++) {
-        const step = upgradeCosts[level];
+        const step = getEquipmentUpgradeCost(level, rarity, costSchedule);
         if (step) {
             cost.shiny += step.shiny || 0;
             cost.glowy += step.glowy || 0;
-            if (rarity === 'epic') {
+            if (isStarry) {
                 cost.starry += step.starry || 0;
             }
         }
@@ -63,7 +66,8 @@ function getStorageGoalTargetOres(storageGoal, heroesState = null) {
             if (heroesState) {
                 const activeSoon = getActiveCustomComingSoon(heroesState);
                 if (activeSoon) {
-                    return getEquipmentRemainingUpgradeCost(activeSoon.item.type, activeSoon.item.level);
+                    const schedule = activeSoon.item.type === 'legendary' ? 'modern' : 'classic';
+                    return getEquipmentRemainingUpgradeCost(activeSoon.item.type, activeSoon.item.level, null, schedule);
                 }
             }
             return getEquipmentRemainingUpgradeCost('epic', 1);

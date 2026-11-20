@@ -6,6 +6,7 @@ import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 
+import { toMinorUnits } from '../../utils/incomeUtils.js';
 import { renderGlobalPricingGrid } from './appSettingsDisplay.js';
 import { dom } from '../../dom/domElements.js';
 import { showConfirm } from '../../ui/noticeModal.js';
@@ -157,8 +158,9 @@ export function initializeSettingsPricing() {
                 if (val !== '') {
                     val = val.replace(',', '.');
                     const tierKey = input.dataset.tierKey;
-                    if (tierKey) {
-                        newPricing[tierKey] = val;
+                    const parsedFloat = parseFloat(val);
+                    if (tierKey && !isNaN(parsedFloat)) {
+                        newPricing[tierKey] = toMinorUnits(parsedFloat, selectedCurrency);
                     }
                 }
             });
@@ -169,6 +171,10 @@ export function initializeSettingsPricing() {
                 state.uiSettings.currency = {
                     code: selectedCurrency
                 };
+
+                if (currencySelect) {
+                    currencySelect.value = selectedCurrency;
+                }
 
                 if (!state.allPlayersData[activeTag].currency) {
                     state.allPlayersData[activeTag].currency = { code: selectedCurrency, globalPricing: {} };

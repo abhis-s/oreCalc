@@ -2,12 +2,36 @@ import { currencyData, priceTierRegistry } from '../data/pricingData.js';
 import { DAYS_IN_MONTH, DAYS_IN_WEEK, MONTHS_IN_BIMONTH, WEEKS_IN_MONTH } from '../data/timeConstants.js';
 
 /**
- * Resolves the unit monetary price for a Supercell store tier across supported currencies.
+ * Converts a monetary amount from integer minor units (cents, paise, yen) to major units (dollars, rupees).
+ *
+ * @param {number} amountInMinor - Monetary value in minor units.
+ * @param {string} [currencyCode='USD'] - ISO currency code.
+ * @returns {number} Floating-point or integer major unit value.
+ */
+export function toMajorUnits(amountInMinor, currencyCode = 'USD') {
+    const decimals = currencyData[currencyCode]?.decimals ?? 2;
+    return (Number(amountInMinor) || 0) / (10 ** decimals);
+}
+
+/**
+ * Converts a monetary amount from major units (dollars, rupees) to integer minor units (cents, paise, yen).
+ *
+ * @param {number} amountInMajor - Monetary value in major units.
+ * @param {string} [currencyCode='USD'] - ISO currency code.
+ * @returns {number} Integer minor unit value.
+ */
+export function toMinorUnits(amountInMajor, currencyCode = 'USD') {
+    const decimals = currencyData[currencyCode]?.decimals ?? 2;
+    return Math.round((Number(amountInMajor) || 0) * (10 ** decimals));
+}
+
+/**
+ * Resolves the unit monetary price for a Supercell store tier across supported currencies in integer minor units.
  *
  * @param {string} tierKey - Price tier registry identifier (e.g. 'tier1', 'eventPass').
  * @param {string} [targetCurrencyCode='USD'] - ISO currency code.
  * @param {Record<string, number> | null} [customPricing=null] - Optional custom pricing overrides.
- * @returns {number} Numeric price in target currency.
+ * @returns {number} Numeric price in minor units of target currency.
  */
 export function getPriceForTier(tierKey, targetCurrencyCode = 'USD', customPricing = null) {
     if (!tierKey) return 0;
@@ -15,7 +39,8 @@ export function getPriceForTier(tierKey, targetCurrencyCode = 'USD', customPrici
     const selectedCurrency = targetCurrencyCode || 'USD';
 
     if (customPricing && customPricing[tierKey] !== undefined) {
-        return parseFloat(String(customPricing[tierKey]));
+        const val = Number(customPricing[tierKey]);
+        return Number.isInteger(val) ? val : toMinorUnits(val, selectedCurrency);
     }
 
     const tierData = priceTierRegistry[tierKey];
@@ -126,6 +151,37 @@ export function calculateBimonthlyIncome(bimonthlyOres) {
         starry: bimonthlyOres.starry / MONTHS_IN_BIMONTH,
     };
     return calculateTimeframeBreakdown(monthlyOres, { bimonthly: bimonthlyOres });
+}
+
+/**
+ * Calculates ore income and event currency expenditure from a seasonal trader offer catalog.
+ *
+ * @param {ReadonlyArray<{ shiny?: number, glowy?: number, starry?: number, cost?: number }>} offers - Seasonal trader offer list.
+ * @param {{ packs?: Record<string, number> }} [traderState={}] - Trader pack selection state.
+ * @param {number} [availableCurrency=0] - Total seasonal currency available.
+ * @returns {import('../core/types.js').IncomeResult} Composite income rates, costs, and remaining currency.
+ */
+export function calculateBimonthlyTraderOfferIncome(offers = [], traderState = {}, availableCurrency = 0) {
+    let bimonthlyShiny = 0, bimonthlyGlowy = 0, bimonthlyStarry = 0, totalCost = 0;
+    const { packs = {} } = traderState || {};
+
+    offers.forEach(offer => {
+        const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : 'starry';
+        const packCount = packs[oreType] || 0;
+
+        if (packCount > 0) {
+            if (oreType === 'shiny') bimonthlyShiny += offer.shiny * packCount;
+            if (oreType === 'glowy') bimonthlyGlowy += offer.glowy * packCount;
+            if (oreType === 'starry') bimonthlyStarry += offer.starry * packCount;
+            totalCost += (offer.cost || 0) * packCount;
+        }
+    });
+
+    const income = calculateBimonthlyIncome({ shiny: bimonthlyShiny, glowy: bimonthlyGlowy, starry: bimonthlyStarry });
+    income.cost = totalCost;
+    income.remaining = availableCurrency - totalCost;
+    income.totalMedalsEarned = availableCurrency;
+    return income;
 }
 
 /**

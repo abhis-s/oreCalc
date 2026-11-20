@@ -8,17 +8,17 @@
   ],
   "statsMeta": [
     {"key": "summonedUnitsLevel", "category": "ability", "valueUnit": "number"},
+    {"key": "healthRecovery", "category": "ability", "valueUnit": "number"},
     {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
-    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
-    {"key": "healthRecovery", "category": "heroBoost", "valueUnit": "number"}
+    {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {
-    "1": [1, 33, 500, 176], "2": [1, 38, 500, 193], "3": [2, 46, 500, 209],
-    "4": [2, 51, 500, 226], "5": [2, 56, 500, 242], "6": [3, 64, 500, 259],
-    "7": [3, 71, 500, 275], "8": [3, 78, 500, 292], "9": [4, 92, 500, 308],
-    "10": [4, 103, 500, 325], "11": [4, 114, 500, 341], "12": [5, 131, 500, 358],
-    "13": [5, 140, 500, 388], "14": [5, 149, 500, 418], "15": [6, 162, 500, 448],
-    "16": [6, 169, 500, 478], "17": [6, 176, 500, 508], "18": [7, 188, 500, 538]
+    "1": [1, 176, 33, 500], "2": [1, 193, 38, 500], "3": [2, 209, 46, 500],
+    "4": [2, 226, 51, 500], "5": [2, 242, 56, 500], "6": [3, 259, 64, 500],
+    "7": [3, 275, 71, 500], "8": [3, 292, 78, 500], "9": [4, 308, 92, 500],
+    "10": [4, 325, 103, 500], "11": [4, 341, 114, 500], "12": [5, 358, 131, 500],
+    "13": [5, 388, 140, 500], "14": [5, 418, 149, 500], "15": [6, 448, 162, 500],
+    "16": [6, 478, 169, 500], "17": [6, 508, 176, 500], "18": [7, 538, 188, 500]
   },
   "hasSpawnedUnits": true,
   "spawnedUnits": {

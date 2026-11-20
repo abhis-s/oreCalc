@@ -7,6 +7,7 @@ import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import {
     clampSpellLevelToTownHall,
+    getDefaultDamageEquipmentLevel,
     getMaxSpellLevel,
     resolveOwnSpellLevels
 } from '../../domain/damage/damageFormulas.js';
@@ -207,7 +208,7 @@ export function getComboBadgePopoverContent(elem, badgeType, state) {
 
     if (badgeType === 'equipment') {
         const equipId = elem.dataset?.equipId || elem.getAttribute?.('data-equip-id') || '';
-        const equipLevel = Number(elem.dataset?.equipLevel ?? elem.getAttribute?.('data-equip-level')) || 18;
+        const equipLevel = Number(elem.dataset?.equipLevel ?? elem.getAttribute?.('data-equip-level')) || getDefaultDamageEquipmentLevel(equipId);
         const rawLevelAttr = elem.dataset?.equipRawLevel ?? elem.getAttribute?.('data-equip-raw-level');
         const rawLevel = rawLevelAttr ? (Number(rawLevelAttr) || equipLevel) : equipLevel;
         const activeMod = getActiveModifier(state);

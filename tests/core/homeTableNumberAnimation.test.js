@@ -123,10 +123,23 @@ function createMockElement(tagName = 'div', id = '', className = '') {
         parentNode: null,
         style: {},
         dataset: {},
-        textContent: '',
+        _textContent: '',
+        get textContent() {
+            if (this.children && this.children.length > 0) {
+                return this.children.map(c => c.textContent || '').join('');
+            }
+            return this._textContent;
+        },
+        set textContent(val) {
+            this._textContent = String(val ?? '');
+            if (val) {
+                this.children = [];
+            }
+        },
         value: '',
         checked: false,
         disabled: false,
+        hidden: false,
         _innerHTML: '',
         get innerHTML() {
             return this._innerHTML;
@@ -337,7 +350,23 @@ describe('Home Income Table & Number Animation Suite', () => {
             renderHomeIncomeTable(state);
 
             const rows = mockTableBody.children;
-            assert.equal(rows.length, 10);
+            assert.equal(rows.length, 12);
+
+            const sources = rows.map(r => r.dataset.source);
+            assert.deepEqual(sources, [
+                'starBonus',
+                'shopOffers',
+                'raidMedalTrader',
+                'gemTrader',
+                'eventPass',
+                'eventTrader',
+                'craftPass',
+                'craftPassTrader',
+                'clanWar',
+                'cwl',
+                'supercellEvents',
+                'prospector'
+            ]);
 
             const firstRow = rows[0];
             assert.equal(firstRow.dataset.source, 'starBonus');
@@ -408,24 +437,25 @@ describe('Home Income Table & Number Animation Suite', () => {
 
             renderHomeResourcesFooter(state);
 
-            assert.equal(mockCwlVal.textContent, '7');
-            assert.equal(mockWarVal.textContent, '15');
+            assert.equal(mockCwlVal.textContent, '7 hits');
+            assert.equal(mockWarVal.textContent, '15 wars');
             assert.equal(mockRaidMedalsVal.textContent, '1,200');
             assert.equal(mockEventMedalsVal.textContent, '3,100');
             assert.equal(mockGemsVal.textContent, '500');
+            assert.equal(domStore.get('home-display-clan-icon').src, 'assets/resources/clanWar.png');
         });
 
         test('animates home money value with 2 decimal places and currency symbol', () => {
             const totalIncome = { shiny: 10000, glowy: 500, starry: 50 };
             const uiSettings = { summaryTimeframe: 'monthly', currency: { code: 'USD' } };
-            const totalMoneyCost = { USD: 19.99 };
+            const totalMoneyCost = { USD: 1999 };
 
             renderIncomeCard(totalIncome, uiSettings, totalMoneyCost);
 
             assert.equal(mockMoneyValue.textContent, '19.99');
             assert.equal(mockMoneySymbol.textContent, '$');
 
-            const updatedMoneyCost = { USD: 29.5 };
+            const updatedMoneyCost = { USD: 2950 };
             renderIncomeCard(totalIncome, uiSettings, updatedMoneyCost);
             assert.equal(mockMoneyValue.textContent, '29.50');
         });

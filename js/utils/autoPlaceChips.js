@@ -147,6 +147,9 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
 
     const allPotentialChips = [];
     const processSource = (incomeSource, sourceId) => {
+        if (!incomeSource || !incomeSource.schedule) {
+            return;
+        }
         if (incomeSource.autoGenerateInCalendar) {
             if (incomeSource.subCategories) {
                 incomeSource.subCategories.forEach(sub => processSource(sub, sub.id));
@@ -282,6 +285,7 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
                     }
                     break;
                 }
+                case 'craftPass':
                 case 'eventPass': {
 
                     const eventPassScheduledDates = getScheduleDates(currentYear, currentMonth, chip.schedule);
@@ -289,6 +293,7 @@ export function performAutoPlacementForMonth(currentMonthStr, currentYearStr, ne
                     if (eventPassStartDate && typeof eventPassStartDate.getUTCDate === 'function') targetDay = addDays(eventPassStartDate, 5).getUTCDate();
                     break;
                 }
+                case 'craftPassTrader':
                 case 'eventTrader': {
                     const eventTraderScheduledDates = getScheduleDates(currentYear, currentMonth, chip.schedule);
                     const eventTraderStartDate = eventTraderScheduledDates.length > 0 ? extractScheduleStartDate(eventTraderScheduledDates[0]) : null;

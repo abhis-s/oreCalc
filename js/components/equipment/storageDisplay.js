@@ -21,9 +21,19 @@ export function renderStorageInputs(storedOres, storageMetrics = null) {
     const inputs = dom.equipment?.storage?.quantity;
     if (!inputs) return;
 
-    if (inputs.shiny && inputs.shiny.value !== String(storedOres.shiny || 0)) inputs.shiny.value = storedOres.shiny || 0;
-    if (inputs.glowy && inputs.glowy.value !== String(storedOres.glowy || 0)) inputs.glowy.value = storedOres.glowy || 0;
-    if (inputs.starry && inputs.starry.value !== String(storedOres.starry || 0)) inputs.starry.value = storedOres.starry || 0;
+    const activeEl = typeof document !== 'undefined' ? document.activeElement : null;
+    ORE_TYPES.forEach(ore => {
+        const input = inputs[ore];
+        if (!input || activeEl === input) return;
+
+        const targetVal = String(storedOres?.[ore] || 0);
+        if (input.value !== targetVal) {
+            input.value = targetVal;
+            if (input.dataset) {
+                input.dataset.lastValidValue = targetVal;
+            }
+        }
+    });
 
     const isMaxed = selectIsEquipmentMaxed(state);
     syncStoredOreInputBounds(inputs, Boolean(storedOres?.allowOverflow));

@@ -30,8 +30,9 @@ function getNumericBounds(inputElement) {
 /**
  * Attaches real-time currency sanitization, decimal parsing, and formatted blur events to an input.
  * @param {HTMLInputElement} inputElement - Target input element.
+ * @param {string} [currencyCode='USD'] - ISO currency code for decimal formatting.
  */
-export function addCurrencyValidation(inputElement) {
+export function addCurrencyValidation(inputElement, currencyCode = 'USD') {
     if (!inputElement) return;
 
     inputElement.addEventListener('input', (event) => {
@@ -61,7 +62,7 @@ export function addCurrencyValidation(inputElement) {
 
         const floatValue = parseFloat(normalized);
         if (!isNaN(floatValue)) {
-            event.target.value = formatCurrency(floatValue);
+            event.target.value = formatCurrency(floatValue, currencyCode);
             inputElement.classList.remove('input-status-error', 'soft-shake');
         } else {
             inputElement.classList.remove('soft-shake');
@@ -92,6 +93,9 @@ export function addValidation(inputElement, options = {}) {
 
     let warningTimeout = null;
     let errorTimeout = null;
+    let hasUncommittedEdit = false;
+    let committedOnBlur = false;
+    let isDispatchingSyntheticChange = false;
 
     const setInputStatus = (status, duration = 2000) => {
         if (status === 'warning') {
@@ -125,6 +129,72 @@ export function addValidation(inputElement, options = {}) {
             setTimeout(() => {
                 inputElement.classList.remove('input-status-success', 'success-glow-pulse');
             }, 600);
+        }
+    };
+
+    const dispatchValidatedInput = (val) => {
+        inputElement.dispatchEvent(new CustomEvent('validated-input', {
+            detail: { value: val },
+            bubbles: true,
+            composed: true
+        }));
+    };
+
+    const dispatchSyntheticChange = () => {
+        isDispatchingSyntheticChange = true;
+        try {
+            inputElement.dispatchEvent(new Event('change', { bubbles: true }));
+        } finally {
+            isDispatchingSyntheticChange = false;
+        }
+    };
+
+    const commitValue = (sourceType) => {
+        hasUncommittedEdit = false;
+        const { min, max } = getNumericBounds(inputElement);
+        let value = String(inputElement.value ?? '').trim();
+
+        if (value === '') {
+            if (inputElement.dataset.allowEmpty === 'true') {
+                const wasAlreadyEmpty = inputElement.dataset.lastValidValue === '';
+                inputElement.value = '';
+                inputElement.dataset.lastValidValue = '';
+                if (sourceType === 'blur' && wasAlreadyEmpty) {
+                    return;
+                }
+                dispatchValidatedInput('');
+                if (sourceType === 'blur') {
+                    committedOnBlur = true;
+                    dispatchSyntheticChange();
+                }
+                return;
+            }
+            value = min.toString();
+        }
+
+        let currentValue = parseInt(value, 10);
+
+        if (isNaN(currentValue) || currentValue < min || currentValue > max) {
+            setInputStatus('error');
+            notifyValidation(inputElement, translate('validation.invalidRevert'), 'error');
+            const lastValid = Number(inputElement.dataset.lastValidValue);
+            currentValue = isNaN(lastValid) ? min : Math.min(Math.max(lastValid, min), max);
+        } else {
+            const didChange = String(currentValue) !== String(inputElement.dataset.lastValidValue);
+            if (sourceType === 'blur' && !didChange) {
+                inputElement.value = String(currentValue);
+                return;
+            }
+            setInputStatus('success');
+        }
+
+        inputElement.value = String(currentValue);
+        inputElement.dataset.lastValidValue = String(currentValue);
+        dispatchValidatedInput(currentValue);
+
+        if (sourceType === 'blur') {
+            committedOnBlur = true;
+            dispatchSyntheticChange();
         }
     };
 
@@ -164,8 +234,12 @@ export function addValidation(inputElement, options = {}) {
     });
 
     inputElement.addEventListener('input', (event) => {
+        hasUncommittedEdit = true;
+        committedOnBlur = false;
+
         let value = event.target.value;
-        const maxLength = parseInt(inputElement.maxLength, 10) || Infinity;
+        const rawMaxLength = Number(inputElement.maxLength);
+        const maxLength = rawMaxLength > 0 ? rawMaxLength : Infinity;
 
         if (value.length > 1 && value.startsWith('0')) {
             value = parseInt(value, 10).toString();
@@ -175,54 +249,35 @@ export function addValidation(inputElement, options = {}) {
             value = value.slice(0, maxLength);
             setInputStatus('warning');
             notifyValidation(inputElement, translate('validation.maxLength', { maxLength: maxLength }), 'warning');
+        } else {
+            inputElement.classList.remove('input-status-warning', 'input-status-error');
         }
 
-        event.target.value = value;
-        inputElement.classList.remove('input-status-warning', 'input-status-error');
+        if (event.target.value !== value) {
+            event.target.value = value;
+        }
     });
 
-    inputElement.addEventListener('change', (event) => {
-        const { min, max } = getNumericBounds(inputElement);
-        let value = event.target.value.trim();
-        if (value === '') {
-            if (inputElement.dataset.allowEmpty === 'true') {
-                inputElement.value = '';
-                inputElement.dataset.lastValidValue = '';
-                inputElement.dispatchEvent(new CustomEvent('validated-input', {
-                    detail: { value: '' },
-                    bubbles: true,
-                    composed: true
-                }));
-                return;
-            }
-            value = min.toString();
+    inputElement.addEventListener('focus', () => {
+        committedOnBlur = false;
+    });
+
+    inputElement.addEventListener('change', () => {
+        if (isDispatchingSyntheticChange) return;
+
+        const trimmed = String(inputElement.value ?? '').trim();
+        const isUnchangedSinceBlur = committedOnBlur && trimmed === String(inputElement.dataset.lastValidValue ?? '');
+        committedOnBlur = false;
+        if (isUnchangedSinceBlur) {
+            return;
         }
 
-        let currentValue = parseInt(value, 10);
+        commitValue('change');
+    });
 
-        if (isNaN(currentValue) || currentValue < min || currentValue > max) {
-            setInputStatus('error');
-            notifyValidation(inputElement, translate('validation.invalidRevert'), 'error');
-            let lastValid = Number(inputElement.dataset.lastValidValue);
-            if (isNaN(lastValid) || lastValid < min) {
-                currentValue = min;
-            } else if (lastValid > max) {
-                currentValue = max;
-            } else {
-                currentValue = lastValid;
-            }
-        } else {
-            setInputStatus('success');
-        }
-
-        inputElement.value = currentValue;
-        inputElement.dataset.lastValidValue = currentValue;
-
-        inputElement.dispatchEvent(new CustomEvent('validated-input', {
-            detail: { value: currentValue },
-            bubbles: true,
-            composed: true
-        }));
+    inputElement.addEventListener('blur', () => {
+        if (!hasUncommittedEdit) return;
+        commitValue('blur');
     });
 
     inputElement.addEventListener('keypress', (event) => {

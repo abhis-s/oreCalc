@@ -116,6 +116,7 @@ export function saveState(state, immediate = false) {
                             dates: state.planner.calendar.dates
                         };
                         delete calendarCopy.isHydrated;
+                        delete calendarCopy.isDirty;
                     }
                     serializedPlanner = {
                         ...state.planner,
@@ -388,6 +389,7 @@ export function loadState() {
                 }
                 if (playerObj.planner?.calendar) {
                     delete playerObj.planner.calendar.isHydrated;
+                    delete playerObj.planner.calendar.isDirty;
                 }
                 if (playerObj.heroJourney && typeof playerObj.heroJourney === 'object') {
                     playerObj.heroJourney = {

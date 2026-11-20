@@ -2,6 +2,7 @@ import { navigationRegistry } from '../../data/navigationRegistry.js';
 
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
+import { syncLastCommittedPathname } from '../../core/appShellNavigator.js';
 
 import { shouldPromptStoredOresReminder } from '../../domain/equipment/storageGoalDomain.js';
 import { closeFabMenu } from '../fab/fab.js';
@@ -110,12 +111,18 @@ export function initializeTabs() {
     if (typeof window !== 'undefined' && window.location?.hash) {
         const cleanHash = window.location.hash.replace(/^#/, '').trim().toLowerCase().replace(/-tab$/, '');
         if (validTabKeys.includes(cleanHash)) {
-            history.replaceState(null, '', constructTabUrl(cleanHash));
+            const preservedState = window.history?.state ? { ...window.history.state } : null;
+            const target = constructTabUrl(cleanHash);
+            history.replaceState(preservedState, '', target);
+            syncLastCommittedPathname(target);
         }
     }
 
     if (!validTabs.includes(initialTab)) {
-        history.replaceState(null, '', constructTabUrl('home'));
+        const preservedState = window.history?.state ? { ...window.history.state } : null;
+        const target = constructTabUrl('home');
+        history.replaceState(preservedState, '', target);
+        syncLastCommittedPathname(target);
         initialTab = 'home-tab';
     }
     handleStateUpdate(() => {
@@ -136,14 +143,20 @@ export function initializeTabs() {
             if (typeof window !== 'undefined' && window.location?.hash) {
                 const cleanHash = window.location.hash.replace(/^#/, '').trim().toLowerCase().replace(/-tab$/, '');
                 if (validTabKeys.includes(cleanHash)) {
-                    history.replaceState(null, '', constructTabUrl(cleanHash));
+                    const preservedState = window.history?.state ? { ...window.history.state } : null;
+                    const target = constructTabUrl(cleanHash);
+                    history.replaceState(preservedState, '', target);
+                    syncLastCommittedPathname(target);
                 }
             }
             if (tabId === state.activeTab) return;
 
             const tabOrder = navigationRegistry.map(item => `${item.id}-tab`);
             if (!tabOrder.includes(tabId)) {
-                history.replaceState(null, '', constructTabUrl('home'));
+                const preservedState = window.history?.state ? { ...window.history.state } : null;
+                const target = constructTabUrl('home');
+                history.replaceState(preservedState, '', target);
+                syncLastCommittedPathname(target);
                 tabId = 'home-tab';
             }
 
@@ -199,11 +212,13 @@ export function initializeTabs() {
             }
 
             const targetUrl = constructTabUrl(button.dataset.tab);
+            const preservedState = (typeof window !== 'undefined' && window.history?.state) ? { ...window.history.state } : null;
             if (typeof navigator !== 'undefined' && navigator.userActivation?.hasBeenActive === false) {
-                history.replaceState(null, '', targetUrl);
+                history.replaceState(preservedState, '', targetUrl);
             } else {
-                history.pushState(null, '', targetUrl);
+                history.pushState(preservedState, '', targetUrl);
             }
+            syncLastCommittedPathname(targetUrl);
             renderTabs(tabId);
             handleStateUpdate(() => {
                 state.activeTab = tabId;

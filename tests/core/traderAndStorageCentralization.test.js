@@ -2,10 +2,11 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { WAR_ORE_MAX_LIMITS, getWarOreValue } from '../../js/data/incomeSources/warOres.js';
-import { raidMedalTraderData, gemTraderData, eventTraderData } from '../../js/data/incomeSources/traders.js';
+import { raidMedalTraderData, gemTraderData, eventTraderData, craftPassTraderData } from '../../js/data/incomeSources/traders.js';
 import { calculateRaidMedalTraderIncome } from '../../js/domain/income/raidMedalTraderIncome.js';
 import { calculateGemTraderIncome } from '../../js/domain/income/gemTraderIncome.js';
 import { calculateEventTraderIncome } from '../../js/domain/income/eventTraderIncome.js';
+import { calculateCraftPassTraderIncome } from '../../js/domain/income/craftPassIncome.js';
 
 describe('Trader & Storage Centralization Suite', () => {
     test('Trader datasets contain correct normalized IDs, costs, ores, and pack limits', () => {
@@ -120,6 +121,19 @@ describe('Trader & Storage Centralization Suite', () => {
         assert.ok(income.monthly.shiny > 0);
         assert.ok(income.monthly.glowy > 0);
         assert.ok(income.monthly.starry > 0);
+    });
+
+    test('craftPassTraderData is a frozen placeholder and calculateCraftPassTraderIncome returns zeroed rates', () => {
+        assert.ok(Object.isFrozen(craftPassTraderData));
+        assert.deepEqual(craftPassTraderData, []);
+
+        const income = calculateCraftPassTraderIncome({ enabled: true, packs: { shiny: 2 } }, 100);
+        assert.equal(income.monthly.shiny, 0);
+        assert.equal(income.monthly.glowy, 0);
+        assert.equal(income.monthly.starry, 0);
+        assert.equal(income.cost, 0);
+        assert.equal(income.remaining, 100);
+        assert.equal(income.totalMedalsEarned, 100);
     });
 
     test('WAR_ORE_MAX_LIMITS is frozen and getWarOreValue resolves clamped values safely', () => {

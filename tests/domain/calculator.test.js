@@ -73,4 +73,24 @@ describe('Master Calculator Domain Suite', () => {
         assert.ok('glowy' in eta);
         assert.ok('starry' in eta);
     });
+
+    test('recalculateAll aggregates totalMoneyCost across all currencies including craftPass monthly costs', () => {
+        const testState = {
+            ...getDefaultState(),
+            ...getDefaultPlayerState(),
+            income: {
+                ...getDefaultPlayerState().income,
+                craftPass: { craftPass: true }
+            }
+        };
+
+        recalculateAll(testState);
+
+        assert.ok(testState.derived.totalMoneyCost);
+        assert.ok('USD' in testState.derived.totalMoneyCost);
+        assert.ok('EUR' in testState.derived.totalMoneyCost);
+        assert.equal(typeof testState.derived.totalMoneyCost.USD, 'number');
+        assert.ok(Number.isInteger(testState.derived.totalMoneyCost.USD));
+        assert.ok(Number.isInteger(testState.derived.totalMoneyCost.EUR));
+    });
 });

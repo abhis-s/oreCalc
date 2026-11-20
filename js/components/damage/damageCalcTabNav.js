@@ -4,6 +4,7 @@
  */
 
 import { persistState } from './damageCalcState.js';
+import { syncLastCommittedPathname } from '../../core/appShellNavigator.js';
 
 const damageTabScrollPositions = {
     'zapquake': 0,
@@ -98,11 +99,13 @@ export function switchDamageTab(tabKey, state, onStateChange) {
 
     const targetUrl = constructDamageTabUrl(cleanTab);
     if (typeof window !== 'undefined' && window.history) {
+        const preservedState = window.history.state ? { ...window.history.state } : null;
         if (typeof navigator !== 'undefined' && navigator.userActivation?.hasBeenActive === false) {
-            window.history.replaceState(null, '', targetUrl);
+            window.history.replaceState(preservedState, '', targetUrl);
         } else {
-            window.history.pushState(null, '', targetUrl);
+            window.history.pushState(preservedState, '', targetUrl);
         }
+        syncLastCommittedPathname(targetUrl);
     }
 
     state.activeTab = cleanTab;
@@ -133,10 +136,15 @@ export function initDamageCalcTabNav(state, onStateChange) {
         const targetTab = resolved || 'zapquake';
         if (typeof window !== 'undefined' && window.location.hash) {
             const cleanHash = window.location.hash.replace(/^#/, '').trim().toLowerCase();
+            const preservedState = window.history.state ? { ...window.history.state } : null;
             if (cleanHash === 'cluster_planner' || cleanHash === 'cluster-planner' || cleanHash === 'zapquake') {
-                window.history.replaceState(null, '', constructDamageTabUrl(targetTab));
+                const target = constructDamageTabUrl(targetTab);
+                window.history.replaceState(preservedState, '', target);
+                syncLastCommittedPathname(target);
             } else if (!resolved) {
-                window.history.replaceState(null, '', constructDamageTabUrl('zapquake'));
+                const target = constructDamageTabUrl('zapquake');
+                window.history.replaceState(preservedState, '', target);
+                syncLastCommittedPathname(target);
             }
         }
         if (targetTab === state.activeTab) return;

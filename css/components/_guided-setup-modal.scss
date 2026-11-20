@@ -711,6 +711,10 @@
     border-radius: $shape-corner-medium;
     padding: $spacing-md;
 
+    &.is-disabled {
+        opacity: 0.45;
+    }
+
     .group-header {
         display: flex;
         justify-content: space-between;

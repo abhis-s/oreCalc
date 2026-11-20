@@ -19,6 +19,10 @@ export function getEquipmentDOMElements() {
         addComingSoonWrapper: document.getElementById('eq-add-coming-soon-setting-wrapper'),
         comingSoonSwitch: document.getElementById('eq-coming-soon-switch'),
         addComingSoonDesc: document.getElementById('eq-add-coming-soon-desc'),
+        economyNotice: document.getElementById('eq-economy-notice'),
+        economyNoticeDismissBtn: document.getElementById('eq-economy-notice-dismiss-btn'),
+        economyNoticeReopenWrapper: document.getElementById('eq-economy-notice-reopen-wrapper'),
+        economyNoticeReopenBtn: document.getElementById('eq-economy-notice-reopen-btn'),
         storageGoalBarContainer: document.getElementById('eq-storage-goal-bar-container'),
         storageMeters: {
             shiny: {

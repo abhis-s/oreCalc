@@ -65,6 +65,7 @@ export function getGlobalPriorityList() {
                         if (!equipMatch || !equipMatch.image) continue;
 
                         globalPriorityList.push({
+                            key: equipMatch.key || equipName,
                             name: equipMatch.name || equipName,
                             image: equipMatch.image,
                             targetLevel: stepData.targetLevel,

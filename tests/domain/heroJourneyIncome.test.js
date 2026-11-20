@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+    getHeroMaxLevelForTH,
     getMaxCumulativeHeroLevel,
     getMaxCumulativeLevelForTH,
     getMaxCumulativeLevelsByTH,
@@ -44,7 +45,7 @@ test('getTownHallLevel extracts TH correctly with dynamic max TH fallback', () =
     assert.equal(getTownHallLevel({}), getMaxTownHallLevel());
 });
 
-test('getQuestChestReward returns valid non-zero rewards for valid Town Hall', () => {
+test('getQuestChestReward returns valid non-zero rewards across TH tiers including TH19', () => {
     const normalReward = getQuestChestReward(16, 'normal');
     assert.ok(normalReward.shiny > 0);
     assert.ok(normalReward.glowy > 0);
@@ -52,6 +53,56 @@ test('getQuestChestReward returns valid non-zero rewards for valid Town Hall', (
 
     const acceleratedReward = getQuestChestReward(16, 'accelerated');
     assert.ok(acceleratedReward.shiny >= normalReward.shiny);
+
+    const th19Normal = getQuestChestReward(19, 'normal');
+    assert.deepEqual(th19Normal, {
+        shiny: 2250,
+        glowy: 110,
+        starry: 65,
+        minShiny: 2150,
+        maxShiny: 2350,
+        minGlowy: 100,
+        maxGlowy: 120,
+        minStarry: 60,
+        maxStarry: 70
+    });
+
+    const th19Accelerated = getQuestChestReward(19, 'accelerated');
+    assert.deepEqual(th19Accelerated, {
+        shiny: 4500,
+        glowy: 220,
+        starry: 130,
+        minShiny: 4400,
+        maxShiny: 4600,
+        minGlowy: 210,
+        maxGlowy: 230,
+        minStarry: 125,
+        maxStarry: 135
+    });
+
+    const th19Heroes = [
+        { name: 'Barbarian King', level: 110, village: 'home' },
+        { name: 'Archer Queen', level: 110, village: 'home' },
+        { name: 'Minion Prince', level: 95, village: 'home' },
+        { name: 'Grand Warden', level: 85, village: 'home' },
+        { name: 'Royal Champion', level: 55, village: 'home' },
+        { name: 'Dragon Duke', level: 1, village: 'home' }
+    ];
+    const th19SyncedUpcomingNormal = calculateHeroJourneyUpcomingOres({
+        playerProfile: { tag: '8PJYGUJC', townHallLevel: 19, heroes: th19Heroes },
+        heroJourney: { acceleratedRewards: false }
+    });
+    const th19SyncedUpcomingAccelerated = calculateHeroJourneyUpcomingOres({
+        playerProfile: { tag: '8PJYGUJC', townHallLevel: 19, heroes: th19Heroes },
+        heroJourney: { acceleratedRewards: true }
+    });
+    // Above cumulative level 456: Node 460 quest (TH19 chest) + Node 465 (50 Starry) + Node 498 (60 Starry)
+    assert.equal(th19SyncedUpcomingNormal.shiny, 2250);
+    assert.equal(th19SyncedUpcomingNormal.glowy, 110);
+    assert.equal(th19SyncedUpcomingNormal.starry, 65 + 50 + 60);
+    assert.equal(th19SyncedUpcomingAccelerated.shiny, 4500);
+    assert.equal(th19SyncedUpcomingAccelerated.glowy, 220);
+    assert.equal(th19SyncedUpcomingAccelerated.starry, 130 + 50 + 60);
 });
 
 test('calculateHeroJourneyUpcomingOres returns 0 ores for maxed player', () => {
@@ -215,4 +266,13 @@ test('TH 19 resolves Hero Journey track cap cleanly while exposing raw cumulativ
     assert.equal(trackMax, 510);
     assert.equal(isTrueMaxCumulativeLevel(510), true);
     assert.deepEqual(calculateHeroJourneyUpcomingOres(maxedTh19State), { shiny: 0, glowy: 0, starry: 0 });
+});
+
+test('getHeroMaxLevelForTH resolves TH-scoped caps across hero keys and display names', () => {
+    assert.equal(getHeroMaxLevelForTH('barbarianKing', 19), 115);
+    assert.equal(getHeroMaxLevelForTH('Barbarian King', 18), 110);
+    assert.equal(getHeroMaxLevelForTH('Dragon Duke', 19), 30);
+    assert.equal(getHeroMaxLevelForTH('dragonDuke', 18), 25);
+    assert.equal(getHeroMaxLevelForTH('dragonDuke', 15), 10);
+    assert.equal(getHeroMaxLevelForTH('dragonDuke', 14), 0);
 });

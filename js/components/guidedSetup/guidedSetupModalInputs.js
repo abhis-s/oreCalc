@@ -43,6 +43,7 @@ export function openGuidedSetupModal(options = {}) {
         if (tagInput) tagInput.value = initialTag;
 
         const existingPlayer = state.allPlayersData?.[initialTag];
+        const previewContainer = document.getElementById('guided-setup-profile-preview-container');
         if (existingPlayer) {
             guidedSetupState.isProfileLoaded = true;
             guidedSetupState.selectedTH = existingPlayer.playerProfile?.townHallLevel || MAX_TOWN_HALL;
@@ -50,18 +51,29 @@ export function openGuidedSetupModal(options = {}) {
             syncPreferencesFromProfile(initialTag);
             syncGuidedSetupQuickSettings(initialTag);
             renderProfilePreviewCard(existingPlayer.playerProfile || existingPlayer);
-            const previewContainer = document.getElementById('guided-setup-profile-preview-container');
-            if (previewContainer) previewContainer.style.display = 'block';
+            if (previewContainer) {
+                previewContainer.hidden = false;
+                previewContainer.style.display = '';
+            }
+        } else if (previewContainer) {
+            previewContainer.hidden = true;
+            previewContainer.style.display = '';
         }
         const savedContainer = document.getElementById('guided-setup-saved-profiles-container');
-        if (savedContainer) savedContainer.style.display = 'none';
+        if (savedContainer) {
+            savedContainer.hidden = true;
+            savedContainer.style.display = '';
+        }
     } else {
         if (tagInput) {
             tagInput.value = '';
             void triggerAutoPaste(tagInput);
         }
         const previewContainer = document.getElementById('guided-setup-profile-preview-container');
-        if (previewContainer) previewContainer.style.display = 'none';
+        if (previewContainer) {
+            previewContainer.hidden = true;
+            previewContainer.style.display = '';
+        }
         renderSavedProfilesList();
     }
 

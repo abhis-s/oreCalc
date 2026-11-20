@@ -10,7 +10,7 @@ import { getSavedProfiles, removePlayerTag, setActivePlayerTag } from '../../cor
 import { getStaleTagsForRefresh } from '../../core/playerRefreshThrottler.js';
 import { normalizePlayerTag } from '../../core/storageKeys.js';
 import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
-import { calculateEquipmentProgress } from '../../domain/equipment/equipmentProgressDomain.js';
+import { calculateEquipmentProgress, calculateMaxedEquipmentCount } from '../../domain/equipment/equipmentProgressDomain.js';
 import { translate } from '../../i18n/translator.js';
 import { showConfirm } from '../../ui/noticeModal.js';
 import { loadAndProcessPlayerData } from '../../services/serverResponseHandler.js';
@@ -18,7 +18,6 @@ import { showApiErrorToast, showToast } from '../../ui/toast.js';
 import { startTopProgressBar, finishTopProgressBar } from '../../utils/topProgressBar.js';
 import {
     extractEquipmentAndHeroes,
-    calculateMaxedEquipmentCount,
     calculateHeroJourneyProgress,
     renderActiveProfile
 } from './landingActiveProfile.js';

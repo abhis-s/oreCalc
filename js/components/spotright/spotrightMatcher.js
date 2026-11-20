@@ -9,6 +9,9 @@ import { getCurrentRouteContext, isSelfTarget } from './spotrightNavigator.js';
 import { translate } from '../../i18n/translator.js';
 import { state } from '../../core/state.js';
 
+const DAMAGE_CALC_PRIORITY_BY_RARITY = { legendary: 40, epic: 35, common: 32 };
+const DAMAGE_CALC_RANK_BY_RARITY = { legendary: 3, epic: 2, common: 1 };
+
 /**
  * Checks whether subsequence characters appear in target string in order.
  * @param {string} sub
@@ -45,7 +48,7 @@ export function scoreSpotrightItem(query, item) {
         getCurrentRouteContext().page === 'damagecalc'
     );
     const priority = isLocalParentBoost
-        ? (item.rarity === 'epic' ? 35 : 32)
+        ? (DAMAGE_CALC_PRIORITY_BY_RARITY[item.rarity] ?? DAMAGE_CALC_PRIORITY_BY_RARITY.common)
         : (item.priorityTier || 0);
     const activeLang = state?.uiSettings?.language || 'en';
     const isNonEnglish = activeLang !== 'en' && activeLang !== 'auto';
@@ -371,8 +374,8 @@ export function searchSpotright(rawQuery, registry, activeScope = 'all', limit =
         if (scope === 'equipment') {
             if (routeCtx.page === 'damagecalc') {
                 const prioritized = [...targetItems].sort((a, b) => {
-                    const aOnDamage = a.parents?.includes('damagecalc') ? (a.rarity === 'epic' ? 2 : 1) : 0;
-                    const bOnDamage = b.parents?.includes('damagecalc') ? (b.rarity === 'epic' ? 2 : 1) : 0;
+                    const aOnDamage = a.parents?.includes('damagecalc') ? (DAMAGE_CALC_RANK_BY_RARITY[a.rarity] ?? 1) : 0;
+                    const bOnDamage = b.parents?.includes('damagecalc') ? (DAMAGE_CALC_RANK_BY_RARITY[b.rarity] ?? 1) : 0;
                     return bOnDamage - aOnDamage;
                 });
                 return { matches: prioritized, autocomplete: null };

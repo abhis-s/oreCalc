@@ -41,6 +41,7 @@ export function getHeroColor(heroName) {
     if (lower.includes('warden')) return '#00bfff';  // Sky Blue
     if (lower.includes('champion')) return '#e74c3c'; // Red
     if (lower.includes('prince')) return '#27ae60';   // Green
+    if (lower.includes('duke') || lower.includes('dragon')) return '#ae0525'; // Crimson Scales
     return '#7f8c8d';
 }
 

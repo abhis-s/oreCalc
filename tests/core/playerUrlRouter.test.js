@@ -70,12 +70,13 @@ describe('Player URL Router Suite', () => {
         }
     });
 
-    test('syncPlayerTagToUrl updates search parameters preserving pathname and hash', async () => {
+    test('syncPlayerTagToUrl updates search parameters preserving pathname, hash, and existing history state', async () => {
         const { syncPlayerTagToUrl } = await import('../../js/core/playerUrlRouter.js');
 
         const originalWindow = globalThis.window;
         try {
             let replacedUrl = null;
+            let replacedState = null;
             globalThis.window = {
                 location: {
                     href: 'https://clashcalc.com/de/?foo=bar#planner',
@@ -84,7 +85,9 @@ describe('Player URL Router Suite', () => {
                     hash: '#planner'
                 },
                 history: {
-                    replaceState: (_state, _title, url) => {
+                    state: { modalStateId: 'modal_test_123', customFlag: true },
+                    replaceState: (state, _title, url) => {
+                        replacedState = state;
                         replacedUrl = url;
                     }
                 }
@@ -92,6 +95,7 @@ describe('Player URL Router Suite', () => {
 
             syncPlayerTagToUrl('#8PJYGUJC');
             assert.equal(replacedUrl, '/de/?foo=bar&tag=8PJYGUJC#planner');
+            assert.deepEqual(replacedState, { modalStateId: 'modal_test_123', customFlag: true }, 'Must preserve modal history state on URL sync');
 
             // Remove tag when passing null or DEFAULT0
             globalThis.window.location.href = 'https://clashcalc.com/de/?tag=8PJYGUJC#planner';
@@ -99,6 +103,42 @@ describe('Player URL Router Suite', () => {
 
             syncPlayerTagToUrl(null);
             assert.equal(replacedUrl, '/de/#planner');
+            assert.deepEqual(replacedState, { modalStateId: 'modal_test_123', customFlag: true }, 'Must preserve history state when removing tag');
+        } finally {
+            globalThis.window = originalWindow;
+        }
+    });
+
+    test('syncPlayerTagToUrl strips legacy ?player= and ?p= aliases when syncing canonical tag', async () => {
+        const { syncPlayerTagToUrl } = await import('../../js/core/playerUrlRouter.js');
+
+        const originalWindow = globalThis.window;
+        try {
+            let replacedUrl = null;
+            globalThis.window = {
+                location: {
+                    href: 'https://clashcalc.com/ore-calculator/?player=YG9P8LQ88&tab=equipment',
+                    pathname: '/ore-calculator/',
+                    search: '?player=YG9P8LQ88&tab=equipment',
+                    hash: ''
+                },
+                history: {
+                    state: null,
+                    replaceState: (_state, _title, url) => {
+                        replacedUrl = url;
+                    }
+                }
+            };
+
+            syncPlayerTagToUrl('YG9P8LQ88');
+            assert.equal(replacedUrl, '/ore-calculator/?tab=equipment&tag=YG9P8LQ88');
+
+            // Verify with ?p= shorthand alias
+            globalThis.window.location.href = 'https://clashcalc.com/ore-calculator/?p=8PJYGUJC';
+            globalThis.window.location.search = '?p=8PJYGUJC';
+
+            syncPlayerTagToUrl('8PJYGUJC');
+            assert.equal(replacedUrl, '/ore-calculator/?tag=8PJYGUJC');
         } finally {
             globalThis.window = originalWindow;
         }

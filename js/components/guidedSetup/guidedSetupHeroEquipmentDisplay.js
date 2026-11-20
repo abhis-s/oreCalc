@@ -84,6 +84,7 @@ export function renderHeroEquipmentList(playerData, equipmentListContainer) {
         const lockedEquipItems = [];
 
         heroInfo.equipment.forEach(equip => {
+            if (equip.isUnreleased) return;
             const hasEquip = ownedEquip[equip.name] !== undefined;
             const currentLevel = hasEquip ? ownedEquip[equip.name] : 1;
             const maxLevel = getEquipmentMaxLevel(equip.type);

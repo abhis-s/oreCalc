@@ -3,6 +3,7 @@
  * Tier 4: UI Controller (Modal event listeners and state transactions).
  */
 
+import { EQUIPMENT_MAX_LEVELS, getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
 import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
@@ -123,7 +124,7 @@ function initModalListeners() {
     modal.querySelectorAll('.btn-rarity-choice').forEach(btn => {
         btn.addEventListener('click', () => {
             const rarity = btn.getAttribute('data-rarity');
-            if (rarity === 'common' || rarity === 'epic') {
+            if (rarity && Object.hasOwn(EQUIPMENT_MAX_LEVELS, rarity)) {
                 selectedRarity = rarity;
                 modal.querySelectorAll('.btn-rarity-choice').forEach(b => {
                     const isMatch = b === btn;
@@ -152,7 +153,11 @@ function initModalListeners() {
             if (!state.heroes[addedHeroKey].equipment) {
                 state.heroes[addedHeroKey].equipment = {};
             }
-            state.heroes[addedHeroKey].equipment[COMING_SOON_KEY] = createComingSoonEquipmentItem(/** @type {'common' | 'epic'} */ (addedRarity));
+            const isCraftPassBought = Boolean(state.income?.craftPass?.craftPass);
+            state.heroes[addedHeroKey].equipment[COMING_SOON_KEY] = createComingSoonEquipmentItem(
+                /** @type {import('../../core/types.js').EquipmentRarity} */ (addedRarity),
+                isCraftPassBought
+            );
             if (!state.planner.storageGoal) {
                 state.planner.storageGoal = { preset: 'nextEpic' };
             } else {
@@ -185,10 +190,12 @@ export function openAddComingSoonModal(onAdded, initialHeroKey = 'barbarianKing'
     const modal = document.getElementById('add-coming-soon-modal');
     if (modal) {
         renderHeroOptions(modal, selectedHeroKey);
-        const commonCap = modal.querySelector('[data-rarity-cap="common"]');
-        if (commonCap) commonCap.textContent = translate('views.equipment.rarityMaxLevel', { level: 18 });
-        const epicCap = modal.querySelector('[data-rarity-cap="epic"]');
-        if (epicCap) epicCap.textContent = translate('views.equipment.rarityMaxLevel', { level: 27 });
+        modal.querySelectorAll('[data-rarity-cap]').forEach(capEl => {
+            const rarity = capEl.getAttribute('data-rarity-cap');
+            if (rarity && Object.hasOwn(EQUIPMENT_MAX_LEVELS, rarity)) {
+                capEl.textContent = translate('views.equipment.rarityMaxLevel', { level: getEquipmentMaxLevel(rarity) });
+            }
+        });
         modal.querySelectorAll('.btn-rarity-choice').forEach(btn => {
             const isMatch = btn.getAttribute('data-rarity') === selectedRarity;
             btn.classList.toggle('is-selected', isMatch);

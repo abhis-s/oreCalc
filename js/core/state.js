@@ -9,8 +9,10 @@ import {
 
 import { compareVersions } from '../utils/versionUtils.js';
 
+import { syncCraftPassPreleveling } from '../domain/equipment/craftPassPrelevelDomain.js';
 import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel, resolveHeroJourneyTrack } from '../domain/income/heroJourneyResolution.js';
 import { getISOWeekNumber } from '../utils/dateUtils.js';
+import { toMinorUnits } from '../utils/incomeUtils.js';
 import { migrateComingSoonEquipment, attachHeroStateAliases, normalizeHeroesState, migrateHeroesToKeys } from './stateCleanup.js';
 
 /** @type {import('./types.js').AppState | any} */
@@ -24,8 +26,10 @@ export const DEFAULT_CUSTOM_CHIP_SETTINGS = Object.freeze({
     shopOffers: Object.freeze({ monthly: false, shiny: 0, glowy: 0, starry: 0 }),
     gemTrader: Object.freeze({ weekly: false, shiny: 0, glowy: 0, starry: 0 }),
     raidMedalTrader: Object.freeze({ weekly: false, shiny: 0, glowy: 0, starry: 0 }),
-    eventTrader: Object.freeze({ monthly: false, shiny: 0, glowy: 0, starry: 0 }),
     eventPass: Object.freeze({ monthly: false, shiny: 0, glowy: 0, starry: 0 }),
+    eventTrader: Object.freeze({ monthly: false, shiny: 0, glowy: 0, starry: 0 }),
+    craftPass: Object.freeze({ monthly: false, shiny: 0, glowy: 0, starry: 0 }),
+    craftPassTrader: Object.freeze({ monthly: false, shiny: 0, glowy: 0, starry: 0 }),
     clanWar: Object.freeze({ monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' }),
     cwl: Object.freeze({ monthly: false, count: 0, shiny: 0, glowy: 0, starry: 0, result: 'win' }),
     supercellEvents: Object.freeze({ globalOverride: false, shiny: 0, glowy: 0, starry: 0 }),
@@ -50,7 +54,7 @@ export function getDefaultState() {
                 code: 'USD',
             },
             theme: 'dark',
-            accentColor: 'random',
+            accentColor: 'blue',
             language: 'auto',
             enableLevelInput: false,
             hideMaxedEquipment: false,
@@ -92,8 +96,8 @@ function getDefaultHeroesState() {
             hero.equipment.forEach(eq => {
                 const defaultLevel = getDefaultEquipmentUnlockLevel(heroKey, eq.name);
                 heroes[heroKey].equipment[eq.key] = {
-                    level: defaultLevel,
-                    checked: true
+                    level: eq.isUnreleased ? 1 : defaultLevel,
+                    checked: !eq.isUnreleased
                 };
             });
         }
@@ -101,9 +105,88 @@ function getDefaultHeroesState() {
     return attachHeroStateAliases(heroes);
 }
 
+// In-memory fallback map for calendar dirty states when sessionStorage is unavailable or during SSR.
+const inMemoryCalendarDirtyStates = new Map();
+
+/**
+ * Binds a non-enumerable getter/setter for calendar.isDirty backed by sessionStorage.
+ * This guarantees calendar.isDirty is tracked during runtime and across page reloads in the same session,
+ * while remaining completely invisible to JSON.stringify so it is never persisted to localStorage.
+ *
+ * @param {Record<string, any>} calendar - Planner calendar state object.
+ * @param {string} [playerTag] - Associated player tag.
+ */
+function bindCalendarDirtyAccessor(calendar, playerTag = '') {
+    if (!calendar || typeof calendar !== 'object') return;
+    const cleanTag = (playerTag || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'DEFAULT0';
+    const sessionKey = `clashCalc_planner_isDirty_${cleanTag}`;
+
+    let initialDirty = true;
+    try {
+        if (typeof sessionStorage !== 'undefined') {
+            const stored = sessionStorage.getItem(sessionKey);
+            if (stored !== null) {
+                initialDirty = stored === 'true';
+            }
+        } else if (inMemoryCalendarDirtyStates.has(cleanTag)) {
+            initialDirty = inMemoryCalendarDirtyStates.get(cleanTag);
+        }
+    } catch {
+        if (inMemoryCalendarDirtyStates.has(cleanTag)) {
+            initialDirty = inMemoryCalendarDirtyStates.get(cleanTag);
+        }
+    }
+
+    inMemoryCalendarDirtyStates.set(cleanTag, initialDirty);
+
+    delete calendar.isDirty;
+
+    Object.defineProperty(calendar, 'isDirty', {
+        get() {
+            return inMemoryCalendarDirtyStates.get(cleanTag) ?? true;
+        },
+        set(val) {
+            const boolVal = Boolean(val);
+            inMemoryCalendarDirtyStates.set(cleanTag, boolVal);
+            try {
+                if (typeof sessionStorage !== 'undefined') {
+                    sessionStorage.setItem(sessionKey, String(boolVal));
+                }
+            } catch {}
+        },
+        enumerable: false,
+        configurable: true
+    });
+}
+
 function getDefaultPlayerStateProperties() {
     const now = new Date();
     const [year, weekNo] = getISOWeekNumber(now);
+
+    const calendar = {
+        isHydrated: false,
+        settings: {
+            firstDayOfWeek: CALENDAR_SETTINGS_DEFAULTS.firstDayOfWeek,
+            showChipIcons: CALENDAR_SETTINGS_DEFAULTS.showChipIcons,
+            autoPlaceScope: CALENDAR_SETTINGS_DEFAULTS.autoPlaceScope,
+            showEquipmentMilestones: CALENDAR_SETTINGS_DEFAULTS.showEquipmentMilestones,
+            highlightUpgradeRanges: CALENDAR_SETTINGS_DEFAULTS.highlightUpgradeRanges,
+            showStorageMilestones: CALENDAR_SETTINGS_DEFAULTS.showStorageMilestones
+        },
+        view: {
+            select: 'monthly',
+            month: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`,
+            week: `${year}-${String(weekNo).padStart(2, '0')}`,
+        },
+        dates: {},
+        customChips: [],
+        customChipData: {},
+        lastRecurringProcessed: '',
+        customChipSettings: Object.fromEntries(
+            Object.entries(DEFAULT_CUSTOM_CHIP_SETTINGS).map(([k, v]) => [k, { ...v }])
+        )
+    };
+    bindCalendarDirtyAccessor(calendar, 'DEFAULT0');
 
     return {
         heroes: getDefaultHeroesState(),
@@ -122,6 +205,8 @@ function getDefaultPlayerStateProperties() {
                 trader: { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } }
             },
             eventTrader: { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } },
+            craftPass: { craftPass: false },
+            craftPassTrader: { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } },
             clanWar: {
                 enabled: false,
                 warsPerMonth: 8,
@@ -158,30 +243,7 @@ function getDefaultPlayerStateProperties() {
             storageGoal: {
                 preset: 'auto'
             },
-            calendar: {
-                isHydrated: false,
-                settings: {
-                    firstDayOfWeek: CALENDAR_SETTINGS_DEFAULTS.firstDayOfWeek,
-                    showChipIcons: CALENDAR_SETTINGS_DEFAULTS.showChipIcons,
-                    autoPlaceScope: CALENDAR_SETTINGS_DEFAULTS.autoPlaceScope,
-                    showEquipmentMilestones: CALENDAR_SETTINGS_DEFAULTS.showEquipmentMilestones,
-                    highlightUpgradeRanges: CALENDAR_SETTINGS_DEFAULTS.highlightUpgradeRanges,
-                    showStorageMilestones: CALENDAR_SETTINGS_DEFAULTS.showStorageMilestones
-                },
-                view: {
-                    select: 'monthly',
-                    month: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`,
-                    week: `${year}-${String(weekNo).padStart(2, '0')}`,
-                },
-                dates: {},
-                isDirty: true,
-                customChips: [],
-                customChipData: {},
-                lastRecurringProcessed: '',
-                customChipSettings: Object.fromEntries(
-                    Object.entries(DEFAULT_CUSTOM_CHIP_SETTINGS).map(([k, v]) => [k, { ...v }])
-                )
-            },
+            calendar
         },
         heroJourney: {
             hidden: false,
@@ -252,7 +314,6 @@ export function initializeState(savedState) {
         if (savedState.allPlayersData && typeof savedState.allPlayersData === 'object') {
             for (const playerTag in savedState.allPlayersData) {
                 if (!Object.hasOwn(savedState.allPlayersData, playerTag)) continue;
-                if (playerTag === 'GUEST') continue;
                 if (hasRealPlayer && playerTag === 'DEFAULT0') continue;
                 let savedPlayerState = savedState.allPlayersData[playerTag];
 
@@ -391,8 +452,8 @@ function ensureStateDefaults(s) {
                                 : true;
 
                             if (!ps.heroes[heroKey].equipment[equipKey]) {
-                                const isChecked = isOwned;
-                                const initialLevel = isOwned ? defaultLevel : 1;
+                                const isChecked = eq.isUnreleased ? false : isOwned;
+                                const initialLevel = isOwned && !eq.isUnreleased ? defaultLevel : 1;
                                 ps.heroes[heroKey].equipment[equipKey] = { level: initialLevel, checked: isChecked };
                             } else {
                                 const eqState = ps.heroes[heroKey].equipment[equipKey];
@@ -408,6 +469,9 @@ function ensureStateDefaults(s) {
                 attachHeroStateAliases(ps.heroes);
                 if (migrateComingSoonEquipment(ps.heroes)) {
                     hasMigrationOccurred = true;
+                }
+                if (Boolean(ps.income?.craftPass?.craftPass)) {
+                    syncCraftPassPreleveling(ps.heroes, true, ps);
                 }
             }
 
@@ -470,6 +534,10 @@ function ensureStateDefaults(s) {
 
                 if (!ps.income.eventTrader) ps.income.eventTrader = { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } };
                 if (!ps.income.eventTrader.packs) ps.income.eventTrader.packs = { shiny: 0, glowy: 0, starry: 0 };
+
+                if (!ps.income.craftPass) ps.income.craftPass = { craftPass: false };
+                if (!ps.income.craftPassTrader) ps.income.craftPassTrader = { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } };
+                if (!ps.income.craftPassTrader.packs) ps.income.craftPassTrader.packs = { shiny: 0, glowy: 0, starry: 0 };
 
                 if (!ps.income.clanWar) {
                     ps.income.clanWar = {
@@ -535,6 +603,18 @@ function ensureStateDefaults(s) {
                 }
                 if (!ps.currency.globalPricing) {
                     ps.currency.globalPricing = {};
+                } else {
+                    for (const currCode of Object.keys(ps.currency.globalPricing)) {
+                        const pricingMap = ps.currency.globalPricing[currCode];
+                        if (pricingMap && typeof pricingMap === 'object') {
+                            for (const tierKey of Object.keys(pricingMap)) {
+                                const val = Number(pricingMap[tierKey]);
+                                if (Number.isFinite(val) && !Number.isInteger(val)) {
+                                    pricingMap[tierKey] = toMinorUnits(val, currCode);
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -587,9 +667,7 @@ function ensureStateDefaults(s) {
             if (!ps.planner.calendar.customChips) ps.planner.calendar.customChips = [];
             if (!ps.planner.calendar.customChipData) ps.planner.calendar.customChipData = {};
             ps.planner.calendar.isHydrated = false;
-            if (ps.planner.calendar.isDirty === undefined) {
-                ps.planner.calendar.isDirty = true;
-            }
+            bindCalendarDirtyAccessor(ps.planner.calendar, tag);
             if (!ps.planner.calendar.customChipSettings) {
                 ps.planner.calendar.customChipSettings = Object.fromEntries(
                     Object.entries(DEFAULT_CUSTOM_CHIP_SETTINGS).map(([k, v]) => [k, { ...v }])

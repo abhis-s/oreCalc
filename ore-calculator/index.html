@@ -110,55 +110,66 @@
                 }
 
                 if (activeTag) {
-                    var cachedName = localStorage.getItem('clashCalc_cachedPlayerName_' + activeTag);
-                    if (cachedName) {
-                        var nameEl = document.getElementById('selected-player-name');
-                        if (nameEl) nameEl.textContent = cachedName;
-                    }
-
-                    var cachedCard = localStorage.getItem('clashCalc_cachedHomeProfile_' + activeTag);
-                    if (cachedCard) {
-                        var cardEl = document.getElementById('orecalc-home-player-card');
-                        if (cardEl) {
-                            cardEl.innerHTML = cachedCard;
-                            cardEl.removeAttribute('hidden');
-                            cardEl.hidden = false;
-                        }
-                    }
-
-                    var cachedOresRaw = localStorage.getItem('clashCalc_cachedHomeOres_' + activeTag);
-                    if (cachedOresRaw) {
-                        var ores = JSON.parse(cachedOresRaw);
-                        var docLang = document.documentElement.lang || 'en';
+                    var rawPlayer = localStorage.getItem('clashCalc_player_' + activeTag) || localStorage.getItem('oreCalc_player_' + activeTag);
+                    if (rawPlayer) {
                         try {
-                            var settingsStr = localStorage.getItem('clashCalc_appSettings') || localStorage.getItem('oreCalc_appSettings');
-                            if (settingsStr) {
-                                var parsedSettings = JSON.parse(settingsStr);
-                                if (parsedSettings && parsedSettings.language && parsedSettings.language !== 'auto') {
-                                    docLang = parsedSettings.language;
+                            var parsedPlayer = JSON.parse(rawPlayer);
+                            var profile = parsedPlayer ? parsedPlayer.playerProfile : null;
+                            if (profile) {
+                                var nameEl = document.getElementById('selected-player-name');
+                                if (nameEl && profile.name) nameEl.textContent = profile.name;
+
+                                var cardNameEl = document.getElementById('home-profile-player-name');
+                                if (cardNameEl && profile.name) cardNameEl.textContent = profile.name;
+
+                                var cardTagEl = document.getElementById('home-profile-player-tag');
+                                if (cardTagEl) cardTagEl.textContent = '#' + activeTag.replace(/^#+/, '');
+
+                                var thLevel = profile.townHallLevel || 19;
+                                var thImgEl = document.getElementById('home-profile-th-badge-img');
+                                if (thImgEl) {
+                                    thImgEl.setAttribute('src', '/assets/th/th' + thLevel + '.png');
+                                    thImgEl.setAttribute('alt', 'Town Hall ' + thLevel);
+                                }
+                                var thLevelEl = document.getElementById('home-profile-th-badge-level');
+                                if (thLevelEl) thLevelEl.textContent = thLevel;
+
+                                if (profile.clan && profile.clan.name) {
+                                    var clanNameEl = document.getElementById('home-profile-clan-name');
+                                    if (clanNameEl) clanNameEl.textContent = profile.clan.name;
+                                    var clanBadgeEl = document.getElementById('home-profile-clan-badge');
+                                    var badgeUrl = profile.clan.badgeUrls ? profile.clan.badgeUrls.small : (profile.clanBadgeUrl || '');
+                                    if (clanBadgeEl && badgeUrl) {
+                                        clanBadgeEl.setAttribute('src', badgeUrl);
+                                        clanBadgeEl.removeAttribute('hidden');
+                                        clanBadgeEl.hidden = false;
+                                    }
+                                }
+
+                                var trophiesEl = document.getElementById('home-profile-trophies');
+                                if (trophiesEl && profile.trophies !== undefined) {
+                                    trophiesEl.textContent = Number(profile.trophies).toLocaleString();
+                                }
+
+                                var leagueBadgeEl = document.getElementById('home-profile-league-badge');
+                                var leagueIcon = profile.leagueTier && profile.leagueTier.iconUrls ? profile.leagueTier.iconUrls.small : null;
+                                if (leagueBadgeEl && leagueIcon) {
+                                    leagueBadgeEl.setAttribute('src', leagueIcon);
+                                }
+                                var leagueNameEl = document.getElementById('home-profile-league-name');
+                                var leagueName = profile.leagueTier ? profile.leagueTier.name : (profile.league ? profile.league.name : null);
+                                if (leagueNameEl && leagueName) {
+                                    leagueNameEl.textContent = leagueName;
+                                }
+
+                                var cardEl = document.getElementById('orecalc-home-player-card');
+                                if (cardEl) {
+                                    cardEl.classList.remove('is-skeleton');
+                                    cardEl.removeAttribute('hidden');
+                                    cardEl.hidden = false;
                                 }
                             }
                         } catch (e) {}
-                        var s = document.getElementById('home-result-quantity-shiny');
-                        if (s && ores.shiny !== undefined) s.textContent = Number(ores.shiny).toLocaleString(docLang);
-                        var g = document.getElementById('home-result-quantity-glowy');
-                        if (g && ores.glowy !== undefined) g.textContent = Number(ores.glowy).toLocaleString(docLang);
-                        var st = document.getElementById('home-result-quantity-starry');
-                        if (st && ores.starry !== undefined) st.textContent = Number(ores.starry).toLocaleString(docLang);
-
-                        var setTime = function(prefix, data) {
-                            var y = document.getElementById('home-result-time-' + prefix + '-years');
-                            if (y && data.years !== undefined) y.textContent = data.years;
-                            var m = document.getElementById('home-result-time-' + prefix + '-months');
-                            if (m && data.months !== undefined) m.textContent = data.months;
-                            var d = document.getElementById('home-result-time-' + prefix + '-days');
-                            if (d && data.days !== undefined) d.textContent = data.days;
-                            var dt = document.getElementById('home-result-date-' + prefix);
-                            if (dt && data.date !== undefined) dt.textContent = data.date;
-                        };
-                        setTime('shiny', { years: ores.timeShinyYears, months: ores.timeShinyMonths, days: ores.timeShinyDays, date: ores.dateShiny });
-                        setTime('glowy', { years: ores.timeGlowyYears, months: ores.timeGlowyMonths, days: ores.timeGlowyDays, date: ores.dateGlowy });
-                        setTime('starry', { years: ores.timeStarryYears, months: ores.timeStarryMonths, days: ores.timeStarryDays, date: ores.dateStarry });
                     }
                 }
 

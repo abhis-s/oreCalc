@@ -123,14 +123,18 @@ describe('Custom Coming Soon Equipment Domain Engine', () => {
         const heroDef = {
             name: 'Barbarian King',
             equipment: [
-                { name: 'Barbarian Puppet', key: 'barbarianPuppet', type: 'common', image: 'assets/equipment/bk_puppet.png' }
+                { name: 'Barbarian Puppet', key: 'barbarianPuppet', type: 'common', image: 'assets/equipment/bk_puppet.png' },
+                { name: 'Blizzard Axe', key: 'blizzardAxe', type: 'legendary', costSchedule: 'modern', image: 'assets/equipment/bk_blizzard_axe.png', isUnreleased: true }
             ]
         };
 
         const listWithoutSoon = getHeroEquipmentList(heroDef, null);
-        assert.equal(listWithoutSoon.length, 1);
+        assert.equal(listWithoutSoon.length, 2);
         assert.equal(listWithoutSoon[0].key, 'barbarianPuppet');
         assert.equal(listWithoutSoon[0].isCustom, false);
+        assert.equal(listWithoutSoon[0].isUnreleased, false);
+        assert.equal(listWithoutSoon[1].key, 'blizzardAxe');
+        assert.equal(listWithoutSoon[1].isUnreleased, true);
 
         const heroState = {
             equipment: {
@@ -139,11 +143,12 @@ describe('Custom Coming Soon Equipment Domain Engine', () => {
         };
 
         const listWithSoon = getHeroEquipmentList(heroDef, heroState);
-        assert.equal(listWithSoon.length, 2);
-        assert.equal(listWithSoon[1].key, 'comingSoon');
-        assert.equal(listWithSoon[1].name, 'Coming Soon');
-        assert.equal(listWithSoon[1].type, 'epic');
-        assert.equal(listWithSoon[1].isCustom, true);
+        assert.equal(listWithSoon.length, 3);
+        assert.equal(listWithSoon[2].key, 'comingSoon');
+        assert.equal(listWithSoon[2].name, 'Coming Soon');
+        assert.equal(listWithSoon[2].type, 'epic');
+        assert.equal(listWithSoon[2].isCustom, true);
+        assert.equal(listWithSoon[2].isUnreleased, false);
     });
 
     test('findHeroEquipment and resolveEquipmentType resolve standard and custom equipment polymorphically', () => {

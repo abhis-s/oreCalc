@@ -1,4 +1,5 @@
 import { heroData } from '../data/heroData.js';
+import { CRAFT_PASS_PRELEVEL } from '../data/incomeSources/craftPass.js';
 import { resolveBestMatchShopOfferSet } from '../data/incomeSources/shopOffers.js';
 import { getWarOreValue } from '../data/incomeSources/warOres.js';
 import { translate } from '../i18n/translator.js';
@@ -11,6 +12,7 @@ import { getDefaultPlayerState, state } from '../core/state.js';
 import { attachHeroStateAliases } from '../core/stateCleanup.js';
 import { handleStateUpdate } from '../core/stateManager.js';
 
+import { isEligibleForCraftPassPrelevel } from '../domain/equipment/craftPassPrelevelDomain.js';
 import { getDefaultEquipmentUnlockLevel, isHeroJourneyFutureOrUnclaimedEquipment } from '../domain/income/heroJourneyResolution.js';
 import { cleanupUpgradePlan, reindexGlobalPriority } from '../utils/plannerUtils.js';
 
@@ -258,6 +260,8 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
                     || isHeroJourneyFutureOrUnclaimedEquipment(heroKey, equipKey, newPlayerState);
                 if (isFutureOrUnclaimed) {
                     equipState.level = getDefaultEquipmentUnlockLevel(heroKey, equipName, newPlayerState);
+                } else if (Boolean(newPlayerState.income?.craftPass?.craftPass) && isEligibleForCraftPassPrelevel(equipKey, equip.type, newPlayerState)) {
+                    equipState.level = CRAFT_PASS_PRELEVEL;
                 } else {
                     equipState.level = 1;
                 }
@@ -314,6 +318,15 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
             ...defaultIncome.eventTrader,
             ...(newPlayerState.income?.eventTrader || {}),
             packs: { ...defaultIncome.eventTrader.packs, ...(newPlayerState.income?.eventTrader?.packs || {}) }
+        },
+        craftPass: {
+            ...defaultIncome.craftPass,
+            ...(newPlayerState.income?.craftPass || {})
+        },
+        craftPassTrader: {
+            ...defaultIncome.craftPassTrader,
+            ...(newPlayerState.income?.craftPassTrader || {}),
+            packs: { ...defaultIncome.craftPassTrader.packs, ...(newPlayerState.income?.craftPassTrader?.packs || {}) }
         },
         clanWar: {
             ...defaultIncome.clanWar,

@@ -1,6 +1,7 @@
 import { ORE_TYPES } from '../../core/constants.js';
-import { upgradeCosts } from '../../data/equipmentCommonData.js';
+import { getEquipmentUpgradeCost, usesStarryOre } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
+import { findHeroEquipment } from '../equipment/comingSoonEquipmentDomain.js';
 import { prospectorData } from '../../data/incomeSources/prospector.js';
 import { conversionRates, oreMaxValues } from '../../data/oreConversionData.js';
 import { currencyData } from '../../data/pricingData.js';
@@ -518,24 +519,28 @@ export function getUpgradeRequirements(items, isSingle = false, appState) {
 
     for (const item of listToProcess) {
         const key = `${item.heroName}-${item.name}`;
-        const actualLevel = appState?.heroes?.[item.heroName]?.equipment?.[item.name]?.level || 1;
+        const heroKeyFound = item.heroKey || Object.keys(heroData).find(k => k.toLowerCase() === (item.heroName || '').replace(/\s+/g, '').toLowerCase());
+        const heroDataEntry = heroData[heroKeyFound];
+        const heroState = appState?.heroes?.[item.heroName] || appState?.heroes?.[heroKeyFound];
+        const eqObj = findHeroEquipment(heroDataEntry, item.key || item.equipmentKey || item.name, heroState);
+        const eqKeyFound = eqObj?.key || item.key || item.equipmentKey;
+        const actualLevel = (heroState?.equipment?.[eqKeyFound] || heroState?.equipment?.[item.name])?.level || 1;
         const fromLevel = startLevels[key] !== undefined ? startLevels[key] : actualLevel;
 
         if (fromLevel >= item.targetLevel) {
             continue;
         }
 
-        const heroKeyFound = item.heroKey || Object.keys(heroData).find(k => k.toLowerCase() === (item.heroName || '').replace(/\s+/g, '').toLowerCase());
-        const heroDataEntry = heroData[heroKeyFound];
-        const eqKeyFound = item.key || item.equipmentKey;
-        const equipmentType = heroDataEntry?.equipment.find(eq => eq.key === eqKeyFound || (eq.key && eq.key.toLowerCase() === (item.name || '').replace(/\s+/g, '').toLowerCase()))?.type;
+        const equipmentType = eqObj?.type;
+        const costSchedule = eqObj?.costSchedule || 'classic';
+        const isStarryRarity = usesStarryOre(equipmentType);
 
         for (let level = fromLevel + 1; level <= item.targetLevel; level++) {
-            const cost = upgradeCosts[level];
+            const cost = getEquipmentUpgradeCost(level, equipmentType, costSchedule);
             if (cost) {
                 req.shiny += cost.shiny || 0;
                 req.glowy += cost.glowy || 0;
-                if (equipmentType === 'epic') {
+                if (isStarryRarity) {
                     req.starry += cost.starry || 0;
                 }
             }

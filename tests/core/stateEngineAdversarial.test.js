@@ -215,7 +215,7 @@ describe('Adversarial Challenge: State Engine Modernization', () => {
 
             const chipKeys = [
                 'custom', 'starBonus', 'shopOffers', 'gemTrader', 'raidMedalTrader',
-                'eventTrader', 'eventPass', 'clanWar', 'cwl', 'supercellEvents', 'prospector'
+                'eventPass', 'eventTrader', 'craftPass', 'craftPassTrader', 'clanWar', 'cwl', 'supercellEvents', 'prospector'
             ];
 
             for (const key of chipKeys) {

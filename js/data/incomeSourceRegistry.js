@@ -1,13 +1,22 @@
 import { MAX_TOWN_HALL, ZERO_ORES } from '../core/constants.js';
+import { craftPassScheduleData } from './incomeSources/craftPass.js';
+import { eventPassBaseScheduleData } from './incomeSources/eventPass.js';
 import { supercellEventsData } from './incomeSources/supercellEvents.js';
 import { currencyData } from './pricingData.js';
 import { translate } from '../i18n/translator.js';
 
+import { resolveEventPassAvailableMonths } from '../domain/income/eventPassSchedule.js';
 import { getProspectorIncomeForDate } from '../domain/income/prospectorManager.js';
 import { getSupercellEventsForYear } from '../domain/income/supercellEventsSchedule.js';
 import { getTownHallIconUrl } from '../domain/townHall/townHallSchedule.js';
 import { getStarBonus2xWindow, isStarBonusEventMonth } from '../utils/dateUtils.js';
-import { formatCurrency } from '../utils/numberFormatter.js';
+import { toMajorUnits } from '../utils/incomeUtils.js';
+import { formatCurrency, formatNumber } from '../utils/numberFormatter.js';
+
+const resolvedEventPassAvailableMonths = resolveEventPassAvailableMonths(
+    eventPassBaseScheduleData.availableMonths,
+    craftPassScheduleData.availableMonths
+);
 
 export const CANONICAL_CHIP_PRIORITY_ORDER = [
     'starBonus2x',
@@ -24,6 +33,8 @@ export const CANONICAL_CHIP_PRIORITY_ORDER = [
     'gemTrader',
     'eventPass',
     'eventTrader',
+    'craftPass',
+    'craftPassTrader',
     'shopOffers',
     'supercellEvents',
     'custom',
@@ -60,15 +71,19 @@ const multiplyOres = (ores, factor) => ({
 });
 
 /**
- * Formats the localized cost for a given income source based on active currency settings.
+ * Formats the localized purchase-cycle cost for a pass income source in the active currency.
+ * Bimonthly passes report their full event price while monthly passes report their monthly price.
  * @param {import('../core/types.js').AppState} state
  * @param {string} sourceId
  * @returns {string}
  */
 function getCostString(state, sourceId) {
     const code = state.uiSettings?.currency?.code || 'USD';
-    const cost = state.derived?.incomeSources?.[sourceId]?.monthly?.[code.toUpperCase()] || state.derived?.incomeSources?.[sourceId]?.monthly?.USD || 0;
-    return (currencyData[code]?.symbol || '') + formatCurrency(cost);
+    const upperCode = code.toUpperCase();
+    const timeframe = incomeData[sourceId]?.schedule?.type === 'bimonthly' ? 'bimonthly' : 'monthly';
+    const rates = state.derived?.incomeSources?.[sourceId]?.[timeframe];
+    const cost = rates?.[upperCode] ?? rates?.USD ?? 0;
+    return (currencyData[code]?.symbol || '') + formatCurrency(toMajorUnits(cost, code), code);
 }
 
 /**
@@ -108,6 +123,13 @@ export const incomeData = {
         getResourceString: (state) => {
             const thLevel = Math.max(1, Number(state.playerProfile?.townHallLevel) || MAX_TOWN_HALL);
             return translate('views.equipment.thShort', { level: thLevel });
+        },
+        getResourceMeta: (state) => {
+            const thLevel = Math.max(1, Number(state.playerProfile?.townHallLevel) || MAX_TOWN_HALL);
+            return {
+                icon: getTownHallIconUrl(thLevel),
+                text: translate('views.equipment.thShort', { level: thLevel })
+            };
         },
         subCategories: [
             {
@@ -172,11 +194,23 @@ export const incomeData = {
         },
         getIncome: (state) => getDerivedSourceIncome(state, 'shopOffers', 'monthly'),
         getResourceString: (state) => {
-            const selected = state.income.shopOffers?.selectedSet;
+            const selected = state.income?.shopOffers?.selectedSet;
             if (!selected) return '';
-            const symbol = currencyData[state.uiSettings.currency.code]?.symbol || '';
-            const cost = state.derived.incomeSources.shopOffers?.monthly?.[state.uiSettings.currency.code.toUpperCase()] || state.derived.incomeSources.shopOffers?.monthly?.USD || 0;
-            return `${symbol} ${formatCurrency(cost)}`;
+            const code = state.uiSettings?.currency?.code || 'USD';
+            const symbol = currencyData[code]?.symbol || '';
+            const cost = state.derived?.incomeSources?.shopOffers?.monthly?.[code.toUpperCase()] || state.derived?.incomeSources?.shopOffers?.monthly?.USD || 0;
+            return `${symbol} ${formatCurrency(toMajorUnits(cost, code), code)}`;
+        },
+        getResourceMeta: (state) => {
+            const selected = state.income?.shopOffers?.selectedSet;
+            if (!selected) return { icon: '', text: '' };
+            const code = state.uiSettings?.currency?.code || 'USD';
+            const symbol = currencyData[code]?.symbol || '';
+            const cost = state.derived?.incomeSources?.shopOffers?.monthly?.[code.toUpperCase()] || state.derived?.incomeSources?.shopOffers?.monthly?.USD || 0;
+            return {
+                icon: 'assets/resources/shopOffers.png',
+                text: `${symbol} ${formatCurrency(toMajorUnits(cost, code), code)}`
+            };
         }
     },
     raidMedalTrader: {
@@ -193,7 +227,11 @@ export const incomeData = {
             dateEnd: 1,
         },
         getIncome: (state) => getDerivedSourceIncome(state, 'raidMedalTrader', 'weekly'),
-        getResourceString: (state) => translate('views.income.raidMedalTrader.perWeek', { count: state.derived.incomeSources.raidMedalTrader?.cost || 0 })
+        getResourceString: (state) => formatNumber(state.derived?.incomeSources?.raidMedalTrader?.cost || 0),
+        getResourceMeta: (state) => ({
+            icon: 'assets/resources/raidMedal.png',
+            text: formatNumber(state.derived?.incomeSources?.raidMedalTrader?.cost || 0)
+        })
     },
     gemTrader: {
         id: 'gemTrader',
@@ -210,7 +248,11 @@ export const incomeData = {
             dateEnd: 1,
         },
         getIncome: (state) => getDerivedSourceIncome(state, 'gemTrader', 'weekly'),
-        getResourceString: (state) => translate('views.income.gemTrader.perWeek', { count: state.derived.incomeSources.gemTrader?.cost || 0 })
+        getResourceString: (state) => formatNumber(state.derived?.incomeSources?.gemTrader?.cost || 0),
+        getResourceMeta: (state) => ({
+            icon: 'assets/resources/gem.png',
+            text: formatNumber(state.derived?.incomeSources?.gemTrader?.cost || 0)
+        })
     },
     eventPass: {
         id: 'eventPass',
@@ -225,20 +267,22 @@ export const incomeData = {
             type: 'bimonthly',
             dateStart: 8,
             dateEnd: 28,
-            availableMonths: {
-                2026: [4, 6, 8, 10, 12],
-                2027: [2, 4, 6, 8, 10, 12],
-                2028: [2, 4, 6, 8, 10, 12],
-                2029: [2, 4, 6, 8, 10, 12],
-                2030: [2, 4, 6, 8, 10, 12]
-            },
+            availableMonths: resolvedEventPassAvailableMonths,
         },
         getIncome: (state) => getDerivedSourceIncome(state, 'eventPass', 'bimonthly'),
         getResourceString: (state) => (
-            state.income.eventPass?.eventPass
-                ? `${translate('views.income.eventPass.title')} (${getCostString(state, 'eventPass')})`
+            state.income?.eventPass?.eventPass
+                ? getCostString(state, 'eventPass')
                 : translate('views.income.eventPass.free')
-        )
+        ),
+        getResourceMeta: (state) => ({
+            icon: state.income?.eventPass?.eventPass
+                ? 'assets/resources/eventPass.png'
+                : 'assets/resources/eventPassSilver.png',
+            text: state.income?.eventPass?.eventPass
+                ? getCostString(state, 'eventPass')
+                : translate('views.income.eventPass.free')
+        })
     },
     eventTrader: {
         id: 'eventTrader',
@@ -254,16 +298,57 @@ export const incomeData = {
             type: 'bimonthly',
             dateStart: 8,
             dateEnd: 28,
-            availableMonths: {
-                2026: [4, 6, 8, 10, 12],
-                2027: [2, 4, 6, 8, 10, 12],
-                2028: [2, 4, 6, 8, 10, 12],
-                2029: [2, 4, 6, 8, 10, 12],
-                2030: [2, 4, 6, 8, 10, 12]
-            },
+            availableMonths: resolvedEventPassAvailableMonths,
         },
         getIncome: (state) => getDerivedSourceIncome(state, 'eventTrader', 'bimonthly'),
-        getResourceString: (state) => translate('views.income.eventPass.medalsResource', { count: state.derived.incomeSources.eventTrader?.cost || 0 })
+        getResourceString: (state) => formatNumber(state.derived?.incomeSources?.eventTrader?.cost || 0),
+        getResourceMeta: (state) => ({
+            icon: 'assets/resources/eventMedal.png',
+            text: formatNumber(state.derived?.incomeSources?.eventTrader?.cost || 0)
+        })
+    },
+    craftPass: {
+        id: 'craftPass',
+        nameI18nKey: 'views.income.craftPass.title',
+        showInHomeTable: true,
+        name: 'Craft Pass',
+        type: 'craftPass',
+        className: 'craft-pass',
+        iconUrl: 'assets/resources/eventPass.png',
+        isSingleEvent: true,
+        schedule: craftPassScheduleData,
+        getIncome: (state) => getDerivedSourceIncome(state, 'craftPass', 'bimonthly'),
+        getResourceString: (state) => (
+            state.income?.craftPass?.craftPass
+                ? getCostString(state, 'craftPass')
+                : translate('views.income.eventPass.free')
+        ),
+        getResourceMeta: (state) => ({
+            icon: state.income?.craftPass?.craftPass
+                ? 'assets/resources/eventPass.png'
+                : 'assets/resources/eventPassSilver.png',
+            text: state.income?.craftPass?.craftPass
+                ? getCostString(state, 'craftPass')
+                : translate('views.income.eventPass.free')
+        })
+    },
+    craftPassTrader: {
+        id: 'craftPassTrader',
+        nameI18nKey: 'views.income.craftPassTrader.title',
+        showInHomeTable: true,
+        allowManualCreation: true,
+        name: 'Craft Pass Trader',
+        type: 'craftPassTrader',
+        className: 'craft-pass-trader',
+        iconUrl: 'assets/resources/eventMedal.png',
+        isSingleEvent: true,
+        schedule: craftPassScheduleData,
+        getIncome: (state) => getDerivedSourceIncome(state, 'craftPassTrader', 'bimonthly'),
+        getResourceString: () => translate('entities.equipment.comingSoon'),
+        getResourceMeta: () => ({
+            icon: 'assets/resources/eventMedal.png',
+            text: translate('entities.equipment.comingSoon')
+        })
     },
     clanWar: {
         id: 'clanWar',
@@ -282,7 +367,11 @@ export const incomeData = {
         getIncome: (state) => getDerivedSourceIncome(state, 'clanWar', 'perEvent'),
         getCount: (state) => state.income.clanWar?.warsPerMonth || 0,
         minReoccurrenceDays: 2,
-        getResourceString: (state) => formatWarResource(state.income.clanWar?.warsPerMonth || 0, state.income.clanWar?.winRate, 'views.income.clanWar.resource')
+        getResourceString: (state) => formatWarResource(state.income.clanWar?.warsPerMonth || 0, state.income.clanWar?.winRate, 'views.income.clanWar.resource'),
+        getResourceMeta: (state) => ({
+            icon: 'assets/resources/clanWar.png',
+            text: formatWarResource(state.income.clanWar?.warsPerMonth || 0, state.income.clanWar?.winRate, 'views.income.clanWar.resource')
+        })
     },
     cwl: {
         id: 'cwl',
@@ -300,7 +389,11 @@ export const incomeData = {
         },
         getIncome: (state) => getDerivedSourceIncome(state, 'cwl', 'perEvent'),
         getCount: (state) => state.income.cwl?.hitsPerSeason || 0,
-        getResourceString: (state) => formatWarResource(state.income.cwl?.hitsPerSeason || 0, state.income.cwl?.winRate, 'views.income.cwl.resource')
+        getResourceString: (state) => formatWarResource(state.income.cwl?.hitsPerSeason || 0, state.income.cwl?.winRate, 'views.income.cwl.resource'),
+        getResourceMeta: (state) => ({
+            icon: 'assets/resources/cwl.png',
+            text: formatWarResource(state.income.cwl?.hitsPerSeason || 0, state.income.cwl?.winRate, 'views.income.cwl.resource')
+        })
     },
     supercellEvents: {
         id: 'supercellEvents',
@@ -312,7 +405,11 @@ export const incomeData = {
         type: 'supercellEvents',
         className: 'supercell-events',
         iconUrl: 'assets/resources/supercellEvents.png',
-        getResourceString: () => 'event.supercell.com',
+        getResourceString: () => translate('views.income.supercellEvents.worldChampionship'),
+        getResourceMeta: () => ({
+            icon: 'assets/resources/supercellEvents.png',
+            text: translate('views.income.supercellEvents.worldChampionship')
+        }),
         getAutomaticSchedule: (date, state) => {
             if (!state.income.supercellEvents?.worldChampionship) return null;
 
@@ -357,10 +454,18 @@ export const incomeData = {
         },
         getIncome: (state) => getDerivedSourceIncome(state, 'prospector', 'daily'),
         getResourceString: (state) => (
-            state.income.prospector?.goldPass
-                ? `${translate('entities.pricing.goldPass')} (${getCostString(state, 'prospector')})`
+            state.income?.prospector?.goldPass
+                ? getCostString(state, 'prospector')
                 : translate('views.income.prospector.silverPass')
         ),
+        getResourceMeta: (state) => ({
+            icon: state.income?.prospector?.goldPass
+                ? 'assets/resources/goldPass.png'
+                : 'assets/resources/silverPass.png',
+            text: state.income?.prospector?.goldPass
+                ? getCostString(state, 'prospector')
+                : translate('views.income.prospector.silverPass')
+        }),
         getAutomaticSchedule: (date, state) => {
             if (!state.income.prospector?.goldPass) return null;
             const income = getProspectorIncomeForDate(date, state);

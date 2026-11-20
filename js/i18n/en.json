@@ -292,7 +292,7 @@
             "airSweeper": "Air Sweeper",
             "archerTower": "Archer Tower",
             "bombTower": "Bomb Tower",
-            "buildersHut": "Builder Hut",
+            "buildersHut": "Builder's Hut",
             "cakeAPult": "Cake-A-Pult",
             "cannon": "Cannon",
             "clanCastle": "Clan Castle",
@@ -328,6 +328,7 @@
             "actionFigure": "Action Figure",
             "archerPuppet": "Archer Puppet",
             "barbarianPuppet": "Barbarian Puppet",
+            "blizzardAxe": "Blizzard Axe",
             "comingSoon": "Coming Soon",
             "darkCrown": "Dark Crown",
             "darkOrb": "Dark Orb",
@@ -364,6 +365,7 @@
             "rocketSpear": "Rocket Spear",
             "royalGem": "Royal Gem",
             "seekingShield": "Seeking Shield",
+            "shieldBrooch": "Shield Brooch",
             "snakeBracelet": "Snake Bracelet",
             "spikyBall": "Spiky Ball",
             "stickHorse": "Stick Horse",
@@ -422,8 +424,9 @@
             "heroPotion": "Temporarily boosts all Heroes and Pets to the maximum level allowed by your Town Hall level for 1 hour.",
             "mightyMorsel": "Temporarily boosts all Heroes, Pets, and Hero Equipment to the max level allowed by your Town Hall level for next 3 attacks.",
             "petPotion": "Accelerates a Pet upgrade by 24x for 1 hour.",
-            "runeOfDarkElixir": "Completely fills your Dark Elixir Storage in Home Village",
-            "runeOfElixir": "Completely fills your Elixir Storage in Home Village"
+            "runeOfDarkElixir": "Completely fills your Dark Elixir Storage in Home Village.",
+            "runeOfElixir": "Completely fills your Elixir Storage in Home Village.",
+            "starBonusSnack": "Makes the Star Bonus available again in Home Village."
         },
         "magicItems": {
             "bookOfHeroes": "Book of Heroes",
@@ -444,6 +447,7 @@
         },
         "pricing": {
             "gems": "{count} Gems",
+            "gemsCraftPass": "{count} Gems / Craft Pass",
             "gemsEventPass": "{count} Gems / Event Pass",
             "goldPass": "Gold Pass",
             "miniEventPass": "Mini Event Pass",
@@ -485,6 +489,7 @@
             "counterDamage": "Counter Damage",
             "counterRange": "Counter Range",
             "damage": "Damage",
+            "damageAbsorbed": "Damage Absorbed",
             "damageIncrease": "Damage Increase",
             "damagePerHit": "Damage per Hit",
             "damagePerSecond": "Damage per Second",
@@ -492,6 +497,7 @@
             "damagePerShotIncrease": "Damage per Shot Increase",
             "damageRadius": "Damage Radius",
             "deathDamage": "Death Damage",
+            "explosionDamage": "Explosion Damage",
             "favoriteTarget": "Favorite Target",
             "firstHealthDamageIncrease": "First Health & Damage Increase",
             "healingPerSecond": "Healing per Second",
@@ -505,6 +511,7 @@
             "incomingDamageReduction": "Incoming Damage Reduction",
             "invisibilityDuration": "Invisibility Duration",
             "maxDamageIncrease": "Max Damage Increase",
+            "maxHitpointIncrease": "Max Hitpoint Increase",
             "maxHousingSpace": "Max Housing Space",
             "monolithArrowMaxDamage": "Extra Damage (<180 Space)",
             "monolithArrowMidDamage": "Extra Damage (181-250 Space)",
@@ -833,7 +840,7 @@
                 "editLevels": "Edit Levels",
                 "emptySourcesNotice": "No damage sources enabled. Enable spells or equipment above to calculate combinations.",
                 "equipmentDamageBadge": "Equipment Damage",
-                "esportsNotice": "Esports Mode active: Equipment will be downgraded (Common -3 levels, Epic -6 levels). Set your actual in-game levels.",
+                "esportsNotice": "Esports Mode active: Equipment will be downgraded (Common -3 levels, Epic -6 levels, Legendary -9 levels). Set your actual in-game levels.",
                 "exceedsCapacity": "Exceeds {max} Capacity",
                 "insufficientCapacityNotice": "requires more capacity than available.",
                 "levelEditorSections": "Level Editor Sections",
@@ -861,7 +868,7 @@
                 "giantArrowVulnerabilityBody": "Giant Arrow deals 200% damage against all Air Defenses.",
                 "giantArrowVulnerabilityTitle": "Giant Arrow (2x Damage)",
                 "immunities": "Immunities",
-                "modifierEsportsRules": "Def. DPS +{defDps}%, heroes +{defHero}%, guardians +{defGuardian}%; atk. heroes -{atkHero}%; Common eq. -{commonLoss} lvls, Epic eq. -{epicLoss} lvls.",
+                "modifierEsportsRules": "Def. DPS +{defDps}%, heroes +{defHero}%, guardians +{defGuardian}%; atk. heroes -{atkHero}%; Common eq. -{commonLoss} lvls, Epic eq. -{epicLoss} lvls, Legendary eq. -{legendaryLoss} lvls.",
                 "modifierLeagueRules": "Def. DPS +{defDps}%, heroes +{defHero}%, guardians +{defGuardian}%; atk. heroes -{atkHero}%.",
                 "modifierTitle": "Battle Modifiers & League Rules",
                 "orderedStrikeBreakdown": "Ordered Strike Breakdown",
@@ -936,8 +943,18 @@
             "contributeMissingData": "If you have stats or info for this equipment, please <a href=\"#\" class=\"theme-link open-inaccuracies-link\">contribute them here</a>.",
             "cost": "Cost",
             "dataNotAvailable": "Data Not Available",
-            "detailsAttribution": "Equipment statistics are sourced from the <a href=\"https://clashofclans.fandom.com/wiki/Clash_of_Clans_Wiki\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash of Clans Fandom Wiki<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>, and the layout design is inspired by <a href=\"https://www.clash.ninja/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash Ninja<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
+            "detailsAttribution": "Layout design is inspired by <a href=\"https://www.clash.ninja/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash Ninja<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
             "detailsNotAvailableDesc": "Detailed level stats and upgrade breakdown for this equipment are not available yet.",
+            "economyNotice": {
+                "point1": "Legendary Rarity & Blizzard Axe: Debuting in December via Crafting Event (free unlock at TH 8). Max level 33 (79,760 Shiny, 5,100 Glowy, 705 Starry total).",
+                "point2": "Lower Upgrade Costs: Future Epics and Legendaries cost less Glowy (-170) and Starry (-50) to reach level 27.",
+                "point3": "Catch-Up Discounts: In future updates, older Epic equipment will become cheaper to upgrade over time in phased reductions.",
+                "readArticle": "Read Official Blog Post",
+                "reopenDesc": "Review announced ore economy changes and cost reductions.",
+                "reopenLabel": "Ore Economy Changes",
+                "summary": "Supercell has announced upcoming adjustments to the ore economy alongside the new Legendary Equipment rarity.",
+                "title": "Upcoming Ore Economy & Upgrade Cost Changes"
+            },
             "emptyState": {
                 "maxedDesc": "You have upgraded every piece of equipment to its maximum level.",
                 "maxedTitle": "All Hero Equipment Maxed",
@@ -956,6 +973,7 @@
             "heroBoost": "Hero Boost",
             "heroEquipment": "Hero Equipment",
             "heroJourneyPreLevelInfo": "Unlocks from Hero's Journey at Town Hall {th} (Node {node}), already upgraded to Level {level}.",
+            "legendary": "Legendary",
             "lvl": "Lvl",
             "maxLevel": "Max Level",
             "modifiers": {
@@ -1004,6 +1022,7 @@
             "guest": "Explore with Guest Profile",
             "guestProfileTag": "Guest Profile",
             "league": "League",
+            "legendaryEquip": "Legendary Equipment",
             "loadProfile": "Load Profile",
             "noClan": "No Clan",
             "profileTab": "Profile",
@@ -1144,14 +1163,12 @@
                 "collapseStats": "Collapse profile stats",
                 "connectBtn": "Connect Profile",
                 "expandStats": "Expand profile stats",
-                "guestNotice": "Guest Profile: Connect a player tag to enable automatic progress syncing.",
                 "locked": "Locked",
                 "maxed": "Maxed",
                 "maxedEquipment": "Maxed Equipment",
                 "noProfileTitle": "No Profile Connected",
                 "overallProgress": "Overall Ore Progress",
-                "remainingColon": "Remaining:",
-                "syncNotice": "Note: Progress metrics are based strictly on synced game data. Manual planner selections, manual level changes, and stored ores are excluded from these totals and will only update upon the next API sync."
+                "remainingColon": "Remaining:"
             },
             "remainingTime": {
                 "help": "Time needed to gather the required ores based on your monthly income. Assumes consistent activity; changing your income configuration alters this timeline."
@@ -1167,12 +1184,21 @@
                 "glowyBonusAriaLabel": "Clan War Glowy Ore per attack bonus",
                 "help": "The ore bonuses earned in Clan Wars depend on the Town Hall level of the target you are attacking. Tip: You can participate in side wars in another clan while CWL is active in your main clan to maximize ore income.",
                 "last60DaysNWars": "Last 60 Days | Last {count} Wars",
-                "participationsColon": "Clan War Participations:",
-                "resource": "{count} Wars ({winRate}% Wins)",
+                "resource": "{count} wars · {winRate}% win",
                 "shinyBonusAriaLabel": "Clan War Shiny Ore per attack bonus",
                 "starryBonusAriaLabel": "Clan War Starry Ore per attack bonus",
                 "title": "Clan War",
+                "warsCount": "{count} wars",
                 "warsPerMonth": "Wars per Month"
+            },
+            "craftPass": {
+                "help": "The Craft Pass is a seasonal event pass introducing debut Legendary equipment. Purchasing the pass automatically unlocks and pre-levels eligible unowned Legendary equipment to Level 15. Note: This feature is currently in preview based on early announcements; additional rewards and schedule details will be updated as more information is revealed.",
+                "title": "Craft Pass"
+            },
+            "craftPassTrader": {
+                "help": "Exchange Craft Currency earned during Craft Pass events for ores and items once the Craft Pass Trader is released. Note: Details and offers are not yet announced and will be updated once officially revealed.",
+                "noSchedule": "The Craft Pass Trader hasn't been officially revealed yet. Check back later!",
+                "title": "Craft Pass Trader"
             },
             "cwl": {
                 "currentCwlHits": "Current CWL | {count} Hits",
@@ -1180,23 +1206,22 @@
                 "cwl2SeasonsHits": "CWL (2 Seasons) | {count} Hits",
                 "glowyBonusAriaLabel": "CWL Glowy Ore per attack bonus",
                 "help": "Calculated from Clan War League attack bonuses based on the Town Hall level of the target you attack, your total hits, and the overall performance of your clan.",
+                "hitsCount": "{count} hits",
                 "hitsPerSeason": "Hits per Season",
-                "participationsColon": "CWL Participations:",
-                "resource": "{count} Hits ({winRate}% Wins)",
+                "resource": "{count} hits · {winRate}% win",
                 "shinyBonusAriaLabel": "CWL Shiny Ore per attack bonus",
                 "starryBonusAriaLabel": "CWL Starry Ore per attack bonus",
                 "title": "CWL"
             },
             "drawRate": "Draws",
-            "drawRatePct": "Draws (%)",
+            "drawRatePct": "Draws %",
             "earned": "Earned",
             "eventPass": {
                 "bonusTrackMedals": "Claimable & Bonus Medals",
-                "bonusTrackMedalsHelp": "Amount of medals in the bonus track of the event pass, and claimable medals from the <a href=\"https://store.supercell.com/en/clashofclans\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Store<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
+                "bonusTrackMedalsHelp": "Amount of medals in the bonus track of the Event Pass, and claimable medals from the <a href=\"https://store.supercell.com/en/clashofclans\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Store<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
                 "free": "Free Pass",
-                "help": "Medal events are run every two months. These events usually come with new equipment. Buying an event pass is the most efficient way of spending for equipment upgrades. If you do not buy an event pass, you will likely be able to only purchase either the equipment or the ore packs from the event trader.",
+                "help": "Medal events are run every two months. These events usually come with new equipment. Buying an Event Pass is the most efficient way of spending for equipment upgrades. If you do not buy an Event Pass, you will likely be able to only purchase either the equipment or the ore packs from the event trader.",
                 "includeEquipment": "Include Equipment",
-                "medalsColon": "Event Medals:",
                 "medalsResource": "{count} Event Medals",
                 "previous": "Previous",
                 "purchasedMedals": "Purchased Medals",
@@ -1207,12 +1232,10 @@
                 "title": "Event Trader"
             },
             "gemTrader": {
-                "gemsColon": "Gems:",
-                "help": "You can also use gems to purchase ores from the trader, these refresh weekly. A gold pass buyer can usually gain around 200-250 gems per week if they do it efficiently, which can be used to buy these offers, without spending real money.",
-                "perWeek": "{count} Gems per week",
+                "help": "You can also use gems to purchase ores from the trader, these refresh weekly. A Gold Pass buyer can usually gain around 200-250 gems per week if they do it efficiently, which can be used to buy these offers, without spending real money.",
                 "title": "Gem Trader"
             },
-            "lossRatePct": "Losses (%)",
+            "lossRatePct": "Losses %",
             "ores": {
                 "autoPredictDesc": "Predict stored ores using in-game upgrades activity.",
                 "autoPredictTitle": "Auto Predict",
@@ -1266,8 +1289,6 @@
             },
             "raidMedalTrader": {
                 "help": "Participate in Capital Raids every weekend with your clan to earn Raid Medals, and use them to purchase ores from the Trader weekly.",
-                "medalsColon": "Raid Medals:",
-                "perWeek": "{count} Raid Medals per week",
                 "title": "Raid Medal Trader"
             },
             "remaining": "Remaining",
@@ -1283,6 +1304,8 @@
             },
             "shortcuts": {
                 "clanWar": "War",
+                "craftPass": "Craft",
+                "craftPassTrader": "Trader",
                 "cwl": "CWL",
                 "eventPass": "Pass",
                 "eventTrader": "Event",
@@ -1347,7 +1370,7 @@
             "totalLabel": "Total",
             "totalTitle": "Total Income",
             "winRate": "Wins",
-            "winRatePct": "Wins (%)"
+            "winRatePct": "Wins %"
         },
         "landing": {
             "activeVillageShowcase": "Active Village Showcase",
@@ -1425,7 +1448,7 @@
             "confirmDeleteAll": "Are you sure you want to delete all chips from the calendar? This will also delete all the custom chips.",
             "confirmDeleteMonth": "Are you sure you want to delete all chips placed in the current month?",
             "confirmResetList": "Are you sure you want to clear the entire priority list? This will remove all upgrade plans.",
-            "createCustomChipsHelp": "Custom chips allow you to inject custom income events, shop offers, star bonuses, or war results directly into specific days on your planner timeline to simulate custom resource boosts.",
+            "createCustomChipsHelp": "Custom chips allow you to inject custom income events, shop offers, Star Bonuses, or war results directly into specific days on your planner timeline to simulate custom resource boosts.",
             "createCustomChipsModal": {
                 "chooseType": "Choose a type...",
                 "createMonthly": "Create monthly",
@@ -1508,8 +1531,8 @@
             "storageAlreadyFull": "{ore} storage full",
             "storageCountdownStrip": "Time until storages full",
             "storageFullInDays": "{ore} full in {days}d",
-            "suggestionEpicUp": "Move {futureItemName} up to finish sooner. You have extra Starry Ores.",
             "suggestionInterleave": "Finish {itemNames} while waiting for {itemName} ores. No delay to your plan.",
+            "suggestionStarryUp": "Move {futureItemName} up to finish sooner. You have extra Starry Ores.",
             "toggleEquipment": "Toggle {name} inclusion",
             "trueMaxedDesc": "Every hero equipment has reached its maximum level.",
             "validDates": "Valid Range"

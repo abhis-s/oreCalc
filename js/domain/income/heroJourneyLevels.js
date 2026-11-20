@@ -1,21 +1,24 @@
 import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { heroData, HERO_NAME_TO_KEY } from '../../data/heroData.js';
 import { heroMaxLevelsPerTH } from '../../data/heroJourneyData.js';
+import { toCamelCase } from '../../utils/stringUtils.js';
 
 let cachedMaxCumulativeLevelsByTH = null;
 
 /**
  * Resolves a hero's max level at a given Town Hall by walking down to the highest defined TH cap.
  *
- * @param {string} heroKey - Canonical hero key in heroMaxLevelsPerTH.
- * @param {number} thLevel - Target Town Hall level.
+ * @param {string} heroKeyOrName - Hero key or display name.
+ * @param {number} [thLevel=MAX_TOWN_HALL] - Target Town Hall level.
  * @returns {number} Maximum hero level unlocked at or below thLevel.
  */
-function getHeroMaxLevelForTH(heroKey, thLevel) {
-    const thObj = heroMaxLevelsPerTH[heroKey];
+export function getHeroMaxLevelForTH(heroKeyOrName, thLevel = MAX_TOWN_HALL) {
+    const canonicalKey = HERO_NAME_TO_KEY[heroKeyOrName]
+        || (heroMaxLevelsPerTH[heroKeyOrName] ? heroKeyOrName : toCamelCase(heroKeyOrName || ''));
+    const thObj = heroMaxLevelsPerTH[canonicalKey];
     if (!thObj) return 0;
 
-    const targetTH = Math.floor(Number(thLevel) || 0);
+    const targetTH = Math.floor(Number(thLevel) || MAX_TOWN_HALL);
     for (let currentTH = targetTH; currentTH >= 1; currentTH--) {
         if (thObj[currentTH] !== undefined && thObj[currentTH] !== null) {
             return Number(thObj[currentTH]) || 0;
@@ -209,7 +212,7 @@ export function getRawCumulativeHeroLevel(state) {
  * Maps cumulative hero level thresholds to Town Hall max cumulative hero level caps.
  *
  * @param {number} nodeLevel - Milestone node level threshold.
- * @returns {number} Clamped Town Hall level (8-18).
+ * @returns {number} Clamped Town Hall level (7 to max Town Hall).
  */
 export function getNodeTownHallLevel(nodeLevel) {
     const maxLevelsByTH = getMaxCumulativeLevelsByTH();
@@ -226,7 +229,7 @@ export function getNodeTownHallLevel(nodeLevel) {
 /**
  * Resolves the starting cumulative level for a Town Hall tier.
  *
- * @param {number} th - Town Hall level (7-18).
+ * @param {number} th - Town Hall level.
  * @returns {number} Starting cumulative level for this TH tier.
  */
 export function getTownHallStartLevel(th) {
@@ -266,7 +269,7 @@ export function isDefaultOrGuestPlayer(state) {
     const activeTag = state?.playerProfile?.tag || state?.savedPlayerTags?.[0];
     if (!activeTag) return true;
     const upper = String(activeTag).toUpperCase();
-    return upper === 'DEFAULT0' || upper.startsWith('DEFAULT') || upper.startsWith('GUEST');
+    return upper === 'DEFAULT0' || upper.startsWith('DEFAULT');
 }
 
 /**
@@ -279,7 +282,7 @@ export function hasSyncedHeroInfo(state) {
     const profile = state?.playerProfile || (state?.savedPlayerTags?.[0] ? state?.allPlayersData?.[state.savedPlayerTags[0]]?.playerProfile : null);
     if (!profile) return false;
     const tag = profile.tag || state?.savedPlayerTags?.[0];
-    if (!tag || tag === 'DEFAULT0' || tag.toUpperCase().startsWith('DEFAULT') || tag.toUpperCase().startsWith('GUEST')) {
+    if (!tag || tag === 'DEFAULT0' || tag.toUpperCase().startsWith('DEFAULT')) {
         return false;
     }
     return true;

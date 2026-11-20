@@ -21,7 +21,7 @@ export function isSuperchargeAvailableForTownHall(townHallLevel = MAX_TOWN_HALL)
 /**
  * Evaluates whether a specific Town Hall level functions as an active defense.
  * TH 12–17 are weaponized (Giga Tesla, Giga Inferno, Inferno Artillery) and act as defenses.
- * TH 1–11 are standard non-defensive buildings. TH 18 is also not a defense.
+ * TH 1–11 are standard non-defensive buildings. TH 18+ are also not defenses.
  *
  * @param {number|string|null|undefined} level - Town Hall level.
  * @returns {boolean} True if Town Hall level is between 12 and 17 (inclusive).
@@ -196,7 +196,7 @@ export function getMaxSuperchargeTier(defenseKey, level) {
 /**
  * Dynamically resolves the maximum supercharge tier available across all defenses for a Town Hall level.
  *
- * @param {number} [townHallLevel=18] - Town Hall level.
+ * @param {number} [townHallLevel=MAX_TOWN_HALL] - Town Hall level.
  * @returns {number} Highest supercharge tier found across available defenses for this Town Hall.
  */
 export function getMaxSuperchargeTierForTownHall(townHallLevel = MAX_TOWN_HALL) {
@@ -229,7 +229,7 @@ export function getMaxSuperchargeTierForTownHall(townHallLevel = MAX_TOWN_HALL) 
  * Resolves the maximum available level and unlock status for a defense at a given Town Hall level.
  *
  * @param {string} defenseKey - Canonical defense identifier.
- * @param {number} [townHallLevel=18] - Target Town Hall level.
+ * @param {number} [townHallLevel=MAX_TOWN_HALL] - Target Town Hall level.
  * @returns {{ level: number, status: 'available' | 'locked' | 'sunset', minTH?: number, maxTH?: number } | null}
  */
 export function getMaxDefenseLevelForTownHall(defenseKey, townHallLevel = MAX_TOWN_HALL) {
@@ -324,12 +324,12 @@ export function isClusterDefenseSunsetForTownHall(defenseOrKey, townHallLevel = 
 
 /**
  * Resolves the default supercharge tier for a defense level and Town Hall.
- * For TH18, supercharging is the max level progression, defaulting to the maximum available tier.
+ * At max-tier Town Halls, supercharging is the max level progression, defaulting to the maximum available tier.
  * For lower Town Halls or non-superchargeable structures, defaults to 0.
  *
  * @param {string} [defenseKey] - Optional defense identifier.
  * @param {number} [level] - Optional defense level.
- * @param {number} [townHallLevel=18] - Target Town Hall level.
+ * @param {number} [townHallLevel=MAX_TOWN_HALL] - Target Town Hall level.
  * @returns {number} Default supercharge tier.
  */
 export function getDefaultSuperchargeTier(defenseKey, level, townHallLevel = MAX_TOWN_HALL) {
@@ -506,7 +506,7 @@ export function getDefenseCategoryTier(key, def = getDefensesData()[key]) {
  * 'defenses', 'heroes', 'guardians', or 'other'.
  *
  * @param {string} key - Canonical building identifier.
- * @param {number} [townHallLevel=18] - Target Town Hall level.
+ * @param {number} [townHallLevel=MAX_TOWN_HALL] - Target Town Hall level.
  * @returns {'defenses' | 'heroes' | 'guardians' | 'other' | 'unavailable'} Group identifier.
  */
 export function getBuildingGroupId(key, townHallLevel = MAX_TOWN_HALL) {
@@ -526,7 +526,7 @@ export function getBuildingGroupId(key, townHallLevel = MAX_TOWN_HALL) {
  * Segregates available entities into 4 category groups and groups all unavailable
  * (locked and sunset) entities under a unified 'unavailable' umbrella.
  *
- * @param {number} [currentTH=18] - Target Town Hall level.
+ * @param {number} [currentTH=MAX_TOWN_HALL] - Target Town Hall level.
  * @param {Date|string|number} [referenceDate=new Date()] - Reference date for seasonal filtering.
  * @returns {{
  *   defenses: Array<{ key: string, def: Object, info: Object }>,
@@ -597,7 +597,7 @@ export function partitionDefensesForModal(currentTH = MAX_TOWN_HALL, referenceDa
  * @param {Object} defA
  * @param {string} keyB
  * @param {Object} defB
- * @param {number} [currentTH=18]
+ * @param {number} [currentTH=MAX_TOWN_HALL]
  * @returns {number}
  */
 export function compareDefensesForDisplay(keyA, defA, keyB, defB, currentTH = MAX_TOWN_HALL) {

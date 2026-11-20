@@ -1,4 +1,5 @@
 import { heroData } from '../../data/heroData.js';
+import { getHeroEquipmentList } from '../../domain/equipment/comingSoonEquipmentDomain.js';
 import { translate } from '../../i18n/translator.js';
 
 import { toCamelCase, toKebabCase } from '../../utils/stringUtils.js';
@@ -130,8 +131,8 @@ export function initializeHeroPlannerCarousel(heroesState, plannerState) {
         const equipmentList = document.createElement('div');
         equipmentList.className = 'equipment-list';
 
-        hero.equipment.forEach(equip => {
-            const equipState = heroState.equipment?.[equip.name] || {};
+        getHeroEquipmentList(hero, heroState).forEach(equip => {
+            const equipState = heroState.equipment?.[equip.key] || heroState.equipment?.[equip.name] || {};
             const equipmentItem = createEquipmentItem({
                 equip,
                 equipState,

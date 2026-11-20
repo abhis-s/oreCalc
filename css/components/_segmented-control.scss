@@ -4,7 +4,7 @@
     position: relative;
     display: inline-grid;
     grid-auto-flow: column;
-    grid-auto-columns: 1fr;
+    grid-auto-columns: minmax(0, 1fr);
     align-items: stretch;
     background-color: $bg-surface-tertiary;
     border: 1px solid $border-primary;
@@ -18,39 +18,39 @@
         top: $spacing-2xs;
         bottom: $spacing-2xs;
         left: $spacing-2xs;
-        width: calc((100% - (#{$spacing-2xs} * 2)) / 2);
+        width: var(--segmented-pill-width, calc((100% - (#{$spacing-2xs} * 2)) / 2));
         background-color: $bg-surface-primary;
         border-radius: $shape-corner-compact;
         box-shadow: $elevation-1;
-        transition: transform $duration-base $ease-spring;
+        transition: transform $duration-base $ease-spring, width $duration-base $ease-spring;
         pointer-events: none;
         z-index: $z-index-base;
     }
 
     &:has(> .segmented-btn:nth-child(1).is-active)::before {
-        transform: translateX(0);
+        transform: translateX(var(--segmented-pill-x, 0));
     }
 
     &:has(> .segmented-btn:nth-child(2).is-active)::before {
-        transform: translateX(100%);
+        transform: translateX(var(--segmented-pill-x, 100%));
     }
 
     &:has(> .segmented-btn:first-child:nth-last-child(3)),
     &:has(> .segmented-btn:nth-child(3)) {
         &::before {
-            width: calc((100% - (#{$spacing-2xs} * 2)) / 3);
+            width: var(--segmented-pill-width, calc((100% - (#{$spacing-2xs} * 2)) / 3));
         }
 
         &:has(> .segmented-btn:nth-child(1).is-active)::before {
-            transform: translateX(0);
+            transform: translateX(var(--segmented-pill-x, 0));
         }
 
         &:has(> .segmented-btn:nth-child(2).is-active)::before {
-            transform: translateX(100%);
+            transform: translateX(var(--segmented-pill-x, 100%));
         }
 
         &:has(> .segmented-btn:nth-child(3).is-active)::before {
-            transform: translateX(200%);
+            transform: translateX(var(--segmented-pill-x, 200%));
         }
     }
 
@@ -63,6 +63,7 @@
     .segmented-btn {
         position: relative;
         z-index: $z-index-interactive;
+        min-width: 0;
         display: inline-flex;
         align-items: center;
         justify-content: center;

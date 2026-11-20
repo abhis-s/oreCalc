@@ -90,7 +90,8 @@ export function initializePriorityList(options = {}) {
     const { errorItems } = getStepOrderErrors(globalPriorityList);
 
     const visiblePriorityList = globalPriorityList.filter(item => {
-        const currentLevel = state.heroes[item.heroName]?.equipment[item.name]?.level || 1;
+        const heroEq = state.heroes[item.heroName]?.equipment;
+        const currentLevel = (heroEq?.[item.key] || heroEq?.[item.name])?.level || 1;
         return item.targetLevel > currentLevel;
     });
 

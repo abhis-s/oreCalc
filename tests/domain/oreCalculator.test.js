@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { calculateRequiredOres } from '../../js/core/oreCalculator.js';
+import { usesStarryOre } from '../../js/data/equipmentCommonData.js';
 
 test('calculateRequiredOres returns zero when no heroes or equipment are checked', () => {
     const heroesState = {
@@ -97,4 +98,78 @@ test('calculateRequiredOres properly deducts upcoming Hero Journey rewards', () 
     assert.equal(withHJ.shiny, withoutHJ.shiny - 5000);
     assert.equal(withHJ.glowy, withoutHJ.glowy - 500);
     assert.equal(withHJ.starry, withoutHJ.starry - 50);
+});
+
+test('calculateRequiredOres accurately calculates ores for legendary equipment (Blizzard Axe Lv 1 to 33)', () => {
+    const heroesState = {
+        barbarianKing: {
+            level: 95,
+            enabled: true,
+            equipment: {
+                blizzardAxe: { level: 1, checked: true }
+            }
+        }
+    };
+    const storedOres = { shiny: 0, glowy: 0, starry: 0 };
+    const plannerMaxLevels = { customMaxLevel: { legendary: 33 } };
+
+    const result = calculateRequiredOres(heroesState, storedOres, plannerMaxLevels);
+    assert.deepEqual(result, {
+        shiny: 79760,
+        glowy: 5100,
+        starry: 705
+    });
+});
+
+test('calculateRequiredOres accurately calculates remaining ores with Craft Pass pre-leveling (Lv 15 to 33)', () => {
+    const heroesState = {
+        barbarianKing: {
+            level: 95,
+            enabled: true,
+            equipment: {
+                blizzardAxe: { level: 15, checked: true }
+            }
+        }
+    };
+    const storedOres = { shiny: 0, glowy: 0, starry: 0 };
+    const plannerMaxLevels = { customMaxLevel: { legendary: 33 } };
+
+    const result = calculateRequiredOres(heroesState, storedOres, plannerMaxLevels);
+    assert.deepEqual(result, {
+        shiny: 60300,
+        glowy: 4230,
+        starry: 650
+    });
+});
+
+test('usesStarryOre identifies Epic and Legendary rarities as requiring Starry Ore', () => {
+    assert.equal(usesStarryOre('common'), false);
+    assert.equal(usesStarryOre('Common'), false);
+    assert.equal(usesStarryOre('epic'), true);
+    assert.equal(usesStarryOre('legendary'), true);
+    assert.equal(usesStarryOre('Legendary'), true);
+    assert.equal(usesStarryOre(''), false);
+});
+
+test('calculateRequiredOres applies modern cost schedule per item while keeping classic items unchanged', () => {
+    const heroesState = {
+        barbarianKing: {
+            level: 95,
+            enabled: true,
+            equipment: {
+                giantGauntlet: { level: 1, checked: true },
+                blizzardAxe: { level: 1, checked: true }
+            }
+        }
+    };
+    const storedOres = { shiny: 0, glowy: 0, starry: 0 };
+    const plannerMaxLevels = { customMaxLevel: { epic: 27, legendary: 33 } };
+
+    // Giant Gauntlet (classic epic: 56060/3720/480) + Blizzard Axe (modern legendary: 79760/5100/705)
+    const combinedResult = calculateRequiredOres(heroesState, storedOres, plannerMaxLevels);
+    assert.deepEqual(combinedResult, {
+        shiny: 56060 + 79760,
+        glowy: 3720 + 5100,
+        starry: 480 + 705
+    });
 });

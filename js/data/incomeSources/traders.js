@@ -17,3 +17,5 @@ export const eventTraderData = deepFreeze([
     { id: "event_glowy", shiny: 0, glowy: 60, starry: 0, cost: 165, currency: "event_medals", maxPacks: 10 },
     { id: "event_shiny", shiny: 350, glowy: 0, starry: 0, cost: 160, currency: "event_medals", maxPacks: 40 },
 ]);
+
+export const craftPassTraderData = deepFreeze([]);

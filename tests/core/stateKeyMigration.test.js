@@ -213,7 +213,12 @@ describe('State Key Migration & Transparent Backward Compatibility Suite', () =>
         const keyData = { heroes: { dragonDuke: { level: 1 } } };
         const nameData = { heroes: { 'Dragon Duke': { level: 1 } } };
 
-        assert.equal(inferTownHallLevel(keyData), 18);
-        assert.equal(inferTownHallLevel(nameData), 18);
+        assert.equal(inferTownHallLevel(keyData), 15);
+        assert.equal(inferTownHallLevel(nameData), 15);
+        assert.equal(inferTownHallLevel({ heroes: { dragonDuke: { level: 25 } } }), 18);
+        assert.equal(inferTownHallLevel({
+            heroes: { dragonDuke: { level: 1 } },
+            income: { clanWar: { warPerformance: { thLevel: 19 } } }
+        }), 19);
     });
 });

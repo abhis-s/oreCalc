@@ -1,8 +1,7 @@
 import { formatDisplayTag } from '../../core/storageKeys.js';
 import { MAX_TOWN_HALL, UNRANKED_LEAGUE_ID } from '../../core/constants.js';
-import { heroData } from '../../data/heroData.js';
-import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
 import {
+    getHeroMaxLevelForTH,
     getMaxCumulativeHeroLevel,
     getMaxCumulativeLevelForTH,
     getRawCumulativeHeroLevel
@@ -39,10 +38,14 @@ export function extractEquipmentAndHeroes(playerData, profile) {
         } else if (playerData?.heroes) {
             ownedHeroes = {};
             ownedEquipment = {};
+            const resolvedTh = profile?.townHallLevel || playerData?.playerProfile?.townHallLevel || MAX_TOWN_HALL;
             for (const heroName in playerData.heroes) {
                 const heroState = playerData.heroes[heroName];
                 if (heroState.enabled !== false) {
-                    ownedHeroes[heroName] = { level: heroState.level || 1, maxLevel: 95 };
+                    ownedHeroes[heroName] = {
+                        level: heroState.level || 1,
+                        maxLevel: getHeroMaxLevelForTH(heroName, resolvedTh) || 1
+                    };
                     if (heroState.equipment) {
                         for (const equipName in heroState.equipment) {
                             const eqState = heroState.equipment[equipName];
@@ -59,27 +62,6 @@ export function extractEquipmentAndHeroes(playerData, profile) {
         }
     }
     return { ownedEquipment: ownedEquipment || {}, ownedHeroes: ownedHeroes || {} };
-}
-
-/**
- * Calculates maxed equipment count against total equipment.
- * @param {Record<string, number>} ownedEquipment
- * @returns {{ maxedCount: number, totalCount: number }}
- */
-export function calculateMaxedEquipmentCount(ownedEquipment) {
-    let maxedCount = 0;
-    let totalCount = 0;
-    for (const heroKey in heroData) {
-        for (const equip of heroData[heroKey].equipment) {
-            totalCount++;
-            const maxLevel = getEquipmentMaxLevel(equip.type);
-            const currentLevel = ownedEquipment?.[equip.name];
-            if (currentLevel !== undefined && currentLevel >= maxLevel) {
-                maxedCount++;
-            }
-        }
-    }
-    return { maxedCount, totalCount };
 }
 
 /**

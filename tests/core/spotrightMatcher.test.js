@@ -42,14 +42,14 @@ describe('Spotright Search Engine & Matcher', () => {
         assert.equal(isSubsequence('bs', 'spiky ball'), false);
     });
 
-    test('pre-indexed registry contains all 6 heroes and 43 equipment items with orthogonal taxonomy', () => {
+    test('pre-indexed registry contains all 6 heroes and 45 equipment items with orthogonal taxonomy', () => {
         const heroes = registry.filter(i => i.type === 'hero');
-        const equipment = registry.filter(i => i.type === 'equipment' && (i.rarity === 'epic' || i.rarity === 'common'));
+        const equipment = registry.filter(i => i.type === 'equipment' && (i.rarity === 'legendary' || i.rarity === 'epic' || i.rarity === 'common'));
         const tools = registry.filter(i => i.scopes?.includes('tools'));
         const settingsAndModals = registry.filter(i => i.scopes?.includes('settings'));
 
         assert.equal(heroes.length, 6, 'Must contain 6 Clash heroes');
-        assert.equal(equipment.length, 43, 'Must contain all 43 equipment pieces');
+        assert.equal(equipment.length, 45, 'Must contain all 45 equipment pieces');
         assert.ok(tools.length >= 7, 'Must contain core tools and navigation views');
         assert.ok(settingsAndModals.length >= 5, 'Must contain primary settings actions and modals');
         assert.equal(Object.keys(DAMAGE_EQUIPMENT_MAP).length, 7, 'Must map all 7 damaging equipment pieces');
@@ -414,10 +414,10 @@ describe('Spotright Search Engine & Matcher', () => {
         assert.equal(emptyHeroResult.matches.length, 6, 'Empty query in hero scope returns all 6 heroes');
 
         const emptyEquipResult = searchSpotright('', registry, 'equipment');
-        assert.equal(emptyEquipResult.matches.length, 43, 'Empty query in equipment scope returns all 43 equipment items');
+        assert.equal(emptyEquipResult.matches.length, 45, 'Empty query in equipment scope returns all 45 equipment items');
         for (const item of emptyEquipResult.matches) {
             assert.equal(item.type, 'equipment');
-            assert.ok(item.rarity === 'epic' || item.rarity === 'common');
+            assert.ok(item.rarity === 'legendary' || item.rarity === 'epic' || item.rarity === 'common');
         }
 
         // Tools scope

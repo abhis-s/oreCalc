@@ -9,8 +9,8 @@
  * @param {number} stepIndex - 1-based step index (1, 2, or 3).
  * @param {number} lowerBound - Strict minimum level the step must exceed.
  * @param {number} currentLevel - The hero equipment's base level in state.
- * @param {number} maxLevel - Maximum equipment level (18 for common, 27 for epic).
- * @param {string} [type='common'] - Equipment rarity type ('common' or 'epic').
+ * @param {number} maxLevel - Maximum equipment level (18 for common, 27 for epic, 33 for legendary).
+ * @param {string} [type='common'] - Equipment rarity type ('common', 'epic', or 'legendary').
  * @returns {number} The recommended level, or 0 if options are exhausted.
  */
 export function calculateStepRecommendation(stepIndex, lowerBound, currentLevel, maxLevel, type = 'common') {
@@ -32,7 +32,8 @@ export function calculateStepRecommendation(stepIndex, lowerBound, currentLevel,
         return maxLevel;
     }
 
-    if (type === 'epic' && stepIndex === 2 && lowerBound <= 9 && maxLevel >= 18) {
+    const r = type ? type.toLowerCase() : 'common';
+    if ((r === 'epic' || r === 'legendary') && stepIndex === 2 && lowerBound <= 9 && maxLevel >= 18) {
         return 18;
     }
 

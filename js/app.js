@@ -425,7 +425,7 @@ export async function mount(options = {}) {
         if (isPreloaderEnabled && preloader) {
             let effectivePreloaderAccent = preloader.getAttribute('data-accent');
             if (!effectivePreloaderAccent) {
-                effectivePreloaderAccent = state.uiSettings.accentColor || 'random';
+                effectivePreloaderAccent = state.uiSettings.accentColor || 'blue';
                 if (effectivePreloaderAccent === 'random') {
                     if (!window.sessionRandomAccent) {
                         window.sessionRandomAccent = availableAccents[Math.floor(Math.random() * availableAccents.length)];

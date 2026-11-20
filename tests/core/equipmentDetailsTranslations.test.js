@@ -318,9 +318,11 @@ describe('Equipment Details Modal Translation & Declarative Binding Suite', () =
             assert.ok(innerHTML.includes('data-i18n="views.equipment.cost"'));
             assert.ok(innerHTML.includes('data-i18n="validation.level"'));
             assert.ok(innerHTML.includes('data-i18n="views.equipment.requiredTownHall"'));
-            assert.ok(innerHTML.includes('data-i18n="entities.ores.shiny"'));
-            assert.ok(innerHTML.includes('data-i18n="entities.ores.glowy"'));
-            assert.ok(innerHTML.includes('data-i18n="entities.ores.starry"'));
+            assert.ok(innerHTML.includes('data-i18n-alt="entities.ores.shiny"'));
+            assert.ok(innerHTML.includes('data-i18n-alt="entities.ores.glowy"'));
+            assert.ok(innerHTML.includes('data-i18n-alt="entities.ores.starry"'));
+            assert.ok(innerHTML.includes('class="ore-header-cell"'));
+            assert.ok(innerHTML.includes('assets/shiny_ore.png'));
         });
 
         test('renders localized super-headers and declarative data-i18n in German', () => {

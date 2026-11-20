@@ -120,7 +120,8 @@ export function initializeSettingsAccount(options = {}) {
             logout();
             if (typeof window !== 'undefined' && window.location) {
                 if (window.location.hash || window.location.search) {
-                    history.replaceState(null, '', window.location.pathname);
+                    const preservedState = window.history?.state ? { ...window.history.state } : null;
+                    history.replaceState(preservedState, '', window.location.pathname);
                 }
                 window.location.href = window.location.origin + window.location.pathname;
             }

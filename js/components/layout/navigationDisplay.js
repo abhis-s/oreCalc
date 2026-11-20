@@ -35,7 +35,7 @@ function renderNavigationDrawer(activeTabId) {
     const rawTag = selectActivePlayerTag(state);
     const playerProfile = selectPlayerProfile(state);
 
-    const isRealPlayer = rawTag && rawTag !== 'DEFAULT0' && rawTag !== 'GUEST';
+    const isRealPlayer = Boolean(rawTag && rawTag !== 'DEFAULT0');
     const cleanTag = isRealPlayer ? rawTag.replace(/^#/, '') : '';
 
     renderNavigationDrawerContent({

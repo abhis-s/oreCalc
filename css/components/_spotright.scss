@@ -513,6 +513,11 @@ mark.spotright-match-highlight {
     line-height: 1.4;
     flex-shrink: 0;
 
+    &.spotright-tag--legendary {
+        background: color-mix(in srgb, $color-rarity-legendary 18%, transparent);
+        color: $color-rarity-legendary;
+    }
+
     &.spotright-tag--epic {
         background: color-mix(in srgb, $color-rarity-epic 18%, transparent);
         color: $color-rarity-epic;

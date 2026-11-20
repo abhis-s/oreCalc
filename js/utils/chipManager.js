@@ -179,26 +179,25 @@ export function checkAndGenerateRecurringChips() {
             generate('gemTrader', { type: 'gemTrader', shiny: settings.gemTrader.shiny, glowy: settings.gemTrader.glowy, starry: settings.gemTrader.starry }, 4);
         }
 
-        // Event Trader
-        if (settings.eventTrader.monthly) {
-            const eventTraderSource = incomeData.eventTrader;
-            const availableMonths = eventTraderSource.schedule.availableMonths[currentYear] || [];
-            if (availableMonths.includes(currentMonth + 1)) {
-                generate('eventTrader', { type: 'eventTrader', shiny: settings.eventTrader.shiny, glowy: settings.eventTrader.glowy, starry: settings.eventTrader.starry }, 1);
-            }
-        }
-
         // Raid Medal Trader (Weekly -> ~4 per month)
         if (settings.raidMedalTrader.weekly) {
             generate('raidMedalTrader', { type: 'raidMedalTrader', shiny: settings.raidMedalTrader.shiny, glowy: settings.raidMedalTrader.glowy, starry: settings.raidMedalTrader.starry }, 4);
         }
 
-        // Event Pass (Bimonthly -> check if current month is event month)
-        if (settings.eventPass.monthly) {
-            const eventPassSource = incomeData.eventPass;
-            const availableMonths = eventPassSource.schedule.availableMonths[currentYear] || [];
-            if (availableMonths.includes(currentMonth + 1)) {
-                generate('eventPass', { type: 'eventPass', shiny: settings.eventPass.shiny, glowy: settings.eventPass.glowy, starry: settings.eventPass.starry }, 1);
+        // Bimonthly Seasonal Passes & Traders
+        for (const seasonalType of ['eventPass', 'eventTrader', 'craftPass', 'craftPassTrader']) {
+            const seasonalSettings = settings[seasonalType];
+            if (seasonalSettings?.monthly) {
+                const seasonalSource = incomeData[seasonalType];
+                const availableMonths = seasonalSource?.schedule?.availableMonths?.[currentYear] || [];
+                if (availableMonths.includes(currentMonth + 1)) {
+                    generate(seasonalType, {
+                        type: seasonalType,
+                        shiny: seasonalSettings.shiny,
+                        glowy: seasonalSettings.glowy,
+                        starry: seasonalSettings.starry
+                    }, 1);
+                }
             }
         }
 

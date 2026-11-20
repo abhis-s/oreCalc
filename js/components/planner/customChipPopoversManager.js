@@ -6,6 +6,7 @@ import { state } from '../../core/state.js';
 
 import { convertOres } from '../../domain/income/prospectorManager.js';
 import { registerInputPopover } from '../../utils/inputPopoverProvider.js';
+import { toKebabCase } from '../../utils/stringUtils.js';
 
 import {
     getNextUpgradeProspectorRecommendations,
@@ -225,13 +226,12 @@ export function registerCustomChipsPopovers() {
     registerResetPopover('custom-chip-raid-medal-trader-glowy', 'glowy', () => state.derived?.incomeSources?.raidMedalTrader?.weekly?.glowy || 0);
     registerResetPopover('custom-chip-raid-medal-trader-starry', 'starry', () => state.derived?.incomeSources?.raidMedalTrader?.weekly?.starry || 0);
 
-    registerResetPopover('custom-chip-event-trader-shiny', 'shiny', () => state.derived?.incomeSources?.eventTrader?.bimonthly?.shiny || 0);
-    registerResetPopover('custom-chip-event-trader-glowy', 'glowy', () => state.derived?.incomeSources?.eventTrader?.bimonthly?.glowy || 0);
-    registerResetPopover('custom-chip-event-trader-starry', 'starry', () => state.derived?.incomeSources?.eventTrader?.bimonthly?.starry || 0);
-
-    registerResetPopover('custom-chip-event-pass-shiny', 'shiny', () => state.derived?.incomeSources?.eventPass?.bimonthly?.shiny || 0);
-    registerResetPopover('custom-chip-event-pass-glowy', 'glowy', () => state.derived?.incomeSources?.eventPass?.bimonthly?.glowy || 0);
-    registerResetPopover('custom-chip-event-pass-starry', 'starry', () => state.derived?.incomeSources?.eventPass?.bimonthly?.starry || 0);
+    for (const sourceType of ['eventPass', 'eventTrader', 'craftPass', 'craftPassTrader']) {
+        const prefix = toKebabCase(sourceType);
+        for (const oreType of ORE_TYPES) {
+            registerResetPopover(`custom-chip-${prefix}-${oreType}`, oreType, () => state.derived?.incomeSources?.[sourceType]?.bimonthly?.[oreType] || 0);
+        }
+    }
 
     registerResetPopover('custom-chip-supercell-events-shiny', 'shiny', () => 1000);
     registerResetPopover('custom-chip-supercell-events-glowy', 'glowy', () => 50);

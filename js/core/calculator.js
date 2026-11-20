@@ -7,6 +7,7 @@ import { calculateRequiredOres } from './oreCalculator.js';
 import { calculateRemainingTime } from './timeCalculator.js';
 
 import { calculateClanWarIncome } from '../domain/income/clanWarIncome.js';
+import { calculateCraftPassIncome, calculateCraftPassTraderIncome } from '../domain/income/craftPassIncome.js';
 import { calculateCwlIncome } from '../domain/income/cwlIncome.js';
 import { calculateEventPassIncome } from '../domain/income/eventPassIncome.js';
 import { calculateEventTraderIncome } from '../domain/income/eventTraderIncome.js';
@@ -81,6 +82,8 @@ export function recalculateAll(state) {
         gemTrader: calculateGemTraderIncome(state.income?.gems),
         eventPass: eventPassIncome,
         eventTrader: eventTraderIncome,
+        craftPass: calculateCraftPassIncome(state.income?.craftPass),
+        craftPassTrader: calculateCraftPassTraderIncome(state.income?.craftPassTrader),
         shopOffers: calculateShopOfferIncome(state.income?.shopOffers),
     };
 
@@ -143,11 +146,12 @@ export function recalculateAll(state) {
 
     const shopOfferMonthly = incomeSources.shopOffers?.monthly || {};
     const eventPassMonthly = incomeSources.eventPass?.monthly || {};
+    const craftPassMonthly = incomeSources.craftPass?.monthly || {};
     const prospectorMonthly = incomeSources.prospector?.monthly || {};
 
     const totalMoneyCost = {};
     for (const currencyCode of Object.keys(currencyData)) {
-        totalMoneyCost[currencyCode] = (shopOfferMonthly[currencyCode] || 0) + (eventPassMonthly[currencyCode] || 0) + (prospectorMonthly[currencyCode] || 0);
+        totalMoneyCost[currencyCode] = (shopOfferMonthly[currencyCode] || 0) + (eventPassMonthly[currencyCode] || 0) + (craftPassMonthly[currencyCode] || 0) + (prospectorMonthly[currencyCode] || 0);
     }
     state.derived.totalMoneyCost = totalMoneyCost;
 }

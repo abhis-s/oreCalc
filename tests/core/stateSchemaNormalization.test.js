@@ -259,6 +259,8 @@ test('processPlayerDataResponse creates complete player state with full income d
 
     assert.ok(player.income.eventPass.trader.packs);
     assert.ok(player.income.eventTrader.packs);
+    assert.equal(player.income.craftPass.craftPass, false);
+    assert.ok(player.income.craftPassTrader.packs);
     assert.ok(player.income.clanWar.oresPerAttack);
     assert.ok(player.income.cwl.oresPerAttack);
     assert.ok(player.income.raidMedals.packs);
@@ -266,6 +268,15 @@ test('processPlayerDataResponse creates complete player state with full income d
     assert.ok(player.income.shopOffers.purchases);
     assert.ok(player.income.supercellEvents);
     assert.ok(player.income.prospector);
+
+    // Refresh existing player with active craftPass and corrupted craftPassTrader
+    player.income.craftPass = { craftPass: true };
+    player.income.craftPassTrader = null;
+    processPlayerDataResponse(mockApiResponse);
+
+    const refreshed = stateModule.state.allPlayersData['8PJYGUJC'];
+    assert.equal(refreshed.income.craftPass.craftPass, true);
+    assert.deepEqual(refreshed.income.craftPassTrader, { enabled: false, packs: { shiny: 0, glowy: 0, starry: 0 } });
 });
 
 test('compareVersions accurately compares semantic versions', () => {

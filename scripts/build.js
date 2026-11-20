@@ -315,6 +315,7 @@ async function build() {
         });
 
         const { getDynamicTranslationArgs } = await import('../js/i18n/i18nParams.js');
+        const { getSupercellEquipmentBlogUrl } = await import('../js/data/languagesData.js');
 
         let supportedLanguages = ['en', 'de', 'tr', 'zh'];
         try {
@@ -327,7 +328,7 @@ async function build() {
             console.warn('Could not parse languagesData.js dynamically, using fallback supported languages');
         }
 
-        const defaultLandingHtml = generateLocalizedHtml(landingHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, '');
+        const defaultLandingHtml = generateLocalizedHtml(landingHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, '', getSupercellEquipmentBlogUrl);
         fs.writeFileSync(path.join(distDir, 'index.html'), defaultLandingHtml, 'utf8');
         console.log('Compiled and bundled index.html for root landing portal.');
 
@@ -337,14 +338,14 @@ async function build() {
             if (!fs.existsSync(langDir)) {
                 fs.mkdirSync(langDir, { recursive: true });
             }
-            const localizedLandingHtml = generateLocalizedHtml(landingHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, '');
+            const localizedLandingHtml = generateLocalizedHtml(landingHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, '', getSupercellEquipmentBlogUrl);
             fs.writeFileSync(path.join(langDir, 'index.html'), localizedLandingHtml, 'utf8');
             console.log(`Generated localized route: dist/${lang}/index.html`);
         }
 
         const oreCalcDestDir = path.join(distDir, 'ore-calculator');
         fs.mkdirSync(oreCalcDestDir, { recursive: true });
-        const defaultClashCalcHtml = generateLocalizedHtml(clashCalcHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
+        const defaultClashCalcHtml = generateLocalizedHtml(clashCalcHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'ore-calculator', getSupercellEquipmentBlogUrl);
         fs.writeFileSync(path.join(oreCalcDestDir, 'index.html'), defaultClashCalcHtml, 'utf8');
         console.log('Generated root tool route: dist/ore-calculator/index.html');
 
@@ -352,14 +353,14 @@ async function build() {
             if (lang === 'en') continue;
             const langOreCalcDir = path.join(distDir, lang, 'ore-calculator');
             fs.mkdirSync(langOreCalcDir, { recursive: true });
-            const localizedClashCalcHtml = generateLocalizedHtml(clashCalcHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'ore-calculator');
+            const localizedClashCalcHtml = generateLocalizedHtml(clashCalcHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'ore-calculator', getSupercellEquipmentBlogUrl);
             fs.writeFileSync(path.join(langOreCalcDir, 'index.html'), localizedClashCalcHtml, 'utf8');
             console.log(`Generated localized tool route: dist/${lang}/ore-calculator/index.html`);
         }
 
         const hjDestDir = path.join(distDir, 'hero-journey');
         fs.mkdirSync(hjDestDir, { recursive: true });
-        const defaultHjHtml = generateLocalizedHtml(hjHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'hero-journey');
+        const defaultHjHtml = generateLocalizedHtml(hjHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'hero-journey', getSupercellEquipmentBlogUrl);
         fs.writeFileSync(path.join(hjDestDir, 'index.html'), defaultHjHtml, 'utf8');
         console.log('Generated root tool route: dist/hero-journey/index.html');
 
@@ -367,14 +368,14 @@ async function build() {
             if (lang === 'en') continue;
             const langHjDir = path.join(distDir, lang, 'hero-journey');
             fs.mkdirSync(langHjDir, { recursive: true });
-            const localizedHjHtml = generateLocalizedHtml(hjHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'hero-journey');
+            const localizedHjHtml = generateLocalizedHtml(hjHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'hero-journey', getSupercellEquipmentBlogUrl);
             fs.writeFileSync(path.join(langHjDir, 'index.html'), localizedHjHtml, 'utf8');
             console.log(`Generated localized tool route: dist/${lang}/hero-journey/index.html`);
         }
 
         const damageCalcDestDir = path.join(distDir, 'damage-calculator');
         fs.mkdirSync(damageCalcDestDir, { recursive: true });
-        const defaultDamageCalcHtml = generateLocalizedHtml(damageCalcHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'damage-calculator');
+        const defaultDamageCalcHtml = generateLocalizedHtml(damageCalcHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'damage-calculator', getSupercellEquipmentBlogUrl);
         fs.writeFileSync(path.join(damageCalcDestDir, 'index.html'), defaultDamageCalcHtml, 'utf8');
         console.log('Generated root tool route: dist/damage-calculator/index.html');
 
@@ -382,14 +383,14 @@ async function build() {
             if (lang === 'en') continue;
             const langDamageCalcDir = path.join(distDir, lang, 'damage-calculator');
             fs.mkdirSync(langDamageCalcDir, { recursive: true });
-            const localizedDamageCalcHtml = generateLocalizedHtml(damageCalcHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'damage-calculator');
+            const localizedDamageCalcHtml = generateLocalizedHtml(damageCalcHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'damage-calculator', getSupercellEquipmentBlogUrl);
             fs.writeFileSync(path.join(langDamageCalcDir, 'index.html'), localizedDamageCalcHtml, 'utf8');
             console.log(`Generated localized tool route: dist/${lang}/damage-calculator/index.html`);
         }
 
         const accountDestDir = path.join(distDir, 'account');
         fs.mkdirSync(accountDestDir, { recursive: true });
-        const defaultAccountHtml = generateLocalizedHtml(accountHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'account');
+        const defaultAccountHtml = generateLocalizedHtml(accountHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'account', getSupercellEquipmentBlogUrl);
         fs.writeFileSync(path.join(accountDestDir, 'index.html'), defaultAccountHtml, 'utf8');
         console.log('Generated root tool route: dist/account/index.html');
 
@@ -397,14 +398,14 @@ async function build() {
             if (lang === 'en') continue;
             const langAccountDir = path.join(distDir, lang, 'account');
             fs.mkdirSync(langAccountDir, { recursive: true });
-            const localizedAccountHtml = generateLocalizedHtml(accountHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'account');
+            const localizedAccountHtml = generateLocalizedHtml(accountHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'account', getSupercellEquipmentBlogUrl);
             fs.writeFileSync(path.join(langAccountDir, 'index.html'), localizedAccountHtml, 'utf8');
             console.log(`Generated localized tool route: dist/${lang}/account/index.html`);
         }
 
         const appManagementDestDir = path.join(distDir, 'app-management');
         fs.mkdirSync(appManagementDestDir, { recursive: true });
-        const defaultAppManagementHtml = generateLocalizedHtml(appManagementHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'app-management');
+        const defaultAppManagementHtml = generateLocalizedHtml(appManagementHtml, 'en', supportedLanguages, true, getDynamicTranslationArgs, projectRoot, 'app-management', getSupercellEquipmentBlogUrl);
         fs.writeFileSync(path.join(appManagementDestDir, 'index.html'), defaultAppManagementHtml, 'utf8');
         console.log('Generated root tool route: dist/app-management/index.html');
 
@@ -412,7 +413,7 @@ async function build() {
             if (lang === 'en') continue;
             const langAppManagementDir = path.join(distDir, lang, 'app-management');
             fs.mkdirSync(langAppManagementDir, { recursive: true });
-            const localizedAppManagementHtml = generateLocalizedHtml(appManagementHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'app-management');
+            const localizedAppManagementHtml = generateLocalizedHtml(appManagementHtml, lang, supportedLanguages, false, getDynamicTranslationArgs, projectRoot, 'app-management', getSupercellEquipmentBlogUrl);
             fs.writeFileSync(path.join(langAppManagementDir, 'index.html'), localizedAppManagementHtml, 'utf8');
             console.log(`Generated localized tool route: dist/${lang}/app-management/index.html`);
         }

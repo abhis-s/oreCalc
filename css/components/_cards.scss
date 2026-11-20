@@ -818,14 +818,25 @@
                 }
             }
 
-            .card-info-text {
+            .card-info-content {
+                flex: 1;
+                min-width: 0;
                 font-size: $font-size-xs;
                 color: $text-secondary;
                 line-height: 1.4;
-            }
 
-            .info-btn {
-                flex-shrink: 0;
+                .card-info-text {
+                    font-size: inherit;
+                    color: inherit;
+                    line-height: inherit;
+                }
+
+                .info-btn {
+                    display: inline-flex;
+                    vertical-align: middle;
+                    margin-left: $spacing-xs;
+                    flex-shrink: 0;
+                }
             }
         }
 

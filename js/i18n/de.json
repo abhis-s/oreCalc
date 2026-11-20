@@ -299,7 +299,7 @@
             "darkElixirStorage": "Lager für Dunkles Elixier",
             "eagleArtillery": "Adlerartillerie",
             "elixirStorage": "Elixierlager",
-            "firecrackerTower": "Feuerwerksturm",
+            "firecrackerTower": "Feuerwerkerin-Turm",
             "firespitter": "Feuerspeier",
             "goldStorage": "Goldlager",
             "heroHunter": "Heldenjägerin",
@@ -328,6 +328,7 @@
             "actionFigure": "Actionfigur",
             "archerPuppet": "Bogenschützinnen-Puppe",
             "barbarianPuppet": "Barbarenpuppe",
+            "blizzardAxe": "Blizzardaxt",
             "comingSoon": "Demnächst",
             "darkCrown": "Dunkle Krone",
             "darkOrb": "Dunkle Sphäre",
@@ -344,7 +345,7 @@
             "giantGauntlet": "Riesenhandschuh",
             "hasteVial": "Tempoflasche",
             "healerPuppet": "Heilerinnenpuppe",
-            "healingTome": "Heilbuch",
+            "healingTome": "Buch der Besserung",
             "henchmenPuppet": "Schergenpuppe",
             "heroicTorch": "Heroische Fackel",
             "hogRiderPuppet": "Schweinereiter-Puppe",
@@ -364,6 +365,7 @@
             "rocketSpear": "Raketenspeer",
             "royalGem": "Königliches Juwel",
             "seekingShield": "Zielsuchender Schild",
+            "shieldBrooch": "Schildbrosche",
             "snakeBracelet": "Schlangenarmband",
             "spikyBall": "Stachelball",
             "stickHorse": "Steckenpferd",
@@ -371,7 +373,7 @@
             "vampstache": "Vampirschnurrbart"
         },
         "heroes": {
-            "archerQueen": "Bogenschützenkönigin",
+            "archerQueen": "Bogenschützen-Königin",
             "barbarianKing": "Barbarenkönig",
             "dragonDuke": "Drachenfürst",
             "grandWarden": "Großer Wächter",
@@ -423,7 +425,8 @@
             "mightyMorsel": "Erhöht für die nächsten 3 Angriffe vorübergehend alle Helden, Begleiter und Ausrüstungen auf das durch dein Rathaus-Level maximal erlaubte Level.",
             "petPotion": "Beschleunige Begleiterverbesserungen 1 Stunde lang um das 24-fache.",
             "runeOfDarkElixir": "Fülle deine Lager für Dunkles Elixier im Heimatdorf vollständig auf.",
-            "runeOfElixir": "Fülle deine Elixierlager im Heimatdorf vollständig"
+            "runeOfElixir": "Fülle deine Elixierlager im Heimatdorf vollständig auf.",
+            "starBonusSnack": "Macht den Sternebonus im Heimatdorf wieder verfügbar."
         },
         "magicItems": {
             "bookOfHeroes": "Buch der Helden",
@@ -444,9 +447,10 @@
         },
         "pricing": {
             "gems": "{count} Juwelen",
-            "gemsEventPass": "{count} Juwelen / Event-Pass",
+            "gemsCraftPass": "{count} Juwelen / Fertigungspass",
+            "gemsEventPass": "{count} Juwelen / Ereignispass",
             "goldPass": "Goldpass",
-            "miniEventPass": "Mini-Event-Pass",
+            "miniEventPass": "Mini-Ereignispass",
             "tier4": "Shop-Angebot ($3.99)",
             "tier6": "Shop-Angebot ($5.99)"
         },
@@ -485,6 +489,7 @@
             "counterDamage": "Konterschaden",
             "counterRange": "Konter-Reichweite",
             "damage": "Schaden",
+            "damageAbsorbed": "Absorbierter Schaden",
             "damageIncrease": "Schadenserh.",
             "damagePerHit": "Schaden pro Treffer",
             "damagePerSecond": "Schaden/Sek.",
@@ -492,6 +497,7 @@
             "damagePerShotIncrease": "Schaden/Schuss-Erh.",
             "damageRadius": "Schadensradius",
             "deathDamage": "Zerstörungsschaden",
+            "explosionDamage": "Explosionsschaden",
             "favoriteTarget": "Bevorzugtes Ziel",
             "firstHealthDamageIncrease": "1. TP- & Schadenserh.",
             "healingPerSecond": "Heilung/Sek.",
@@ -505,6 +511,7 @@
             "incomingDamageReduction": "Senkung erlitt. Schaden",
             "invisibilityDuration": "Unsichtbarkeitsdauer",
             "maxDamageIncrease": "Max. Zusatzschaden-Erh.",
+            "maxHitpointIncrease": "Max. Trefferpunkte-Erhöhung",
             "maxHousingSpace": "Max. Armeeplatz",
             "monolithArrowMaxDamage": "Zusatzschaden (<180 Armeeplatz)",
             "monolithArrowMidDamage": "Zusatzschaden (181-250 Armeeplatz)",
@@ -674,7 +681,7 @@
         "min": "Min",
         "minValue": "Min: {min}",
         "prospectorSameOre": "Ausgangs- und Ziel-Erze dürfen nicht identisch sein.",
-        "prospectorZeroAmount": "Beide Prospektor-Mengen müssen größer als 0 sein.",
+        "prospectorZeroAmount": "Beide Schürfer-Mengen müssen größer als 0 sein.",
         "range": "Bereich",
         "recommended": "Empfohlen"
     },
@@ -728,7 +735,7 @@
                 "startupPage": "Standard-Startansicht",
                 "startupPageDesc": "Wähle das Werkzeug oder die Ansicht beim Starten der Anwendung.",
                 "tactileHaptics": "Taktiles haptisches Feedback",
-                "tactileHapticsDesc": "Dezentes Vibrations-Feedback beim Antippen von Steuerelementen und Anpassen von Stufen.",
+                "tactileHapticsDesc": "Dezentes Vibrations-Feedback beim Antippen von Steuerelementen und Anpassen von Leveln.",
                 "title": "Anzeige- & Startoptionen"
             },
             "startupViews": {
@@ -799,7 +806,7 @@
                 "targetSlotTitle": "Ziel {number}"
             },
             "filters": {
-                "craftedDefenseTooltip": "Hergestellte Verteidigung (Stufe ist an die Rathaus-Stufe gekoppelt)",
+                "craftedDefenseTooltip": "Hergestellte Verteidigung (Level ist an das Rathaus-Level gekoppelt)",
                 "craftedHpLvlShort": "TP Lvl",
                 "craftedHpModule": "TP-Modul",
                 "filterDefenses": "Verteidigungen",
@@ -833,7 +840,7 @@
                 "editLevels": "Level bearbeiten",
                 "emptySourcesNotice": "Keine Schadensquellen aktiviert. Aktiviere Zauber oder Ausrüstung oben, um Kombinationen zu berechnen.",
                 "equipmentDamageBadge": "Ausrüstungsschaden",
-                "esportsNotice": "E-Sport-Modus aktiv: Die Ausrüstung wird herabgestuft (Gewöhnlich -3 Level, Episch -6 Level). Gib deine tatsächlichen Spiel-Level an.",
+                "esportsNotice": "E-Sport-Modus aktiv: Die Ausrüstung wird herabgestuft (Gewöhnlich -3 Level, Episch -6 Level, Legendär -9 Level). Gib deine tatsächlichen Spiel-Level an.",
                 "exceedsCapacity": "{max} Kapazität überschritten",
                 "insufficientCapacityNotice": "erfordert mehr Kapazität als verfügbar.",
                 "levelEditorSections": "Level-Editor-Bereiche",
@@ -861,7 +868,7 @@
                 "giantArrowVulnerabilityBody": "Riesenpfeil verursacht 200% Schaden an allen Luftabwehren.",
                 "giantArrowVulnerabilityTitle": "Riesenpfeil (2x Schaden)",
                 "immunities": "Immunitäten",
-                "modifierEsportsRules": "Vert. DPS +{defDps}%, Helden +{defHero}%, Beschützer +{defGuardian}%; Angriffs-Helden -{atkHero}%; Gewöhnl. -{commonLoss} Stufen, Episch -{epicLoss} Stufen.",
+                "modifierEsportsRules": "Vert. DPS +{defDps}%, Helden +{defHero}%, Beschützer +{defGuardian}%; Angriffs-Helden -{atkHero}%; Gewöhnl. -{commonLoss} Level, Episch -{epicLoss} Level, Legendär -{legendaryLoss} Level.",
                 "modifierLeagueRules": "Vert. DPS +{defDps}%, Helden +{defHero}%, Beschützer +{defGuardian}%; Angriffs-Helden -{atkHero}%.",
                 "modifierTitle": "Kampf-Modifikatoren & Liga-Regeln",
                 "orderedStrikeBreakdown": "Geordnete Trefferaufschlüsselung",
@@ -877,7 +884,7 @@
                 "stunEffect": "Betäubungseffekt",
                 "superchargeBody": "Supercharge verleiht temporäre TP-Boosts auf maximalem Rathauslevel, bevor neue Gebäudelevel erscheinen, was Zauber- oder Ausrüstungs-Interaktionen normalerweise nicht ändert.",
                 "superchargeTitle": "Supercharge-Verstärkung",
-                "wallBreakCondition": "Zerstört Mauern jeder Stufe mit 4 Treffern",
+                "wallBreakCondition": "Zerstört Mauern jedes Levels mit 4 Treffern",
                 "walls": "Mauern"
             },
             "presets": {
@@ -936,10 +943,20 @@
             "contributeMissingData": "Wenn du Werte oder Infos zu dieser Ausrüstung hast, <a href=\"#\" class=\"theme-link open-inaccuracies-link\">trage sie bitte hier ein</a>.",
             "cost": "Kosten",
             "dataNotAvailable": "Daten nicht verfügbar",
-            "detailsAttribution": "Statistiken zur Ausrüstung stammen aus dem <a href=\"https://clashofclans.fandom.com/wiki/Clash_of_Clans_Wiki\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash of Clans Fandom Wiki<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>, und das Layout-Design ist inspiriert von <a href=\"https://www.clash.ninja/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash Ninja<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
+            "detailsAttribution": "Das Layout-Design ist inspiriert von <a href=\"https://www.clash.ninja/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash Ninja<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
             "detailsNotAvailableDesc": "Detaillierte Levelwerte und Upgrade-Aufschlüsselungen sind für diese Ausrüstung noch nicht verfügbar.",
+            "economyNotice": {
+                "point1": "Legendäre Seltenheit & Blizzard-Axt: Erscheint im Dezember über ein neues Handwerk-Event (kostenlos ab RH 8). Maximallevel 33 (79.760 Glanzerz, 5.100 Glüherz, 705 Sternenerz insgesamt).",
+                "point2": "Niedrigere Upgrade-Kosten: Zukünftige epische und legendäre Ausrüstungen kosten bis Level 27 weniger Glüherz (-170) und Sternenerz (-50).",
+                "point3": "Aufhol-Rabatte: In zukünftigen Updates wird ältere epische Ausrüstung im Laufe der Zeit durch schrittweise Reduzierungen günstiger aufzuwerten.",
+                "readArticle": "Offiziellen Blogbeitrag lesen",
+                "reopenDesc": "Zusammenfassung der kommenden Wirtschaftsanpassungen ansehen.",
+                "reopenLabel": "Erz-Wirtschaftsänderungen",
+                "summary": "Supercell hat kommende Anpassungen an der Erz-Wirtschaft zusammen mit der neuen legendären Ausrüstungs-Seltenheit angekündigt.",
+                "title": "Kommende Erz-Wirtschafts- und Upgrade-Kosten-Änderungen"
+            },
             "emptyState": {
-                "maxedDesc": "Du hast alle Ausrüstungen auf die maximale Stufe aufgewertet.",
+                "maxedDesc": "Du hast alle Ausrüstungen auf das maximale Level aufgewertet.",
                 "maxedTitle": "Alle Heldenausrüstungen maximiert",
                 "showMaxedBtn": "Maximierte Ausrüstung anzeigen"
             },
@@ -956,6 +973,7 @@
             "heroBoost": "Helden-Boost",
             "heroEquipment": "Heldenausrüstung",
             "heroJourneyPreLevelInfo": "Wird auf der Heldenreise bei Rathaus {th} (Knoten {node}) freigeschaltet, bereits auf Level {level} aufgewertet.",
+            "legendary": "Legendär",
             "lvl": "Lvl",
             "maxLevel": "Max. Level",
             "modifiers": {
@@ -973,7 +991,7 @@
             "notRecommended": "Nicht empfohlen",
             "overview": "Übersicht",
             "passive": "Passiv",
-            "rarityMaxLevel": "Max. Stufe {level}",
+            "rarityMaxLevel": "Max. Level {level}",
             "recMustHaveHelp": "Diese Ausrüstung ist essenziell und wird für vorrangige Upgrades bei den meisten Strategien dringend empfohlen.",
             "recNicheHelp": "Diese Ausrüstung ist hauptsächlich bei spezifischen Nischenstrategien oder spezialisierten Armeen effektiv.",
             "recNotRecommendedHelp": "Diese Ausrüstung wird derzeit nicht zum Upgraden empfohlen, da andere Heldenausrüstungen deutlich höheren Wert bieten.",
@@ -989,7 +1007,7 @@
             "storedOres": {
                 "help": "<p>Die aktuelle Menge an Erzen, die du in deinem In-Game-Lager (Schmiede) angespart hast.</p><p>Die grünen Badges zeigen bevorstehende und noch nicht beanspruchte Erze aus dem Meilenstein-Pfad der Heldenreise.</p>"
             },
-            "targetLevel": "Zielstufe",
+            "targetLevel": "Ziellevel",
             "thShort": "RH {level}",
             "tilesSuffix": "Felder",
             "totalCost": "Gesamtkosten",
@@ -1004,6 +1022,7 @@
             "guest": "Mit Gastprofil erkunden",
             "guestProfileTag": "Gastprofil",
             "league": "Liga",
+            "legendaryEquip": "Legendäre Ausrüstung",
             "loadProfile": "Profil laden",
             "noClan": "Kein Clan",
             "profileTab": "Profil",
@@ -1012,7 +1031,7 @@
                 "cwl": "Clankriegsliga (CWL)",
                 "drawRate": "Unentschieden-Rate (%):",
                 "eventIncludeEquipment": "Kaufst du die Ausrüstung beim Händler?",
-                "eventPass": "Kaufst du den Event-Pass?",
+                "eventPass": "Kaufst du den Ereignispass?",
                 "eventTraderPacks": "Event-Händler-Käufe:",
                 "gemsBuy": "Juwelen",
                 "goldPass": "Kaufst du den Gold-Pass?",
@@ -1028,7 +1047,7 @@
             "wizard": {
                 "enableRecommendations": "Empfehlungen aktivieren",
                 "enableRecommendationsDesc": "Hilfreiche Empfehlungs-Badges anzeigen, um deine Konfiguration während des Durchgangs zu leiten.",
-                "eventDesc": "Konfiguriere deinen Event-Pass-Status und deine Event-Händler-Käufe.",
+                "eventDesc": "Konfiguriere deinen Ereignispass-Status und deine Event-Händler-Käufe.",
                 "eventTitle": "Nimmst du an besonderen Events teil?",
                 "oresDesc": "Gib deine aktuellen Bestände ein, um die Upgrade-Zeiten genau zu berechnen.",
                 "oresTitle": "Wie viele Erze hast du in deinem Lager?",
@@ -1086,8 +1105,8 @@
                 "thStartTag": "RH {th} START",
                 "trueMaxDesc": "Alle Meilensteine der Heldenreise freigeschaltet",
                 "trueMaxTitle": "Absolutes Maximum erreicht!",
-                "unownedClaimedDesc": "Du hast diese Meilensteinstufe erreicht, aber diese Ausrüstung wurde nicht in deinem Konto gefunden. Dies könnte auf einen Fehler im Spiel zurückzuführen sein.",
-                "unownedClaimedDescWithLevel": "Du hast diese Meilensteinstufe erreicht, aber diese Ausrüstung wurde nicht in deinem Konto gefunden. Dies könnte auf einen Fehler im Spiel zurückzuführen sein. Sie wird nun bei Lvl {level} vergeben.",
+                "unownedClaimedDesc": "Du hast dieses Meilenstein-Level erreicht, aber diese Ausrüstung wurde nicht in deinem Konto gefunden. Dies könnte auf einen Fehler im Spiel zurückzuführen sein.",
+                "unownedClaimedDescWithLevel": "Du hast dieses Meilenstein-Level erreicht, aber diese Ausrüstung wurde nicht in deinem Konto gefunden. Dies könnte auf einen Fehler im Spiel zurückzuführen sein. Sie wird nun bei Lvl {level} vergeben.",
                 "upcomingOresTooltip": "Bevorstehende Erze aus der Heldenreise"
             },
             "page": {
@@ -1144,14 +1163,12 @@
                 "collapseStats": "Profilstatistiken einklappen",
                 "connectBtn": "Profil verknüpfen",
                 "expandStats": "Profilstatistiken ausklappen",
-                "guestNotice": "Gast-Profil: Verknüpfe ein Spieler-Kürzel, um die automatische Fortschritts-Synchronisierung zu aktivieren.",
                 "locked": "Gesperrt",
                 "maxed": "Maximiert",
                 "maxedEquipment": "Maximierte Ausrüstung",
                 "noProfileTitle": "Kein Profil verknüpft",
                 "overallProgress": "Gesamter Erzfortschritt",
-                "remainingColon": "Verbleibend:",
-                "syncNotice": "Hinweis: Der Fortschritt basiert ausschließlich auf synchronisierten Spieldaten. Manuelle Planereinstellungen, Leveländerungen im Tool und gelagerte Erze sind hier ausgeschlossen und aktualisieren sich nur bei der nächsten API-Synchronisierung."
+                "remainingColon": "Verbleibend:"
             },
             "remainingTime": {
                 "help": "Die Zeit, die benötigt wird, um die erforderlichen Erze basierend auf deinem monatlichen Einkommen zu sammeln. Setzt eine gleichbleibende Aktivität voraus; eine Änderung deiner Einkommenskonfiguration beeinflusst diesen Zeitplan."
@@ -1167,12 +1184,21 @@
                 "glowyBonusAriaLabel": "Clankrieg Glimmerz-Bonus pro Angriff",
                 "help": "Die in Clankriegen verdienten Erz-Boni hängen vom Rathaus-Level des Ziels ab, das du angreifst. Tipp: Du kannst an Neben-Kriegen in einem anderen Clan teilnehmen, während CWL in deinem Hauptclan läuft, um das Erzeinkommen zu maximieren.",
                 "last60DaysNWars": "Letzte 60 Tage | Letzte {count} Kriege",
-                "participationsColon": "Clankrieg-Teilnahmen:",
-                "resource": "{count} Kriege ({winRate}% Gewinn)",
+                "resource": "{count} Kriege · {winRate}% Gewinn",
                 "shinyBonusAriaLabel": "Clankrieg Glanzerz-Bonus pro Angriff",
                 "starryBonusAriaLabel": "Clankrieg Sternenerz-Bonus pro Angriff",
                 "title": "Clankrieg",
+                "warsCount": "{count} Kriege",
                 "warsPerMonth": "Kriege pro Monat"
+            },
+            "craftPass": {
+                "help": "Der Fertigungspass ist ein saisonaler Ereignispass, der neue legendäre Ausrüstung einführt. Der Erwerb des Passes schaltet berechtigte, nicht besessene legendäre Ausrüstung automatisch auf Level 15 frei. Hinweis: Diese Funktion befindet sich derzeit in der Vorschau auf Basis erster Ankündigungen; zusätzliche Belohnungen und Zeitplandetails werden aktualisiert, sobald weitere Informationen bekannt gegeben werden.",
+                "title": "Fertigungspass"
+            },
+            "craftPassTrader": {
+                "help": "Tausche während Fertigungspass-Events verdiente Craft-Währung gegen Erze und Gegenstände ein, sobald der Fertigungspass-Händler verfügbar ist. Hinweis: Details und Angebote sind noch nicht bekannt und werden aktualisiert, sobald sie offiziell angekündigt werden.",
+                "noSchedule": "Für den Fertigungspass-Händler wurden noch keine Details bekannt gegeben. Schau später wieder vorbei!",
+                "title": "Fertigungspass-Händler"
             },
             "cwl": {
                 "currentCwlHits": "Aktuelle CKL | {count} Angriffe",
@@ -1180,39 +1206,36 @@
                 "cwl2SeasonsHits": "CKL (2 Saisons) | {count} Angriffe",
                 "glowyBonusAriaLabel": "CKL Glimmerz-Bonus pro Angriff",
                 "help": "Berechnet aus den Angriffsboni der Clankriegsliga basierend auf dem Rathaus-Level des Ziels, das du angreifst, deiner Gesamtzahl an Angriffen und der Gesamtleistung deines Clans.",
+                "hitsCount": "{count} Angriffe",
                 "hitsPerSeason": "Angriffe pro Saison",
-                "participationsColon": "CKL-Teilnahmen:",
-                "resource": "{count} Angriffe ({winRate}% Gewinn)",
+                "resource": "{count} Angriffe · {winRate}% Gewinn",
                 "shinyBonusAriaLabel": "CKL Glanzerz-Bonus pro Angriff",
                 "starryBonusAriaLabel": "CKL Sternenerz-Bonus pro Angriff",
                 "title": "CKL"
             },
             "drawRate": "Unentschieden",
-            "drawRatePct": "Unentschieden (%)",
+            "drawRatePct": "Unentschieden %",
             "earned": "Verdient",
             "eventPass": {
                 "bonusTrackMedals": "Kostenlose & Bonus-Medaillen",
-                "bonusTrackMedalsHelp": "Menge der Medaillen auf dem Bonuspfad des Event-Passes sowie beanspruchbare Medaillen aus dem <a href=\"https://store.supercell.com/de/clashofclans\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Store<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
+                "bonusTrackMedalsHelp": "Menge der Medaillen auf dem Bonuspfad des Ereignispasses sowie beanspruchbare Medaillen aus dem <a href=\"https://store.supercell.com/de/clashofclans\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Store<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
                 "free": "Gratis Pass",
-                "help": "Medaillen-Events finden alle zwei Monate statt. Diese Events bringen normalerweise ein neues Ausrüstungsteil mit sich. Der Kauf eines Event-Passes ist der effizienteste Weg, um für Ausrüstungsverbesserungen auszugeben. Wenn du keinen Event-Pass kaufst, wirst du wahrscheinlich entweder nur die Ausrüstung oder die Erz-Pakete beim Event-Händler kaufen können.",
+                "help": "Medaillen-Events finden alle zwei Monate statt. Diese Events bringen normalerweise ein neues Ausrüstungsteil mit sich. Der Kauf eines Ereignispasses ist der effizienteste Weg, um für Ausrüstungsverbesserungen auszugeben. Wenn du keinen Ereignispass kaufst, wirst du wahrscheinlich entweder nur die Ausrüstung oder die Erz-Pakete beim Event-Händler kaufen können.",
                 "includeEquipment": "Mit Ausrüstung",
-                "medalsColon": "Eventmedaillen:",
                 "medalsResource": "{count} Eventmedaillen",
                 "previous": "Vorheriges",
                 "purchasedMedals": "Gekaufte Medaillen",
-                "title": "Event-Pass"
+                "title": "Ereignispass"
             },
             "eventTrader": {
                 "help": "Tausche Event-Medaillen aus Medaillen-Events ein, um beim Händler ein neues Ausrüstungsteil und Erze zu kaufen.",
                 "title": "Event-Händler"
             },
             "gemTrader": {
-                "gemsColon": "Juwelen:",
                 "help": "Du kannst auch Juwelen verwenden, um Erze beim Händler zu kaufen. Diese Angebote werden wöchentlich aktualisiert. Ein Goldpass-Käufer kann normalerweise etwa 200-250 Juwelen pro Woche erhalten, wenn er es effizient macht, welche verwendet werden können, um diese Angebote ohne Echtgeldkäufe zu erwerben.",
-                "perWeek": "{count} Juwelen pro Woche",
                 "title": "Juwelen-Händler"
             },
-            "lossRatePct": "Niederlage (%)",
+            "lossRatePct": "Niederlage %",
             "ores": {
                 "autoPredictDesc": "Vorhersage der gelagerten Erze basierend auf Upgrades.",
                 "autoPredictTitle": "Automatische Vorhersage",
@@ -1236,14 +1259,14 @@
             "prospector": {
                 "assistedConversion": "Unterstützte Umwandlung",
                 "assistedConversionActive": "Unterstützte Umwandlung aktiv — globale Strategie wird genutzt",
-                "assistedConversionHelp": "Berücksichtigt automatisch optimale Prospektor-Umwandlungen in deinen Planer-Berechnungen und deinem Kalender-Zeitplan. Wenn deaktiviert, wird eine natürliche Erzansammlung angenommen.",
+                "assistedConversionHelp": "Berücksichtigt automatisch optimale Schürfer-Umwandlungen in deinen Planer-Berechnungen und deinem Kalender-Zeitplan. Wenn deaktiviert, wird eine natürliche Erzansammlung angenommen.",
                 "from": "Von",
                 "fromOre": "Vom Erz",
                 "help": "Der Schürfer ist nur im Goldpass verfügbar. Er ermöglicht es dir, Erze von einem Typ in einen anderen umzuwandeln, um deine Ausrüstungsverbesserungen schneller abzuschließen, indem Engpässe optimiert und minimiert werden.",
-                "nextUpgradeHelp": "Berechnet den schnellsten Umwandlungsweg, um den nächsten Schritt auf deiner Prioritätsliste abzuschließen.",
+                "nextUpgradeHelp": "Berechnet den schnellsten Umwandlungsweg, um die nächste Stufe auf deiner Prioritätsliste abzuschließen.",
                 "recommendPurchase": "Empfohlener Kauf",
                 "silverPass": "Silberpass",
-                "sliderAriaLabel": "Prospektor Umtauschbetrag-Schieberegler",
+                "sliderAriaLabel": "Schürfer-Umtauschbetrag-Schieberegler",
                 "strategyModeHelp": "Berechnet den optimalen Weg, um alle geplanten Upgrades (Planer-Strategie) oder alle unfertigen Upgrades (Globale Strategie) gemeinsam abzuschließen. Die Empfehlung zeigt einen monatlichen Zielpfad, der in verschiedene Umwandlungstypen aufgeteilt sein kann und die genaue Anzahl der Tage angibt, die du jeden Typ pro Monat ausführen solltest. Klicke auf dieses Abzeichen, um die Strategie zu wechseln.",
                 "tips": {
                     "addToPlanner": {
@@ -1259,15 +1282,13 @@
                     "preferred": "Bevorzugt",
                     "readyIn": "Bereit in ~<b>{days}T</b>"
                 },
-                "title": "Prospektor",
+                "title": "Schürfer",
                 "to": "Zu",
                 "tooltipConsider": "Ziehe in Erwägung, den Schürfer zu nutzen, um die Erze auszugleichen.",
                 "toOre": "Zum Erz"
             },
             "raidMedalTrader": {
-                "help": "Nimm jedes Wochenende mit deinem Clan an Clan-Überfällen teil, um Überfallmedaillen zu verdienen, und verwende diese, um wöchentlich Erze beim Händler zu kaufen.",
-                "medalsColon": "Überfallmedaillen:",
-                "perWeek": "{count} Überfallmedaillen pro Woche",
+                "help": "Nimm jedes Wochenende mit deinem Clan am Überfallwochenende in der Clanstadt teil, um Überfallmedaillen zu verdienen, und verwende diese, um wöchentlich Erze beim Händler zu kaufen.",
                 "title": "Überfallmedaillen-Händler"
             },
             "remaining": "Verbleibend",
@@ -1283,6 +1304,8 @@
             },
             "shortcuts": {
                 "clanWar": "Krieg",
+                "craftPass": "Craft",
+                "craftPassTrader": "Händler",
                 "cwl": "CKL",
                 "eventPass": "Pass",
                 "eventTrader": "Event",
@@ -1347,7 +1370,7 @@
             "totalLabel": "Gesamt",
             "totalTitle": "Gesamteinkommen",
             "winRate": "Gewinn",
-            "winRatePct": "Gewinn (%)"
+            "winRatePct": "Gewinn %"
         },
         "landing": {
             "activeVillageShowcase": "Aktives Dorf-Profil",
@@ -1400,7 +1423,7 @@
             "toolDamageCalcTitle": "Ausrüstungsschaden-Rechner",
             "toolHeroJourneyDesc": "Erkunde alle Meilenstein-Belohnungen der Heldenreise, verfolge deine kumulativen Heldenlevel, prüfe Truhen-Wahrscheinlichkeiten und filtere nach Erzen, Ausrüstung, Skins und magischen Gegenständen.",
             "toolHeroJourneyTitle": "Heldenreise-Tracker",
-            "toolOreCalcDesc": "Der originale OreCalc-Rechner. Optimiere deine Erzausgaben, berechne die Zeit bis zum Maximum für alle Heldenausrüstungen, simuliere tägliches Einkommen aus Clankriegen, CWL und Stern-Bonus und organisiere Upgrades im interaktiven Kalender.",
+            "toolOreCalcDesc": "Der originale OreCalc-Rechner. Optimiere deine Erzausgaben, berechne die Zeit bis zum Maximum für alle Heldenausrüstungen, simuliere tägliches Einkommen aus Clankriegen, CWL und Sternebonus und organisiere Upgrades im interaktiven Kalender.",
             "toolOreCalcTitle": "OreCalc — Erz- & Ausrüstungsrechner",
             "trackProgressShort": "Pfad-Fortschritt",
             "villageAlreadySaved": "Dieses Dorf ist bereits in deiner Liste gespeichert.",
@@ -1464,7 +1487,7 @@
             "hideMaxedEquipment": "Max. Ausrüstung ausblenden",
             "incomeChipsHelp": "Diese Chips repräsentieren deine monatlichen Einkommensquellen. Ziehe sie auf Kalendertage, um deine Erzeingänge zu planen, oder erstelle benutzerdefinierte Chips.",
             "infinity": "Unendlich",
-            "levelSelectModalHelp": "Lege Ziellevel für bis zu 3 Upgrade-Schritte fest. Die App schlägt automatisch Ziele in 3er-Schritten vor. Leere Felder deaktivieren einen Schritt.",
+            "levelSelectModalHelp": "Lege Ziellevel für bis zu 3 Upgrade-Stufen fest. Die App schlägt automatisch Ziele in 3er-Schritten vor. Leere Felder deaktivieren eine Stufe.",
             "lockedEquipmentHiddenCount": "{count} gesperrte Ausrüstungen ausgeblendet",
             "nameStep": "{equipmentName} (#{step})",
             "noMoreChips": "Alle Chips für diesen Monat wurden bereits im Kalender platziert.",
@@ -1475,8 +1498,8 @@
             "plannedCompleteDesc": "Deine geplanten Verbesserungen wurden erreicht.",
             "plannedCompleteTitle": "Geplante Verbesserungen abgeschlossen",
             "priorityList": "Prioritäten-Liste",
-            "priorityListHelp": "Erstelle deine Prioritätsliste, um Upgrades in aufeinanderfolgende Schritte zu unterteilen. Ziehe Elemente per Drag-and-drop.",
-            "priorityListModalHelp": "Klicke oben auf die Ausrüstungsnamen, um Upgrade-Schritte zu erstellen. Ordne sie mit den Ziehpunkten auf der linken Seite neu an oder lösche Schritte mit dem Löschen-Symbol.",
+            "priorityListHelp": "Erstelle deine Prioritätsliste, um Upgrades in aufeinanderfolgende Stufen zu unterteilen. Ziehe Elemente per Drag-and-drop.",
+            "priorityListModalHelp": "Klicke oben auf die Ausrüstungsnamen, um Upgrade-Stufen zu erstellen. Ordne sie mit den Ziehpunkten auf der linken Seite neu an oder lösche Stufen mit dem Löschen-Symbol.",
             "priorityModalMaxedDesc": "Alle Heldenausrüstungen sind maximiert. Keine weiteren Verbesserungen planbar.",
             "priorityPlaceholder": "Deine Prioritäten-Liste ist leer. Klicke oben auf eine Ausrüstung, um einen Verbesserungsplan hinzuzufügen.",
             "resolveErrorsToViewPlan": "Fehler in der Reihenfolge beheben, um den vollständigen Plan anzuzeigen.",
@@ -1508,10 +1531,10 @@
             "storageAlreadyFull": "{ore}-Lager voll",
             "storageCountdownStrip": "Zeit bis Lager voll sind",
             "storageFullInDays": "{ore} voll in {days}T",
-            "suggestionEpicUp": "Verschiebe {futureItemName} nach oben, um es früher abzuschließen. Du hast extra Sternenerze.",
             "suggestionInterleave": "Beende {itemNames}, während du auf Erze für {itemName} wartest. Dein Plan wird nicht verzögert.",
+            "suggestionStarryUp": "Verschiebe {futureItemName} nach oben, um es früher abzuschließen. Du hast extra Sternenerze.",
             "toggleEquipment": "{name}-Einbeziehung umschalten",
-            "trueMaxedDesc": "Jede Heldenausrüstung hat ihre maximale Stufe erreicht.",
+            "trueMaxedDesc": "Jede Heldenausrüstung hat ihr maximales Level erreicht.",
             "validDates": "Gültiger Bereich"
         },
         "settings": {

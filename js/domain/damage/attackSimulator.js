@@ -8,6 +8,7 @@ import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { spellsData } from '../../data/spellsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import {
+    getDefaultDamageEquipmentLevel,
     getMaxSpellLevel,
     getLightningDamage,
     calculateEarthquakeDamage,
@@ -194,7 +195,7 @@ export function simulateAttackSequence(targetDefenseKey, targetLevel, sequenceSt
             }
 
             case 'equipment': {
-                const equipRes = calculateEquipmentDamage(step.id, step.level || 18, targetDefenseKey, targetLevel, { ...options, modifier, modifierKey: modifier, leagueId: modifier });
+                const equipRes = calculateEquipmentDamage(step.id, step.level || getDefaultDamageEquipmentLevel(step.id), targetDefenseKey, targetLevel, { ...options, modifier, modifierKey: modifier, leagueId: modifier });
                 const actualDmg = Math.min(currentHp, equipRes.damageDealt);
                 currentHp -= actualDmg;
                 cumulativeRawDamage += equipRes.damageDealt;

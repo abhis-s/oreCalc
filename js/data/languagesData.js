@@ -122,3 +122,30 @@ export function getSupercellEventUrl(langCode = 'en') {
 
     return 'https://event.supercell.com/clashofclans/en';
 }
+
+const validEquipmentBlogSubpaths = new Set([
+    'de', 'zh-hans', 'fr', 'es', 'it', 'pt', 'ja', 'id'
+]);
+
+/**
+ * Resolves localized Supercell Clash of Clans Legendary Equipment blog post URL.
+ * @param {string} [langCode='en'] - Active language code.
+ * @returns {string} Localized URL string.
+ */
+export function getSupercellEquipmentBlogUrl(langCode = 'en') {
+    const overrideMap = {
+        zh: 'zh-hans',
+        'zh-CN': 'zh-hans',
+        'zh-TW': 'zh-hans',
+        'pt-BR': 'pt',
+        'pt-PT': 'pt',
+        'es-ES': 'es'
+    };
+    const subPath = overrideMap[langCode] || langCode;
+
+    if (subPath && validEquipmentBlogSubpaths.has(subPath)) {
+        return `https://supercell.com/en/games/clashofclans/${subPath}/blog/news/an-all-new-equipment-rarity-is-coming-to-clash-of-clans/`;
+    }
+
+    return 'https://supercell.com/en/games/clashofclans/blog/news/an-all-new-equipment-rarity-is-coming-to-clash-of-clans-2/';
+}

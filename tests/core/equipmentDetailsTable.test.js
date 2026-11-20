@@ -103,6 +103,65 @@ describe('Equipment Details Table Display & Data Contracts', () => {
         );
     });
 
+    test('renderLevelTable calculates total remaining upgrade cost up to true max under esports mode', () => {
+        const mockTableHead = { innerHTML: '', querySelector: () => null, querySelectorAll: () => [] };
+        const mockTableBody = { innerHTML: '' };
+
+        const mockLegendaryData = {
+            rarity: 'legendary',
+            costSchedule: 'modern',
+            statsMeta: [
+                { key: 'auraDps', category: 'ability', valueUnit: 'number' }
+            ]
+        };
+
+        const legendaryLevels = Array.from({ length: 33 }, (_, i) => ({
+            stats: { auraDps: (i + 1) * 10 }
+        }));
+
+        // Case A: Blizzard Axe at Level 15 in esports mode
+        renderLevelTable(
+            mockTableHead,
+            mockTableBody,
+            mockLegendaryData,
+            legendaryLevels,
+            15, // currentLevel
+            33, // calculatedMaxLevel (true max)
+            'legendary',
+            'barbarianKing',
+            18, // userTH
+            'esports',
+            null
+        );
+
+        let html = mockTableBody.innerHTML;
+        assert.ok(html.includes('total-cost-row'), 'Total cost row must be rendered in esports mode');
+        assert.ok(html.includes('60,300'), 'Total Shiny in esports mode must reflect remaining upgrades to true max 33 (60,300)');
+        assert.ok(html.includes('4,230'), 'Total Glowy in esports mode must reflect remaining upgrades to true max 33 (4,230)');
+        assert.ok(html.includes('650'), 'Total Starry in esports mode must reflect remaining upgrades to true max 33 (650)');
+
+        // Case B: Current level is above esports effective max level (e.g. Level 27 > 24)
+        renderLevelTable(
+            mockTableHead,
+            mockTableBody,
+            mockLegendaryData,
+            legendaryLevels,
+            27, // currentLevel (> effective max 24)
+            33, // calculatedMaxLevel
+            'legendary',
+            'barbarianKing',
+            18,
+            'esports',
+            null
+        );
+
+        html = mockTableBody.innerHTML;
+        assert.ok(html.includes('total-cost-row'), 'Total cost row must still render when current level exceeds effective max');
+        assert.ok(html.includes('23,700'), 'Total Shiny for levels 28-33 must be 23,700');
+        assert.ok(html.includes('1,550'), 'Total Glowy for levels 28-33 must be 1,550');
+        assert.ok(html.includes('275'), 'Total Starry for levels 28-33 must be 275');
+    });
+
     test('renderLevelTable gracefully handles null table elements without throwing', () => {
         assert.doesNotThrow(() => {
             renderLevelTable(null, null, {}, [], 1, 18, 'common', 'barbarianKing', 16, 'standard', null);

@@ -150,12 +150,14 @@ $z-index-load-failure: $z-index-high-priority-modal + 1;
 // --- 2. GAME DOMAIN TOKENS (Rarities, Ores, Heroes, Income Sources) ---
 $color-rarity-common: var(--color-rarity-common);
 $color-rarity-epic: var(--color-rarity-epic);
+$color-rarity-legendary: var(--color-rarity-legendary);
 
 $color-gold-glow: var(--color-gold-glow);
 $color-gold-glow-shadow: var(--color-gold-glow-shadow);
 $filter-glow-gold-sm: drop-shadow(0 0 6px $color-gold-glow-shadow);
 $filter-glow-gold-md: drop-shadow(0 0 8px $color-gold-glow-shadow);
 $filter-glow-epic: drop-shadow(0 0 6px color-mix(in srgb, $palette-purple-400 60%, transparent));
+$filter-glow-legendary: drop-shadow(0 0 6px color-mix(in srgb, $palette-yellow-400 60%, transparent));
 
 $shiny-ore: var(--shiny-ore);
 $glowy-ore: var(--glowy-ore);

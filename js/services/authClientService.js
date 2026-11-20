@@ -342,7 +342,7 @@ export function purgeAccountDataOnLogout() {
     const rawSettings = safeJsonParse(localStorage.getItem(settingsKey)) || {};
     const sanitizedSettings = {
         theme: rawSettings.theme || 'dark',
-        accentColor: rawSettings.accentColor || 'random',
+        accentColor: rawSettings.accentColor || 'blue',
         language: rawSettings.language || 'en',
         uiTimestamps: {
             tour: rawSettings.uiTimestamps?.tour ?? null
@@ -382,7 +382,8 @@ export function resetApplication() {
     if (typeof window !== 'undefined' && window.location) {
         if (window.location.hash || window.location.search) {
             try {
-                history.replaceState(null, '', window.location.pathname);
+                const preservedState = window.history?.state ? { ...window.history.state } : null;
+                history.replaceState(preservedState, '', window.location.pathname);
             } catch (_) {}
         }
         window.location.href = window.location.origin + window.location.pathname;

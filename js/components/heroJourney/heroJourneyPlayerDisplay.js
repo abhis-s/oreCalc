@@ -215,7 +215,7 @@ export function renderPlayerSummary() {
         const headerHtml = renderProfileHeaderHtml({
             profile: null,
             isGuest: true,
-            thLevel: 16,
+            thLevel: MAX_TOWN_HALL,
             trophiesHtml: '<span>---</span>',
             plannerBridge: { url: rootPath },
             headerExtraClasses: 'hero-journey-page__player-header'

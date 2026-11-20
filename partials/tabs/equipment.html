@@ -1,4 +1,36 @@
         <div class="tab-content" id="equipment-tab">
+            <div id="eq-economy-notice" class="equipment-economy-notice" role="region" aria-labelledby="eq-economy-notice-title">
+                <div class="equipment-economy-notice__header">
+                    <div class="equipment-economy-notice__title-group">
+                        <clashcalc-assets-svg name="info" class="equipment-economy-notice__icon"></clashcalc-assets-svg>
+                        <h3 id="eq-economy-notice-title" class="equipment-economy-notice__title" data-i18n="views.equipment.economyNotice.title"></h3>
+                        <span class="badge equipment-economy-notice__badge" data-i18n="views.equipment.legendary"></span>
+                    </div>
+                    <button type="button" id="eq-economy-notice-dismiss-btn" class="equipment-economy-notice__dismiss-btn" data-i18n-title="actions.dismiss" data-i18n-aria-label="actions.dismiss">
+                        <clashcalc-assets-svg name="close"></clashcalc-assets-svg>
+                    </button>
+                </div>
+                <div class="equipment-economy-notice__body">
+                    <p class="equipment-economy-notice__summary" data-i18n="views.equipment.economyNotice.summary"></p>
+                    <div class="inner-card equipment-economy-notice__inner">
+                        <div class="equipment-economy-notice__row">
+                            <span class="equipment-economy-notice__bullet" data-i18n="views.equipment.economyNotice.point1"></span>
+                        </div>
+                        <div class="equipment-economy-notice__row">
+                            <span class="equipment-economy-notice__bullet" data-i18n="views.equipment.economyNotice.point2"></span>
+                        </div>
+                        <div class="equipment-economy-notice__row">
+                            <span class="equipment-economy-notice__bullet" data-i18n="views.equipment.economyNotice.point3"></span>
+                        </div>
+                    </div>
+                    <div class="equipment-economy-notice__footer">
+                        <a id="eq-economy-notice-article-link" href="https://supercell.com/en/games/clashofclans/blog/news/an-all-new-equipment-rarity-is-coming-to-clash-of-clans-2/" target="_blank" rel="noopener noreferrer" class="btn btn--secondary btn--sm equipment-economy-notice__link">
+                            <span data-i18n="views.equipment.economyNotice.readArticle"></span>
+                            <clashcalc-assets-svg name="open-in-new"></clashcalc-assets-svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
             <div class="main-content">
                 <div class="left-panel">
                     <div id="heroes-container">
@@ -67,6 +99,15 @@
                                 <input type="checkbox" id="eq-coming-soon-switch" aria-haspopup="dialog">
                                 <span class="slider round"></span>
                             </div>
+                        </div>
+                        <div class="input-group-flex" id="eq-economy-notice-reopen-wrapper" hidden>
+                            <div class="field-descriptor-group">
+                                <span class="field-descriptor-group__label" data-i18n="views.equipment.economyNotice.reopenLabel"></span>
+                                <p class="form-setting-text" data-i18n="views.equipment.economyNotice.reopenDesc"></p>
+                            </div>
+                            <button type="button" id="eq-economy-notice-reopen-btn" class="btn btn--secondary btn--sm">
+                                <span data-i18n="actions.view"></span>
+                            </button>
                         </div>
                     </div>
                     <div id="orecalc-equipment-results-card" class="equipment-card card calculated">

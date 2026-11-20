@@ -222,7 +222,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     const activeKey = currentEquipIdx !== -1 ? (equipList[currentEquipIdx].key || equipList[currentEquipIdx].name) : equipmentName;
     setModalSessionState({ activeEquipmentName: activeKey });
 
-    const data = await fetchEquipmentData(activeKey);
+    const fetchedData = await fetchEquipmentData(activeKey);
 
     const prevBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-prev-btn'));
     const nextBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('eq-details-next-btn'));
@@ -263,6 +263,14 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
         }
     }
 
+    const data = fetchedData
+        ? {
+            ...fetchedData,
+            isUnreleased: Boolean(fetchedData.isUnreleased || equipInfo?.isUnreleased),
+            costSchedule: fetchedData.costSchedule || equipInfo?.costSchedule
+        }
+        : null;
+
     const equipmentType = data?.type || (equipInfo ? equipInfo.type : 'Common');
     const equipmentRarity = data?.rarity || (equipInfo ? equipInfo.type : 'Common');
 
@@ -276,7 +284,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     const allRecs = await getRecommendationsData();
     const camelKey = toCamelCase(data.id || activeKey);
     const slug = data.id || activeKey;
-    const isEquipUnreleased = Boolean(data?.isUnreleased || (data?.id || activeKey).toLowerCase().includes('coming_soon'));
+    const isEquipUnreleased = Boolean(data?.isUnreleased || equipInfo?.isUnreleased || (data?.id || activeKey).toLowerCase().includes('coming_soon'));
     data.recommendation = allRecs[camelKey] || allRecs[slug] || (isEquipUnreleased ? { recStatus: 'unreleased' } : null);
 
     const itemImg = document.getElementById('eq-details-item-img');
@@ -299,7 +307,11 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
     const tableContainer = modal.querySelector('.eq-details-table-container');
 
     if (itemImg) itemImg.classList.remove('is-data-unavailable');
-    if (emptyStateContainer) { emptyStateContainer.style.display = 'none'; emptyStateContainer.innerHTML = ''; }
+    if (emptyStateContainer) {
+        emptyStateContainer.hidden = true;
+        emptyStateContainer.style.display = '';
+        emptyStateContainer.innerHTML = '';
+    }
     if (contentWrapper) contentWrapper.style.display = '';
     if (tableWrapper) tableWrapper.style.display = '';
     if (footerMetaElem) footerMetaElem.style.display = '';
@@ -335,6 +347,19 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
 
     const staticBox = document.getElementById('eq-details-static-box');
     const overviewElements = staticBox ? staticBox.querySelectorAll('.eq-details-header-row, .eq-details-avatars, .eq-details-badges, #eq-details-static-stats-content') : [];
+
+    /** @param {ScrollBehavior} [behavior='auto'] */
+    const scrollToActiveRow = (behavior = 'auto') => {
+        requestAnimationFrame(() => {
+            const activeRow = /** @type {HTMLElement | null} */ (modal.querySelector('.active-level-row, .active-max-level-row'));
+            const thead = modal.querySelector('#eq-details-table-head');
+            if (activeRow && tableContainer) {
+                const headerHeight = thead ? thead.clientHeight : 0;
+                const targetScrollTop = Math.max(0, activeRow.offsetTop - headerHeight);
+                tableContainer.scrollTo({ top: targetScrollTop, behavior });
+            }
+        });
+    };
 
     const updateAllViewsForModifier = (previousModeMap = null, previousUnitMap = null) => {
         const effective = computeEffectiveLevels(currentLevel, calculatedMaxLevel, data.rarity || equipmentRarity, activeModifierTab);
@@ -435,16 +460,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             }
         };
 
-        requestAnimationFrame(() => {
-            const activeRow = /** @type {HTMLElement | null} */ (modal.querySelector('.active-level-row, .active-max-level-row'));
-            const thead = modal.querySelector('#eq-details-table-head');
-            const tContainer = modal.querySelector('.eq-details-table-container');
-            if (activeRow && tContainer) {
-                const headerHeight = thead ? thead.clientHeight : 0;
-                const targetScrollTop = Math.max(0, activeRow.offsetTop - headerHeight);
-                tContainer.scrollTop = targetScrollTop;
-            }
-        });
+        scrollToActiveRow('auto');
     };
 
     activeUpdateViewsCallback = updateAllViewsForModifier;
@@ -481,14 +497,18 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             const unitStatsBtnLabel = translate('views.equipment.unitStats');
             const overviewBtnLabel = translate('views.equipment.overview');
 
-            unitStatsToggleBtn.style.display = 'inline-flex';
+            unitStatsToggleBtn.hidden = false;
+            unitStatsToggleBtn.style.display = '';
 
             const applyViewMode = (mode, isAnimate = false) => {
                 currentViewMode = mode;
                 const isUnit = mode === 'unitStats';
                 unitStatsToggleBtn.innerHTML = `<clashcalc-assets-svg name="group" class="toggle-btn-icon"></clashcalc-assets-svg> <span>${isUnit ? overviewBtnLabel : unitStatsBtnLabel}</span>`;
                 overviewElements.forEach(el => /** @type {HTMLElement} */ (el).style.display = isUnit ? 'none' : '');
-                if (unitStatsContent) unitStatsContent.style.display = isUnit ? 'block' : 'none';
+                if (unitStatsContent) {
+                    unitStatsContent.hidden = !isUnit;
+                    unitStatsContent.style.display = '';
+                }
                 if (isUnit) {
                     const effective = computeEffectiveLevels(currentLevel, calculatedMaxLevel, data.rarity || equipmentRarity, activeModifierTab);
                     renderUnitStatsView(unitStatsContent, data, levelsArray, currentLevel, calculatedMaxLevel, equipmentRarity, activeModifierTab, effective.effectiveLevel, isAnimate);
@@ -520,8 +540,12 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             };
         } else {
             currentViewMode = 'overview';
-            unitStatsToggleBtn.style.display = 'none';
-            if (unitStatsContent) unitStatsContent.style.display = 'none';
+            unitStatsToggleBtn.hidden = true;
+            unitStatsToggleBtn.style.display = '';
+            if (unitStatsContent) {
+                unitStatsContent.hidden = true;
+                unitStatsContent.style.display = '';
+            }
             overviewElements.forEach(el => /** @type {HTMLElement} */ (el).style.display = '');
         }
     }
@@ -551,33 +575,12 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             );
 
             updateAllViewsForModifier();
-
-            requestAnimationFrame(() => {
-                const activeRow = /** @type {HTMLElement | null} */ (modal.querySelector('.active-level-row, .active-max-level-row'));
-                const thead = modal.querySelector('#eq-details-table-head');
-                if (activeRow && tableContainer) {
-                    const headerHeight = thead ? thead.clientHeight : 0;
-                    const targetScrollTop = Math.max(0, activeRow.offsetTop - headerHeight);
-                    tableContainer.scrollTo({
-                        top: targetScrollTop,
-                        behavior: 'smooth'
-                    });
-                }
-            });
+            scrollToActiveRow('smooth');
         };
     }
 
     if (footerMetaElem) renderFooterMeta(footerMetaElem);
 
     openModal(modal);
-
-    requestAnimationFrame(() => {
-        const activeRow = /** @type {HTMLElement | null} */ (modal.querySelector('.active-level-row, .active-max-level-row'));
-        const thead = modal.querySelector('#eq-details-table-head');
-        if (activeRow && tableContainer) {
-            const headerHeight = thead ? thead.clientHeight : 0;
-            const targetScrollTop = Math.max(0, activeRow.offsetTop - headerHeight);
-            tableContainer.scrollTop = targetScrollTop;
-        }
-    });
+    scrollToActiveRow('auto');
 }

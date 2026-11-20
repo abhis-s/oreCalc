@@ -3,14 +3,14 @@
  * Tier 2: Pure Domain Math
  */
 
-import { getEquipmentMaxLevel, upgradeCosts } from '../../data/equipmentCommonData.js';
+import { getEquipmentMaxLevel, getEquipmentUpgradeCost } from '../../data/equipmentCommonData.js';
 import { heroData } from '../../data/heroData.js';
 
 /**
  * @typedef {Object} OreProgressDetails
  * @property {number} shiny - Shiny ore percentage (0-100).
  * @property {number} glowy - Glowy ore percentage (0-100).
- * @property {number} [starry] - Starry ore percentage (0-100, epic only).
+ * @property {number} [starry] - Starry ore percentage (0-100, epic/legendary only).
  * @property {number} avg - Combined average percentage (0-100).
  * @property {{ shiny: number, glowy: number, starry?: number }} spent - Raw ores spent.
  * @property {{ shiny: number, glowy: number, starry?: number }} total - Total ores required.
@@ -30,10 +30,11 @@ import { heroData } from '../../data/heroData.js';
  * @property {number} starryTotal - Total starry ore capacity for maxed equipment.
  * @property {OreProgressDetails} common - Common equipment breakdown.
  * @property {OreProgressDetails} epic - Epic equipment breakdown.
+ * @property {OreProgressDetails} [legendary] - Legendary equipment breakdown.
  */
 
 /**
- * Calculates overall ore-cost-based progress percentage for common and epic equipment.
+ * Calculates overall ore-cost-based progress percentage for common, epic, and legendary equipment.
  * Supports both explicit equipment/heroes maps and full player profile objects.
  *
  * @param {Record<string, number> | { ownedEquipment?: Record<string, number>, ownedHeroes?: Record<string, any> }} ownedEquipmentOrPlayerData
@@ -60,6 +61,8 @@ export function calculateEquipmentProgress(ownedEquipmentOrPlayerData = {}, owne
     const commonTotal = { shiny: 0, glowy: 0 };
     const epicSpent = { shiny: 0, glowy: 0, starry: 0 };
     const epicTotal = { shiny: 0, glowy: 0, starry: 0 };
+    const legendarySpent = { shiny: 0, glowy: 0, starry: 0 };
+    const legendaryTotal = { shiny: 0, glowy: 0, starry: 0 };
 
     for (const heroKey in heroData) {
         const heroInfo = heroData[heroKey];
@@ -71,40 +74,52 @@ export function calculateEquipmentProgress(ownedEquipmentOrPlayerData = {}, owne
         }
 
         for (const equip of heroInfo.equipment) {
+            const isLegendary = equip.type === 'legendary';
             const isEpic = equip.type === 'epic';
             const equipKey = equip.key;
+            const isExplicitlyOwned = ownedEquip[equipKey] !== undefined || ownedEquip[equip.name] !== undefined;
+
+            if (equip.isUnreleased && !isExplicitlyOwned) {
+                continue;
+            }
+
             const currentLevel = ownedEquip[equipKey] !== undefined
                 ? ownedEquip[equipKey]
                 : (ownedEquip[equip.name] !== undefined ? ownedEquip[equip.name] : 1);
             const maxLevel = getEquipmentMaxLevel(equip.type);
+            const costSchedule = equip.costSchedule || 'classic';
 
-            if (ownedEquip[equipKey] !== undefined || ownedEquip[equip.name] !== undefined || heroesFilter === null) {
+            if (isExplicitlyOwned || heroesFilter === null) {
                 for (let lvl = 2; lvl <= currentLevel; lvl++) {
-                    const cost = upgradeCosts[lvl];
-                    if (cost) {
-                        if (isEpic) {
-                            epicSpent.shiny += cost.shiny || 0;
-                            epicSpent.glowy += cost.glowy || 0;
-                            epicSpent.starry += cost.starry || 0;
-                        } else {
-                            commonSpent.shiny += cost.shiny || 0;
-                            commonSpent.glowy += cost.glowy || 0;
-                        }
+                    const cost = getEquipmentUpgradeCost(lvl, equip.type, costSchedule);
+                    if (isLegendary) {
+                        legendarySpent.shiny += cost.shiny || 0;
+                        legendarySpent.glowy += cost.glowy || 0;
+                        legendarySpent.starry += cost.starry || 0;
+                    } else if (isEpic) {
+                        epicSpent.shiny += cost.shiny || 0;
+                        epicSpent.glowy += cost.glowy || 0;
+                        epicSpent.starry += cost.starry || 0;
+                    } else {
+                        commonSpent.shiny += cost.shiny || 0;
+                        commonSpent.glowy += cost.glowy || 0;
                     }
                 }
             }
 
             for (let lvl = 2; lvl <= maxLevel; lvl++) {
-                const cost = upgradeCosts[lvl];
-                if (cost) {
-                    if (isEpic) {
-                        epicTotal.shiny += cost.shiny || 0;
-                        epicTotal.glowy += cost.glowy || 0;
-                        epicTotal.starry += cost.starry || 0;
-                    } else {
-                        commonTotal.shiny += cost.shiny || 0;
-                        commonTotal.glowy += cost.glowy || 0;
-                    }
+                const cost = getEquipmentUpgradeCost(lvl, equip.type, costSchedule);
+                if (isLegendary) {
+                    legendaryTotal.shiny += cost.shiny || 0;
+                    legendaryTotal.glowy += cost.glowy || 0;
+                    legendaryTotal.starry += cost.starry || 0;
+                } else if (isEpic) {
+                    epicTotal.shiny += cost.shiny || 0;
+                    epicTotal.glowy += cost.glowy || 0;
+                    epicTotal.starry += cost.starry || 0;
+                } else {
+                    commonTotal.shiny += cost.shiny || 0;
+                    commonTotal.glowy += cost.glowy || 0;
                 }
             }
         }
@@ -119,16 +134,21 @@ export function calculateEquipmentProgress(ownedEquipmentOrPlayerData = {}, owne
     const epicStarryPct = epicTotal.starry > 0 ? Math.round((epicSpent.starry / epicTotal.starry) * 100) : 0;
     const epicAvgPct = Math.round((epicShinyPct + epicGlowyPct + epicStarryPct) / 3);
 
-    const shinySpent = commonSpent.shiny + epicSpent.shiny;
-    const shinyTotal = commonTotal.shiny + epicTotal.shiny;
+    const legendaryShinyPct = legendaryTotal.shiny > 0 ? Math.round((legendarySpent.shiny / legendaryTotal.shiny) * 100) : 0;
+    const legendaryGlowyPct = legendaryTotal.glowy > 0 ? Math.round((legendarySpent.glowy / legendaryTotal.glowy) * 100) : 0;
+    const legendaryStarryPct = legendaryTotal.starry > 0 ? Math.round((legendarySpent.starry / legendaryTotal.starry) * 100) : 0;
+    const legendaryAvgPct = Math.round((legendaryShinyPct + legendaryGlowyPct + legendaryStarryPct) / 3);
+
+    const shinySpent = commonSpent.shiny + epicSpent.shiny + legendarySpent.shiny;
+    const shinyTotal = commonTotal.shiny + epicTotal.shiny + legendaryTotal.shiny;
     const shiny = shinyTotal > 0 ? Math.round((shinySpent / shinyTotal) * 100) : 0;
 
-    const glowySpent = commonSpent.glowy + epicSpent.glowy;
-    const glowyTotal = commonTotal.glowy + epicTotal.glowy;
+    const glowySpent = commonSpent.glowy + epicSpent.glowy + legendarySpent.glowy;
+    const glowyTotal = commonTotal.glowy + epicTotal.glowy + legendaryTotal.glowy;
     const glowy = glowyTotal > 0 ? Math.round((glowySpent / glowyTotal) * 100) : 0;
 
-    const starrySpent = epicSpent.starry;
-    const starryTotal = epicTotal.starry;
+    const starrySpent = epicSpent.starry + legendarySpent.starry;
+    const starryTotal = epicTotal.starry + legendaryTotal.starry;
     const starry = starryTotal > 0 ? Math.round((starrySpent / starryTotal) * 100) : 0;
 
     const orePcts = [];
@@ -165,8 +185,42 @@ export function calculateEquipmentProgress(ownedEquipmentOrPlayerData = {}, owne
             avg: epicAvgPct,
             spent: epicSpent,
             total: epicTotal
+        },
+        legendary: {
+            shiny: legendaryShinyPct,
+            glowy: legendaryGlowyPct,
+            starry: legendaryStarryPct,
+            avg: legendaryAvgPct,
+            spent: legendarySpent,
+            total: legendaryTotal
         }
     };
+}
+
+/**
+ * Counts maxed and total releasable equipment items against owned levels.
+ * Excludes unreleased items unless explicitly present in ownedEquipment.
+ *
+ * @param {Record<string, number>} ownedEquipment - Owned equipment levels keyed by name or key.
+ * @returns {{ maxedCount: number, totalCount: number }} Maxed and total releasable equipment counts.
+ */
+export function calculateMaxedEquipmentCount(ownedEquipment) {
+    let maxedCount = 0;
+    let totalCount = 0;
+    for (const heroKey in heroData) {
+        for (const equip of heroData[heroKey].equipment) {
+            const currentLevel = ownedEquipment?.[equip.key] ?? ownedEquipment?.[equip.name];
+            if (equip.isUnreleased && currentLevel === undefined) {
+                continue;
+            }
+            totalCount++;
+            const maxLevel = getEquipmentMaxLevel(equip.type);
+            if (currentLevel !== undefined && currentLevel >= maxLevel) {
+                maxedCount++;
+            }
+        }
+    }
+    return { maxedCount, totalCount };
 }
 
 /**

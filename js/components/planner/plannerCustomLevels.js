@@ -1,4 +1,4 @@
-import { getEquipmentMaxLevel, getTownHallCaps } from '../../data/equipmentCommonData.js';
+import { EQUIPMENT_MAX_LEVELS, getEquipmentMaxLevel, getTownHallCaps } from '../../data/equipmentCommonData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
@@ -15,11 +15,12 @@ function getTownHallMaxLevel(type, townHallLevel) {
         return getEquipmentMaxLevel(type);
     }
     const capInfo = getTownHallCaps(th);
-    return type === 'epic' ? capInfo.epicMax : capInfo.commonMax;
+    const r = type ? type.toLowerCase() : 'common';
+    return capInfo[`${r}Max`] ?? getEquipmentMaxLevel(r);
 }
 
 /**
- * Initializes Common and Epic custom max level input controls, validation bounds, and popover providers.
+ * Initializes rarity custom max level input controls, validation bounds, and popover providers.
  */
 export function initializePlannerCustomLevels() {
     const container = document.querySelector('.max-level-card-header');
@@ -36,19 +37,24 @@ export function initializePlannerCustomLevels() {
     const settingsContainer = document.createElement('div');
     settingsContainer.className = 'level-settings-container';
 
-    const levels = [
-        { id: 'planner-common-max-level', key: 'common', i18n: 'views.equipment.common', max: getEquipmentMaxLevel('common') },
-        { id: 'planner-epic-max-level', key: 'epic', i18n: 'views.equipment.epic', max: getEquipmentMaxLevel('epic') }
-    ];
+    const levels = Object.keys(EQUIPMENT_MAX_LEVELS).map(key => ({
+        id: `planner-${key}-max-level`,
+        key,
+        i18n: `views.equipment.${key}`,
+        max: getEquipmentMaxLevel(key)
+    }));
 
     levels.forEach(level => {
         const group = document.createElement('div');
-        group.className = 'input-group-flex indented';
+        group.className = 'input-group-flex';
 
         const label = document.createElement('label');
         label.htmlFor = level.id;
-        label.dataset.i18n = level.i18n;
-        label.textContent = `${translate(level.i18n)}:`;
+        label.className = `${level.key}-equip`;
+        const labelText = document.createElement('span');
+        labelText.dataset.i18n = level.i18n;
+        labelText.textContent = translate(level.i18n);
+        label.append(labelText, ':');
         group.appendChild(label);
 
         const wrapper = document.createElement('div');
@@ -112,13 +118,10 @@ export function renderPlannerCustomLevels(plannerState) {
         console.error('Planner state is not available. Cannot update DOM.');
         return;
     }
-    const commonMaxLevelInput = dom.planner?.customMaxLevel?.common;
-    const epicMaxLevelInput = dom.planner?.customMaxLevel?.epic;
-
-    if (commonMaxLevelInput) {
-        commonMaxLevelInput.value = plannerState.customMaxLevel?.common || getEquipmentMaxLevel('common');
-    }
-    if (epicMaxLevelInput) {
-        epicMaxLevelInput.value = plannerState.customMaxLevel?.epic || getEquipmentMaxLevel('epic');
+    for (const rarity of Object.keys(EQUIPMENT_MAX_LEVELS)) {
+        const input = dom.planner?.customMaxLevel?.[rarity];
+        if (input) {
+            input.value = plannerState.customMaxLevel?.[rarity] || getEquipmentMaxLevel(rarity);
+        }
     }
 }

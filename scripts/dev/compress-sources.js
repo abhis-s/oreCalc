@@ -32,8 +32,29 @@ function getFiles(dir, files = []) {
 
 async function compressAll() {
     console.log('--- PNG Source Image Compressor ---');
-    const files = getFiles(assetsDir);
-    console.log(`[INFO] Found ${files.length} PNG files in assets directory.\n`);
+    const targetArg = process.argv[2];
+    if (!targetArg) {
+        console.error('[ERROR] Target image file or directory argument is required.');
+        console.error('Usage: node scripts/dev/compress-sources.js <path-to-png-file-or-dir>');
+        process.exit(1);
+    }
+
+    const resolved = path.resolve(targetArg);
+    if (!fs.existsSync(resolved)) {
+        console.error(`[ERROR] Specified path not found: ${targetArg}`);
+        process.exit(1);
+    }
+
+    const files = fs.statSync(resolved).isDirectory()
+        ? getFiles(resolved)
+        : (resolved.endsWith('.png') ? [resolved] : []);
+
+    if (files.length === 0) {
+        console.error(`[ERROR] No PNG files found for target: ${targetArg}`);
+        process.exit(1);
+    }
+
+    console.log(`[INFO] Found ${files.length} PNG file(s) to process.\n`);
     let savedTotal = 0;
     let optimizedCount = 0;
 

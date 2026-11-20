@@ -4,7 +4,7 @@ import { currencyData } from '../../data/pricingData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
-import { getCurrencySymbol, getPriceForTier } from '../../utils/incomeUtils.js';
+import { getCurrencySymbol, getPriceForTier, toMajorUnits } from '../../utils/incomeUtils.js';
 import { formatNumber, formatCurrency } from '../../utils/numberFormatter.js';
 import { syncStoredOreInputBounds } from '../common/storageControlsHelper.js';
 
@@ -182,7 +182,7 @@ export function renderGuidedSetupShopOffers(thLevel, purchasedOffers = {}) {
 
             const price = getPriceForTier(data.priceTier, currentCurrency);
             const symbol = getCurrencySymbol(currentCurrency);
-            priceSpan.textContent = `${symbol}${formatCurrency(price)}`;
+            priceSpan.textContent = `${symbol}${formatCurrency(toMajorUnits(price, currentCurrency), currentCurrency)}`;
             costDisplay.appendChild(priceSpan);
             row.appendChild(costDisplay);
 

@@ -503,6 +503,7 @@ export function renderIncomeChipsLegend(legendContainer) {
     });
 
     sortedEntries.forEach(([, value]) => {
+        if (!value.schedule && !value.autoGenerateInCalendar) return;
         processLegendItem(value);
     });
 
@@ -527,6 +528,8 @@ function getShortName(type, fullName) {
     if (type === 'gemTrader') return 'Gem';
     if (type === 'eventPass') return 'Pass';
     if (type === 'eventTrader') return 'Event';
+    if (type === 'craftPass') return 'Craft';
+    if (type === 'craftPassTrader') return 'Trader';
     if (type === 'shopOffers') return 'Shop';
     if (type === 'prospector') return 'Pros';
     if (type === 'supercellEvents') return 'SC';

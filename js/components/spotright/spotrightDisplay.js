@@ -8,6 +8,12 @@ import { escapeHTML, sanitizeHTML } from '../../utils/stringUtils.js';
 import { formatNumber } from '../../utils/numberFormatter.js';
 import { renderTownHallBadge } from '../common/townHallBadge.js';
 
+const RARITY_TAG_CONFIG = {
+    legendary: { i18nKey: 'views.equipment.legendary', fallback: 'Legendary', tagClass: 'spotright-tag--legendary' },
+    epic: { i18nKey: 'views.equipment.epic', fallback: 'Epic', tagClass: 'spotright-tag--epic' },
+    common: { i18nKey: 'views.equipment.common', fallback: 'Common', tagClass: 'spotright-tag--common' }
+};
+
 /**
  * Creates and returns the modal dialog element for Spotright search.
  * @returns {HTMLDialogElement}
@@ -229,11 +235,10 @@ export function renderSpotrightResults(container, matches, selectedIndex, curren
             if (item.isActiveVillage) {
                 tagHtml += `<span class="spotright-item-tag spotright-tag--active">${escapeHTML(translate('views.spotright.activeVillage') || 'Active')}</span>`;
             }
-        } else if (item.type === 'equipment' && (item.rarity === 'epic' || item.rarity === 'common')) {
-            const rarityText = item.rarity === 'epic'
-                ? (translate('views.equipment.epic') || 'Epic')
-                : (translate('views.equipment.common') || 'Common');
-            tagHtml = `<span class="spotright-item-tag spotright-tag--${item.rarity}">${escapeHTML(rarityText)}</span>`;
+        } else if (item.type === 'equipment' && Object.hasOwn(RARITY_TAG_CONFIG, item.rarity)) {
+            const rarityMeta = RARITY_TAG_CONFIG[item.rarity];
+            const rarityText = translate(rarityMeta.i18nKey) || rarityMeta.fallback;
+            tagHtml = `<span class="spotright-item-tag ${rarityMeta.tagClass}">${escapeHTML(rarityText)}</span>`;
         }
 
         const breadcrumbHtml = item.parentContext

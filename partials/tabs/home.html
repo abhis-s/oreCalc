@@ -1,6 +1,42 @@
         <div class="tab-content is-active" id="home-tab">
-            <div id="orecalc-home-player-card" class="card home-profile-card is-stats-collapsed">
-                <!-- DYNAMIC INSERTION: Home player profile card -->
+            <div id="orecalc-home-player-card" class="card home-profile-card is-stats-collapsed is-skeleton">
+                <div class="home-profile-header">
+                    <div class="profile-meta-left">
+                        <div class="th-badge th-badge--lg">
+                            <clashcalc-assets-image class="th-badge__img" id="home-profile-th-badge-img" src="/assets/th/th19.png" alt="Town Hall 19" size="standard"></clashcalc-assets-image>
+                            <span class="th-badge__level" id="home-profile-th-badge-level">19</span>
+                        </div>
+                        <div class="player-identity">
+                            <div class="player-identity-info">
+                                <h2 class="player-name" id="home-profile-player-name">--</h2>
+                                <span class="player-tag" id="home-profile-player-tag">#--------</span>
+                            </div>
+                            <div class="player-clan-mini" id="home-profile-clan-mini">
+                                <clashcalc-assets-image class="clan-badge-img-mini" id="home-profile-clan-badge" src="" alt="Clan Badge" data-i18n-alt="player.clanBadge" hidden></clashcalc-assets-image>
+                                <div class="clan-info-col">
+                                    <span class="clan-name-mini" id="home-profile-clan-name">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-meta-right">
+                        <div class="league-details-mini" id="home-profile-league-mini">
+                            <clashcalc-assets-image class="league-badge-img-mini" id="home-profile-league-badge" src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" alt="Unranked" size="standard"></clashcalc-assets-image>
+                            <div class="league-text-mini">
+                                <span class="league-name-mini" id="home-profile-league-name" data-i18n="entities.leagues.unranked">Unranked</span>
+                                <div class="player-trophies-mini">
+                                    <clashcalc-assets-svg name="trophy" height="12" width="12" class="trophy-icon-mini"></clashcalc-assets-svg>
+                                    <span id="home-profile-trophies">--</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-meta-actions-row">
+                            <button id="home-profile-collapse-btn" class="profile-collapse-toggle-btn" type="button" aria-expanded="false" aria-label="Toggle profile stats" disabled>
+                                <clashcalc-assets-svg name="chevron-up" height="16" width="16" class="collapse-chevron-icon"></clashcalc-assets-svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="orecalc-home-hero-journey-card" class="card full-width-card hero-journey-card no-synced-heroes">
@@ -222,78 +258,7 @@
                                 <div class="income-table-cell"><clashcalc-assets-image src="/assets/starry_ore.png" data-i18n-alt="entities.ores.starry" class="ore-image"></clashcalc-assets-image></div>
                                 <div class="income-table-cell" data-i18n="views.income.resource"></div>
                             </div>
-                            <div id="home-income-table-body">
-                                <div class="income-table-row" data-source="starBonus">
-                                    <div class="income-table-cell" data-i18n="views.income.starBonus.title"></div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="shiny">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="glowy">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="starry">0</div>
-                                    <div class="income-table-cell income-table-resource calculated"></div>
-                                </div>
-                                <div class="income-table-row" data-source="shopOffers">
-                                    <div class="income-table-cell" data-i18n="views.income.shopOffers.title"></div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="shiny">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="glowy">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="starry">0</div>
-                                    <div class="income-table-cell income-table-resource calculated"></div>
-                                </div>
-                                <div class="income-table-row" data-source="raidMedalTrader">
-                                    <div class="income-table-cell" data-i18n="views.income.raidMedalTrader.title"></div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="shiny">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="glowy">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="starry">0</div>
-                                    <div class="income-table-cell income-table-resource calculated"></div>
-                                </div>
-                                <div class="income-table-row" data-source="gemTrader">
-                                    <div class="income-table-cell" data-i18n="views.income.gemTrader.title"></div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="shiny">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="glowy">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="starry">0</div>
-                                    <div class="income-table-cell income-table-resource calculated"></div>
-                                </div>
-                                <div class="income-table-row" data-source="eventPass">
-                                    <div class="income-table-cell" data-i18n="views.income.eventPass.title"></div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="shiny">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="glowy">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="starry">0</div>
-                                    <div class="income-table-cell income-table-resource calculated"></div>
-                                </div>
-                                <div class="income-table-row" data-source="eventTrader">
-                                    <div class="income-table-cell" data-i18n="views.income.eventTrader.title"></div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="shiny">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="glowy">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="starry">0</div>
-                                    <div class="income-table-cell income-table-resource calculated"></div>
-                                </div>
-                                <div class="income-table-row" data-source="clanWar">
-                                    <div class="income-table-cell" data-i18n="views.income.clanWar.title"></div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="shiny">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="glowy">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="starry">0</div>
-                                    <div class="income-table-cell income-table-resource calculated"></div>
-                                </div>
-                                <div class="income-table-row" data-source="cwl">
-                                    <div class="income-table-cell" data-i18n="views.income.cwl.title"></div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="shiny">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="glowy">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="starry">0</div>
-                                    <div class="income-table-cell income-table-resource calculated"></div>
-                                </div>
-                                <div class="income-table-row" data-source="supercellEvents">
-                                    <div class="income-table-cell" data-i18n="views.income.supercellEvents.title"></div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="shiny">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="glowy">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="starry">0</div>
-                                    <div class="income-table-cell income-table-resource calculated"></div>
-                                </div>
-                                <div class="income-table-row" data-source="prospector">
-                                    <div class="income-table-cell" data-i18n="views.income.prospector.title"></div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="shiny">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="glowy">0</div>
-                                    <div class="income-table-cell income-table-value calculated" data-ore="starry">0</div>
-                                    <div class="income-table-cell income-table-resource calculated"></div>
-                                </div>
-                            </div>
+                            <div id="home-income-table-body"></div>
                             <div class="income-table-footer">
                                 <div class="income-table-cell" data-i18n="views.income.totalTitle"></div>
                                 <div class="income-table-cell income-table-value calculated" id="home-income-table-total-shiny">0</div>
@@ -305,13 +270,13 @@
                     </div>
                     <div id="home-required-resources-container" class="required-resources-container">
                         <div class="resources-row">
-                            <span class="resource-item"><clashcalc-assets-image src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" data-i18n-alt="app.alts.leagueIcon" class="calculated" id="home-display-league-icon" width="24" height="24"></clashcalc-assets-image><span id="home-display-league-requirement" class="calculated" data-i18n="entities.leagues.unranked"></span></span>
-                            <span class="resource-item"><clashcalc-assets-image src="/assets/resources/cwl.png" data-i18n-alt="views.income.cwl.title"></clashcalc-assets-image><span data-i18n="views.income.cwl.participationsColon"></span><span id="home-display-cwl-participations" class="calculated">0</span></span>
-                            <span class="resource-item"><clashcalc-assets-image src="/assets/resources/clanWar.png" data-i18n-alt="views.income.clanWar.title" id="home-display-clan-icon" class="calculated"></clashcalc-assets-image><span data-i18n="views.income.clanWar.participationsColon"></span><span id="home-display-clan-war-participations" class="calculated">0</span></span>
-                            <span class="resource-item"><clashcalc-assets-image src="/assets/resources/raidMedal.png" data-i18n-alt="views.income.ores.raidMedal"></clashcalc-assets-image><span data-i18n="views.income.raidMedalTrader.medalsColon"></span><span id="home-display-raid-medals" class="calculated">0</span></span>
-                            <span class="resource-item"><clashcalc-assets-image src="/assets/resources/eventMedal.png" data-i18n-alt="views.income.eventPass.medalsResource"></clashcalc-assets-image><span data-i18n="views.income.eventPass.medalsColon"></span><span id="home-display-event-medals" class="calculated">0</span></span>
-                            <span class="resource-item"><clashcalc-assets-image src="/assets/resources/gem.png" data-i18n-alt="views.income.ores.gem"></clashcalc-assets-image><span data-i18n="views.income.gemTrader.gemsColon"></span><span id="home-display-gems" class="calculated">0</span></span>
-                            <span class="resource-item"><span id="home-money-symbol" class="currency-symbol">$</span><span id="home-money-value" class="calculated">0.00</span></span>
+                            <span class="resource-item" data-resource="th"><clashcalc-assets-image src="https://api-assets.clashofclans.com/leaguetiers/125/yyYo5DUFeFBZvmMEQh0ZxvG-1sUOZ_S3kDMB7RllXX0.png" data-i18n-alt="app.alts.leagueIcon" class="calculated" id="home-display-league-icon" width="24" height="24"></clashcalc-assets-image><span id="home-display-league-requirement" class="calculated" data-i18n="entities.leagues.unranked"></span></span>
+                            <span class="resource-item" data-resource="cwl"><clashcalc-assets-image src="/assets/resources/cwl.png" data-i18n-alt="views.income.cwl.title"></clashcalc-assets-image><span id="home-display-cwl-participations" class="calculated">0</span></span>
+                            <span class="resource-item" data-resource="clanWar"><clashcalc-assets-image src="/assets/resources/clanWar.png" data-i18n-alt="views.income.clanWar.title" id="home-display-clan-icon" class="calculated"></clashcalc-assets-image><span id="home-display-clan-war-participations" class="calculated">0</span></span>
+                            <span class="resource-item" data-resource="raidMedals"><clashcalc-assets-image src="/assets/resources/raidMedal.png" data-i18n-alt="views.income.ores.raidMedal"></clashcalc-assets-image><span id="home-display-raid-medals" class="calculated">0</span></span>
+                            <span class="resource-item" data-resource="eventMedals"><clashcalc-assets-image src="/assets/resources/eventMedal.png" data-i18n-alt="views.income.eventPass.medalsResource"></clashcalc-assets-image><span id="home-display-event-medals" class="calculated">0</span></span>
+                            <span class="resource-item" data-resource="gems"><clashcalc-assets-image src="/assets/resources/gem.png" data-i18n-alt="views.income.ores.gem"></clashcalc-assets-image><span id="home-display-gems" class="calculated">0</span></span>
+                            <span class="resource-item" data-resource="money"><span id="home-money-symbol" class="currency-symbol">$</span><span id="home-money-value" class="calculated">0.00</span></span>
                         </div>
                     </div>
                 </div>

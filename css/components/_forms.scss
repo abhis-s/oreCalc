@@ -72,11 +72,22 @@ input[type="number"].offer-input-number,
 }
 
 .form-label-inline {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
     margin: 0;
     cursor: pointer;
+    flex: 0 1 auto;
+    width: auto;
+
+    span {
+        width: auto !important;
+        flex: 0 1 auto;
+    }
+
+    .info-btn {
+        flex-shrink: 0;
+    }
 }
 
 .ores-inputs-container {

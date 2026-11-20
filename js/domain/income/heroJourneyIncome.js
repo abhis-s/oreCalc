@@ -10,6 +10,22 @@ import {
 import { resolveHeroJourneyTrack } from './heroJourneyResolution.js';
 
 /**
+ * Resolves the highest Town Hall tier defined in an Ore Chest reward lookup table.
+ *
+ * @param {Record<number, any>} table - Chest reward table keyed by Town Hall level.
+ * @returns {number} Highest defined Town Hall key, or `MAX_TOWN_HALL` if empty.
+ */
+function resolveMaxChestTH(table) {
+    const thKeys = Object.keys(table).map(Number).filter(n => Number.isFinite(n) && n > 0);
+    return thKeys.length > 0 ? Math.max(...thKeys) : MAX_TOWN_HALL;
+}
+
+const MAX_CHEST_TH_BY_MODE = {
+    normal: resolveMaxChestTH(oreChestRewardsNormal),
+    accelerated: resolveMaxChestTH(oreChestRewardsAccelerated)
+};
+
+/**
  * Resolves the effective Town Hall level for a quest node.
  * Claimed nodes reflect the node's original TH level (nodeTH).
  * Unclaimed nodes scale to at minimum the player's current TH level (Math.max(playerTH, nodeTH)).
@@ -45,9 +61,9 @@ export function getEffectiveQuestNodeTH(node, state) {
  * @returns {import('../../core/types.js').OreQuantity & Record<string, number>} Average and min/max ore rewards.
  */
 export function getQuestChestReward(thLevel, mode = 'normal') {
-    const table = mode === 'accelerated' ? oreChestRewardsAccelerated : oreChestRewardsNormal;
-    const thKeys = Object.keys(table).map(Number).filter(n => Number.isFinite(n) && n > 0);
-    const maxChestTH = thKeys.length > 0 ? Math.max(...thKeys) : MAX_TOWN_HALL;
+    const rewardMode = mode === 'accelerated' ? 'accelerated' : 'normal';
+    const table = rewardMode === 'accelerated' ? oreChestRewardsAccelerated : oreChestRewardsNormal;
+    const maxChestTH = MAX_CHEST_TH_BY_MODE[rewardMode];
     const thClamped = Math.max(8, Math.min(maxChestTH, Number(thLevel) || MAX_TOWN_HALL));
     const rewards = table[thClamped] || table[maxChestTH];
 

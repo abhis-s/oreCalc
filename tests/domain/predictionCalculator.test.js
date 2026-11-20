@@ -1,6 +1,7 @@
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { state } from '../../js/core/state.js';
+import { getEquipmentUpgradeCost } from '../../js/data/equipmentCommonData.js';
 import { calculateCompletionDates } from '../../js/utils/predictionCalculator.js';
 
 describe('Prediction Calculator Domain Suite', () => {
@@ -80,5 +81,71 @@ describe('Prediction Calculator Domain Suite', () => {
         const result = calculateCompletionDates(priorityList);
         assert.equal(result.predictions.length, 1);
         assert.equal(result.predictions[0].bottleneckOre, 'starry');
+    });
+
+    test('detects starry bottleneck for legendary equipment when shiny and glowy are ready but starry is not', () => {
+        state.heroes.BarbarianKing.equipment.blizzardAxe = { level: 1, active: true };
+        state.storedOres = { shiny: 50000, glowy: 5000, starry: 0 };
+        const priorityList = [
+            { heroName: 'BarbarianKing', name: 'blizzardAxe', step: 1, targetLevel: 12 }
+        ];
+
+        const result = calculateCompletionDates(priorityList);
+        assert.equal(result.predictions.length, 1);
+        assert.equal(result.predictions[0].bottleneckOre, 'starry');
+    });
+
+    test('resolves custom comingSoon state by item.key when item.name is display name Coming Soon', () => {
+        state.heroes.BarbarianKing.equipment.comingSoon = {
+            level: 15,
+            checked: true,
+            type: 'legendary',
+            isCustom: true
+        };
+        state.storedOres = { shiny: 50000, glowy: 5000, starry: 0 };
+        const priorityList = [
+            { heroName: 'BarbarianKing', key: 'comingSoon', name: 'Coming Soon', step: 1, targetLevel: 18 }
+        ];
+
+        const result = calculateCompletionDates(priorityList);
+        assert.equal(result.predictions.length, 1);
+        assert.equal(result.predictions[0].bottleneckOre, 'starry');
+
+        let expectedShiny = 0;
+        let expectedGlowy = 0;
+        let expectedStarry = 0;
+        for (let lvl = 16; lvl <= 18; lvl++) {
+            const c = getEquipmentUpgradeCost(lvl, 'legendary', 'modern');
+            expectedShiny += c.shiny || 0;
+            expectedGlowy += c.glowy || 0;
+            expectedStarry += c.starry || 0;
+        }
+        assert.deepEqual(result.predictions[0].requiredOres, {
+            shiny: expectedShiny,
+            glowy: expectedGlowy,
+            starry: expectedStarry
+        });
+    });
+
+    test('suggests move_starry_up with Starry message when common item bottlenecks on shiny and later starry item has sufficient starry', () => {
+        state.heroes.barbarianKing = {
+            level: 115,
+            equipment: {
+                barbarianPuppet: { level: 1, active: true },
+                blizzardAxe: { level: 1, active: true }
+            }
+        };
+        state.storedOres = { shiny: 0, glowy: 0, starry: 500 };
+        const priorityList = [
+            { heroName: 'barbarianKing', name: 'barbarianPuppet', step: 1, targetLevel: 12 },
+            { heroName: 'barbarianKing', name: 'blizzardAxe', step: 2, targetLevel: 12 }
+        ];
+
+        const result = calculateCompletionDates(priorityList);
+        const starrySuggestion = result.suggestions.find(s => s.type === 'move_starry_up');
+        assert.ok(starrySuggestion, 'Expected canonical move_starry_up suggestion');
+        assert.equal(starrySuggestion.itemToMove.name, 'blizzardAxe');
+        assert.equal(starrySuggestion.moveBefore.name, 'barbarianPuppet');
+        assert.ok(starrySuggestion.message && starrySuggestion.message.length > 0);
     });
 });

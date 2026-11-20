@@ -132,6 +132,7 @@ export function autoPlaceChipsByHistory(filteredUnplacedChips, currentYear, curr
                                     break;
                                 }
 
+                                case 'craftPass':
                                 case 'eventPass': {
                                     const eventPassScheduledDates = getScheduleDates(currentYear, currentMonth, chip.schedule);
                                     const eventPassStartDate = eventPassScheduledDates.length > 0 ? extractScheduleStartDate(eventPassScheduledDates[0]) : null;
@@ -140,6 +141,7 @@ export function autoPlaceChipsByHistory(filteredUnplacedChips, currentYear, curr
                                     }
                                     break;
                                 }
+                                case 'craftPassTrader':
                                 case 'eventTrader': {
                                     const eventTraderScheduledDates = getScheduleDates(currentYear, currentMonth, chip.schedule);
                                     const eventTraderStartDate = eventTraderScheduledDates.length > 0 ? extractScheduleStartDate(eventTraderScheduledDates[0]) : null;

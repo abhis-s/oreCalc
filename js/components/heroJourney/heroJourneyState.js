@@ -1,4 +1,4 @@
-import { MAX_SAVED_PLAYERS } from '../../core/constants.js';
+import { MAX_SAVED_PLAYERS, MAX_TOWN_HALL } from '../../core/constants.js';
 import { safeJsonParse } from '../../utils/jsonUtils.js';
 import { sanitizePlayerProfile } from '../../core/playerStorageSanitizer.js';
 import {
@@ -243,9 +243,9 @@ export function buildStateFromPlayerData(playerData, state) {
         Number(playerData?.townHall) ||
         Number(savedPartition?.playerProfile?.townHallLevel) ||
         Number(state?.thLevel) ||
-        18,
+        MAX_TOWN_HALL,
         1
-    ), 18);
+    ), MAX_TOWN_HALL);
 
     const playerProfile = cleanTag ? {
         name: playerData?.name || savedPartition?.playerProfile?.name || '',

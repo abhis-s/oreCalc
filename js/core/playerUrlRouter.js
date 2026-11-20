@@ -30,17 +30,18 @@ export function syncPlayerTagToUrl(tag) {
         if (!url.pathname.endsWith('/') && !url.pathname.includes('.')) {
             url.pathname = `${url.pathname}/`;
         }
+        url.searchParams.delete('p');
+        url.searchParams.delete('player');
         if (clean && clean !== 'DEFAULT0') {
             url.searchParams.set('tag', clean);
         } else {
             url.searchParams.delete('tag');
-            url.searchParams.delete('p');
-            url.searchParams.delete('player');
         }
         const newRelativeUrl = url.pathname + (url.search ? url.search : '') + url.hash;
         const currentRelativeUrl = window.location.pathname + window.location.search + window.location.hash;
         if (currentRelativeUrl !== newRelativeUrl) {
-            window.history.replaceState(null, '', newRelativeUrl);
+            const preservedState = (typeof window !== 'undefined' && window.history?.state) ? { ...window.history.state } : null;
+            window.history.replaceState(preservedState, '', newRelativeUrl);
         }
     } catch {}
 }

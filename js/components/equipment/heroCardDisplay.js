@@ -1,4 +1,5 @@
 import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
+import { CRAFT_PASS_PRELEVEL } from '../../data/incomeSources/craftPass.js';
 import {
     getActiveCustomComingSoon,
     getHeroEquipmentList,
@@ -12,10 +13,12 @@ import { state } from '../../core/state.js';
 
 import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel, resolveHeroJourneyTrack, getAssignedEquipmentTrackNode, isEquipmentServerUnowned } from '../../domain/income/heroJourneyResolution.js';
 import { getNodeTownHallLevel } from '../../domain/income/heroJourneyLevels.js';
+import { isEligibleForCraftPassPrelevel } from '../../domain/equipment/craftPassPrelevelDomain.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 
 import { dom } from '../../dom/domElements.js';
 import { isEquipmentTemporarilyVisible, clearEquipmentTemporarilyVisible } from './heroCard.js';
+import { updateEquipmentEconomyNoticeDisplay } from './equipmentEconomyNotice.js';
 
 /**
  * Renders Hero Cards display updates, hide maxed / locked filters, level badges, and glow classes.
@@ -25,6 +28,8 @@ import { isEquipmentTemporarilyVisible, clearEquipmentTemporarilyVisible } from 
  * @param {Object} [plannerState]
  */
 export function renderHeroCards(heroesState, uiSettings, plannerState) {
+    updateEquipmentEconomyNoticeDisplay(uiSettings);
+
     const container = dom.equipment.heroesContainer;
     if (!container) return;
 
@@ -71,6 +76,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             const owned = state.playerProfile.ownedEquipment;
             for (const heroKey in heroData) {
                 for (const equip of heroData[heroKey].equipment) {
+                    if (equip.isUnreleased) continue;
                     const isOwned = Array.isArray(owned) ? owned.includes(equip.name) : (equip.name in owned);
                     if (!isOwned) {
                         hasLockedEquipment = true;
@@ -166,11 +172,14 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
 
             const isUnowned = isEquipmentServerUnowned(equipName, state);
             const isAutoLevel = shouldApplyHeroJourneyAutoLevel(heroName, equipName, state, trackResolution);
+            const isCraftPassPreleveled = isEligibleForCraftPassPrelevel(equipKey, equipState?.type || equip.type, state) && Boolean(state.income?.craftPass?.craftPass);
 
             let currentLevel = equipState.level;
             if (isAutoLevel) {
                 currentLevel = getDefaultEquipmentUnlockLevel(heroName, equipName, state, trackResolution);
                 equipState.level = currentLevel;
+            } else if (isCraftPassPreleveled) {
+                currentLevel = Math.max(Number(currentLevel) || 1, CRAFT_PASS_PRELEVEL);
             } else if (isUnowned && state.playerProfile && equipState.level > 1) {
                 currentLevel = 1;
                 equipState.level = 1;
@@ -219,7 +228,6 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
                 clearEquipmentTemporarilyVisible(heroName, equipName);
             }
 
-            if (label) label.classList.toggle('gold-glow', isMaxLevel);
             if (equipmentImage) equipmentImage.classList.toggle('gold-glow', isMaxLevel);
 
             if (upgradeButton) {
@@ -232,9 +240,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
 
             let isOverLeveled = false;
             if (plannerState) {
-                const customCommonMax = plannerState.customMaxLevel?.common ?? getEquipmentMaxLevel('common');
-                const customEpicMax = plannerState.customMaxLevel?.epic ?? getEquipmentMaxLevel('epic');
-                const customMaxLevel = equip.type === 'common' ? customCommonMax : customEpicMax;
+                const customMaxLevel = plannerState.customMaxLevel?.[equip.type] ?? getEquipmentMaxLevel(equip.type);
                 isOverLeveled = currentLevel >= customMaxLevel && currentLevel < maxLevel;
             }
 
@@ -245,7 +251,7 @@ export function renderHeroCards(heroesState, uiSettings, plannerState) {
             if (inputContainerDisplay) inputContainerDisplay.style.display = isLevelInputEnabled ? 'block' : 'none';
 
             let isLocked = false;
-            if (state.playerProfile && state.playerProfile.ownedEquipment) {
+            if (!equip.isCustom && state.playerProfile && state.playerProfile.ownedEquipment) {
                 const owned = state.playerProfile.ownedEquipment;
                 isLocked = Array.isArray(owned) ? !owned.includes(equipName) : !(equipName in owned);
             }

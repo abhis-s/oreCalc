@@ -86,6 +86,8 @@ const { clearMonthCalendarChips } = await import('../../js/utils/chipManager.js'
 const { handleChipDropOnCalendar } = await import('../../js/components/planner/calendarDragDrop.js');
 const { performAutoPlacementForMonth, syncAutoPlacedChipsForMonth } = await import('../../js/utils/autoPlaceChips.js');
 const { handleChipDropOnContainer } = await import('../../js/components/planner/incomeChipsInputs.js');
+const { calculateIncomeChips } = await import('../../js/components/planner/incomeChipsDisplay.js');
+const { getHeroColor } = await import('../../js/components/planner/calendarScheduler.js');
 
 const { state, getDefaultState } = await import('../../js/core/state.js');
 
@@ -106,6 +108,8 @@ describe('Planner Chips Subsystem & Drag/Drop Integrity Tests', () => {
         const gemIdx = CANONICAL_CHIP_PRIORITY_ORDER.indexOf('gemTrader');
         const passIdx = CANONICAL_CHIP_PRIORITY_ORDER.indexOf('eventPass');
         const trdIdx = CANONICAL_CHIP_PRIORITY_ORDER.indexOf('eventTrader');
+        const craftPassIdx = CANONICAL_CHIP_PRIORITY_ORDER.indexOf('craftPass');
+        const craftTrdIdx = CANONICAL_CHIP_PRIORITY_ORDER.indexOf('craftPassTrader');
         const shopIdx = CANONICAL_CHIP_PRIORITY_ORDER.indexOf('shopOffers');
         const scIdx = CANONICAL_CHIP_PRIORITY_ORDER.indexOf('supercellEvents');
         const customIdx = CANONICAL_CHIP_PRIORITY_ORDER.indexOf('custom');
@@ -118,7 +122,9 @@ describe('Planner Chips Subsystem & Drag/Drop Integrity Tests', () => {
         assert.ok(raidIdx < gemIdx);
         assert.ok(gemIdx < passIdx);
         assert.ok(passIdx < trdIdx);
-        assert.ok(trdIdx < shopIdx);
+        assert.ok(trdIdx < craftPassIdx);
+        assert.ok(craftPassIdx < craftTrdIdx);
+        assert.ok(craftTrdIdx < shopIdx);
         assert.ok(shopIdx < scIdx);
         assert.ok(scIdx < customIdx);
     });
@@ -141,6 +147,8 @@ describe('Planner Chips Subsystem & Drag/Drop Integrity Tests', () => {
         const gemIndex = renderedClassNames.findIndex(c => c.includes('gem'));
         const passIndex = renderedClassNames.findIndex(c => c.includes('event-pass'));
         const traderIndex = renderedClassNames.findIndex(c => c.includes('event-trader'));
+        const craftPassIndex = renderedClassNames.findIndex(c => c === 'craft-pass');
+        const craftTraderIndex = renderedClassNames.findIndex(c => c === 'craft-pass-trader');
         const shopIndex = renderedClassNames.findIndex(c => c.includes('shop'));
         const scIndex = renderedClassNames.findIndex(c => c.includes('supercell'));
         const customIndex = renderedClassNames.findIndex(c => c.includes('custom'));
@@ -152,7 +160,9 @@ describe('Planner Chips Subsystem & Drag/Drop Integrity Tests', () => {
         assert.ok(raidIndex < gemIndex);
         assert.ok(gemIndex < passIndex);
         assert.ok(passIndex < traderIndex);
-        assert.ok(traderIndex < shopIndex);
+        assert.ok(traderIndex < craftPassIndex);
+        assert.ok(craftPassIndex < craftTraderIndex);
+        assert.ok(craftTraderIndex < shopIndex);
         assert.ok(shopIndex < scIndex);
         assert.ok(scIndex < customIndex);
     });
@@ -349,5 +359,38 @@ describe('Planner Chips Subsystem & Drag/Drop Integrity Tests', () => {
         }
 
         assert.equal(countWithManual, baselineClanWarCount, 'Total manual + auto clan war chips must equal baseline total');
+    });
+
+    test('calculateIncomeChips safely processes all registered income sources without throwing and respects Craft Pass / Event Pass mutual exclusion', () => {
+        // December 2026 (month 11, 0-indexed)
+        const decChips = calculateIncomeChips(2026, 11);
+        assert.ok(decChips, 'calculateIncomeChips must return a valid grouped chips object');
+        assert.equal(decChips.craftPass?.length, 1, 'Craft Pass must generate 1 chip in December 2026');
+        assert.equal(decChips.craftPassTrader?.length, 1, 'Craft Pass Trader must generate 1 chip in December 2026');
+        assert.equal(decChips.eventPass, undefined, 'Event Pass must be skipped in December 2026');
+        assert.equal(decChips.eventTrader, undefined, 'Event Trader must be skipped in December 2026');
+
+        // October 2026 (month 9, 0-indexed)
+        const octChips = calculateIncomeChips(2026, 9);
+        assert.equal(octChips.craftPass, undefined, 'Craft Pass must not generate chips in October 2026');
+        assert.equal(octChips.craftPassTrader, undefined, 'Craft Pass Trader must not generate chips in October 2026');
+        assert.equal(octChips.eventPass?.length, 1, 'Event Pass must generate 1 chip in October 2026');
+
+        // February 2027 (month 1, 0-indexed)
+        const febChips = calculateIncomeChips(2027, 1);
+        assert.equal(febChips.craftPass, undefined, 'Craft Pass must not generate chips in February 2027');
+        assert.equal(febChips.craftPassTrader, undefined, 'Craft Pass Trader must not generate chips in February 2027');
+        assert.equal(febChips.eventPass?.length, 1, 'Event Pass must generate 1 chip in February 2027');
+    });
+
+    test('getHeroColor resolves Crimson Scales accent for Dragon Duke and preserves hero palette', () => {
+        assert.equal(getHeroColor('Dragon Duke'), '#ae0525');
+        assert.equal(getHeroColor('dragonDuke'), '#ae0525');
+        assert.equal(getHeroColor('Barbarian King'), '#d4af37');
+        assert.equal(getHeroColor('Archer Queen'), '#a020f0');
+        assert.equal(getHeroColor('Grand Warden'), '#00bfff');
+        assert.equal(getHeroColor('Royal Champion'), '#e74c3c');
+        assert.equal(getHeroColor('Minion Prince'), '#27ae60');
+        assert.equal(getHeroColor(''), '#7f8c8d');
     });
 });

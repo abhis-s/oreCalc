@@ -1,5 +1,3 @@
-import { getEquipmentMaxLevel } from '../../data/equipmentCommonData.js';
-import { heroData } from '../../data/heroData.js';
 import { translate } from '../../i18n/translator.js';
 import { renderProfileHeaderHtml } from '../common/profileHeaderDisplay.js';
 import { renderProfileStatsHtml } from '../common/profileStatsDisplay.js';
@@ -15,10 +13,11 @@ import {
 } from './homeProfileCalculations.js';
 import {
     calculateEquipmentProgress,
+    calculateMaxedEquipmentCount,
     getOverallGradient
 } from '../../domain/equipment/equipmentProgressDomain.js';
 import { MAX_TOWN_HALL } from '../../core/constants.js';
-import { normalizePlayerTag } from '../../core/storageKeys.js';
+import { getHeroMaxLevelForTH } from '../../domain/income/heroJourneyLevels.js';
 
 /**
  * Main function to render the Home tab profile card.
@@ -76,12 +75,13 @@ export function renderHomeProfile(state) {
         } else if (state.heroes) {
             ownedHeroes = {};
             ownedEquipment = {};
+            const resolvedTh = profile.townHallLevel || MAX_TOWN_HALL;
             for (const heroName in state.heroes) {
                 const heroState = state.heroes[heroName];
                 if (heroState.enabled !== false) {
                     ownedHeroes[heroName] = {
                         level: heroState.level || 1,
-                        maxLevel: 95
+                        maxLevel: getHeroMaxLevelForTH(heroName, resolvedTh) || 1
                     };
                     if (heroState.equipment) {
                         for (const equipName in heroState.equipment) {
@@ -101,18 +101,7 @@ export function renderHomeProfile(state) {
 
     const progress = calculateEquipmentProgress(ownedEquipment, ownedHeroes);
 
-    let maxedCount = 0;
-    let totalCount = 0;
-    for (const heroKey in heroData) {
-        for (const equip of heroData[heroKey].equipment) {
-            totalCount++;
-            const maxLevel = getEquipmentMaxLevel(equip.type);
-            const currentLevel = ownedEquipment[equip.name];
-            if (currentLevel !== undefined && currentLevel >= maxLevel) {
-                maxedCount++;
-            }
-        }
-    }
+    const { maxedCount, totalCount } = calculateMaxedEquipmentCount(ownedEquipment);
     const subData = buildSubData(progress, state);
 
     const stored = state.storedOres || { shiny: 0, glowy: 0, starry: 0 };
@@ -149,7 +138,6 @@ export function renderHomeProfile(state) {
         );
         if (ok) {
             renderState.lastProgress = progress;
-            cacheHomeUiSnapshot(state);
             return;
         }
     }
@@ -190,13 +178,6 @@ export function renderHomeProfile(state) {
         hasCollapsibleStats: true,
         isCollapsed
     });
-
-    const syncNoticeHtml = `
-        <div class="home-profile-sync-notice${isGuest ? ' guest-notice' : ''}">
-            <clashcalc-assets-svg name="${isGuest ? 'info' : 'cloud-lock'}" class="sync-notice-icon" height="14" width="14"></clashcalc-assets-svg>
-            <span data-i18n="${isGuest ? 'views.home.profile.guestNotice' : 'views.home.profile.syncNotice'}">${isGuest ? translate('views.home.profile.guestNotice') : translate('views.home.profile.syncNotice')}</span>
-        </div>
-    `;
 
     const statsHtml = renderProfileStatsHtml({
         overall: {
@@ -243,8 +224,7 @@ export function renderHomeProfile(state) {
                 storagePct: starryStoragePct,
                 subtextHtml: subtextHTML('starry', progress.starry, subData)
             }
-        ],
-        footerHtml: syncNoticeHtml
+        ]
     });
 
     cardContainer.innerHTML = `
@@ -256,20 +236,16 @@ export function renderHomeProfile(state) {
     cardContainer.hidden = false;
     cardContainer.style.display = 'flex';
 
-    cacheHomeUiSnapshot(state);
-
     const preloader = typeof document !== 'undefined' ? document.getElementById('preloader') : null;
     const isPreloaderActive = Boolean(preloader && !preloader.classList.contains('is-hidden') && preloader.style.display !== 'none');
 
     if (isPreloaderActive) {
         renderState.initialProgress = progress;
         renderState.lastProgress = progress;
-        cacheHomeUiSnapshot(state);
     } else {
         triggerFillAnimation(cardContainer, progress, () => {
             renderState.isAnimating = false;
             renderState.lastProgress = progress;
-            cacheHomeUiSnapshot(state);
 
             // Apply any update that arrived while the animation was running
             if (renderState.pendingSnapshot) {
@@ -288,55 +264,10 @@ export function renderHomeProfile(state) {
                 );
                 if (ok) {
                     renderState.lastProgress = pProg;
-                    cacheHomeUiSnapshot(state);
                 } else {
                     renderHomeProfile(state);
                 }
             }
         });
     }
-}
-
-/**
- * Persists a lightweight HTML and metric snapshot of the Home tab to localStorage.
- * Enables instant zero-skeleton synchronous pre-hydration on cold startup.
- * @param {import('../../core/types.js').AppState} state
- */
-export function cacheHomeUiSnapshot(state) {
-    const profile = state?.playerProfile;
-    if (!profile?.tag || profile.tag === 'DEFAULT0') return;
-
-    try {
-        const cleanTag = normalizePlayerTag(profile.tag);
-        const cardContainer = document.getElementById('orecalc-home-player-card');
-        if (cardContainer && cardContainer.innerHTML) {
-            localStorage.setItem(`clashCalc_cachedHomeProfile_${cleanTag}`, cardContainer.innerHTML);
-        }
-        if (profile.name) {
-            localStorage.setItem(`clashCalc_cachedPlayerName_${cleanTag}`, profile.name);
-        }
-
-        const ores = state.derived?.requiredOres;
-        const time = state.derived?.remainingTime;
-        if (ores && time) {
-            const oresSnapshot = {
-                shiny: Math.round(ores.shiny || 0),
-                glowy: Math.round(ores.glowy || 0),
-                starry: Math.round(ores.starry || 0),
-                timeShinyYears: String(time.shiny?.years ?? 0),
-                timeShinyMonths: String(time.shiny?.months ?? 0),
-                timeShinyDays: String(time.shiny?.days ?? 0),
-                dateShiny: document.getElementById('home-result-date-shiny')?.textContent || '',
-                timeGlowyYears: String(time.glowy?.years ?? 0),
-                timeGlowyMonths: String(time.glowy?.months ?? 0),
-                timeGlowyDays: String(time.glowy?.days ?? 0),
-                dateGlowy: document.getElementById('home-result-date-glowy')?.textContent || '',
-                timeStarryYears: String(time.starry?.years ?? 0),
-                timeStarryMonths: String(time.starry?.months ?? 0),
-                timeStarryDays: String(time.starry?.days ?? 0),
-                dateStarry: document.getElementById('home-result-date-starry')?.textContent || ''
-            };
-            localStorage.setItem(`clashCalc_cachedHomeOres_${cleanTag}`, JSON.stringify(oresSnapshot));
-        }
-    } catch (_) {}
 }

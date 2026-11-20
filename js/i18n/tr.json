@@ -37,7 +37,6 @@
         "refresh": "Yenile",
         "reload": "Yeniden yükle",
         "remove": "Kaldır",
-        "report": "Rapor",
         "reset": "Sıfırla",
         "restore": "Geri Yükle",
         "save": "Kaydet",
@@ -59,8 +58,7 @@
         "validate": "Onayla",
         "verify": "Doğrula",
         "view": "Görüş",
-        "viewSuggestions": "Önerileri görüntüle",
-        "visit": "Ziyaret et"
+        "viewSuggestions": "Önerileri görüntüle"
     },
     "alerts": {
         "bugReportFailure": "Hata raporu gönderilemedi. Lütfen daha sonra tekrar deneyin.",
@@ -123,7 +121,6 @@
             "timeIcon": "Zaman Simgesi"
         },
         "brandToolName": "OreCalc",
-        "comingSoon": "Yakında gelecek!",
         "description": "En gelişmiş Clash of Clans Cevher Hesaplayıcısı ve Planlayıcısı. Cevher gelirinizi tahmin edin, sürükle-bırak takvimi ile kahraman ekipmanı yükseltmelerini planlayın ve birden fazla hesabı yönetin. Kapsamlı gelir takibi, yükseltme öncelik listeleri, çevrimdışı destek (PWA) ve bulut senkronizasyonu içerir.",
         "domainNotice": {
             "cta": "ClashCalc'e Geçiş Yap",
@@ -171,10 +168,49 @@
         "skipTour": "Tura katılmamak istediğinizden emin misiniz? Bu basamakları bir daha görmeyeceksiniz."
     },
     "entities": {
+        "defenses": {
+            "airDefense": "Hava Savunması",
+            "airSweeper": "Hava Patlatıcı",
+            "archerTower": "Okçu Kulesi",
+            "bombTower": "Bomba Kulesi",
+            "buildersHut": "İnşaatçı Kulübesi",
+            "cakeAPult": "Kek Sapanı",
+            "cannon": "Top",
+            "clanCastle": "Klan Kalesi",
+            "darkElixirStorage": "Kara İksir Deposu",
+            "eagleArtillery": "Kartal Topu",
+            "elixirStorage": "İksir Deposu",
+            "firecrackerTower": "Havai Fişek Kulesi",
+            "firespitter": "Ateşatar",
+            "goldStorage": "Altın Deposu",
+            "heroHunter": "Kahraman Avcısı",
+            "hiddenTesla": "Gizli Tesla",
+            "hotCandle": "Sıcak Mum",
+            "infernoTower": "Cehennem Kulesi",
+            "logger": "Kütükçü",
+            "longshot": "Menzilli",
+            "monolith": "Monolit",
+            "mortar": "Havan",
+            "multiArcherTower": "Çoklu Okçu Kulesi",
+            "multiGearTower": "Çok Yönlü Kule",
+            "revengeTower": "İntikam Kulesi",
+            "ricochetCannon": "Seken Top",
+            "scattershot": "Kayasaçar",
+            "smasher": "Ezici",
+            "spellTower": "Büyü Kulesi",
+            "spikyTower": "Dikenli Kule",
+            "storages": "Depolar",
+            "superWizardTower": "Süper Büyücü Kulesi",
+            "townHall": "Belediye Binası",
+            "wizardTower": "Büyücü Kulesi",
+            "xBow": "X Yayı"
+        },
         "equipment": {
             "actionFigure": "Aksiyon Figürü",
             "archerPuppet": "Okçu Kuklası",
             "barbarianPuppet": "Barbar Kuklası",
+            "blizzardAxe": "Fırtına Baltası",
+            "comingSoon": "Yakında",
             "darkCrown": "Kara Taç",
             "darkOrb": "Kara Küre",
             "earthquakeBoots": "Deprem Çizmeleri",
@@ -210,6 +246,7 @@
             "rocketSpear": "Roket Mızrak",
             "royalGem": "Kraliyet Taşı",
             "seekingShield": "Uçan Kalkan",
+            "shieldBrooch": "Kalkan Broşu",
             "snakeBracelet": "Yılan Bilekliği",
             "spikyBall": "Dikenli Top",
             "stickHorse": "Sopadan At",
@@ -268,16 +305,18 @@
             "heroPotion": "Tüm kahramanlarınızı ve evcil hayvanlarınızı, belediye binanızın seviyesinin izin verdiği maksimum seviyeye 1 saatliğine geçici olarak yükseltir.",
             "mightyMorsel": "Sonraki 3 saldırı boyunca tüm Kahramanlarınızı, Evcil Hayvanlarınızı ve Kahraman Ekipmanlarınızı, Belediye Binası seviyenizin izin verdiği maksimum seviyeye geçici olarak yükseltir.",
             "petPotion": "Evcil hayvan yükseltmesini 1 saat boyunca 24 kat hızlandırır.",
-            "runeOfDarkElixir": "Ana Köyünüzdeki Kara İksir Deposunu tamamen doldurur",
-            "runeOfElixir": "Ana Köyünüzdeki İksir Deposunu tamamen doldurur"
+            "runeOfDarkElixir": "Ana Köyünüzdeki Kara İksir Deposunu tamamen doldurur.",
+            "runeOfElixir": "Ana Köyünüzdeki İksir Deposunu tamamen doldurur.",
+            "starBonusSnack": "Yıldız bonusunu asıl köyünde tekrar kullanmanı sağlar."
         },
         "magicItems": {
-            "bookOfHeroes": "Kahraman Kitabı",
+            "bookOfHeroes": "Kahramanlar Kitabı",
             "heroPotion": "Kahraman İksiri",
-            "mightyMorsel": "Güçlü Lokma",
-            "petPotion": "Evcil Hayvan İksiri",
+            "mightyMorsel": "Kudretli Lezzet",
+            "petPotion": "Dost Hayvan İksiri",
             "runeOfDarkElixir": "Kara İksir Rünü",
-            "runeOfElixir": "İksir Rünü"
+            "runeOfElixir": "İksir Rünü",
+            "starBonusSnack": "Yıldız Bonusu Atıştırmalığı"
         },
         "ores": {
             "glowy": "Işıltılı Cevher",
@@ -289,7 +328,8 @@
         },
         "pricing": {
             "gems": "{count} Yeşil Taş",
-            "gemsEventPass": "{count} Yeşi Taş / Etkinlik Bileti",
+            "gemsCraftPass": "{count} Yeşil Taş / Üretim Bileti",
+            "gemsEventPass": "{count} Yeşil Taş / Etkinlik Bileti",
             "goldPass": "Altın Bilet",
             "miniEventPass": "Mini Etkinlik Bileti",
             "tier4": "Mağaza Teklifi (3,99 $)",
@@ -329,6 +369,8 @@
             "cooldownTime": "Yeniden Yüklenme Süresi",
             "counterDamage": "Karşı Hasar",
             "counterRange": "Karşı Saldırı Menzili",
+            "damage": "Hasar",
+            "damageAbsorbed": "Üste Çekilen Hasar",
             "damageIncrease": "Hasar Artışı",
             "damagePerHit": "Vuruş Başına Hasar",
             "damagePerSecond": "Saniye Başına Hasar",
@@ -336,6 +378,7 @@
             "damagePerShotIncrease": "Vuruş Başına Hasar Artışı",
             "damageRadius": "Hasar Yarıçapı",
             "deathDamage": "Ölüm Hasarı",
+            "explosionDamage": "Patlama Hasarı",
             "favoriteTarget": "Favori Hedef",
             "firstHealthDamageIncrease": "İlk Sağlık & Hasar Artışı",
             "healingPerSecond": "Saniye Başına İyileşme",
@@ -345,9 +388,12 @@
             "healthRecovery": "Sağlık Yenileme",
             "hitpointIncrease": "İsabet Puanı Artışı",
             "hitpoints": "İsabet Puanı",
+            "hp": "İP",
             "incomingDamageReduction": "Gelen Hasar Azaltma",
             "invisibilityDuration": "Görünmezlik Süresi",
             "maxDamageIncrease": "Maksimum Hasar Artışı",
+            "maxHitpointIncrease": "Maksimum İsabet Puanı Artışı",
+            "maxHousingSpace": "Maksimum Barınma Alanı",
             "monolithArrowMaxDamage": "Ekstra Hasar (<180 Birim)",
             "monolithArrowMidDamage": "Ekstra Hasar (181-250 Birim)",
             "monolithArrowMinDamage": "Ekstra Hasar (>250 Birim)",
@@ -475,9 +521,7 @@
         "saving": "Kaydediliyor...",
         "success": "Başarı",
         "updateAvailable": "Güncelleme Mevcut",
-        "updateAvailableMsg": "Uygulamanın yeni bir sürümü mevcuttur.",
         "updateForcedIn": "Önerilen güncelleme {time} süre sonra otomatik olarak uygulanacaktır.",
-        "updateForcedShort": "Otomatik güncelleme süresi: {time}",
         "updatePrompt": "Uygulamanın yeni bir sürümü mevcut. En son özellikler ve düzeltmeler için sayfayı yeniden yükleyin.",
         "warning": "Uyarı"
     },
@@ -544,7 +588,7 @@
             "contributeMissingData": "Bu ekipmanla ilgili istatistiklere veya bilgilere sahipseniz, lütfen bunları <a href=\"#\" class=\"theme-link open-inaccuracies-link\">buraya</a> ekleyin.",
             "cost": "Maliyet",
             "dataNotAvailable": "Veriler mevcut değil",
-            "detailsAttribution": "Ekipman istatistikleri <a href=\"https://clashofclans.fandom.com/wiki/Clash_of_Clans_Wiki\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash of Clans Fandom Wiki<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a> adresinden alınmıştır ve düzen tasarımı <a href=\"https://www.clash.ninja/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash Ninja<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a> adresinden esinlenilmiştir.",
+            "detailsAttribution": "Düzen tasarımı <a href=\"https://www.clash.ninja/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash Ninja<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a> adresinden esinlenilmiştir.",
             "detailsNotAvailableDesc": "Bu ekipman için detaylı seviye istatistikleri ve yükseltme bilgileri henüz mevcut değil.",
             "epic": "Destansı",
             "generalStats": "Genel İstatistikler",
@@ -605,7 +649,7 @@
                 "eventTraderPacks": "Etkinlik Tüccarı Alımları:",
                 "gemsBuy": "Yeşil Taşlar",
                 "goldPass": "Altın Bilet satın alıyor musunuz?",
-                "goldPassDesc": "Altın Bilet satın almak, darboğazları gidermek için madenleri dönüştürmeye yardımcı olan Maden Arayıcısına erişim sağlar.",
+                "goldPassDesc": "Altın Bilet satın almak, darboğazları gidermek için madenleri dönüştürmeye yardımcı olan Maden Avcısına erişim sağlar.",
                 "raidMedalsBuy": "Baskın Madalyaları",
                 "raidMedalsPacks": "Haftalık Tüccar Alımları:",
                 "shopOffersBuy": "Aylık Mağaza Teklifleri satın alıyor musunuz?",
@@ -733,14 +777,12 @@
                 "collapseStats": "Profil İstatistiklerini Daralt",
                 "connectBtn": "Profili Bağla",
                 "expandStats": "Profil İstatistiklerini Genişlet",
-                "guestNotice": "Misafir Profili: Otomatik ilerleme senkronizasyonunu etkinleştirmek için bir oyuncu etiketi bağlayın.",
                 "locked": "Kilitli",
                 "maxed": "Maksimum",
                 "maxedEquipment": "Maksimum Ekipman",
                 "noProfileTitle": "Bağlı Profil Yok",
                 "overallProgress": "Genel Cevher Gelişimi",
-                "remainingColon": "Geriye kalan:",
-                "syncNotice": "Not: İlerleme ölçütleri tamamen senkronize edilmiş oyun verilerine dayanmaktadır. Manuel planlayıcı seçimleri, manuel seviye değişiklikleri ve depolanmış cevherler bu toplamların dışında tutulmuştur ve yalnızca bir sonraki API senkronizasyonunda güncellenecektir."
+                "remainingColon": "Geriye kalan:"
             },
             "remainingTime": {
                 "help": "Aylık gelirinize bağlı olarak gerekli cevherleri toplamak için gereken süre. İstikrarlı bir faaliyet varsayılmaktadır; gelir yapılandırmanızdaki değişiklikler bu zaman çizelgesini etkiler."
@@ -756,12 +798,19 @@
                 "glowyBonusAriaLabel": "Klan Savaşı Işıltılı Cevher saldırı bonusu",
                 "help": "Klan Savaşlarında kazanılan cevher bonusları, saldırdığınız hedefin Belediye Binası seviyesine bağlıdır. İpucu: Ana klanınızda KSL aktifken, cevher gelirinizi en üst düzeye çıkarmak için başka bir klanda yan savaşlara katılabilirsiniz.",
                 "last60DaysNWars": "Son 60 Gün | Son {count} Savaş",
-                "participationsColon": "Klan Savaşı Katılımları:",
-                "resource": "{count} Savaş (%{winRate} Galibiyet)",
+                "resource": "{count} savaş · %{winRate} galibiyet",
                 "shinyBonusAriaLabel": "Klan Savaşı Parlak Cevher saldırı bonusu",
                 "starryBonusAriaLabel": "Klan Savaşı Yıldız Cevher saldırı bonusu",
                 "title": "Klan Savaşı",
                 "warsPerMonth": "Aylık Savaşlar"
+            },
+            "craftPass": {
+                "help": "Üretim Bileti, ilk Efsanevi ekipmanları sunan sezonluk bir etkinlik biletidir. Bileti satın almak, uygun olan henüz sahip olunmayan Efsanevi ekipmanların kilidini otomatik olarak açar ve Seviye 15'e yükseltir.",
+                "title": "Üretim Bileti"
+            },
+            "craftPassTrader": {
+                "help": "Üretim Bileti Tüccarı yayınlandığında, Üretim Bileti etkinliklerinde kazanılan Üretim Parasını madenler ve eşyalarla takas edin.",
+                "title": "Üretim Bileti Tüccarı"
             },
             "cwl": {
                 "currentCwlHits": "Mevcut KSL | {count} Saldırı",
@@ -770,22 +819,20 @@
                 "glowyBonusAriaLabel": "KSL Işıltılı Cevher saldırı bonusu",
                 "help": "Klan Savaş Ligi saldırı bonusları hedeflediğiniz köyün Belediye Binası seviyesine, toplam saldırı sayınıza ve klanınızın genel performansına bağlı olarak hesaplanır.",
                 "hitsPerSeason": "Sezon başına saldırı",
-                "participationsColon": "KSL Katılımları:",
-                "resource": "{count} Saldırı (%{winRate} Kazanma Oranı)",
+                "resource": "{count} saldırı · %{winRate} galibiyet",
                 "shinyBonusAriaLabel": "KSL Parlak Cevher saldırı bonusu",
                 "starryBonusAriaLabel": "KSL Yıldız Cevher saldırı bonusu",
                 "title": "KSL"
             },
             "drawRate": "Beraberlikler",
-            "drawRatePct": "Beraberlikler (%)",
+            "drawRatePct": "Beraberlikler %",
             "earned": "Kazanılan",
             "eventPass": {
                 "bonusTrackMedals": "Talep Edilebilir & Bonus Madalyalar",
-                "bonusTrackMedalsHelp": "Etkinlik biletinin bonus yolundaki madalya sayısı ve adresinden talep edilebilen madalyalar <a href=\"https://store.supercell.com/en/clashofclans\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Mağazası<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
+                "bonusTrackMedalsHelp": "Etkinlik Biletinin bonus yolundaki madalya sayısı ve adresinden talep edilebilen madalyalar <a href=\"https://store.supercell.com/en/clashofclans\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell Mağazası<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>.",
                 "free": "Ücretsiz Bilet",
-                "help": "Madalya etkinlikleri iki ayda bir düzenlenir. Bu etkinlikler genellikle yeni ekipmanlarla birlikte gelir. Ekipman yükseltmeleri için harcama yapmanın en verimli yolu etkinlik bileti satın almaktır. Etkinlik bileti satın almazsanız, etkinlik satıcısından muhtemelen yalnızca ekipman veya cevher paketleri satın alabilirsiniz.",
+                "help": "Madalya etkinlikleri iki ayda bir düzenlenir. Bu etkinlikler genellikle yeni ekipmanlarla birlikte gelir. Ekipman yükseltmeleri için harcama yapmanın en verimli yolu Etkinlik Bileti satın almaktır. Etkinlik Bileti satın almazsanız, etkinlik satıcısından muhtemelen yalnızca ekipman veya cevher paketleri satın alabilirsiniz.",
                 "includeEquipment": "Ekipmanları Dahil Et",
-                "medalsColon": "Etkinlik Madalyaları:",
                 "medalsResource": "{count} Etkinlik Madalyaları",
                 "previous": "Önceki",
                 "purchasedMedals": "Satın Alınan Madalyalar",
@@ -796,12 +843,10 @@
                 "title": "Etkinlik Tüccarı"
             },
             "gemTrader": {
-                "gemsColon": "Yeşil Taşlar:",
-                "help": "Ayrıca, tüccardan cevher satın almak için de yeşil taş kullanabilirsiniz; bunlar haftalık olarak yenilenir. Altın bilet satın alan bir kişi, verimli bir şekilde yaparsa genellikle haftada 200-250 yeşil taş kazanabilir ve bu yeşil taşları gerçek para harcamadan bu teklifleri satın almak için kullanabilir.",
-                "perWeek": "{count} Haftalık Yeşil Taş",
+                "help": "Ayrıca, tüccardan cevher satın almak için de yeşil taş kullanabilirsiniz; bunlar haftalık olarak yenilenir. Altın Bilet satın alan bir kişi, verimli bir şekilde yaparsa genellikle haftada 200-250 yeşil taş kazanabilir ve bu yeşil taşları gerçek para harcamadan bu teklifleri satın almak için kullanabilir.",
                 "title": "Yeşil Taş Tüccarı"
             },
-            "lossRatePct": "Mağlubiyetler (%)",
+            "lossRatePct": "Mağlubiyetler %",
             "ores": {
                 "autoPredictDesc": "Oyun içi yükseltme aktivitesini kullanarak depolanmış cevherleri tahmin edin.",
                 "autoPredictTitle": "Otomatik Tahmin",
@@ -855,8 +900,6 @@
             },
             "raidMedalTrader": {
                 "help": "Her hafta sonu klanınızla birlikte Başkent Baskınlarına katılarak Baskın Madalyaları kazanın ve bunları haftalık olarak Tüccardan cevher satın almak için kullanın.",
-                "medalsColon": "Baskın Madalyaları:",
-                "perWeek": "{count} Haftalık Baskın Madalyaları",
                 "title": "Baskın Madalyası Tüccarı"
             },
             "remaining": "Geriye kalan",
@@ -872,11 +915,13 @@
             },
             "shortcuts": {
                 "clanWar": "Savaş",
+                "craftPass": "Üretim",
+                "craftPassTrader": "Tüccar",
                 "cwl": "KSL",
                 "eventPass": "Bilet",
                 "eventTrader": "Etkinlik",
                 "gemTrader": "Yeşil Taş",
-                "prospector": "Dönüştürücü",
+                "prospector": "Avcı",
                 "raidMedalTrader": "Baskın",
                 "shopOffers": "Mağaza",
                 "starBonus": "YB",
@@ -900,7 +945,6 @@
                 "help": "Düzenli günlük ödüllere ek olarak, oyunda genellikle 3 ila 4 ayda bir özel 2x Yıldız Bonusu etkinlikleri düzenlenir. Belediye Binasınızı yükseltmek de 5 gün boyunca 4x Yıldız Bonusu desteği sağlar.",
                 "lastEvent": "Son Etkinlik",
                 "lastEventInfo": "Bu olayın gerçekleştiği son ayı seçin.",
-                "league": "Lig",
                 "planningStartInfo": "Planlama hizmeti yalnızca {th} Belediye Binası'ndan itibaren alınabilir.",
                 "section2x": "2x Yıldız Bonusu Etkinliği",
                 "thPlanningTitle": "Belediye Binası Yükseltmenizi Planlayın",
@@ -933,7 +977,7 @@
             "totalLabel": "Toplam",
             "totalTitle": "Toplam Gelir",
             "winRate": "Galibiyetler",
-            "winRatePct": "Galibiyetler (%)"
+            "winRatePct": "Galibiyetler %"
         },
         "landing": {
             "metaDescription": "ClashCalc (eski adıyla OreCalc); Cevher & Ekipman Hesaplayıcı, Kahraman Yolculuğu Takipçisi ve gelişim yol haritaları sunan kapsamlı Clash of Clans araç setidir.",
@@ -958,7 +1002,7 @@
             "confirmDeleteAll": "Takvimdeki tüm fişleri silmek istediğinizden emin misiniz? Bu işlem, tüm özel fişleri de silecektir.",
             "confirmDeleteMonth": "Mevcut ayda yerleştirilen tüm fişleri silmek istediğinizden emin misiniz?",
             "confirmResetList": "Öncelik listesinin tamamını silmek istediğinizden emin misiniz? Bu işlem tüm yükseltme planlarını kaldıracaktır.",
-            "createCustomChipsHelp": "Özel fişler, özel gelir etkinliklerini, mağaza tekliflerini, yıldız bonuslarını veya savaş sonuçlarını doğrudan planlayıcı zaman çizelgenizdeki belirli günlere enjekte etmenize ve özel kaynak artışlarını simüle etmenize olanak tanır.",
+            "createCustomChipsHelp": "Özel fişler, özel gelir etkinliklerini, mağaza tekliflerini, Yıldız Bonuslarını veya savaş sonuçlarını doğrudan planlayıcı zaman çizelgenizdeki belirli günlere enjekte etmenize ve özel kaynak artışlarını simüle etmenize olanak tanır.",
             "createCustomChipsModal": {
                 "chooseType": "Bir tür seçin...",
                 "createMonthly": "Aylık oluşturun",
@@ -1031,8 +1075,8 @@
             },
             "step": "Kademe",
             "stepLevelRange": "Kademe #{n} Svy {x} den Svy {y} e",
-            "suggestionEpicUp": "Daha hızlı bitirmek için {futureItemName} öğesini öne taşıyın. Elinizde fazladan Yıldız Cevher var.",
             "suggestionInterleave": "{itemName} cevherlerini beklerken {itemNames} yükseltmesini tamamlayın. Planınızda herhangi bir gecikme olmayacak.",
+            "suggestionStarryUp": "Daha hızlı bitirmek için {futureItemName} öğesini öne taşıyın. Elinizde fazladan Yıldız Cevher var.",
             "toggleEquipment": "{name} dahil etmeyi aç/kapat",
             "validDates": "Geçerli Aralık"
         },
@@ -1040,13 +1084,10 @@
             "about": {
                 "author": "Yazar",
                 "buyMeACoffee": "Bana bir kahve ısmarlayın",
-                "buyMeACoffeeDesc": "Çalışmalarımı destekleyin.",
                 "changelog": "Değişiklik Günlüğü",
-                "changelogHelp": "Uygulamanın her sürümünde yapılan güncellemelerin, düzeltmelerin ve eklenen yeni özelliklerin geçmişini görüntüleyin.",
                 "contact": "Bağlantı",
                 "contactInfo": "Sorularınız, geri bildirimleriniz veya özellik önerileriniz için aşağıdaki düğmeye tıklayarak e-posta istemcinizi açabilirsiniz.",
                 "crowdin": "Çeviriye Yardım Edin",
-                "crowdinHelp": "Uygulamayı kendi dilinize yerelleştirmemize yardımcı olmak için çeviriler gönderin.",
                 "errorLoadingLicense": "Lisans metni yüklenirken hata oluştu.",
                 "github": "GitHub",
                 "loadingLicense": "Lisans yükleniyor...",
@@ -1068,7 +1109,6 @@
             "cards": {
                 "accountAndSync": "Hesap ve Bulut Senkronizasyonu",
                 "developmentSupport": "Geliştirme & Destek",
-                "preferences": "Tercihler",
                 "transparency": "Hukuk & Şeffaflık"
             },
             "cloudSync": {
@@ -1130,7 +1170,6 @@
                 "globalPricing": "Küresel Fiyatlandırma",
                 "language": "Dil",
                 "layoutCompactLabel": "Kompakt",
-                "layoutCozyLabel": "Rahat",
                 "theme": "Açık/Koyu Mod",
                 "themeDark": "Koyu Tema",
                 "themeLight": "Açık Tema",
@@ -1167,10 +1206,8 @@
             "navIncomeDesc": "Burada tüm maden geliri kaynaklarınızı yapılandırabilirsiniz. Her parlayan kart, Yıldız Bonusu, Klan Savaşları, Mağaza Teklifleri ve daha fazlası gibi farklı bir gelir akışını temsil eder.",
             "navPlannerDesc": "Planlayıcı sekmesi her şeyin bir araya geldiği yerdir. Yükseltme hedeflerinizi belirleyin, ekipmanlara öncelik verin ve takvimde ilerlemenizi takip edin.",
             "navPlannerTitle": "Yükseltme Planlayıcısı",
-            "navSettingsDesc": "Ayarlar sekmesi, uygulamayı kişiselleştirmenizi sağlar. Tema, vurgu rengi, dil seçebilir ve verilerinizi yönetebilirsiniz.",
             "oresDesc": "Mevcut cevher sayımlarınızı burada güncel tutun. Bu, planlamacının tam olarak ne kadar daha cevhere ihtiyacınız olduğunu hesaplamasına yardımcı olur.",
             "oresTitle": "Depolanmış Cevher Takibi",
-            "preferencesDesc": "Uygulamanın görünümünü buradan değiştirebilirsiniz. Ayrıca, oyun içi fiyatlarınızla eşleşmiyorsa, oyun içi öğelerin ve mağaza tekliflerinin küresel fiyatlandırmasını da ayarlayabilirsiniz.",
             "profileCardDesc": "Bu kart, aktif profilinize dair üst düzey bir genel bakış sunar. Profilinizi, maksimum seviyeye çıkarılmış ekipman sayısını ve her cevher yükseltmesi için ayrıntılı tamamlama yüzdelerini gösterir.",
             "profileCardTitle": "Oyuncu Genel Bakışı & Gelişimi",
             "profileDesc": "Kaydedilmiş farklı profiller arasında geçiş yapın, oyuncu verilerini güncellemek için yenile düğmesine basın veya daha fazla hesap eklemek için '+ Oyuncu Ekle' seçeneğine tıklayın.",

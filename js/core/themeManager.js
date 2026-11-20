@@ -272,7 +272,7 @@ export function applyThemeSettings(theme, accentColor, origin = null) {
  * @param {any} [origin=null]
  */
 export function applyTheme(theme, origin = null) {
-    applyThemeSettings(theme, state.uiSettings.accentColor || 'random', origin || 'manual-toggle');
+    applyThemeSettings(theme, state.uiSettings.accentColor || 'blue', origin || 'manual-toggle');
 }
 
 /**

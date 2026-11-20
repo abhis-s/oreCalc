@@ -22,7 +22,7 @@ import {
 import { CLAN_WAR_DEFAULTS, calculateClanWarIncome } from '../../js/domain/income/clanWarIncome.js';
 import { CWL_DEFAULTS, calculateCwlIncome } from '../../js/domain/income/cwlIncome.js';
 import { WAR_ORE_MAX_LIMITS, warOreTownHallValues, getWarOreValue } from '../../js/data/incomeSources/warOres.js';
-import { raidMedalTraderData, gemTraderData, eventTraderData } from '../../js/data/incomeSources/traders.js';
+import { raidMedalTraderData, gemTraderData, eventTraderData, craftPassTraderData } from '../../js/data/incomeSources/traders.js';
 import { shopOfferData } from '../../js/data/incomeSources/shopOffers.js';
 import { eventPassData } from '../../js/data/incomeSources/eventPass.js';
 import { townHallStarBonusData } from '../../js/data/incomeSources/starBonus.js';
@@ -287,27 +287,32 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             assert.equal(getEquipmentMaxLevel('common'), 18);
             assert.equal(getEquipmentMaxLevel('Common'), 18);
             assert.equal(getEquipmentMaxLevel('epic'), 27);
+            assert.equal(getEquipmentMaxLevel('Legendary'), 33);
             assert.equal(getEquipmentMaxLevel('Epic'), 27);
             assert.equal(getEquipmentMaxLevel(), 18);
         });
 
-        test('All 43 equipment JSON definition files match rarity level caps', () => {
+        test('All 45 equipment JSON definition files match rarity level caps', () => {
             const equipmentDir = path.join(projectRoot, 'js', 'data', 'equipment');
             const files = fs.readdirSync(equipmentDir).filter(f => f.endsWith('.json'));
-            assert.equal(files.length, 43, 'Expected 43 equipment definition files');
+            assert.equal(files.length, 45, 'Expected 45 equipment definition files');
 
             for (const file of files) {
                 const filePath = path.join(equipmentDir, file);
                 const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
                 assert.ok(data.id, `Equipment ${file} must have an id`);
-                assert.ok(['common', 'epic'].includes(data.rarity), `Equipment ${file} has invalid rarity: ${data.rarity}`);
+                assert.ok(['common', 'epic', 'legendary'].includes(data.rarity), `Equipment ${file} has invalid rarity: ${data.rarity}`);
 
                 const expectedMaxLevel = getEquipmentMaxLevel(data.rarity);
                 const levelKeys = Object.keys(data.levels || {}).map(Number);
                 const maxDefinedLevel = Math.max(...levelKeys);
 
                 assert.equal(maxDefinedLevel, expectedMaxLevel, `Equipment ${file} max level (${maxDefinedLevel}) does not match rarity cap (${expectedMaxLevel})`);
+
+                if (data.costSchedule !== undefined) {
+                    assert.ok(['classic', 'modern'].includes(data.costSchedule), `Equipment ${file} has invalid costSchedule: ${data.costSchedule}`);
+                }
             }
         });
 
@@ -323,9 +328,99 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             for (const [heroKey, hero] of Object.entries(heroData)) {
                 assert.ok(Array.isArray(hero.equipment), `Hero ${heroKey} must have an equipment array`);
                 for (const eq of hero.equipment) {
-                    assert.ok(['common', 'epic'].includes(eq.type), `Equipment ${eq.key} in hero ${heroKey} has invalid type: ${eq.type}`);
+                    assert.ok(['common', 'epic', 'legendary'].includes(eq.type), `Equipment ${eq.key} in hero ${heroKey} has invalid type: ${eq.type}`);
                     const snakeCaseId = eq.key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
                     assert.ok(jsonIds.has(snakeCaseId), `Equipment ${eq.key} (${snakeCaseId}) missing JSON definition`);
+                }
+            }
+        });
+
+        test('All 45 equipment JSON files define unique stat keys and valid en.json entity stats', () => {
+            const equipmentDir = path.join(projectRoot, 'js', 'data', 'equipment');
+            const enJsonPath = path.join(projectRoot, 'js/i18n/en.json');
+            const enJson = JSON.parse(fs.readFileSync(enJsonPath, 'utf8'));
+            const validStatKeys = new Set(Object.keys(enJson.entities?.stats || {}));
+            const files = fs.readdirSync(equipmentDir).filter(f => f.endsWith('.json')).sort();
+
+            for (const file of files) {
+                const filePath = path.join(equipmentDir, file);
+                const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                const seenKeysByCategory = { ability: new Set(), heroBoost: new Set() };
+
+                assert.ok(Array.isArray(data.statsMeta), `${file} must define statsMeta array`);
+                assert.ok(data.levels && typeof data.levels === 'object', `${file} must define levels object`);
+
+                for (const meta of data.statsMeta) {
+                    const cat = meta.category || 'ability';
+                    if (!seenKeysByCategory[cat]) seenKeysByCategory[cat] = new Set();
+                    assert.ok(
+                        !seenKeysByCategory[cat].has(meta.key),
+                        `Duplicate stat key '${meta.key}' detected in ${file} under '${cat}'`
+                    );
+                    seenKeysByCategory[cat].add(meta.key);
+
+                    assert.ok(
+                        validStatKeys.has(meta.key),
+                        `Stat key '${meta.key}' from ${file} is missing from en.json entities.stats`
+                    );
+                }
+            }
+        });
+
+        test('Equipment statsMeta categories are strictly contiguous with all ability stats preceding heroBoost', () => {
+            const equipmentDir = path.join(projectRoot, 'js', 'data', 'equipment');
+            const files = fs.readdirSync(equipmentDir).filter(f => f.endsWith('.json'));
+
+            for (const file of files) {
+                const filePath = path.join(equipmentDir, file);
+                const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                const cats = data.statsMeta.map(m => m.category || 'ability');
+
+                let seenHeroBoost = false;
+                for (const cat of cats) {
+                    if (cat === 'heroBoost') {
+                        seenHeroBoost = true;
+                    } else if (cat === 'ability' && seenHeroBoost) {
+                        assert.fail(`${file} has an 'ability' stat after a 'heroBoost' stat. All ability stats must be grouped before heroBoost stats.`);
+                    }
+                }
+            }
+        });
+
+        test('Equipment stats conform to category and modifiable flag invariants', () => {
+            const equipmentDir = path.join(projectRoot, 'js', 'data', 'equipment');
+            const files = fs.readdirSync(equipmentDir).filter(f => f.endsWith('.json'));
+            const nonModifiableKeys = new Set(['attackSpeedIncrease', 'selfHealingPerSecond']);
+            const modifiableKeys = new Set(['damagePerSecondIncrease', 'hitpointIncrease']);
+
+            for (const file of files) {
+                const filePath = path.join(equipmentDir, file);
+                const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                const expectedCount = data.statsMeta.length;
+
+                for (const meta of data.statsMeta) {
+                    if (meta.key === 'healthRecovery') {
+                        assert.equal(
+                            meta.category,
+                            'ability',
+                            `healthRecovery in ${file} must be categorized as 'ability' (active trigger), not heroBoost`
+                        );
+                    }
+                    if (meta.category === 'heroBoost') {
+                        if (nonModifiableKeys.has(meta.key)) {
+                            assert.equal(meta.isModifiable, false, `${meta.key} in ${file} must declare isModifiable: false`);
+                        } else if (modifiableKeys.has(meta.key)) {
+                            assert.equal(meta.isModifiable, true, `${meta.key} in ${file} must declare isModifiable: true`);
+                        }
+                    }
+                }
+
+                for (const [level, values] of Object.entries(data.levels)) {
+                    assert.equal(
+                        values.length,
+                        expectedCount,
+                        `${file} level ${level} has ${values.length} values, expected ${expectedCount} matching statsMeta`
+                    );
                 }
             }
         });
@@ -352,22 +447,33 @@ describe('Single Source of Truth Integrity Test Suite', () => {
     });
 
     describe('7. Pricing & Currency Registries (pricingData.js)', () => {
-        test('currencyData defines all 11 supported fiat currencies with active symbols', () => {
+        test('currencyData defines all 11 supported fiat currencies with active symbols and decimal factors', () => {
             const supportedCurrencies = ['EUR', 'USD', 'GBP', 'AUD', 'CAD', 'CHF', 'CNY', 'INR', 'JPY', 'NZD', 'TRY'];
             assert.equal(Object.keys(currencyData).length, 11);
             for (const code of supportedCurrencies) {
                 assert.ok(currencyData[code], `Currency ${code} must exist in currencyData`);
                 assert.equal(currencyData[code].enabled, true);
                 assert.ok(currencyData[code].symbol && currencyData[code].symbol.length > 0);
+                assert.equal(typeof currencyData[code].decimals, 'number');
             }
+            assert.equal(currencyData.JPY.decimals, 0);
+            assert.equal(currencyData.USD.decimals, 2);
+            assert.equal(currencyData.INR.decimals, 2);
         });
 
-        test('priceTierRegistry provides valid currency pricing across all tiers', () => {
+        test('priceTierRegistry provides valid integer minor unit pricing across all tiers', () => {
             const tiers = ['tier1', 'tier3', 'tier4', 'tier5', 'tier6', 'tier7', 'tier10', 'tier15', 'tier20', 'tier50', 'tier100', 'tier200'];
+            const supportedCurrencies = ['EUR', 'USD', 'GBP', 'AUD', 'CAD', 'CHF', 'CNY', 'INR', 'JPY', 'NZD', 'TRY'];
             for (const tier of tiers) {
                 assert.ok(priceTierRegistry[tier], `Tier ${tier} must exist in priceTierRegistry`);
-                assert.ok(priceTierRegistry[tier].USD > 0, `Tier ${tier} must have positive USD cost`);
-                assert.ok(priceTierRegistry[tier].EUR > 0, `Tier ${tier} must have positive EUR cost`);
+                for (const code of supportedCurrencies) {
+                    const price = priceTierRegistry[tier][code];
+                    assert.ok(typeof price === 'number' && price > 0, `Tier ${tier} must have positive ${code} cost`);
+                    assert.ok(Number.isInteger(price), `Tier ${tier} ${code} cost must be an integer minor unit (received ${price})`);
+                }
+                assert.ok(priceTierRegistry[tier].USD >= 99, `Tier ${tier} USD must be >= 99 cents`);
+                assert.ok(priceTierRegistry[tier].INR >= 8900, `Tier ${tier} INR must be >= 8900 paise`);
+                assert.ok(priceTierRegistry[tier].JPY >= 160, `Tier ${tier} JPY must be >= 160 yen`);
             }
         });
     });
@@ -381,6 +487,8 @@ describe('Single Source of Truth Integrity Test Suite', () => {
                 'gemTrader',
                 'eventPass',
                 'eventTrader',
+                'craftPass',
+                'craftPassTrader',
                 'clanWar',
                 'cwl',
                 'supercellEvents',
@@ -575,6 +683,8 @@ describe('Single Source of Truth Integrity Test Suite', () => {
             for (const offer of eventTraderData) {
                 assert.ok(Object.isFrozen(offer), 'eventTraderData offer must be frozen');
             }
+
+            assert.ok(Object.isFrozen(craftPassTraderData), 'craftPassTraderData array must be frozen');
 
             assert.throws(() => {
                 raidMedalTraderData[0].cost = 0;

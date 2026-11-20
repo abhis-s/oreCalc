@@ -1,12 +1,14 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
+import { getEquipmentUpgradeCost } from '../../js/data/equipmentCommonData.js';
 import {
     convertOres,
     getStepValue,
     findOptimalConversionSchedule,
     getProspectorConversions,
     getProspectorIncomeForDate,
-    calculateProspectorIncome
+    calculateProspectorIncome,
+    getUpgradeRequirements
 } from '../../js/domain/income/prospectorManager.js';
 
 describe('Prospector Manager Domain Suite', () => {
@@ -105,5 +107,41 @@ describe('Prospector Manager Domain Suite', () => {
         assert.ok(result.monthly);
         assert.equal(result.monthly.shiny, -500 * 30);
         assert.ok(result.monthly.glowy > 0);
+    });
+
+    test('getUpgradeRequirements resolves custom comingSoon Legendary item and deducts Craft Pass Lv 15 start level', () => {
+        const appState = {
+            heroes: {
+                barbarianKing: {
+                    equipment: {
+                        comingSoon: {
+                            level: 15,
+                            checked: true,
+                            type: 'legendary',
+                            isCustom: true
+                        }
+                    }
+                }
+            }
+        };
+        const items = [
+            { heroName: 'barbarianKing', name: 'Coming Soon', targetLevel: 18 }
+        ];
+
+        const req = getUpgradeRequirements(items, false, appState);
+        let expectedShiny = 0;
+        let expectedGlowy = 0;
+        let expectedStarry = 0;
+        for (let lvl = 16; lvl <= 18; lvl++) {
+            const c = getEquipmentUpgradeCost(lvl, 'legendary', 'modern');
+            expectedShiny += c.shiny || 0;
+            expectedGlowy += c.glowy || 0;
+            expectedStarry += c.starry || 0;
+        }
+        assert.deepEqual(req, {
+            shiny: expectedShiny,
+            glowy: expectedGlowy,
+            starry: expectedStarry
+        });
     });
 });

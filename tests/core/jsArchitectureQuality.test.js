@@ -97,8 +97,10 @@ describe('JavaScript Architecture Quality & Platform Modernization Suite', () =>
                 'shopOffers',
                 'gemTrader',
                 'raidMedalTrader',
-                'eventTrader',
                 'eventPass',
+                'eventTrader',
+                'craftPass',
+                'craftPassTrader',
                 'clanWar',
                 'cwl',
                 'supercellEvents',
@@ -145,6 +147,62 @@ describe('JavaScript Architecture Quality & Platform Modernization Suite', () =>
 
             assert.deepEqual(selectors.ZERO_ORES, { shiny: 0, glowy: 0, starry: 0 });
             assert.equal(Object.isFrozen(selectors.ZERO_ORES), true);
+        });
+    });
+
+    describe('HTML [hidden] vs. Inline style.display Consistency', () => {
+        test('HTML elements declared with hidden attribute are not shown solely via style.display without clearing .hidden', () => {
+            const htmlFiles = scanDir(projectRoot, f => f.endsWith('.html'))
+                .filter(file => !path.relative(projectRoot, file).startsWith(`tests${path.sep}`));
+
+            const hiddenElementIds = [];
+            const tagRe = /<([\w-]+)\b([^>]*\s+hidden(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?(?:\s+[^>]*)?)>/gi;
+            for (const file of htmlFiles) {
+                const content = fs.readFileSync(file, 'utf8');
+                let match;
+                while ((match = tagRe.exec(content)) !== null) {
+                    const attrs = match[2];
+                    if (!/(?:^|\s)hidden(?:\s|=|$)/i.test(attrs)) continue;
+                    const idMatch = attrs.match(/\bid\s*=\s*"([^"]+)"/i);
+                    if (idMatch?.[1]) {
+                        hiddenElementIds.push({
+                            id: idMatch[1],
+                            htmlPath: path.relative(projectRoot, file)
+                        });
+                    }
+                }
+            }
+
+            assert.ok(hiddenElementIds.length > 0, 'Expected HTML templates to declare hidden elements');
+
+            const violations = [];
+            for (const file of jsFiles) {
+                const jsContent = fs.readFileSync(file, 'utf8');
+                const relPath = path.relative(projectRoot, file);
+                const lines = jsContent.split('\n');
+
+                for (const { id, htmlPath } of hiddenElementIds) {
+                    lines.forEach((line, idx) => {
+                        if (!line.includes(`'${id}'`) && !line.includes(`"${id}"`)) return;
+                        const varMatch = line.match(/(?:const|let|var)\s+(\w+)\s*=/);
+                        if (!varMatch?.[1]) return;
+                        const varName = varMatch[1];
+                        const showViaStyleRe = new RegExp(`\\b${varName}\\b[^;\\n]*\\.style\\.display\\s*=\\s*([^;\\n]+)`, 'g');
+                        const clearHiddenRe = new RegExp(`\\b${varName}\\b[^\\n]*(\\.hidden\\s*=\\s*(?!true\\b)|removeAttribute\\(['"]hidden['"])`, 'g');
+                        const hasNonNoneDisplayShow = Array.from(jsContent.matchAll(showViaStyleRe))
+                            .some((m) => !/^['"]none['"]$/i.test(m[1].trim()));
+                        if (hasNonNoneDisplayShow && !clearHiddenRe.test(jsContent)) {
+                            violations.push(`${relPath}:${idx + 1} (${varName} -> #${id} in ${htmlPath})`);
+                        }
+                    });
+                }
+            }
+
+            assert.equal(
+                violations.length,
+                0,
+                `Found JS controllers revealing HTML [hidden] elements via style.display without clearing .hidden:\n${violations.join('\n')}`
+            );
         });
     });
 });

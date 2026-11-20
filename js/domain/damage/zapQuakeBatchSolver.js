@@ -11,6 +11,7 @@ import {
     getLightningDamage,
     calculateEarthquakeDamageWithCc,
     calculateRequiredZaps,
+    getDefaultDamageEquipmentLevel,
     isSameHeroEquipment,
     isTargetImmuneToSpell,
     calculateEquipmentTargetDamage
@@ -84,7 +85,7 @@ function getConnectedTargetGroups(numTargets, pairs = []) {
  * @param {number} [eqLevel=8] - Earthquake Spell level.
  * @param {Object} [options={}] - Options.
  * @param {number} [options.maxEq=4] - Max EQ to test.
- * @param {number} [options.townHallLevel=18] - Target Town Hall level for spell capacity limit.
+ * @param {number} [options.townHallLevel=MAX_TOWN_HALL] - Target Town Hall level for spell capacity limit.
  * @param {number} [options.regularSpellCapacity] - Optional explicit regular army spell capacity override.
  * @param {number} [options.spellCapacity] - Legacy alias for regularSpellCapacity.
  * @param {number} [options.ccSpellCapacity] - Optional explicit Clan Castle spell capacity override.
@@ -154,7 +155,7 @@ export function solveClusteredZapQuake(
 
     const resolvedEquipment = clusterEquipment.map(item => {
         const id = typeof item === 'string' ? item : item.id;
-        const level = (typeof item === 'object' && item.level != null) ? item.level : 18;
+        const level = (typeof item === 'object' && item.level != null) ? item.level : getDefaultDamageEquipmentLevel(id);
         const targetsForEquip = (typeof item === 'object' && Array.isArray(item.targetIndices))
             ? item.targetIndices
             : (Array.isArray(sharingMap[id]) ? sharingMap[id] : null);
@@ -339,7 +340,7 @@ export function solveClusteredZapQuake(
  * @param {Object} [options={}]
  * @param {number} [options.lightningLevel=13] - Lightning spell level.
  * @param {number} [options.earthquakeLevel=8] - Earthquake spell level.
- * @param {number} [options.townHallLevel=18] - Target Town Hall level for level resolution.
+ * @param {number} [options.townHallLevel=MAX_TOWN_HALL] - Target Town Hall level for level resolution.
  * @param {number} [options.superchargeTier=0] - Supercharge tier.
  * @param {Object} [options.defenseLevelOverrides={}] - Specific level overrides per defense key.
  * @param {Object} [options.defenseSuperchargeOverrides={}] - Specific supercharge tier overrides per defense key.
@@ -481,7 +482,7 @@ function getGroupDefensesCacheKey(options = {}) {
     const ccE = options.ccSpells?.earthquake ?? '';
 
     const eqList = Array.isArray(options.enabledEquipment)
-        ? options.enabledEquipment.map(e => `${e.id}:${e.rawLevel ?? e.level ?? 18}`).sort().join(';')
+        ? options.enabledEquipment.map(e => `${e.id}:${e.rawLevel ?? e.level ?? getDefaultDamageEquipmentLevel(e.id)}`).sort().join(';')
         : '';
 
     const defLvl = options.defenseLevelOverrides ? JSON.stringify(options.defenseLevelOverrides) : '';

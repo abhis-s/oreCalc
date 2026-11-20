@@ -13,6 +13,7 @@ import {
     calculateEarthquakeDamageWithPools,
     calculateRequiredZapsTwoPools,
     isSameHeroEquipment,
+    getDefaultDamageEquipmentLevel,
     getEffectiveEquipmentLevel,
     calculateEquipmentTargetDamage,
     isValidHeroEquipmentCombo,
@@ -33,7 +34,7 @@ import {
  * @param {number} [eqLevel=8] - Earthquake Spell level (1 to 8).
  * @param {Object} [options={}] - Calculation options.
  * @param {number} [options.superchargeTier=0] - Supercharge tier (0, 1, 2).
- * @param {number} [options.townHallLevel=18] - Target Town Hall level for spell capacity limit.
+ * @param {number} [options.townHallLevel=MAX_TOWN_HALL] - Target Town Hall level for spell capacity limit.
  * @param {number} [options.regularSpellCapacity] - Optional explicit regular army spell capacity override.
  * @param {number} [options.ccSpellCapacity] - Optional explicit Clan Castle spell capacity override.
  * @param {number} [options.maxEq=4] - Maximum Earthquake spells to test in combinations (defaults to 4, or up to spell capacity if remaining HP <= 67.7%).
@@ -121,7 +122,7 @@ export function solveZapQuakeCombinations(
     const enabledEquipment = rawEquipmentList
         .filter(eqItem => canEquipmentTarget(eqItem.id, defenseKey, defenseLevel))
         .map(eqItem => {
-            const rawLevel = eqItem.rawLevel || eqItem.level || 18;
+            const rawLevel = eqItem.rawLevel || eqItem.level || getDefaultDamageEquipmentLevel(eqItem.id);
             const effectiveLevel = getEffectiveEquipmentLevel(eqItem.id, rawLevel, leagueId);
             return {
                 id: eqItem.id,

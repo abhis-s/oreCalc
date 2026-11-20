@@ -69,11 +69,20 @@
  */
 
 /**
+ * @typedef {'common' | 'epic' | 'legendary'} EquipmentRarity
+ */
+
+/**
+ * @typedef {'classic' | 'modern'} CostSchedule
+ */
+
+/**
  * @typedef {Object} EquipmentItem
  * @property {number} level - Current equipment level
  * @property {boolean} [checked] - Whether equipment upgrade calculation is included
  * @property {boolean} [isServerOwned] - Whether verified owned by Supercell API
- * @property {'common' | 'epic'} [type] - Equipment rarity type for custom or placeholder equipment
+ * @property {EquipmentRarity} [type] - Equipment rarity type for custom or placeholder equipment
+ * @property {CostSchedule} [costSchedule] - Equipment pricing schedule ('classic' or 'modern')
  * @property {boolean} [isCustom] - Whether item is custom placeholder equipment
  * @property {Record<string, UpgradePlanStep>} [upgradePlan] - Priority upgrade plan steps
  */
@@ -230,6 +239,17 @@
  */
 
 /**
+ * @typedef {Object} CraftPassIncomeState
+ * @property {boolean} [craftPass] - Whether player purchases the Craft Pass
+ */
+
+/**
+ * @typedef {Object} CraftPassTraderIncomeState
+ * @property {boolean} [enabled] - Whether Craft Pass trader income is enabled
+ * @property {Partial<OreQuantity> | Record<string, number>} [packs] - Quantity of Craft Pass trader packs purchased keyed by ore type
+ */
+
+/**
  * @typedef {Object} EventTraderIncomeState
  * @property {boolean} [enabled] - Whether event trader income is enabled
  * @property {Partial<OreQuantity> | Record<string, number>} [packs] - Quantity of event ore packs purchased keyed by ore type
@@ -295,6 +315,8 @@
  * @property {GemTraderIncomeState} [gems] - Gem trader state
  * @property {EventPassIncomeState} [eventPass] - Event pass state
  * @property {EventTraderIncomeState} [eventTrader] - Event trader state
+ * @property {CraftPassIncomeState} [craftPass] - Craft pass state
+ * @property {CraftPassTraderIncomeState} [craftPassTrader] - Craft pass trader state
  * @property {ClanWarIncomeState} [clanWar] - Clan war state
  * @property {CwlIncomeState} [cwl] - Clan War League state
  * @property {SupercellEventsIncomeState} [supercellEvents] - Supercell events state
@@ -313,8 +335,9 @@
  * @property {number} [remaining] - Remaining currency or medals after purchases
  * @property {number} [availableMedals] - Total medals available before purchases
  * @property {number} [totalMedalsEarned] - Total medals earned
- * @property {string} [type] - Pass type ('event' | 'free')
+ * @property {string} [type] - Pass type ('event' | 'free' | 'paid')
  * @property {boolean} [eventPass] - Whether event pass is active
+ * @property {boolean} [craftPass] - Whether Craft Pass is active
  * @property {string} [iconUrl] - Associated league or event icon URL
  * @property {OreQuantity} [baseDaily] - Baseline daily ore amounts before multipliers
  */
@@ -371,7 +394,7 @@
  * @property {IncomeTimeframeRates} [totalIncome] - Aggregated ore and currency income for active timeframe
  * @property {IncomeTimeframeRates} [totalMonthlyIncome] - Aggregated monthly ore and currency income
  * @property {RemainingTimeEstimate} [remainingTime] - Time to completion estimates per ore type
- * @property {Record<string, number>} [totalMoneyCost] - Aggregated real money costs per currency
+ * @property {Record<string, number>} [totalMoneyCost] - Aggregated real money costs per currency in minor units (cents, paise, etc.)
  * @property {boolean} [isEquipmentMaxed] - Whether all tracked equipment has reached max level
  * @property {ActiveStorageGoal} [activeGoal] - Currently active storage/release buffer goal
  * @property {StorageCapacityMetrics} [storageMetrics] - Storage capacity utilization and overflow metrics

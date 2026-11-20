@@ -11,14 +11,21 @@
                         <div class="inner-card">
                             <div class="card-info-row">
                                 <clashcalc-assets-image class="card-info-icon" id="inc-star-bonus-th-icon" src="/assets/th/th19.png" alt="Town Hall 19" data-i18n-alt="views.equipment.thShort" data-i18n-alt-args='{"level":19}' width="24" height="24"></clashcalc-assets-image>
-                                <span class="card-info-text" data-i18n="views.income.starBonus.thRewardInfo">Daily rewards are determined by your Town Hall level.</span>
-                                <button type="button" id="inc-star-bonus-th-info-btn" class="info-btn" data-info="views.income.starBonus.thRewardsTitle" data-i18n-aria-label="actions.showInfo" aria-label="Show Information">
-                                    <clashcalc-assets-svg name="info" class="info-icon" height="15" width="15"></clashcalc-assets-svg>
-                                </button>
+                                <div class="card-info-content">
+                                    <span class="card-info-text" data-i18n="views.income.starBonus.thRewardInfo">Daily rewards are determined by your Town Hall level.</span>
+                                    <button type="button" id="inc-star-bonus-th-info-btn" class="info-btn" data-info="views.income.starBonus.thRewardsTitle" data-i18n-aria-label="actions.showInfo" aria-label="Show Information">
+                                        <clashcalc-assets-svg name="info" class="info-icon" height="15" width="15"></clashcalc-assets-svg>
+                                    </button>
+                                </div>
                             </div>
                             <div class="card-info-row">
                                 <clashcalc-assets-image class="card-info-icon" src="/assets/magicItems/starBonusSnack.png" alt="Star Bonus Snack" data-i18n-alt="entities.magicItems.starBonusSnack" width="24" height="24"></clashcalc-assets-image>
-                                <span class="card-info-text" data-i18n="views.income.starBonus.snackInfo">Includes ~2 Star Bonus Snacks per month from daily snack packs.</span>
+                                <div class="card-info-content">
+                                    <span class="card-info-text" data-i18n="views.income.starBonus.snackInfo">Includes ~2 Star Bonus Snacks per month from daily snack packs.</span>
+                                    <button type="button" id="inc-star-bonus-snack-info-btn" class="info-btn" data-info="entities.magicItemDescriptions.starBonusSnack" data-info-header-key="entities.magicItems.starBonusSnack" data-i18n-aria-label="actions.showInfo" aria-label="Show Information">
+                                        <clashcalc-assets-svg name="info" class="info-icon" height="15" width="15"></clashcalc-assets-svg>
+                                    </button>
+                                </div>
                             </div>
                             <div class="input-group-flex">
                                 <label for="open-star-bonus-multiplier-btn" data-i18n="views.income.starBonus.eventManage"></label>
@@ -204,6 +211,40 @@
                             </div>
                         </div>
 
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div id="orecalc-income-craft-pass-card" class="income-card card">
+                        <h2 class="card-title">
+                            <span data-i18n="views.income.craftPass.title"></span>
+                            <button type="button" class="info-btn" data-info="views.income.craftPass.help" data-i18n-aria-label="actions.showInfo">
+                                <clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>
+                            </button>
+                        </h2>
+                        <div class="inner-card">
+                            <div class="input-group-flex">
+                                <label for="inc-craft-pass-switch" data-i18n="views.income.craftPass.title"></label>
+                                <div class="switch">
+                                    <input type="checkbox" id="inc-craft-pass-switch" class="updatable">
+                                    <span class="slider round"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div id="orecalc-income-craft-pass-trader-card" class="income-card card">
+                        <h2 class="card-title">
+                            <span data-i18n="views.income.craftPassTrader.title"></span>
+                            <button type="button" class="info-btn" data-info="views.income.craftPassTrader.help" data-i18n-aria-label="actions.showInfo">
+                                <clashcalc-assets-svg name="info" class="info-icon" height="16" width="16"></clashcalc-assets-svg>
+                            </button>
+                        </h2>
+                        <div id="craft-pass-trader-container" class="craft-pass-trader-container">
+                            <div class="notice">
+                                <p data-i18n="views.income.craftPassTrader.noSchedule"></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="card-container">

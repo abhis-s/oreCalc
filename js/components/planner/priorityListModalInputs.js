@@ -44,7 +44,8 @@ let hasAttachedPriorityUpdatedListener = false;
  */
 function deletePriorityStep(heroName, equipName, stepNum) {
     handleStateUpdate(() => {
-        const equipmentInState = state.heroes[heroName]?.equipment[equipName];
+        const heroEq = state.heroes[heroName]?.equipment;
+        const equipmentInState = heroEq?.[equipName] || (equipName === 'Coming Soon' ? heroEq?.[COMING_SOON_KEY] : null);
         if (!equipmentInState || !equipmentInState.upgradePlan) return;
 
         const deletedPriorityIndex = equipmentInState.upgradePlan[stepNum]?.priorityIndex;
@@ -112,7 +113,8 @@ export function initializePriorityListModal() {
                 if (prevOrder !== null && prevOrder.length > 0) {
                     handleStateUpdate(() => {
                         prevOrder.forEach((savedItem) => {
-                            const plan = state.heroes[savedItem.heroName]?.equipment[savedItem.equipName]?.upgradePlan[savedItem.step];
+                            const heroEq = state.heroes[savedItem.heroName]?.equipment;
+                            const plan = (heroEq?.[savedItem.equipKey] || heroEq?.[savedItem.equipName])?.upgradePlan?.[savedItem.step];
                             if (plan) {
                                 plan.priorityIndex = savedItem.priorityIndex;
                             }
@@ -190,10 +192,11 @@ export function initializePriorityListModal() {
                 const item = target.closest('.priority-list-editor-item');
                 if (item) {
                     const heroName = /** @type {HTMLElement} */ (item).dataset.heroName;
+                    const equipKey = /** @type {HTMLElement} */ (item).dataset.equipKey;
                     const equipName = /** @type {HTMLElement} */ (item).dataset.equipName;
                     const step = /** @type {HTMLElement} */ (item).dataset.step;
-                    if (heroName && equipName && step) {
-                        deletePriorityStep(heroName, equipName, step);
+                    if (heroName && (equipKey || equipName) && step) {
+                        deletePriorityStep(heroName, equipKey || equipName, step);
                     }
                 }
                 return;
@@ -206,7 +209,8 @@ export function initializePriorityListModal() {
                 if (canUndo) {
                     handleStateUpdate(() => {
                         prevOrder.forEach((savedItem) => {
-                            const plan = state.heroes[savedItem.heroName]?.equipment[savedItem.equipName]?.upgradePlan[savedItem.step];
+                            const heroEq = state.heroes[savedItem.heroName]?.equipment;
+                            const plan = (heroEq?.[savedItem.equipKey] || heroEq?.[savedItem.equipName])?.upgradePlan?.[savedItem.step];
                             if (plan) {
                                 plan.priorityIndex = savedItem.priorityIndex;
                             }
@@ -231,8 +235,10 @@ export function initializePriorityListModal() {
                                     const itemA = items[i];
                                     const itemB = items[i + 1];
 
-                                    const planA = state.heroes[itemA.heroName]?.equipment[itemA.name]?.upgradePlan[itemA.step];
-                                    const planB = state.heroes[itemB.heroName]?.equipment[itemB.name]?.upgradePlan[itemB.step];
+                                    const heroEqA = state.heroes[itemA.heroName]?.equipment;
+                                    const heroEqB = state.heroes[itemB.heroName]?.equipment;
+                                    const planA = (heroEqA?.[itemA.key] || heroEqA?.[itemA.name])?.upgradePlan?.[itemA.step];
+                                    const planB = (heroEqB?.[itemB.key] || heroEqB?.[itemB.name])?.upgradePlan?.[itemB.step];
 
                                     if (planA && planB) {
                                         const tempIndex = planA.priorityIndex;

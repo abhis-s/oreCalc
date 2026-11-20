@@ -326,7 +326,7 @@ function validateDomainEnumerations(enKeysMap, rootDir = projectRoot) {
     const errors = [];
     let count = 0;
 
-    const rarities = ['common', 'epic'];
+    const rarities = ['common', 'epic', 'legendary'];
     for (const r of rarities) {
         const key = `views.equipment.${r}`;
         count++;

@@ -23,14 +23,14 @@ function getChipTypePriority(type) {
  * @param {number} month 0-based month index
  * @returns {Record<string, Array<HTMLElement>>}
  */
-function calculateIncomeChips(year, month) {
+export function calculateIncomeChips(year, month) {
     const daysInCurrentMonth = getDaysInMonth(year, month);
     const groupedChips = {};
 
     const processSource = (incomeSource, sourceId) => {
-        // Skip default daily/auto sources from appearing as DRAGGABLE chips
-        if (incomeSource.autoGenerateInCalendar) {
-            if (incomeSource.subCategories) {
+        // Skip default daily/auto sources or sources without a schedule from appearing as DRAGGABLE chips
+        if (!incomeSource || !incomeSource.schedule || incomeSource.autoGenerateInCalendar) {
+            if (incomeSource?.subCategories) {
                 incomeSource.subCategories.forEach(sub => processSource(sub, sub.id));
             }
             return;
@@ -39,8 +39,8 @@ function calculateIncomeChips(year, month) {
         const income = incomeSource.getIncome(state);
 
         let count = 0;
-        if (incomeSource.schedule && incomeSource.schedule.type === 'custom') {
-            count = incomeSource.getCount(state, month, year);
+        if (incomeSource.schedule.type === 'custom') {
+            count = incomeSource.getCount ? incomeSource.getCount(state, month, year) : 0;
         } else {
             switch (incomeSource.schedule.type) {
                 case 'daily':

@@ -96,6 +96,11 @@ test('Battle Modifier Decoupling & Unified Architecture', async (t) => {
         assert.equal(getEffectiveEquipmentLevel('giant_arrow', 14, 'esports'), 11);
         assert.equal(getEffectiveEquipmentLevel('giant_arrow', 2, 'esports'), 1);
 
+        // Legendary equipment: -9 levels capped at 24
+        assert.equal(getEffectiveEquipmentLevel({ rarity: 'legendary', maxLevel: 33 }, 33, 'esports'), 24);
+        assert.equal(getEffectiveEquipmentLevel({ rarity: 'legendary', maxLevel: 33 }, 20, 'esports'), 11);
+        assert.equal(getEffectiveEquipmentLevel({ rarity: 'legendary', maxLevel: 33 }, 5, 'esports'), 1);
+
         // Standard / Legend modifiers: 0 level loss
         assert.equal(getEffectiveEquipmentLevel('fireball', 27, 'standard'), 27);
         assert.equal(getEffectiveEquipmentLevel('fireball', 27, 'legend1'), 27);

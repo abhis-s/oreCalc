@@ -5,6 +5,12 @@ import { translate } from '../../i18n/translator.js';
 import { toCamelCase, toKebabCase } from '../../utils/stringUtils.js';
 import { getSVG } from '../../utils/svgManager.js';
 
+const RARITY_CLASS_MAP = {
+    common: 'common-equip',
+    epic: 'epic-equip',
+    legendary: 'legendary-equip'
+};
+
 /**
  * Creates and returns a localized `<clashcalc-assets-image>` hero avatar icon element.
  * @param {any} hero - Hero data model object.
@@ -44,15 +50,13 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
 
     let isOverLeveled = false;
     if (plannerState) {
-        const customCommonMax = plannerState.customMaxLevel?.common ?? getEquipmentMaxLevel('common');
-        const customEpicMax = plannerState.customMaxLevel?.epic ?? getEquipmentMaxLevel('epic');
-        const customMaxLevel = equip.type === 'common' ? customCommonMax : customEpicMax;
+        const customMaxLevel = plannerState.customMaxLevel?.[equip.type] ?? getEquipmentMaxLevel(equip.type);
         isOverLeveled = currentLevel >= customMaxLevel && currentLevel < maxLevel;
     }
 
     const goldGlowClass = isMaxLevel ? 'gold-glow' : '';
     const overLeveledGlowClass = isOverLeveled ? 'over-leveled-glow' : '';
-    const equipTypeClass = equip.type === 'common' ? 'common-equip' : 'epic-equip';
+    const equipTypeClass = RARITY_CLASS_MAP[equip.type] || 'epic-equip';
 
     const img = document.createElement('clashcalc-assets-image');
     img.setAttribute('src', equip.image);
@@ -66,7 +70,7 @@ export function createEquipmentItem({ equip, equipState, plannerState, idPrefix 
     if (mode === 'interactive') img.dataset.action = 'toggle-equip';
 
     const nameLabel = mode === 'planner' ? document.createElement('span') : document.createElement('label');
-    nameLabel.className = `${goldGlowClass} ${overLeveledGlowClass} ${equipTypeClass}`;
+    nameLabel.className = `${overLeveledGlowClass} ${equipTypeClass}`.trim();
     nameLabel.textContent = translate('entities.equipment.' + equipKey);
     nameLabel.dataset.i18n = 'entities.equipment.' + equipKey;
 

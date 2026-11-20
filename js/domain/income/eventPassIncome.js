@@ -23,7 +23,7 @@ export function calculateEventPassIncome(eventPassState = {}) {
     for (const currencyCode in currencyData) {
         const fullCost = passData.priceTier ? getPriceForTier(passData.priceTier, currencyCode) : 0;
         bimonthlyCosts[currencyCode] = fullCost;
-        monthlyCosts[currencyCode] = fullCost / 2;
+        monthlyCosts[currencyCode] = Math.round(fullCost / 2);
         dailyCosts[currencyCode] = (fullCost / 2) / DAYS_IN_MONTH;
         weeklyCosts[currencyCode] = dailyCosts[currencyCode] * DAYS_IN_WEEK;
     }

@@ -154,7 +154,8 @@ export async function initializeAppData() {
                 if (typeof window !== 'undefined' && window.location) {
                     if (window.location.search || window.location.hash) {
                         try {
-                            history.replaceState(null, '', window.location.pathname || '/');
+                            const preservedState = window.history?.state ? { ...window.history.state } : null;
+                            history.replaceState(preservedState, '', window.location.pathname || '/');
                         } catch (_) {}
                     }
                     if (typeof window.location.reload === 'function') {
@@ -571,7 +572,8 @@ export async function triggerCloudSave(options = {}) {
                 if (typeof window !== 'undefined' && window.location) {
                     if (window.location.search || window.location.hash) {
                         try {
-                            history.replaceState(null, '', window.location.pathname || '/');
+                            const preservedState = window.history?.state ? { ...window.history.state } : null;
+                            history.replaceState(preservedState, '', window.location.pathname || '/');
                         } catch (_) {}
                     }
                     if (typeof window.location.reload === 'function') {

@@ -1,7 +1,6 @@
 import { ORE_TYPES } from '../../core/constants.js';
-import { getOverallGradient } from '../../domain/equipment/equipmentProgressDomain.js';
+import { calculateMaxedEquipmentCount, getOverallGradient } from '../../domain/equipment/equipmentProgressDomain.js';
 import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
-import { heroData } from '../../data/heroData.js';
 import { heroJourneyNodes } from '../../data/heroJourneyData.js';
 import { translate } from '../../i18n/translator.js';
 import { animateValue, cancelAnimation } from '../../utils/numberFormatter.js';
@@ -451,7 +450,7 @@ export function renderGuestTeasers() {
         hjBadge.style.display = 'inline-flex';
     }
 
-    const totalEquipmentCount = Object.values(heroData).reduce((sum, hero) => sum + (hero.equipment ? hero.equipment.length : 0), 0);
+    const { totalCount: totalEquipmentCount } = calculateMaxedEquipmentCount({});
     const totalMilestoneCount = heroJourneyNodes.length;
 
     if (landingOreProgress) {

@@ -10,6 +10,67 @@ import { getActiveCustomComingSoon } from '../../domain/equipment/comingSoonEqui
 import { translate } from '../../i18n/translator.js';
 
 /**
+ * Renders inner markup for the storage overflow warning strip.
+ *
+ * @param {string} contextId
+ * @returns {string}
+ */
+function buildOverflowWarningInnerHtml(contextId) {
+    return `
+        <span class="post-max-goal-overflow-lead">
+            <clashcalc-assets-svg name="warning"></clashcalc-assets-svg>
+            <span class="post-max-goal-overflow-text" data-i18n="views.equipment.goals.requiresOverflowHint">${translate('views.equipment.goals.requiresOverflowHint')}</span>
+        </span>
+        <button type="button" class="btn-enable-overflow-inline" data-action="enable-overflow" data-context="${contextId}" data-i18n="views.equipment.goals.enableOverflow">
+            ${translate('views.equipment.goals.enableOverflow')}
+        </button>
+    `;
+}
+
+/** @type {ResizeObserver | null} */
+const segmentedPillResizeObserver = typeof ResizeObserver !== 'undefined'
+    ? new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            syncSegmentedControlPill(/** @type {HTMLElement} */ (entry.target));
+        }
+    })
+    : null;
+
+/**
+ * Measures the active segmented button and aligns the sliding pill indicator cleanly.
+ *
+ * @param {HTMLElement | null} group
+ */
+function syncSegmentedControlPill(group) {
+    if (!group || typeof group.querySelector !== 'function') return;
+
+    if (segmentedPillResizeObserver && group.dataset?.pillObserved !== 'true') {
+        if (group.dataset) group.dataset.pillObserved = 'true';
+        segmentedPillResizeObserver.observe(group);
+    }
+
+    const activeBtn = /** @type {HTMLElement | null} */ (group.querySelector('.segmented-btn.is-active'));
+    if (!activeBtn) return;
+
+    const applyGeometry = () => {
+        if (!group.isConnected) return;
+        const btnWidth = activeBtn.offsetWidth;
+        if (!btnWidth) return;
+        const padLeft = typeof getComputedStyle === 'function'
+            ? (parseFloat(getComputedStyle(group).paddingLeft) || 2)
+            : 2;
+        const pillX = activeBtn.offsetLeft - padLeft;
+        group.style?.setProperty?.('--segmented-pill-width', `${btnWidth}px`);
+        group.style?.setProperty?.('--segmented-pill-x', `${pillX}px`);
+    };
+
+    applyGeometry();
+    if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(applyGeometry);
+    }
+}
+
+/**
  * Attaches click event listeners for storage goal preset pills and inline overflow buttons scoped to a container.
  *
  * @param {HTMLElement} container
@@ -119,11 +180,7 @@ function renderPostMaxGoalBannerHtml(activeGoal, isEquipmentMaxed, allowOverflow
     if (activeGoal?.requiresOverflow && !allowOverflow) {
         overflowHintHtml = `
             <div class="post-max-goal-overflow-warning">
-                <clashcalc-assets-svg name="warning"></clashcalc-assets-svg>
-                <span data-i18n="views.equipment.goals.requiresOverflowHint">${translate('views.equipment.goals.requiresOverflowHint')}</span>
-                <button type="button" class="btn-enable-overflow-inline" data-action="enable-overflow" data-context="${contextId}" data-i18n="views.equipment.goals.enableOverflow">
-                    ${translate('views.equipment.goals.enableOverflow')}
-                </button>
+                ${buildOverflowWarningInnerHtml(contextId)}
             </div>
         `;
     }
@@ -171,6 +228,8 @@ export function syncPostMaxGoalBanner(container, activeGoal, isEquipmentMaxed, a
 
     if (!bar || !group) {
         container.innerHTML = renderPostMaxGoalBannerHtml(activeGoal, isEquipmentMaxed, allowOverflow, contextId, heroesState);
+        const createdGroup = /** @type {HTMLElement | null} */ (container.querySelector('.segmented-control.post-max-goal-group'));
+        syncSegmentedControlPill(createdGroup);
         return;
     }
 
@@ -211,16 +270,10 @@ export function syncPostMaxGoalBanner(container, activeGoal, isEquipmentMaxed, a
         if (!warningEl) {
             const warningWrapper = document.createElement('div');
             warningWrapper.className = 'post-max-goal-overflow-warning';
-            warningWrapper.innerHTML = `
-                <clashcalc-assets-svg name="warning"></clashcalc-assets-svg>
-                <span data-i18n="views.equipment.goals.requiresOverflowHint">${translate('views.equipment.goals.requiresOverflowHint')}</span>
-                <button type="button" class="btn-enable-overflow-inline" data-action="enable-overflow" data-context="${contextId}" data-i18n="views.equipment.goals.enableOverflow">
-                    ${translate('views.equipment.goals.enableOverflow')}
-                </button>
-            `;
+            warningWrapper.innerHTML = buildOverflowWarningInnerHtml(contextId);
             bar.appendChild(warningWrapper);
         } else {
-            const warningSpan = warningEl.querySelector('span');
+            const warningSpan = warningEl.querySelector('.post-max-goal-overflow-text') || warningEl.querySelector('span:not(.post-max-goal-overflow-lead)');
             if (warningSpan) {
                 warningSpan.setAttribute('data-i18n', 'views.equipment.goals.requiresOverflowHint');
                 warningSpan.textContent = translate('views.equipment.goals.requiresOverflowHint');
@@ -234,4 +287,6 @@ export function syncPostMaxGoalBanner(container, activeGoal, isEquipmentMaxed, a
     } else if (warningEl) {
         warningEl.remove();
     }
+
+    syncSegmentedControlPill(/** @type {HTMLElement} */ (group));
 }

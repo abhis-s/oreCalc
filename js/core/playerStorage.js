@@ -22,12 +22,15 @@ import {
     rotateActiveUserId
 } from './storageKeys.js';
 import { sanitizePlayerProfile } from './playerStorageSanitizer.js';
+import { toCamelCase } from '../utils/stringUtils.js';
 import { saveState } from './localStorageManager.js';
 import { cancelCloudSaveTimer } from './stateManager.js';
 import { cancelPreferencesSaveTimer, triggerCloudSave } from '../services/cloudSaveService.js';
 import { deleteUserData } from '../services/apiService.js';
 import { syncPlayerTagToUrl } from './playerUrlRouter.js';
 import { normalizeHeroesState, migrateHeroesToKeys } from './stateCleanup.js';
+import { heroData } from '../data/heroData.js';
+import { heroMaxLevelsPerTH } from '../data/heroJourneyData.js';
 
 /**
  * Deletes a player profile partition from memory and localStorage disk.
@@ -69,9 +72,6 @@ export function removePlayerTag(playerTagToDelete) {
         localStorage.removeItem(`oreCalc_planner_${cleanTag}`);
         localStorage.removeItem(`clashCalc_history_${cleanTag}`);
         localStorage.removeItem(`oreCalc_history_${cleanTag}`);
-        localStorage.removeItem(`clashCalc_cachedHomeProfile_${cleanTag}`);
-        localStorage.removeItem(`clashCalc_cachedPlayerName_${cleanTag}`);
-        localStorage.removeItem(`clashCalc_cachedHomeOres_${cleanTag}`);
 
         try {
             const dmgRaw = localStorage.getItem('clashCalc_damageCalcState');
@@ -314,6 +314,10 @@ export function updateAllPlayersData(playerTag, playerState) {
     }
     try {
         state.allPlayersData[cleanTag] = playerState;
+        if (playerState?.planner?.calendar) {
+            delete playerState.planner.calendar.isHydrated;
+            delete playerState.planner.calendar.isDirty;
+        }
         const targetPrefix = getActivePlayerPrefix();
         const inactivePrefix = isClashCalcHost() ? PLAYER_PREFIX : CANONICAL_PLAYER_PREFIX;
         localStorage.setItem(getPlayerStorageKey(cleanTag, targetPrefix), JSON.stringify(playerState));
@@ -392,17 +396,33 @@ export function getSavedPlayerTagsList() {
  */
 export function inferTownHallLevel(playerData) {
     if (!playerData) return MAX_TOWN_HALL;
+
+    let inferredHeroTH = 0;
     const heroes = playerData.heroes;
     if (heroes && typeof heroes === 'object') {
-        if (heroes.dragonDuke || heroes['Dragon Duke']) return 18;
-        if (heroes.royalChampion || heroes['Royal Champion']) return Math.max(13, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 13);
-        if (heroes.grandWarden || heroes['Grand Warden']) return Math.max(11, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 11);
-        if (heroes.archerQueen || heroes['Archer Queen'] || heroes.minionPrince || heroes['Minion Prince']) return Math.max(9, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 9);
-        if (heroes.barbarianKing || heroes['Barbarian King']) return Math.max(7, Number(playerData.income?.clanWar?.warPerformance?.thLevel) || 7);
+        for (const heroKey in heroData) {
+            const heroInfo = heroData[heroKey];
+            const heroEntry = heroes[heroKey] ?? heroes[heroInfo.name];
+            if (!heroEntry || heroEntry.enabled === false) continue;
+
+            const thCaps = heroMaxLevelsPerTH[heroKey];
+            if (!thCaps) continue;
+
+            const sortedTHs = Object.keys(thCaps).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
+            if (sortedTHs.length === 0) continue;
+
+            const level = Number(heroEntry.level) || 1;
+            const requiredTH = sortedTHs.find(th => thCaps[th] >= level) ?? sortedTHs.at(-1) ?? 0;
+            if (requiredTH > inferredHeroTH) {
+                inferredHeroTH = requiredTH;
+            }
+        }
     }
-    const warTh = Number(playerData.income?.clanWar?.warPerformance?.thLevel);
-    if (warTh >= 1 && warTh <= MAX_TOWN_HALL) return warTh;
-    return MAX_TOWN_HALL;
+
+    const warThRaw = Number(playerData.income?.clanWar?.warPerformance?.thLevel);
+    const validWarTH = (warThRaw >= 1 && warThRaw <= MAX_TOWN_HALL) ? warThRaw : 0;
+    const resolvedTH = Math.max(inferredHeroTH, validWarTH);
+    return resolvedTH > 0 ? Math.min(MAX_TOWN_HALL, resolvedTH) : MAX_TOWN_HALL;
 }
 
 /**
@@ -524,8 +544,9 @@ export function savePlayerProfileToStorage(data, updateOrder = true) {
             const heroState = partition.heroes[hero.name];
             if (heroState?.equipment && Array.isArray(hero.equipment)) {
                 for (const eq of hero.equipment) {
-                    if (heroState.equipment[eq.name]) {
-                        heroState.equipment[eq.name].level = eq.level;
+                    const eqObj = heroState.equipment[eq.name] || heroState.equipment[toCamelCase(eq.name)];
+                    if (eqObj) {
+                        eqObj.level = eq.level;
                     }
                 }
             }

@@ -1,6 +1,8 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateEquipmentProgress, getOverallGradient } from '../../js/domain/equipment/equipmentProgressDomain.js';
+import { heroData } from '../../js/data/heroData.js';
+import { getEquipmentMaxLevel } from '../../js/data/equipmentCommonData.js';
+import { calculateEquipmentProgress, calculateMaxedEquipmentCount, getOverallGradient } from '../../js/domain/equipment/equipmentProgressDomain.js';
 
 describe('Equipment Progress & Ore Investment Domain Suite', () => {
     test('calculateEquipmentProgress returns zero progress for empty equipment state', () => {
@@ -56,5 +58,30 @@ describe('Equipment Progress & Ore Investment Domain Suite', () => {
         assert.ok(getOverallGradient({ shiny: 0, glowy: 10, starry: 0 }).includes('#aa00ff'));
         assert.ok(getOverallGradient({ shiny: 0, glowy: 0, starry: 10 }).includes('#ffd700'));
         assert.ok(getOverallGradient({ shiny: 10, glowy: 10, starry: 10 }).includes('linear-gradient'));
+    });
+
+    test('calculateMaxedEquipmentCount excludes unreleased unowned equipment from total and counts owned when released/owned', () => {
+        const allReleasedMaxed = {};
+        let releasedCount = 0;
+        for (const heroKey in heroData) {
+            for (const equip of heroData[heroKey].equipment) {
+                if (!equip.isUnreleased) {
+                    releasedCount++;
+                    allReleasedMaxed[equip.name] = getEquipmentMaxLevel(equip.type);
+                }
+            }
+        }
+
+        const unownedUnreleased = calculateMaxedEquipmentCount(allReleasedMaxed);
+        assert.equal(unownedUnreleased.totalCount, releasedCount);
+        assert.equal(unownedUnreleased.maxedCount, releasedCount);
+
+        const ownedUnmaxedUnreleased = calculateMaxedEquipmentCount({ ...allReleasedMaxed, 'Blizzard Axe': 1 });
+        assert.equal(ownedUnmaxedUnreleased.totalCount, releasedCount + 1);
+        assert.equal(ownedUnmaxedUnreleased.maxedCount, releasedCount);
+
+        const ownedMaxedUnreleased = calculateMaxedEquipmentCount({ ...allReleasedMaxed, 'Blizzard Axe': 33 });
+        assert.equal(ownedMaxedUnreleased.totalCount, releasedCount + 1);
+        assert.equal(ownedMaxedUnreleased.maxedCount, releasedCount + 1);
     });
 });

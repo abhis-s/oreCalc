@@ -208,9 +208,9 @@ async function navigateTo(targetUrl, options = {}) {
 
     // Guard against redundant navigation when already on target URL and route
     if (options.isPopState) {
-        if (targetRoute === currentActiveRoute &&
-            (url.pathname + url.search) === lastCommittedPathname &&
-            !url.hash) {
+        const committedPathname = (new URL(lastCommittedPathname || window.location.href, window.location.origin)).pathname;
+        if (targetRoute === currentActiveRoute && url.pathname === committedPathname) {
+            lastCommittedPathname = url.pathname + url.search;
             return false;
         }
     } else {
@@ -491,9 +491,11 @@ export function initAppShellNavigator() {
         const targetRoute = resolveAppRoute(targetUrl.pathname);
         if (!targetRoute) return;
 
-        if (targetRoute === currentActiveRoute &&
-            (targetUrl.pathname + targetUrl.search) === lastCommittedPathname &&
-            !targetUrl.hash) {
+        // If staying on the same active tool route and pathname (e.g. tab/query changes or modal pop),
+        // do not trigger a full tool route transition.
+        const committedPathname = (new URL(lastCommittedPathname || window.location.href, window.location.origin)).pathname;
+        if (targetRoute === currentActiveRoute && targetUrl.pathname === committedPathname) {
+            lastCommittedPathname = targetUrl.pathname + targetUrl.search;
             return;
         }
 

@@ -23,6 +23,7 @@ const {
     getHeroDisplayName,
     getDefenseDisplayName
 } = await import('../../js/utils/equipmentMetadata.js');
+const { getSupercellEquipmentBlogUrl } = await import('../../js/data/languagesData.js');
 
 describe('Equipment Metadata & Entity Display Names Suite', () => {
     before(async () => {
@@ -91,7 +92,7 @@ describe('Equipment Metadata & Entity Display Names Suite', () => {
         // In German
         state.uiSettings.language = 'de';
         await loadTranslations('de');
-        assert.strictEqual(getDefenseDisplayName('archer_queen'), 'Bogenschützenkönigin');
+        assert.strictEqual(getDefenseDisplayName('archer_queen'), 'Bogenschützen-Königin');
         assert.strictEqual(getDefenseDisplayName('barbarian_king'), 'Barbarenkönig');
         assert.strictEqual(getDefenseDisplayName('grand_warden'), 'Großer Wächter');
         assert.strictEqual(getDefenseDisplayName('royal_champion'), 'Königliche Gladiatorin');
@@ -117,5 +118,20 @@ describe('Equipment Metadata & Entity Display Names Suite', () => {
         // Reset back to English
         state.uiSettings.language = 'en';
         await loadTranslations('en');
+    });
+
+    test('getSupercellEquipmentBlogUrl resolves localized and fallback Supercell blog URLs', () => {
+        const enUrl = 'https://supercell.com/en/games/clashofclans/blog/news/an-all-new-equipment-rarity-is-coming-to-clash-of-clans-2/';
+        const deUrl = 'https://supercell.com/en/games/clashofclans/de/blog/news/an-all-new-equipment-rarity-is-coming-to-clash-of-clans/';
+        const zhUrl = 'https://supercell.com/en/games/clashofclans/zh-hans/blog/news/an-all-new-equipment-rarity-is-coming-to-clash-of-clans/';
+
+        assert.equal(getSupercellEquipmentBlogUrl('en'), enUrl, 'English must resolve canonical -2 article URL');
+        assert.equal(getSupercellEquipmentBlogUrl('de'), deUrl, 'German must resolve /de/ subpath URL');
+        assert.equal(getSupercellEquipmentBlogUrl('zh'), zhUrl, 'zh must resolve /zh-hans/ subpath URL');
+        assert.equal(getSupercellEquipmentBlogUrl('zh-CN'), zhUrl, 'zh-CN must resolve /zh-hans/ subpath URL');
+        assert.equal(getSupercellEquipmentBlogUrl('tr'), enUrl, 'Turkish without native article must fall back to English URL');
+        assert.equal(getSupercellEquipmentBlogUrl(''), enUrl, 'Empty language must fall back to English URL');
+        assert.equal(getSupercellEquipmentBlogUrl(null), enUrl, 'Null language must fall back to English URL');
+        assert.equal(getSupercellEquipmentBlogUrl(undefined), enUrl, 'Undefined language must fall back to English URL');
     });
 });

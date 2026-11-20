@@ -15,6 +15,7 @@ export const heroData = deepFreeze({
             { key: "spikyBall", name: "Spiky Ball", type: "epic", image: "assets/equipment/barbarian_king/BK_spiky_ball.png", heroJourneyNode: 180, inHeroJourneyPool: true },
             { key: "snakeBracelet", name: "Snake Bracelet", type: "epic", image: "assets/equipment/barbarian_king/BK_snake_bracelet.png", heroJourneyNode: 452, inHeroJourneyPool: true },
             { key: "stickHorse", name: "Stick Horse", type: "epic", image: "assets/equipment/barbarian_king/BK_stick_horse.png", inHeroJourneyPool: true },
+            { key: "blizzardAxe", name: "Blizzard Axe", type: "legendary", costSchedule: "modern", image: "assets/equipment/barbarian_king/BK_blizzard_axe.png", isUnreleased: true },
         ],
     },
     archerQueen: {
@@ -76,6 +77,7 @@ export const heroData = deepFreeze({
             { key: "rocketSpear", name: "Rocket Spear", type: "epic", image: "assets/equipment/royal_champion/RC_rocket_spear.png", heroJourneyNode: 250, inHeroJourneyPool: true },
             { key: "electroBoots", name: "Electro Boots", type: "epic", image: "assets/equipment/royal_champion/RC_electro_boots.png", heroJourneyNode: 425, inHeroJourneyPool: true },
             { key: "frostFlake", name: "Frost Flake", type: "epic", image: "assets/equipment/royal_champion/RC_frost_flake.png", inHeroJourneyPool: true },
+            { key: "shieldBrooch", name: "Shield Brooch", type: "epic", costSchedule: "modern", image: "assets/equipment/royal_champion/RC_shield_brooch.png", isUnreleased: true },
         ],
     },
     dragonDuke: {

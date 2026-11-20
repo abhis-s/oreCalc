@@ -122,7 +122,7 @@ function createDefaultState() {
         set(val) {
             this.modifier = val;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
 
@@ -191,6 +191,11 @@ export function loadPersistedState() {
         if (parsed.zapQuake) {
             Object.assign(damageCalcState.zapQuake, parsed.zapQuake);
             damageCalcState.zapQuake.mobileDockExpanded = false;
+            damageCalcState.zapQuake.combosExpanded = false;
+            damageCalcState.zapQuake.isRemainingExpanded = false;
+            damageCalcState.zapQuake.selectedComboIndex = 0;
+            damageCalcState.zapQuake.selectedClusterComboIndex = 0;
+            damageCalcState.zapQuake.searchQuery = '';
             stripLegacyZapQuakeKeys(damageCalcState.zapQuake);
             if (!['all', 'defenses', 'heroes', 'guardians', 'other'].includes(damageCalcState.zapQuake.buildingFilter)) {
                 damageCalcState.zapQuake.buildingFilter = 'all';
@@ -246,8 +251,8 @@ export function loadPersistedState() {
             damageCalcState.modalActiveTab = parsed.modalActiveTab === 'buildings' ? 'defense' : parsed.modalActiveTab;
         }
 
+        damageCalcState.defenseLevelOverrides = {};
         if (parsed.defenseLevelOverrides && typeof parsed.defenseLevelOverrides === 'object') {
-            damageCalcState.defenseLevelOverrides = {};
             for (const [k, v] of Object.entries(parsed.defenseLevelOverrides)) {
                 const def = getDefensesData()[k];
                 if (def && isDefenseInSeason(def) && typeof v === 'number' && Number.isInteger(v)) {
@@ -257,8 +262,8 @@ export function loadPersistedState() {
             }
         }
 
+        damageCalcState.defenseSuperchargeOverrides = {};
         if (parsed.defenseSuperchargeOverrides && typeof parsed.defenseSuperchargeOverrides === 'object') {
-            damageCalcState.defenseSuperchargeOverrides = {};
             for (const [k, v] of Object.entries(parsed.defenseSuperchargeOverrides)) {
                 const def = getDefensesData()[k];
                 if (def && isDefenseInSeason(def) && typeof v === 'number' && Number.isInteger(v) && v > 0) {
@@ -276,35 +281,72 @@ export function loadPersistedState() {
 }
 
 /**
- * Persists current damage calculator state to local storage.
+ * Persists current damage calculator state to local storage using a streamlined lean model.
+ * Omit redundant keys (activeTab, duplicate leagueId, simulator, modalActiveTab, transient filters).
  */
 export function persistState() {
     try {
-        const persistedZapQuake = { ...damageCalcState.zapQuake };
-        delete persistedZapQuake.mobileDockExpanded;
-        stripLegacyZapQuakeKeys(persistedZapQuake);
+        const leanZapQuake = {};
+        if (damageCalcState.zapQuake) {
+            if (Array.isArray(damageCalcState.zapQuake.selectedCluster) && damageCalcState.zapQuake.selectedCluster.length > 0) {
+                leanZapQuake.selectedCluster = damageCalcState.zapQuake.selectedCluster;
+            }
+            if (Array.isArray(damageCalcState.zapQuake.adjacentPairs) && damageCalcState.zapQuake.adjacentPairs.length > 0) {
+                leanZapQuake.adjacentPairs = damageCalcState.zapQuake.adjacentPairs;
+            }
+            if (Array.isArray(damageCalcState.zapQuake.clusterEquipment) && damageCalcState.zapQuake.clusterEquipment.length > 0) {
+                leanZapQuake.clusterEquipment = damageCalcState.zapQuake.clusterEquipment;
+            }
+            if (damageCalcState.zapQuake.clusterEquipmentSharing && Object.keys(damageCalcState.zapQuake.clusterEquipmentSharing).length > 0) {
+                leanZapQuake.clusterEquipmentSharing = damageCalcState.zapQuake.clusterEquipmentSharing;
+            }
+            if (damageCalcState.zapQuake.selectedCombos && Object.keys(damageCalcState.zapQuake.selectedCombos).length > 0) {
+                leanZapQuake.selectedCombos = damageCalcState.zapQuake.selectedCombos;
+            }
+            if (damageCalcState.zapQuake.viewMode && damageCalcState.zapQuake.viewMode !== 'compact') {
+                leanZapQuake.viewMode = damageCalcState.zapQuake.viewMode;
+            }
+        }
 
-        const payload = JSON.stringify({
-            activeTab: damageCalcState.activeTab,
+        const payloadObj = {
             modifier: damageCalcState.modifier,
-            leagueId: damageCalcState.modifier,
             isModifierExplicit: damageCalcState.isModifierExplicit,
             playerTownHall: damageCalcState.playerTownHall,
             globalSuperchargeTier: damageCalcState.globalSuperchargeTier,
-            modalActiveTab: damageCalcState.modalActiveTab,
-            defenseLevelOverrides: damageCalcState.defenseLevelOverrides,
-            defenseSuperchargeOverrides: damageCalcState.defenseSuperchargeOverrides,
-            offense: damageCalcState.offense,
-            zapQuake: persistedZapQuake,
-            simulator: damageCalcState.simulator
-        });
-        localStorage.setItem(STORAGE_KEY, payload);
+            offense: damageCalcState.offense
+        };
+
+        if (damageCalcState.activeTag) {
+            payloadObj.activeTag = damageCalcState.activeTag;
+        }
+
+        if (damageCalcState.defenseLevelOverrides && Object.keys(damageCalcState.defenseLevelOverrides).length > 0) {
+            payloadObj.defenseLevelOverrides = damageCalcState.defenseLevelOverrides;
+        }
+
+        if (damageCalcState.defenseSuperchargeOverrides && Object.keys(damageCalcState.defenseSuperchargeOverrides).length > 0) {
+            payloadObj.defenseSuperchargeOverrides = damageCalcState.defenseSuperchargeOverrides;
+        }
+
+        if (damageCalcState.enabledBuildingGroups && (
+            damageCalcState.enabledBuildingGroups.heroes !== true ||
+            damageCalcState.enabledBuildingGroups.guardians !== true ||
+            damageCalcState.enabledBuildingGroups.other !== true ||
+            Boolean(damageCalcState.enabledBuildingGroups.unavailable) !== false
+        )) {
+            payloadObj.enabledBuildingGroups = damageCalcState.enabledBuildingGroups;
+        }
+
+        if (Object.keys(leanZapQuake).length > 0) {
+            payloadObj.zapQuake = leanZapQuake;
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payloadObj));
     } catch {
         // Storage quotas or private browsing guard
     }
 }
 
-/**
 /**
  * Resets state to default values.
  */
@@ -318,7 +360,7 @@ export function resetDamageCalcState() {
         set(val) {
             this.modifier = val;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     persistState();
@@ -590,7 +632,7 @@ export function setPlayerTownHall(townHallLevel) {
  * Applies a Town Hall preset by setting the player Town Hall and resetting all defense buildings
  * to their maximum available level for that Town Hall (clearing all custom overrides).
  *
- * @param {number} townHallLevel - Town Hall level (1 to 18).
+ * @param {number} townHallLevel - Town Hall level (1 to MAX_TOWN_HALL).
  */
 export function applyTownHallPreset(townHallLevel) {
     const th = Math.max(1, Math.min(Math.floor(Number(townHallLevel) || MAX_TOWN_HALL), MAX_TOWN_HALL));

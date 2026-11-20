@@ -9,6 +9,7 @@ import {
     getDefaultModifierKey,
     ESPORTS_COMMON_DOWNGRADE,
     ESPORTS_EPIC_DOWNGRADE,
+    ESPORTS_LEGENDARY_DOWNGRADE,
     MODIFIER_HERO_BOOST_MULTIPLIERS
 } from '../../js/domain/equipment/modifierCalculator.js';
 
@@ -46,6 +47,15 @@ test('computeEffectiveLevels applies esports downgrades for Common and Epic rari
         trueMaxLevel: 27,
         isDowngraded: true,
         downgrade: ESPORTS_EPIC_DOWNGRADE
+    });
+
+    const legendaryEsports = computeEffectiveLevels(33, 33, 'Legendary', 'esports');
+    assert.deepEqual(legendaryEsports, {
+        effectiveLevel: 24,
+        effectiveMaxLevel: 24,
+        trueMaxLevel: 33,
+        isDowngraded: true,
+        downgrade: ESPORTS_LEGENDARY_DOWNGRADE
     });
 
     const lowLevelEsports = computeEffectiveLevels(2, 18, 'Common', 'esports');

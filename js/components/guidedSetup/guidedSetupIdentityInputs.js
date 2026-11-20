@@ -198,22 +198,28 @@ export function initializeGuidedSetupIdentityInputs(modal, onIdentityComplete) {
     const tabContentInfo = document.getElementById('guided-setup-tab-content-info');
     const tabContentEquipment = document.getElementById('guided-setup-tab-content-equipment');
 
+    const setActiveProfileTab = (isEquipment) => {
+        if (!tabBtnInfo || !tabBtnEquipment || !tabContentInfo || !tabContentEquipment) return;
+        tabBtnInfo.classList.toggle('is-active', !isEquipment);
+        tabBtnEquipment.classList.toggle('is-active', isEquipment);
+        tabContentInfo.classList.toggle('is-active', !isEquipment);
+        tabContentEquipment.classList.toggle('is-active', isEquipment);
+        tabContentInfo.hidden = isEquipment;
+        tabContentEquipment.hidden = !isEquipment;
+        tabContentInfo.style.display = '';
+        tabContentEquipment.style.display = '';
+    };
+
     // Preview Card tab switching
     if (tabBtnInfo && tabBtnEquipment && tabContentInfo && tabContentEquipment) {
         tabBtnInfo.addEventListener('click', (e) => {
             e.preventDefault();
-            tabBtnInfo.classList.add('is-active');
-            tabBtnEquipment.classList.remove('is-active');
-            tabContentInfo.style.display = 'block';
-            tabContentEquipment.style.display = 'none';
+            setActiveProfileTab(false);
         });
 
         tabBtnEquipment.addEventListener('click', (e) => {
             e.preventDefault();
-            tabBtnEquipment.classList.add('is-active');
-            tabBtnInfo.classList.remove('is-active');
-            tabContentEquipment.style.display = 'block';
-            tabContentInfo.style.display = 'none';
+            setActiveProfileTab(true);
         });
     }
 

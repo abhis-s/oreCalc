@@ -56,7 +56,7 @@ test('Damage Calculator State Management', async (t) => {
         assert.equal(damageCalcState.simulator.steps.length, 3);
     });
 
-    await t.test('Persists state and reloads from localStorage', () => {
+    await t.test('Persists state and reloads from localStorage using lean storage model', () => {
         resetDamageCalcState();
         damageCalcState.activeTab = 'cluster_planner';
         damageCalcState.leagueId = 'esports';
@@ -68,36 +68,49 @@ test('Damage Calculator State Management', async (t) => {
         damageCalcState.zapQuake.isRemainingExpanded = true;
         damageCalcState.zapQuake.selectedComboIndex = 3;
         damageCalcState.zapQuake.selectedClusterComboIndex = 2;
+        damageCalcState.zapQuake.viewMode = 'detailed';
+        damageCalcState.zapQuake.selectedCluster = [{ defenseKey: 'hero_hunter', level: 10, superchargeTier: 0 }];
 
         persistState();
 
         const persistedJson = JSON.parse(mockStorage.get('clashCalc_damageCalcState'));
-        assert.equal(persistedJson.zapQuake.combosExpanded, true, 'combosExpanded must be preserved');
-        assert.equal(persistedJson.zapQuake.isRemainingExpanded, true, 'isRemainingExpanded must be preserved');
-        assert.equal(persistedJson.zapQuake.selectedComboIndex, 3, 'selectedComboIndex must be preserved');
-        assert.equal(persistedJson.zapQuake.selectedClusterComboIndex, 2, 'selectedClusterComboIndex must be preserved');
+        assert.equal(persistedJson.leagueId, undefined, 'leagueId duplicate must NOT be persisted in localStorage');
+        assert.equal(persistedJson.activeTab, undefined, 'activeTab must NOT be persisted in localStorage');
+        assert.equal(persistedJson.simulator, undefined, 'simulator must NOT be persisted in localStorage');
+        assert.equal(persistedJson.modalActiveTab, undefined, 'modalActiveTab must NOT be persisted in localStorage');
+        assert.equal(persistedJson.defenseLevelOverrides, undefined, 'empty defenseLevelOverrides must NOT be persisted');
+        assert.equal(persistedJson.defenseSuperchargeOverrides, undefined, 'empty defenseSuperchargeOverrides must NOT be persisted');
+        assert.equal(persistedJson.zapQuake.combosExpanded, undefined, 'combosExpanded must NOT be persisted in localStorage');
+        assert.equal(persistedJson.zapQuake.isRemainingExpanded, undefined, 'isRemainingExpanded must NOT be persisted in localStorage');
+        assert.equal(persistedJson.zapQuake.selectedComboIndex, undefined, 'selectedComboIndex must NOT be persisted in localStorage');
+        assert.equal(persistedJson.zapQuake.selectedClusterComboIndex, undefined, 'selectedClusterComboIndex must NOT be persisted in localStorage');
         assert.equal(persistedJson.zapQuake.mobileDockExpanded, undefined, 'mobileDockExpanded does not exist on persisted state');
-        assert.equal(persistedJson.zapQuake.searchQuery, 'inferno', 'searchQuery must be preserved');
+        assert.equal(persistedJson.zapQuake.searchQuery, undefined, 'searchQuery must NOT be persisted in localStorage');
+        assert.equal(persistedJson.zapQuake.buildingFilter, undefined, 'buildingFilter must NOT be persisted in localStorage');
+        assert.equal(persistedJson.zapQuake.viewMode, 'detailed', 'viewMode must be persisted');
+        assert.equal(persistedJson.zapQuake.selectedCluster.length, 1, 'selectedCluster must be persisted');
 
         // Mutate in-memory
-        damageCalcState.activeTab = 'simulator';
         damageCalcState.leagueId = 'legend1';
         damageCalcState.globalSuperchargeTier = 2;
-        damageCalcState.zapQuake.buildingFilter = 'defenses';
+        damageCalcState.zapQuake.viewMode = 'compact';
+        damageCalcState.zapQuake.selectedCluster = [];
 
         // Reload
         loadPersistedState();
-        assert.equal(damageCalcState.activeTab, 'cluster_planner');
         assert.equal(damageCalcState.leagueId, 'esports');
+        assert.equal(damageCalcState.modifier, 'esports');
         assert.equal(damageCalcState.globalSuperchargeTier, 1);
-        assert.equal(damageCalcState.zapQuake.buildingFilter, 'all');
+        assert.equal(damageCalcState.zapQuake.viewMode, 'detailed');
+        assert.equal(damageCalcState.zapQuake.selectedCluster.length, 1);
 
-        // Verify loaded state
-        assert.equal(damageCalcState.zapQuake.combosExpanded, true);
-        assert.equal(damageCalcState.zapQuake.isRemainingExpanded, true);
-        assert.equal(damageCalcState.zapQuake.selectedComboIndex, 3);
-        assert.equal(damageCalcState.zapQuake.selectedClusterComboIndex, 2);
-        assert.equal(damageCalcState.zapQuake.searchQuery, 'inferno');
+        // Verify transient UI defaults in-memory
+        assert.equal(damageCalcState.zapQuake.combosExpanded, false);
+        assert.equal(damageCalcState.zapQuake.isRemainingExpanded, false);
+        assert.equal(damageCalcState.zapQuake.selectedComboIndex, 0);
+        assert.equal(damageCalcState.zapQuake.selectedClusterComboIndex, 0);
+        assert.equal(damageCalcState.zapQuake.searchQuery, '');
+        assert.equal(damageCalcState.zapQuake.buildingFilter, 'all');
         assert.equal(damageCalcState.zapQuake.mobileDockExpanded, false, 'mobileDockExpanded defaults to false in-memory');
     });
 

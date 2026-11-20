@@ -7,7 +7,7 @@
     {"key": "movementSpeedIncrease", "category": "ability", "valueUnit": "number"},
     {"key": "attackSpeedIncrease", "category": "ability", "valueUnit": "percentage"},
     {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
-    {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage"}
+    {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage", "isModifiable": false}
   ],
   "levels": {
     "1": [7, 18, 60, 20, 5], "2": [7, 18, 60, 24, 6], "3": [7.5, 22.3, 60, 28, 6],

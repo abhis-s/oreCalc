@@ -9,11 +9,13 @@
         "close": "关闭",
         "compressTable": "收起表格",
         "confirm": "确认",
+        "copied": "已复制！",
         "copy": "复制",
         "create": "创建",
         "decrease": "减少",
         "delete": "删除",
         "disable": "停用",
+        "dismiss": "Dismiss",
         "done": "完成",
         "download": "下载",
         "enable": "启用",
@@ -22,6 +24,7 @@
         "fix": "修复",
         "hide": "隐藏",
         "increase": "增加",
+        "installApp": "Install App",
         "later": "稍后",
         "link": "链接",
         "linkDevice": "关联设备",
@@ -39,10 +42,10 @@
         "refresh": "刷新",
         "reload": "重新加载",
         "remove": "移除",
-        "report": "反馈",
         "reset": "重置",
         "restore": "恢复",
         "save": "保存",
+        "search": "Search",
         "showInfo": "显示信息",
         "showLess": "收起",
         "showMore": "显示更多",
@@ -61,8 +64,7 @@
         "validate": "验证",
         "verify": "验证",
         "view": "查看",
-        "viewSuggestions": "查看建议",
-        "visit": "前往"
+        "viewSuggestions": "查看建议"
     },
     "alerts": {
         "bugReportFailure": "提交问题反馈失败，请稍后再试。",
@@ -145,7 +147,6 @@
             "timeIcon": "时间图标"
         },
         "brandToolName": "OreCalc",
-        "comingSoon": "敬请期待！",
         "description": "专业的《部落冲突》矿石计算与升级规划工具。预测矿石收入量，通过拖放日历规划英雄装备升级，并管理多个账号。支持完整的矿石收益追踪、升级优先级列表、离线使用（PWA）以及云端同步。",
         "domainNotice": {
             "cta": "切换到 ClashCalc",
@@ -157,7 +158,8 @@
         "metaTitle": "OreCalc — 《部落冲突》英雄装备与升级规划器 | ClashCalc",
         "none": "无",
         "supercellDisclaimer": "本内容为非官方粉丝作品，未经 Supercell 认可或授权。详情请参阅 Supercell 粉丝内容政策：<a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">{displayUrl}</a>。",
-        "title": "矿石计算器"
+        "title": "矿石计算器",
+        "version": "版本"
     },
     "auth": {
         "account": "账号",
@@ -177,6 +179,7 @@
         },
         "changeAvatar": "更换头像",
         "chooseAvatar": "选择头像",
+        "codeExpired": "Code Expired",
         "confirmDeletePasskey": "确定要移除此通行密钥吗？",
         "createAccount": "创建账号",
         "createWithPasskey": "使用通行密钥创建",
@@ -186,11 +189,14 @@
         "defaultPasskeyName": "通行密钥",
         "deleteAccount": "删除账号",
         "deletePasskey": "删除通行密钥",
+        "deviceLinked": "Device Linked",
         "disclaimer": "创建账号即表示你同意我们的<a href=\"#\" id=\"auth-terms-link\" class=\"theme-link\">使用条款</a>，并确认已阅读并同意<a href=\"#\" id=\"auth-privacy-link\" class=\"theme-link\">隐私政策</a>。",
         "dividerOr": "或",
         "explanations": {
             "deleteAccount": "永久删除你的账号、用户名、通行密钥以及所有关联的云端数据。"
         },
+        "newBadge": "New",
+        "newPassword": "New Password",
         "noPasskeysRegistered": "尚未注册通行密钥。",
         "passkeyDesc": "使用 Touch ID、Face ID 或 Windows Hello，无需密码即可安全登录。",
         "passkeyName": "通行密钥名称",
@@ -204,6 +210,7 @@
         "providerWindows": "Windows Hello",
         "resetVillageData": "重置村庄数据",
         "securityKey": "安全密钥",
+        "setPassword": "Set Password",
         "signIn": "登录",
         "signInToAccount": "登录账号",
         "signInWithPasskey": "使用通行密钥登录",
@@ -249,33 +256,37 @@
             "darkElixirStorage": "暗黑重油罐",
             "eagleArtillery": "天鹰火炮",
             "elixirStorage": "圣水瓶",
+            "firecrackerTower": "烟花炮手塔",
             "firespitter": "火焰喷射器",
             "goldStorage": "储金罐",
             "heroHunter": "英雄猎台",
-            "hiddenTesla": "隐形电塔",
+            "hiddenTesla": "特斯拉电磁塔",
             "hotCandle": "火热蜡烛",
-            "infernoTower": "地狱塔",
+            "infernoTower": "地狱之塔",
             "logger": "滚木手",
             "longshot": "远袭者",
-            "monolith": "巨石碑",
+            "monolith": "擎天巨柱",
             "mortar": "迫击炮",
-            "multiArcherTower": "多箭塔",
-            "multiGearTower": "多齿轮塔",
-            "revengeTower": "复仇之塔",
-            "ricochetCannon": "弹跳加农炮",
+            "multiArcherTower": "多人箭塔",
+            "multiGearTower": "复合机械塔",
+            "revengeTower": "反击之塔",
+            "ricochetCannon": "跳弹加农炮",
             "scattershot": "投石炮",
             "smasher": "粉碎者",
             "spellTower": "法术塔",
+            "spikyTower": "尖刺塔",
             "storages": "资源仓库",
             "superWizardTower": "超级法师塔",
             "townHall": "大本营",
             "wizardTower": "法师塔",
-            "xBow": "X连弩"
+            "xBow": "十字连弩"
         },
         "equipment": {
             "actionFigure": "动作人偶",
             "archerPuppet": "弓箭手木偶",
             "barbarianPuppet": "野蛮人木偶",
+            "blizzardAxe": "暴雪战斧",
+            "comingSoon": "敬请期待",
             "darkCrown": "暗黑皇冠",
             "darkOrb": "暗黑魔球",
             "earthquakeBoots": "地震金靴",
@@ -311,11 +322,12 @@
             "rocketSpear": "火箭飞矛",
             "royalGem": "皇家宝石",
             "seekingShield": "寻踪飞盾",
+            "shieldBrooch": "护盾胸针",
             "snakeBracelet": "灵蛇手镯",
             "spikyBall": "尖刺足球",
             "stickHorse": "木棍马驹",
             "stunBlaster": "爆震器",
-            "vampstache": "嗜血胡须"
+            "vampstache": "治疗胡须"
         },
         "heroes": {
             "archerQueen": "弓箭女皇",
@@ -369,8 +381,9 @@
             "heroPotion": "在 1 小时内将所有英雄和战宠强化至当前大本营所支持的最高等级，对 建筑工人学徒 无效。",
             "mightyMorsel": "一份能量满满的点心，能在接下来的 3 场战斗中，将英雄、战宠和装备强化至您当前大本营所支持的最高等级。只可在家乡使用。",
             "petPotion": "在 1 小时内将战宠的升级速度提升至原来的 24 倍。",
-            "runeOfDarkElixir": "使家乡的暗黑重油达到最大储量",
-            "runeOfElixir": "使家乡的圣水达到最大储量"
+            "runeOfDarkElixir": "使家乡的暗黑重油达到最大储量。",
+            "runeOfElixir": "使家乡的圣水达到最大储量。",
+            "starBonusSnack": "再次激活家乡村庄的胜利之星奖励。"
         },
         "magicItems": {
             "bookOfHeroes": "英雄之书",
@@ -378,7 +391,8 @@
             "mightyMorsel": "能量点心",
             "petPotion": "战宠药水",
             "runeOfDarkElixir": "暗黑重油符石",
-            "runeOfElixir": "圣水符石"
+            "runeOfElixir": "圣水符石",
+            "starBonusSnack": "星星饼干"
         },
         "ores": {
             "glowy": "璀璨矿石",
@@ -390,14 +404,15 @@
         },
         "pricing": {
             "gems": "{count} 宝石",
-            "gemsEventPass": "{count} 宝石 / 活动通行证",
+            "gemsCraftPass": "{count} 宝石 / 铸造令牌",
+            "gemsEventPass": "{count} 宝石 / 活动令牌",
             "goldPass": "黄金令牌",
-            "miniEventPass": "迷你活动通行证",
+            "miniEventPass": "迷你活动令牌",
             "tier4": "商城优惠（$3.99）",
             "tier6": "商城优惠（$5.99）"
         },
         "resources": {
-            "darkElixir": "黑油",
+            "darkElixir": "暗黑重油",
             "elixir": "圣水"
         },
         "skins": {
@@ -431,6 +446,7 @@
             "counterDamage": "反制伤害",
             "counterRange": "反制范围",
             "damage": "伤害",
+            "damageAbsorbed": "吸收伤害",
             "damageIncrease": "伤害提升",
             "damagePerHit": "每次伤害",
             "damagePerSecond": "每秒伤害",
@@ -438,6 +454,7 @@
             "damagePerShotIncrease": "每发伤害提升",
             "damageRadius": "伤害范围",
             "deathDamage": "死亡伤害",
+            "explosionDamage": "爆炸伤害",
             "favoriteTarget": "偏好目标",
             "firstHealthDamageIncrease": "首次生命值与伤害提升",
             "healingPerSecond": "每秒治疗量",
@@ -451,6 +468,8 @@
             "incomingDamageReduction": "受到伤害降低",
             "invisibilityDuration": "隐身持续时间",
             "maxDamageIncrease": "最大伤害提升",
+            "maxHitpointIncrease": "最大生命值提升",
+            "maxHousingSpace": "最大所需空间",
             "monolithArrowMaxDamage": "额外伤害（<180 空间）",
             "monolithArrowMidDamage": "额外伤害（181-250 空间）",
             "monolithArrowMinDamage": "额外伤害（>250 空间）",
@@ -572,15 +591,18 @@
         "tag": "玩家标签"
     },
     "status": {
+        "checking": "Checking...",
+        "downloading": "Downloading...",
         "error": "错误",
         "info": "信息",
+        "installing": "Installing...",
         "notice": "提示",
+        "offline": "Offline",
+        "online": "Online",
         "saving": "正在保存……",
         "success": "成功",
         "updateAvailable": "发现新版本",
-        "updateAvailableMsg": "发现新版本。",
         "updateForcedIn": "建议更新将在 {time} 后自动应用。",
-        "updateForcedShort": "将在 {time} 后自动更新",
         "updatePrompt": "发现新版本，重新加载即可体验最新功能并获取问题修复。",
         "warning": "警告"
     },
@@ -619,7 +641,22 @@
     },
     "views": {
         "account": {
+            "currentDevice": "This Device",
             "guestDataErasure": "数据删除"
+        },
+        "appManagement": {
+            "diagnostics": {
+                "displayMode": "Display Mode",
+                "engine": "Browser Engine",
+                "network": "Network Status"
+            },
+            "startupViews": {
+                "compositeLabel": "{tool} · {subView}"
+            },
+            "storage": {
+                "cleared": "Cache cleared"
+            },
+            "title": "App Management"
         },
         "changelog": {
             "title": "更新日志",
@@ -636,6 +673,7 @@
             "title": "其他优化"
         },
         "damageCalc": {
+            "brandToolName": "DamageCalc",
             "clusterPlanner": {
                 "clearSelectionBtn": "清除选择",
                 "clusterEmptyToolbarPrompt": "从下方选择防御建筑加入集群（2～5 个）",
@@ -672,7 +710,6 @@
                 "targetSlotTitle": "目标 {number}"
             },
             "filters": {
-                "craftedBadge": "精工",
                 "craftedDefenseTooltip": "精工防御（等级与大本营等级绑定）",
                 "craftedHpLvlShort": "血量等级",
                 "craftedHpModule": "生命值模块",
@@ -696,7 +733,6 @@
             },
             "offense": {
                 "battleModifier": "战斗属性调整",
-                "builderRepairLabel": "建筑工人维修",
                 "clanCastleAbbr": "部落城堡",
                 "clanCastleDonatedSpellsTitle": "部落城堡捐献法术",
                 "damageSources": "伤害来源",
@@ -708,7 +744,7 @@
                 "editLevels": "编辑等级",
                 "emptySourcesNotice": "尚未启用任何伤害来源。请在上方开启法术或装备以计算组合。",
                 "equipmentDamageBadge": "装备伤害",
-                "esportsNotice": "电竞模式已开启：装备等级将被下调（普通 -3 级，史诗 -6 级）。请按游戏内实际等级设置。",
+                "esportsNotice": "电竞模式已开启：装备等级将被下调（普通 -3 级，史诗 -6 级，传奇 -9 级）。请按游戏内实际等级设置。",
                 "exceedsCapacity": "超出 {max} 容量",
                 "insufficientCapacityNotice": "所需空间超出可用容量。",
                 "levelEditorSections": "等级编辑分区",
@@ -723,9 +759,6 @@
                 "thMaxTag": "{th} 级大本营满级"
             },
             "popovers": {
-                "builderRepairBody": "战斗中的建筑工人会修复防御建筑。每次维修回复 37.5～71.25 点生命值，具体取决于建筑工人小屋等级。",
-                "builderRepairCondition": "仅在防御建筑存活时生效（生命值低于上限）",
-                "builderRepairTitle": "建筑工人维修机制",
                 "ccSpellsBody": "部落城堡法术拥有独立的容量，最多占用 4 格法术空间。捐献法术的等级可能与你自带部队的法术不同（例如部落捐献的满级法术）。请在「编辑等级」中设置捐献法术等级，以准确模拟组合。",
                 "clusterEqBody": "覆盖 4.7 格半径（约 9.4 格直径），以逐级递减的百分比伤害同时削弱集群内所有防御建筑。",
                 "clusterEqTitle": "共享地震",
@@ -739,23 +772,15 @@
                 "giantArrowVulnerabilityBody": "巨型箭矢对所有防空火箭造成 200% 伤害。",
                 "giantArrowVulnerabilityTitle": "巨型箭矢（2 倍伤害）",
                 "immunities": "免疫规则",
-                "modifierEsports": "传奇杯 I 加成；普通装备 -3 级，史诗装备 -6 级。",
-                "modifierLegend1": "防御每秒伤害 +20%，英雄 +20%，守卫 +20%；进攻英雄 -20%。",
-                "modifierLegend2": "防御每秒伤害 +15%，英雄 +15%，守卫 +10%；进攻英雄 -10%。",
-                "modifierLegend3": "防御每秒伤害 +10%，英雄 +10%，守卫 +5%；进攻英雄 -5%。",
                 "modifierTitle": "战斗属性调整与联赛规则",
                 "orderedStrikeBreakdown": "打击顺序明细",
-                "perHit": "每次打击 +{amount} {unit}",
                 "personalStrike": "单体",
                 "remainingDefensesBody": "在可用法术容量内，任何已启用的法术或装备组合都无法摧毁这些防御建筑。",
                 "sharedEarthquake": "{count} 级共享地震",
                 "simulationBadge": "模拟",
                 "spellImmunityBody": "大本营、部落城堡和资源仓库完全免疫雷电与地震法术。只有英雄装备能对其造成伤害。",
                 "spellImmunityTitle": "法术免疫规则",
-                "statBuilding": "建筑",
                 "statBuildings": "建筑",
-                "statCondition": "条件",
-                "statRepair": "维修",
                 "statTroops": "部队",
                 "strikeNumber": "第 {number} 次打击",
                 "stunEffect": "眩晕效果",
@@ -803,6 +828,7 @@
         "equipment": {
             "ability": "技能",
             "active": "主动",
+            "addEquipment": "Add Equipment",
             "badgeActiveHelp": "战斗中按下英雄技能按钮时触发该技能。自身治疗效果保持被动生效。",
             "badgePassiveHelp": "英雄登场时起该技能持续生效。按下英雄技能按钮不会改变此效果。",
             "badgeRarityHelp": "稀有度：{rarity}",
@@ -810,12 +836,19 @@
             "contributeMissingData": "如果你掌握该装备的属性或相关信息，请<a href=\"#\" class=\"theme-link open-inaccuracies-link\">在此补充提供</a>。",
             "cost": "价格",
             "dataNotAvailable": "暂无数据",
-            "detailsAttribution": "英雄装备属性数据来源于 <a href=\"https://clashofclans.fandom.com/wiki/Clash_of_Clans_Wiki\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash of Clans Fandom Wiki<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>，页面布局设计参考了 <a href=\"https://www.clash.ninja/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash Ninja<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>。",
+            "detailsAttribution": "页面布局设计参考了 <a href=\"https://www.clash.ninja/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Clash Ninja<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>。",
             "detailsNotAvailableDesc": "暂无该装备的详细等级属性与升级数据明细。",
             "epic": "史诗",
             "generalStats": "通用属性",
+            "goals": {
+                "goalBarLabel": "Post-Max Goal",
+                "maxStorage": "Fill Storages",
+                "nextEpic": "Next Epic",
+                "none": "Off"
+            },
             "heroBoost": "英雄强化",
             "heroEquipment": "英雄装备",
+            "legendary": "Legendary",
             "lvl": "级",
             "maxLevel": "最高等级",
             "modifiers": {
@@ -833,6 +866,7 @@
             "notRecommended": "不推荐",
             "overview": "概览",
             "passive": "被动",
+            "rarityMaxLevel": "Max Lv {level}",
             "recMustHaveHelp": "该装备至关重要，极度推荐在绝大多数流派中优先升级。",
             "recNicheHelp": "该装备主要适用于特定打法或特殊配兵方案。",
             "recNotRecommendedHelp": "暂不推荐升级该装备，其他英雄装备能带来显著更高的收益。",
@@ -841,7 +875,10 @@
             "recUnreleasedHelp": "该装备尚未正式推出。等级属性和详细数据在正式上线前可能会有所变动。",
             "reportInaccuracies": "如果你发现任何数据错误，请<a href=\"#\" class=\"theme-link open-inaccuracies-link\">在此反馈</a>。",
             "requiredTownHall": "所需大本营",
+            "selectHero": "Select Hero",
+            "selectRarity": "Select Rarity",
             "statsLastUpdated": "属性最后更新：{date}",
+            "storageFullShort": "Full",
             "storedOres": {
                 "help": "<p>你当前在游戏铁匠铺中储存的矿石数量。</p><p>绿色标记显示英雄之旅里程碑轨道中即将获得和未领取的矿石奖励。</p>"
             },
@@ -859,6 +896,7 @@
             "epicEquip": "史诗装备",
             "guest": "使用访客配置探索",
             "guestProfileTag": "访客配置",
+            "league": "联赛",
             "loadProfile": "加载配置",
             "noClan": "无部落",
             "profileTab": "配置",
@@ -867,7 +905,7 @@
                 "cwl": "部落对战联赛 (CWL)",
                 "drawRate": "平局率 (%)：",
                 "eventIncludeEquipment": "你是否从商人处购买装备？",
-                "eventPass": "你是否购买活动通行证？",
+                "eventPass": "你是否购买活动令牌？",
                 "eventTraderPacks": "活动商人购买：",
                 "gemsBuy": "宝石",
                 "goldPass": "你是否购买黄金令牌？",
@@ -883,7 +921,7 @@
             "wizard": {
                 "enableRecommendations": "启用建议",
                 "enableRecommendationsDesc": "在流程中显示有用的建议徽章以指导你的配置。",
-                "eventDesc": "配置你的活动通行证状态和活动商人购买项。",
+                "eventDesc": "配置你的活动令牌状态和活动商人购买项。",
                 "eventTitle": "你是否参加特殊活动？",
                 "oresDesc": "输入你当前的矿石数量以准确计算升级时间。",
                 "oresTitle": "你的仓库中有多少矿石？",
@@ -999,14 +1037,12 @@
                 "collapseStats": "收起玩家资料属性",
                 "connectBtn": "绑定资料",
                 "expandStats": "展开玩家资料属性",
-                "guestNotice": "游客资料：连接玩家标签后即可启用自动进度同步。",
                 "locked": "未解锁",
                 "maxed": "满级",
                 "maxedEquipment": "满级装备",
                 "noProfileTitle": "未绑定玩家资料",
                 "overallProgress": "总体矿石进度",
-                "remainingColon": "剩余：",
-                "syncNotice": "注意：进度统计仅基于同步的游戏数据。手动规划选择、手动等级修改以及矿石库存不会计入这些统计，并将在下次 API 同步后更新。"
+                "remainingColon": "剩余："
             },
             "remainingTime": {
                 "help": "根据你的每月收入计算获取所需矿石所需时间。该估算基于持续参与游戏的情况；修改收入配置会影响预计时间。"
@@ -1022,12 +1058,20 @@
                 "glowyBonusAriaLabel": "部落战每次进攻获得的璀璨矿石奖励",
                 "help": "部落战获得的矿石奖励取决于你所进攻目标的大本营等级。提示： 当主部落正在进行部落联赛时，你仍可前往其他部落参加普通部落战，以最大化矿石收益。",
                 "last60DaysNWars": "最近 60 天｜最近 {count} 场部落战",
-                "participationsColon": "部落战参与情况：",
-                "resource": "{count} 场部落战（胜率 {winRate}%）",
+                "resource": "{count} 场部落战 · {winRate}% 胜率",
                 "shinyBonusAriaLabel": "部落战每次进攻获得的闪亮矿石奖励",
                 "starryBonusAriaLabel": "部落战每次进攻获得的星辉矿石奖励",
                 "title": "部落战",
+                "warsCount": "{count} wars",
                 "warsPerMonth": "每月部落战场次"
+            },
+            "craftPass": {
+                "help": "铸造令牌是一个季节性活动令牌，推出首发传奇装备。购买该令牌可自动解锁符合条件的未拥有传奇装备并直接升至 15 级。",
+                "title": "铸造令牌"
+            },
+            "craftPassTrader": {
+                "help": "在铸造令牌商人推出后，可将在铸造活动中赚取的代币兑换为矿石和道具。",
+                "title": "铸造令牌商人"
             },
             "cwl": {
                 "currentCwlHits": "本赛季部落联赛｜{count} 次进攻",
@@ -1035,39 +1079,36 @@
                 "cwl2SeasonsHits": "部落联赛（2 个赛季）｜{count} 次进攻",
                 "glowyBonusAriaLabel": "部落联赛每次进攻获得的璀璨矿石奖励",
                 "help": "根据你进攻目标的大本营等级、总进攻次数以及部落整体表现，计算部落对战联赛获得的矿石奖励。",
+                "hitsCount": "{count} hits",
                 "hitsPerSeason": "每赛季进攻次数",
-                "participationsColon": "部落联赛参与情况：",
-                "resource": "{count} 次进攻（胜率 {winRate}%）",
+                "resource": "{count} 次进攻 · {winRate}% 胜率",
                 "shinyBonusAriaLabel": "部落联赛每次进攻获得的闪亮矿石奖励",
                 "starryBonusAriaLabel": "部落联赛每次进攻获得的星辉矿石奖励",
                 "title": "部落联赛"
             },
             "drawRate": "平局",
-            "drawRatePct": "平局率（%）",
+            "drawRatePct": "平局率 %",
             "earned": "已获得",
             "eventPass": {
                 "bonusTrackMedals": "可领取与额外奖章",
-                "bonusTrackMedalsHelp": "活动通行证奖励中的奖章数量，以及可从 <a href=\"https://store.supercell.com/en/clashofclans\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell 商店<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>领取的奖章数量。",
-                "free": "免费通行证",
-                "help": "奖章活动每两个月举办一次。这类活动通常会推出新的装备。购买活动通行证是升级装备最划算的方式。如果不购买活动通行证，你通常只能从活动商人处选择购买装备或矿石礼包其中一种。",
+                "bonusTrackMedalsHelp": "活动令牌奖励中的奖章数量，以及可从 <a href=\"https://store.supercell.com/en/clashofclans\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"theme-link\">Supercell 商店<svg class=\"open-in-new-icon\"><use href=\"#icon-open-in-new\" xlink:href=\"#icon-open-in-new\"></use></svg></a>领取的奖章数量。",
+                "free": "免费令牌",
+                "help": "奖章活动每两个月举办一次。这类活动通常会推出新的装备。购买活动令牌是升级装备最划算的方式。如果不购买活动令牌，你通常只能从活动商人处选择购买装备或矿石礼包其中一种。",
                 "includeEquipment": "包含装备",
-                "medalsColon": "活动奖章：",
                 "medalsResource": "{count} 枚活动奖章",
                 "previous": "上一步",
                 "purchasedMedals": "已购买奖章",
-                "title": "活动通行证"
+                "title": "活动令牌"
             },
             "eventTrader": {
                 "help": "使用在奖章活动中赚取的活动奖章，在商人处兑换新英雄装备和矿石。",
                 "title": "活动商人"
             },
             "gemTrader": {
-                "gemsColon": "宝石：",
                 "help": "你也可以使用宝石在商人处购买矿石，这些商品会每周刷新。购买黄金令牌的玩家如果合理规划，通常每周可获得约 200～250 颗宝石，用于购买这些优惠，无需额外花费真实货币。",
-                "perWeek": "每周 {count} 颗宝石",
                 "title": "宝石商人"
             },
-            "lossRatePct": "失败率（%）",
+            "lossRatePct": "失败率 %",
             "ores": {
                 "autoPredictDesc": "根据游戏内的升级进度，自动预测已储存矿石数量。",
                 "autoPredictTitle": "自动预测",
@@ -1121,8 +1162,6 @@
             },
             "raidMedalTrader": {
                 "help": "每周末与你的部落一起参加部落都城突袭，可获得突袭奖章，并可在商人处每周兑换矿石。",
-                "medalsColon": "突袭奖章：",
-                "perWeek": "每周 {count} 枚突袭奖章",
                 "title": "突袭奖章商人"
             },
             "remaining": "剩余",
@@ -1138,8 +1177,10 @@
             },
             "shortcuts": {
                 "clanWar": "部落战",
+                "craftPass": "铸造",
+                "craftPassTrader": "商人",
                 "cwl": "部落联赛",
-                "eventPass": "通行证",
+                "eventPass": "令牌",
                 "eventTrader": "活动",
                 "gemTrader": "宝石",
                 "prospector": "探矿者",
@@ -1166,7 +1207,6 @@
                 "help": "除了常规的每日奖励外，游戏中通常每隔 3～4 个月会举办特殊的 2× 胜利之星奖励活动。升级大本营还可连续 5 天享受 4× 胜利之星奖励加成。",
                 "lastEvent": "上次活动",
                 "lastEventInfo": "选择此活动上次举办的月份。",
-                "league": "联赛",
                 "planningStartInfo": "此功能仅适用于大本营 {th} 及以上等级。",
                 "section2x": "2倍胜利之星奖励活动",
                 "thPlanningTitle": "规划大本营升级",
@@ -1199,7 +1239,7 @@
             "totalLabel": "总计",
             "totalTitle": "总收入",
             "winRate": "胜利",
-            "winRatePct": "胜利率（%）"
+            "winRatePct": "胜利率 %"
         },
         "landing": {
             "activeVillageShowcase": "当前村庄展示",
@@ -1274,7 +1314,7 @@
             "confirmDeleteAll": "确定要删除日历中的所有卡片吗？这也会删除所有自定义卡片。",
             "confirmDeleteMonth": "确定要删除当前月份放置的所有卡片吗？",
             "confirmResetList": "确定要清空整个优先列表吗？这将移除所有升级计划。",
-            "createCustomChipsHelp": "自定义卡片可以将额外收益事件、商店优惠、星星奖励或部落战结果添加到规划时间线中的指定日期，用于模拟额外资源收益。",
+            "createCustomChipsHelp": "自定义卡片可以将额外收益事件、商店优惠、胜利之星奖励或部落战结果添加到规划时间线中的指定日期，用于模拟额外资源收益。",
             "createCustomChipsModal": {
                 "chooseType": "选择类型……",
                 "createMonthly": "每月创建",
@@ -1347,8 +1387,8 @@
             },
             "step": "阶段",
             "stepLevelRange": "第 #{n} 阶段：等级 {x} 至 {y}",
-            "suggestionEpicUp": "将 {futureItemName} 提前，以更快完成升级。你有多余的星辉矿石。",
             "suggestionInterleave": "等待 {itemName} 矿石期间，可完成 {itemNames}，不会影响你的计划。",
+            "suggestionStarryUp": "将 {futureItemName} 提前，以更快完成升级。你有多余的星辉矿石。",
             "toggleEquipment": "切换 {name} 是否参与规划",
             "validDates": "有效范围"
         },
@@ -1356,13 +1396,10 @@
             "about": {
                 "author": "作者",
                 "buyMeACoffee": "赞助开发者",
-                "buyMeACoffeeDesc": "支持项目开发。",
                 "changelog": "更新日志",
-                "changelogHelp": "查看每个版本的更新内容、问题修复和新增功能。",
                 "contact": "联系我们",
                 "contactInfo": "如果你有任何问题、反馈或功能建议，点击下方按钮即可打开邮件客户端。",
                 "crowdin": "帮助我们完善翻译",
-                "crowdinHelp": "贡献翻译，帮助我们将应用本地化为你的语言。",
                 "errorLoadingLicense": "许可证内容加载失败。",
                 "github": "GitHub",
                 "loadingLicense": "正在加载许可证……",
@@ -1379,22 +1416,26 @@
                 "info": "你也可以通过我们的 {link} 页面直接提交问题。",
                 "privacyInfo": "提交此报告即表示你同意我们根据 {link} 处理你的用户数据及所提供的电子邮箱地址。",
                 "swDesc": "清除应用本地缓存，以强制获取最新版本和修复内容。",
-                "title": "问题反馈"
+                "title": "问题反馈",
+                "updateNowLabel": "Update Now"
             },
             "cards": {
                 "accountAndSync": "账号与云端同步",
                 "developmentSupport": "开发与支持",
-                "preferences": "个性化设置",
                 "transparency": "法律与透明度"
             },
             "cloudSync": {
                 "deviceInfo": "连接多台设备，并同步你的数据。",
                 "placeholderSyncCode": "粘贴同步码（例如：f81d4fae-...）",
+                "syncDisabledTitle": "Sync Disabled",
                 "yourSyncCode": "你的同步码"
             },
             "dataErasure": {
                 "completeDeleteInfo": "系统将通过《部落冲突》官方 API 验证你对该账号的所有权。验证成功后，我们会从整个数据库中永久移除该玩家标签与所有关联的 ClashCalc 用户 ID。此后，任何人都必须重新完成验证才能再次添加该账号。",
                 "requestExclusionFromService": "申请注销服务"
+            },
+            "feedback": {
+                "title": "Feedback"
             },
             "globalPricing": {
                 "desc": "Supercell 采用地区定价和个性化定价机制，礼包价格会因国家或地区、货币购买力以及账号消费情况而有所不同。你可以在此设置自定义价格，使其与商店中的实际价格一致，从而准确统计你的花费。",
@@ -1446,7 +1487,6 @@
                 "globalPricing": "全球定价",
                 "language": "语言",
                 "layoutCompactLabel": "紧凑",
-                "layoutCozyLabel": "舒适",
                 "theme": "浅色/深色模式",
                 "themeDark": "深色主题",
                 "themeLight": "浅色主题",
@@ -1467,12 +1507,29 @@
             }
         },
         "shortcuts": {
+            "categories": {
+                "global": "Global"
+            },
             "keys": {
-                "keyboardSpace": "空格"
+                "keyboardBackspace": "Backspace",
+                "keyboardCommand": "Command",
+                "keyboardCtrl": "Ctrl",
+                "keyboardDown": "Down",
+                "keyboardEnter": "Enter",
+                "keyboardEsc": "ESC",
+                "keyboardLeft": "Left",
+                "keyboardRight": "Right",
+                "keyboardShift": "Shift",
+                "keyboardSpace": "空格",
+                "keyboardTab": "Tab",
+                "keyboardUp": "Up"
             }
         },
         "spotright": {
-            "activeVillage": "当前"
+            "activeVillage": "当前",
+            "beta": "Beta",
+            "recent": "Recent",
+            "scopesHeading": "Filter Scopes"
         },
         "tour": {
             "backupSyncDesc": "启用云同步，自动备份数据，并在多个设备之间保持同步。",
@@ -1491,10 +1548,8 @@
             "navIncomeDesc": "你可以在这里配置所有矿石收入来源。每张发光卡片代表一种收入来源，例如胜利之星奖励、部落战、商店礼包等。",
             "navPlannerDesc": "规划页面汇总所有功能。设置升级目标、排列装备优先级，并在日历中追踪升级进度。",
             "navPlannerTitle": "升级规划",
-            "navSettingsDesc": "设置页面可帮助你个性化应用。选择主题、主题颜色、语言，并管理你的数据。",
             "oresDesc": "在这里更新当前矿石数量，帮助规划器精准计算你还需要多少矿石。",
             "oresTitle": "矿石库存追踪",
-            "preferencesDesc": "在这里调整应用外观。如果游戏内物品和商店礼包价格与你所在地区不一致，也可以调整全球价格设置。",
             "profileCardDesc": "此卡片展示当前资料的总体概览，包括玩家资料、已满级装备数量，以及各类矿石升级的详细完成百分比。",
             "profileCardTitle": "玩家概览与进度",
             "profileDesc": "切换不同的已保存村庄资料，点击刷新按钮更新玩家数据，或点击“+ 添加玩家”添加更多账号。",

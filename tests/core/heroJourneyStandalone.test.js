@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { ORE_TYPES } from '../../js/core/constants.js';
+import { MAX_TOWN_HALL, ORE_TYPES } from '../../js/core/constants.js';
 import { heroJourneyNodes, oreChestRewardsNormal, oreChestRewardsAccelerated } from '../../js/data/heroJourneyData.js';
 import { getMaxCumulativeHeroLevel, getMaxCumulativeLevelForTH, getMaxCumulativeLevelsByTH, getNodeTownHallLevel, isTrueMaxCumulativeLevel } from '../../js/domain/income/heroJourneyLevels.js';
 import { getQuestChestReward } from '../../js/domain/income/heroJourneyIncome.js';
@@ -48,33 +48,32 @@ describe('Standalone Hero Journey Data & Domain Contract Suite', () => {
         assert.equal(getNodeTownHallLevel(510), 19);
     });
 
-    test('verifies oreChestRewardsNormal and oreChestRewardsAccelerated cover TH8 through TH18', () => {
-        for (let th = 8; th <= 18; th++) {
+    test('verifies oreChestRewardsNormal and oreChestRewardsAccelerated cover TH8 through max Town Hall', () => {
+        for (let th = 8; th <= MAX_TOWN_HALL; th++) {
             assert.ok(oreChestRewardsNormal[th], `Normal rewards should exist for TH${th}`);
             assert.ok(oreChestRewardsAccelerated[th], `Accelerated rewards should exist for TH${th}`);
 
             const normal = oreChestRewardsNormal[th];
             const accelerated = oreChestRewardsAccelerated[th];
 
-            assert.ok(normal.shiny.avg > 0, 'Normal shiny avg should be > 0');
-            assert.ok(normal.glowy.avg > 0, 'Normal glowy avg should be > 0');
-            assert.ok(normal.starry.avg > 0, 'Normal starry avg should be > 0');
-
-            assert.ok(accelerated.shiny.avg >= normal.shiny.avg, 'Accelerated shiny should be >= normal');
-            assert.ok(accelerated.glowy.avg >= normal.glowy.avg, 'Accelerated glowy should be >= normal');
+            for (const ore of ORE_TYPES) {
+                assert.ok(normal[ore].min <= normal[ore].avg && normal[ore].avg <= normal[ore].max, `TH${th} normal ${ore} avg must lie within min-max`);
+                assert.ok(accelerated[ore].min <= accelerated[ore].avg && accelerated[ore].avg <= accelerated[ore].max, `TH${th} accelerated ${ore} avg must lie within min-max`);
+                assert.ok(accelerated[ore].avg >= normal[ore].avg, `TH${th} accelerated ${ore} should be >= normal`);
+            }
         }
     });
 
     test('verifies getQuestChestReward returns non-zero reward objects for normal and accelerated modes', () => {
-        const rewardNormal = getQuestChestReward(16, false);
+        const rewardNormal = getQuestChestReward(16, 'normal');
         assert.ok(rewardNormal.shiny >= 1000);
         assert.ok(rewardNormal.glowy >= 50);
         assert.ok(rewardNormal.starry >= 20);
 
-        const rewardAccelerated = getQuestChestReward(16, true);
-        assert.ok(rewardAccelerated.shiny >= rewardNormal.shiny);
-        assert.ok(rewardAccelerated.glowy >= rewardNormal.glowy);
-        assert.ok(rewardAccelerated.starry >= rewardNormal.starry);
+        const rewardAccelerated = getQuestChestReward(16, 'accelerated');
+        assert.ok(rewardAccelerated.shiny > rewardNormal.shiny);
+        assert.ok(rewardAccelerated.glowy > rewardNormal.glowy);
+        assert.ok(rewardAccelerated.starry > rewardNormal.starry);
     });
 
     test('verifies getMaxCumulativeLevelsByTH generates strictly monotonically increasing caps', () => {

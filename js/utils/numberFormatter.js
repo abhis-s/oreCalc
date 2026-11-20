@@ -1,3 +1,4 @@
+import { currencyData } from '../data/pricingData.js';
 import { getLocale } from '../data/languagesData.js';
 import { state } from '../core/state.js';
 
@@ -53,15 +54,17 @@ export function formatNumber(number) {
 }
 
 /**
- * Formats a monetary value with 2 decimal digits according to locale.
+ * Formats a monetary value according to locale and currency decimal specifications.
  *
- * @param {number} number - Currency amount.
+ * @param {number} number - Currency amount in major units.
+ * @param {string} [currencyCode='USD'] - ISO currency code.
  * @returns {string} Formatted currency string.
  */
-export function formatCurrency(number) {
+export function formatCurrency(number, currencyCode = 'USD') {
     const language = resolveLanguage();
     const locale = getLocale(language);
-    return getCachedNumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
+    const decimals = currencyData[currencyCode]?.decimals ?? 2;
+    return getCachedNumberFormat(locale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(number);
 }
 
 /**

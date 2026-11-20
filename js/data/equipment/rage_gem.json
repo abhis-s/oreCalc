@@ -8,7 +8,7 @@
   "statsMeta": [
     {"key": "damageIncrease", "category": "ability", "valueUnit": "percentage"},
     {"key": "damagePerSecondIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true},
-    {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage"}
+    {"key": "attackSpeedIncrease", "category": "heroBoost", "valueUnit": "percentage", "isModifiable": false}
   ],
   "levels": {
     "1": [15, 12, 5], "2": [15, 14, 6], "3": [20, 16, 7],

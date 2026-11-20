@@ -1,3 +1,4 @@
+import { getEquipmentMaxLevel, usesStarryOre } from '../../data/equipmentCommonData.js';
 import { translate } from '../../i18n/translator.js';
 
 import { selectIsEquipmentMaxed } from '../../core/selectors.js';
@@ -52,7 +53,7 @@ function attachPriorityOresPopover(oresEl, item, startLevel, heroName, equipName
                         <span><strong>${formatNumber(item.requiredOres.glowy)}</strong></span>
                         <clashcalc-assets-image src="assets/glowy_ore.png" alt="${translate('entities.ores.glowy')}" data-i18n-alt="entities.ores.glowy" class="ore-mini-icon"></clashcalc-assets-image>
                     </div>
-                    ${(item.requiredOres.starry > 0 || state.heroes[heroName]?.equipment[equipName]?.type === 'epic') ? `
+                    ${(item.requiredOres.starry > 0 || usesStarryOre((state.heroes[heroName]?.equipment?.[item.key] || state.heroes[heroName]?.equipment?.[equipName])?.type)) ? `
                     <div class="chest-ore-inline-chip popover-ore-inline-chip">
                         <span><strong>${formatNumber(item.requiredOres.starry)}</strong></span>
                         <clashcalc-assets-image src="assets/starry_ore.png" alt="${translate('entities.ores.starry')}" data-i18n-alt="entities.ores.starry" class="ore-mini-icon"></clashcalc-assets-image>
@@ -138,7 +139,7 @@ export function renderDraggableList(globalPriorityList, suggestions) {
     if (globalPriorityList.length === 0) {
         const chipContainer = /** @type {HTMLElement|null} */ (document.querySelector('.equipment-chip-container'));
         const activeSoon = getActiveCustomComingSoon(state.heroes);
-        const hasUnmaxedComingSoon = Boolean(activeSoon && (activeSoon.item.level || 1) < 27);
+        const hasUnmaxedComingSoon = Boolean(activeSoon && (activeSoon.item.level || 1) < getEquipmentMaxLevel(activeSoon.item.type));
 
         if (selectIsEquipmentMaxed(state) && !hasUnmaxedComingSoon) {
             if (chipContainer) chipContainer.hidden = true;
@@ -188,7 +189,8 @@ export function renderDraggableList(globalPriorityList, suggestions) {
         if (equipmentsWithErrors.has(equipName)) {
             startLevel = 'XX';
         } else if (!effectiveLevels[equipName]) {
-            startLevel = state.heroes[heroName]?.equipment[equipName]?.level || 1;
+            const heroEq = state.heroes[heroName]?.equipment;
+            startLevel = (heroEq?.[item.key] || heroEq?.[equipName])?.level || 1;
         } else {
             startLevel = effectiveLevels[equipName];
         }
@@ -326,7 +328,8 @@ export function updateDraggableListValues() {
         if (equipmentsWithErrors.has(equipName)) {
             startLevel = 'XX';
         } else if (!effectiveLevels[equipName]) {
-            startLevel = state.heroes[heroName]?.equipment[equipName]?.level || 1;
+            const heroEq = state.heroes[heroName]?.equipment;
+            startLevel = (heroEq?.[item.key] || heroEq?.[equipName])?.level || 1;
         } else {
             startLevel = effectiveLevels[equipName];
         }

@@ -10,7 +10,7 @@
     {"key": "recallHealPercent", "category": "ability", "valueUnit": "percentage"},
     {"key": "recallHousing", "category": "ability", "valueUnit": "number"},
     {"key": "recallSpeedBoostDuration", "category": "ability", "valueUnit": "seconds"},
-    {"key": "healthRecovery", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "healthRecovery", "category": "ability", "valueUnit": "number"},
     {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {

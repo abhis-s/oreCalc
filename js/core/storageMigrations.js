@@ -328,6 +328,71 @@ export function consolidateLocalStorageKeys() {
                 summary.deleted.push(k);
             }
         }
+
+        // Cleanse runtime flags (isDirty, isHydrated) from all stored player partitions
+        const storageKeys = typeof localStorage.key === 'function'
+            ? Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)).filter(Boolean)
+            : Object.keys(localStorage);
+
+        for (const k of storageKeys) {
+            if (k.startsWith(CANONICAL_PLAYER_PREFIX) || k.startsWith(PLAYER_PREFIX)) {
+                const raw = localStorage.getItem(k);
+                if (raw && (raw.includes('"isDirty"') || raw.includes('"isHydrated"'))) {
+                    const parsed = safeJsonParse(raw, null);
+                    if (parsed?.planner?.calendar) {
+                        delete parsed.planner.calendar.isDirty;
+                        delete parsed.planner.calendar.isHydrated;
+                        localStorage.setItem(k, JSON.stringify(parsed));
+                    }
+                }
+            }
+        }
+
+        // Cleanse legacy bloat from damage calculator state
+        const dmgRaw = localStorage.getItem('clashCalc_damageCalcState');
+        if (dmgRaw) {
+            const dmgParsed = safeJsonParse(dmgRaw, null);
+            if (dmgParsed && typeof dmgParsed === 'object') {
+                let dmgModified = false;
+                if ('leagueId' in dmgParsed) { delete dmgParsed.leagueId; dmgModified = true; }
+                if ('activeTab' in dmgParsed) { delete dmgParsed.activeTab; dmgModified = true; }
+                if ('modalActiveTab' in dmgParsed) { delete dmgParsed.modalActiveTab; dmgModified = true; }
+                if ('simulator' in dmgParsed) { delete dmgParsed.simulator; dmgModified = true; }
+                if (dmgParsed.defenseLevelOverrides && Object.keys(dmgParsed.defenseLevelOverrides).length === 0) {
+                    delete dmgParsed.defenseLevelOverrides;
+                    dmgModified = true;
+                }
+                if (dmgParsed.defenseSuperchargeOverrides && Object.keys(dmgParsed.defenseSuperchargeOverrides).length === 0) {
+                    delete dmgParsed.defenseSuperchargeOverrides;
+                    dmgModified = true;
+                }
+                if (dmgParsed.zapQuake && typeof dmgParsed.zapQuake === 'object') {
+                    const zq = dmgParsed.zapQuake;
+                    delete zq.searchQuery;
+                    delete zq.buildingFilter;
+                    delete zq.combosExpanded;
+                    delete zq.isRemainingExpanded;
+                    delete zq.selectedComboIndex;
+                    delete zq.selectedClusterComboIndex;
+                    delete zq.lightningLevel;
+                    delete zq.earthquakeLevel;
+                    delete zq.mobileDockExpanded;
+                    if (Array.isArray(zq.selectedCluster) && zq.selectedCluster.length === 0) delete zq.selectedCluster;
+                    if (Array.isArray(zq.adjacentPairs) && zq.adjacentPairs.length === 0) delete zq.adjacentPairs;
+                    if (Array.isArray(zq.clusterEquipment) && zq.clusterEquipment.length === 0) delete zq.clusterEquipment;
+                    if (zq.clusterEquipmentSharing && Object.keys(zq.clusterEquipmentSharing).length === 0) delete zq.clusterEquipmentSharing;
+                    if (zq.selectedCombos && Object.keys(zq.selectedCombos).length === 0) delete zq.selectedCombos;
+                    if (zq.viewMode === 'compact') delete zq.viewMode;
+                    if (Object.keys(zq).length === 0) {
+                        delete dmgParsed.zapQuake;
+                    }
+                    dmgModified = true;
+                }
+                if (dmgModified) {
+                    localStorage.setItem('clashCalc_damageCalcState', JSON.stringify(dmgParsed));
+                }
+            }
+        }
     } catch (e) {
         console.error("Error during localStorage consolidation:", e);
     }
@@ -378,28 +443,6 @@ export function sweepObsoleteStorageKeys(validPlayerTags = []) {
                 continue;
             }
             if (partitionTag && (validTagSet.has(partitionTag) || (partitionTag === 'DEFAULT0' && isGuestAllowed))) {
-                continue;
-            }
-        }
-
-        let isCachedSnapshot = false;
-        let cachedTag = '';
-        if (key.startsWith('clashCalc_cachedHomeProfile_')) {
-            isCachedSnapshot = true;
-            cachedTag = normalizePlayerTag(key.slice('clashCalc_cachedHomeProfile_'.length));
-        } else if (key.startsWith('clashCalc_cachedPlayerName_')) {
-            isCachedSnapshot = true;
-            cachedTag = normalizePlayerTag(key.slice('clashCalc_cachedPlayerName_'.length));
-        } else if (key.startsWith('clashCalc_cachedHomeOres_')) {
-            isCachedSnapshot = true;
-            cachedTag = normalizePlayerTag(key.slice('clashCalc_cachedHomeOres_'.length));
-        }
-
-        if (isCachedSnapshot) {
-            if (!hasExplicitTags) {
-                continue;
-            }
-            if (cachedTag && (validTagSet.has(cachedTag) || (cachedTag === 'DEFAULT0' && isGuestAllowed))) {
                 continue;
             }
         }

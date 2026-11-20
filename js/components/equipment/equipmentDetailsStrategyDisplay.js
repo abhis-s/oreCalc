@@ -16,6 +16,7 @@ import { formatNumber } from '../../utils/numberFormatter.js';
  */
 export function renderRecommendationBadge(recBadge, data, equipmentName, rec, activeModifierTab, userTH, calculatedMaxLevel, isEquipmentMaxed) {
     if (!recBadge) return;
+    recBadge.style.display = '';
     const { recStatus, targetRecLevel, isAutoMax } = resolveModifierRecommendation(rec, activeModifierTab, userTH, calculatedMaxLevel, Boolean(data?.isUnreleased));
     const isUnreleased = Boolean(data?.isUnreleased || (data?.id || equipmentName).toLowerCase().includes('coming_soon') || recStatus === 'unreleased');
     const isMustHave = recStatus === 'must_have';

@@ -86,10 +86,11 @@ function injectOrReplaceAttribute(tagHtml, attrName, attrValue) {
  * @param {string[]} supportedLanguages - List of enabled language codes.
  * @param {boolean} [isRoot=false] - Whether this is the root route.
  * @param {Function} [getDynamicTranslationArgs] - Dynamic translation args resolver.
- * @param {string} [projectRoot=process.cwd()] - Project root path.
+ * @param {string} [routePath=''] - Route path.
+ * @param {Function} [getSupercellEquipmentBlogUrl=null] - Localized blog URL resolver.
  * @returns {string} Fully localized HTML string.
  */
-function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = false, getDynamicTranslationArgs = null, projectRoot = process.cwd(), routePath = '') {
+function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = false, getDynamicTranslationArgs = null, projectRoot = process.cwd(), routePath = '', getSupercellEquipmentBlogUrl = null) {
     const i18nFilePath = path.join(projectRoot, `js/i18n/${lang}.json`);
     if (!fs.existsSync(i18nFilePath)) {
         return baseHtml;
@@ -173,6 +174,12 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
     if (lang !== 'en') {
         html = html.replace(/(<a\s+[^>]*\bclass="[^"]*(?:brand-title-link|landing-brand)[^"]*"[^>]*\bhref=")\/(")/g, `$1/${lang}/$2`);
         html = html.replace(/(<a\s+[^>]*\bhref=")\/("[^>]*\bclass="[^"]*(?:brand-title-link|landing-brand)[^"]*")/g, `$1/${lang}/$2`);
+        if (typeof getSupercellEquipmentBlogUrl === 'function') {
+            const blogUrl = getSupercellEquipmentBlogUrl(lang);
+            if (blogUrl) {
+                html = html.replace(/(<a\s+[^>]*\bid="eq-economy-notice-article-link"[^>]*\bhref=")[^"]*(")/g, `$1${blogUrl}$2`);
+            }
+        }
     }
 
     // Pre-render static body elements marked with data-i18n

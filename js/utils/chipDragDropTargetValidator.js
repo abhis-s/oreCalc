@@ -200,7 +200,7 @@ export function highlightDropTargets(chip, chipData) {
                 }
             }
 
-            if ((baseDraggedType === 'shopOffers' || baseDraggedType === 'eventTrader' || baseDraggedType === 'eventPass' || baseDraggedType === 'supercellEvents') &&
+            if ((baseDraggedType === 'shopOffers' || baseDraggedType === 'eventTrader' || baseDraggedType === 'craftPassTrader' || baseDraggedType === 'craftPass' || baseDraggedType === 'eventPass' || baseDraggedType === 'supercellEvents') &&
                 (baseExistingType === baseDraggedType)) {
                 if (existingChipId.endsWith('-auto')) {
                     hasDuplicateType = true;
@@ -225,6 +225,8 @@ export function highlightDropTargets(chip, chipData) {
                     !baseDraggedType.startsWith('starBonus') &&
                     baseDraggedType !== 'shopOffers' &&
                     baseDraggedType !== 'eventTrader' &&
+                    baseDraggedType !== 'craftPassTrader' &&
+                    baseDraggedType !== 'craftPass' &&
                     baseDraggedType !== 'eventPass' &&
                     baseDraggedType !== 'supercellEvents') {
                     hasDuplicateType = true;

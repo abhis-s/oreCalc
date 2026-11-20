@@ -139,7 +139,8 @@ export function syncTableRecommendationsAndBounds(currentEquipment, currentHero,
     if (rows.length === 0 || !currentEquipment || !currentHero) return;
 
     const maxLevel = getEquipmentMaxLevel(currentEquipment.type);
-    const currentLevel = heroState?.equipment[currentEquipment.name]?.level || 1;
+    const equipKey = currentEquipment.key || currentEquipment.name;
+    const currentLevel = (heroState?.equipment?.[equipKey] || heroState?.equipment?.[currentEquipment.name])?.level || 1;
     const basePlaceholderText = translate('views.planner.placeholderLevel');
     const prefix = basePlaceholderText.includes('18') ? basePlaceholderText.split('18')[0] : 'e.g., ';
 

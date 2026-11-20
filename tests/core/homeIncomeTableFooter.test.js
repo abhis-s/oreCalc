@@ -399,6 +399,7 @@ describe('Home Income Table Footer & Timeframe Reactivity Suite', () => {
         assert.ok(monthlyGlowy > 0);
         assert.ok(monthlyStarry > 0);
         assert.ok(monthlyUSD > 0);
+        assert.ok(Number.isInteger(monthlyUSD));
 
         state.uiSettings.summaryTimeframe = 'daily';
         recalculateAll(state);
@@ -418,7 +419,7 @@ describe('Home Income Table Footer & Timeframe Reactivity Suite', () => {
     test('renderIncomeCard updates timeframe dropdown, footer totals, and money costs in DOM', () => {
         const totalIncome = { shiny: 45000, glowy: 2400, starry: 120 };
         const uiSettings = { summaryTimeframe: 'weekly', currency: { code: 'USD' } };
-        const totalMoneyCost = { USD: 14.99, EUR: 13.99 };
+        const totalMoneyCost = { USD: 1499, EUR: 1399 };
 
         renderIncomeCard(totalIncome, uiSettings, totalMoneyCost);
 
@@ -433,7 +434,7 @@ describe('Home Income Table Footer & Timeframe Reactivity Suite', () => {
     test('renderIncomeCard formats localized currencies correctly (EUR)', () => {
         const totalIncome = { shiny: 10000, glowy: 500, starry: 30 };
         const uiSettings = { summaryTimeframe: 'monthly', currency: { code: 'EUR' } };
-        const totalMoneyCost = { USD: 20.00, EUR: 18.50 };
+        const totalMoneyCost = { USD: 2000, EUR: 1850 };
 
         renderIncomeCard(totalIncome, uiSettings, totalMoneyCost);
 

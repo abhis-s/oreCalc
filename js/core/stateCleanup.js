@@ -262,6 +262,17 @@ export function attachHeroStateAliases(heroes) {
                     }
                 }
             }
+            if (eqMap.comingSoon) {
+                const csDesc = Object.getOwnPropertyDescriptor(eqMap, 'Coming Soon');
+                if (!csDesc || (csDesc.configurable && !csDesc.get)) {
+                    Object.defineProperty(eqMap, 'Coming Soon', {
+                        get() { return this.comingSoon; },
+                        set(val) { this.comingSoon = val; },
+                        enumerable: false,
+                        configurable: true
+                    });
+                }
+            }
         }
     }
 

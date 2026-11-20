@@ -297,8 +297,8 @@ export function getMonthlyOccurrences() {
  */
 export function getBimonthlyOccurrences(year, month, availableMonths) {
     if (!availableMonths) return 0;
-    if (availableMonths[year]) {
-        return availableMonths[year].includes(month + 1) ? 1 : 0;
+    if (typeof availableMonths === 'object' && Object.keys(availableMonths).length > 0) {
+        return (availableMonths[year] && availableMonths[year].includes(month + 1)) ? 1 : 0;
     }
     return (month + 1) % 2 === 0 ? 1 : 0;
 }
@@ -358,6 +358,7 @@ export function getDateFromDayAndMonth(year, month, day) {
  * @returns {any[]} Array of Date instances or date range pairs.
  */
 export function getScheduleDates(year, month, schedule) {
+    if (!schedule || typeof schedule !== 'object') return [];
     const dates = [];
     const daysInMonth = getDaysInMonth(year, month);
 

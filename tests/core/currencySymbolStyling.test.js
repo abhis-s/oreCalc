@@ -276,31 +276,34 @@ describe('Multi-Character Currency Symbol Spacing & Resource Display Alignment S
             test(`renderIncomeCard updates home-money-symbol and home-money-value for ${code} (${currencyData[code].symbol})`, () => {
                 const totalIncome = { shiny: 5000, glowy: 250, starry: 15 };
                 const uiSettings = { summaryTimeframe: 'monthly', currency: { code } };
-                const totalMoneyCost = { [code]: 19.99, USD: 19.99 };
+                const isZeroDecimals = currencyData[code].decimals === 0;
+                const minorCost = isZeroDecimals ? 2000 : 1999;
+                const expectedText = isZeroDecimals ? '2,000' : '19.99';
+                const totalMoneyCost = { [code]: minorCost, USD: 1999 };
 
                 renderIncomeCard(totalIncome, uiSettings, totalMoneyCost);
 
                 assert.equal(mockMoneySymbol.textContent, currencyData[code].symbol, `Home money symbol must match ${code} symbol`);
-                assert.equal(mockMoneyValue.textContent, '19.99', `Home money value must match formatted cost for ${code}`);
+                assert.equal(mockMoneyValue.textContent, expectedText, `Home money value must match formatted cost for ${code}`);
             });
         });
 
         test('renderIncomeCard handles multi-character currency symbols (e.g. AUD, CAD, NZD) properly', () => {
             const multiCharCurrencies = [
-                { code: 'AUD', symbol: 'AU$', cost: 29.99 },
-                { code: 'CAD', symbol: 'CA$', cost: 28.50 },
-                { code: 'NZD', symbol: 'NZ$', cost: 32.00 }
+                { code: 'AUD', symbol: 'AU$', costMinor: 2999, expected: '29.99' },
+                { code: 'CAD', symbol: 'CA$', costMinor: 2850, expected: '28.50' },
+                { code: 'NZD', symbol: 'NZ$', costMinor: 3200, expected: '32.00' }
             ];
 
-            for (const { code, symbol, cost } of multiCharCurrencies) {
+            for (const { code, symbol, costMinor, expected } of multiCharCurrencies) {
                 const totalIncome = { shiny: 12000, glowy: 600, starry: 40 };
                 const uiSettings = { summaryTimeframe: 'monthly', currency: { code } };
-                const totalMoneyCost = { [code]: cost };
+                const totalMoneyCost = { [code]: costMinor };
 
                 renderIncomeCard(totalIncome, uiSettings, totalMoneyCost);
 
                 assert.equal(mockMoneySymbol.textContent, symbol, `Multi-character symbol for ${code} must be set to ${symbol}`);
-                assert.equal(mockMoneyValue.textContent, cost.toFixed(2), `Money value for ${code} must format to ${cost.toFixed(2)}`);
+                assert.equal(mockMoneyValue.textContent, expected, `Money value for ${code} must format to ${expected}`);
             }
         });
     });

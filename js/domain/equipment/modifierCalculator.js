@@ -4,6 +4,7 @@ import { battleModifiersData } from '../../data/battleModifiersData.js';
 
 export const ESPORTS_COMMON_DOWNGRADE = battleModifiersData.leagues.esports.equipLevelLossCommon;
 export const ESPORTS_EPIC_DOWNGRADE = battleModifiersData.leagues.esports.equipLevelLossEpic;
+export const ESPORTS_LEGENDARY_DOWNGRADE = battleModifiersData.leagues.esports.equipLevelLossLegendary;
 
 export const MODIFIER_HERO_BOOST_MULTIPLIERS = Object.freeze({
     standard: battleModifiersData.leagues.standard.atkHeroMultiplier,
@@ -58,15 +59,19 @@ export function isStatModifiable(meta) {
  *
  * @param {number | string} currentLevel - Current equipment level.
  * @param {number} calculatedMaxLevel - Maximum unadjusted equipment level for Town Hall.
- * @param {string} [rarity='Common'] - Equipment rarity ('Common' | 'Epic').
+ * @param {string} [rarity='Common'] - Equipment rarity ('Common' | 'Epic' | 'Legendary').
  * @param {string} [modifierKey='standard'] - Active modifier mode ('standard' | 'esports' | 'legend1' | etc.).
  * @returns {import('../../core/types.js').EquipmentModifierResult} Effective level calculations.
  */
 export function computeEffectiveLevels(currentLevel, calculatedMaxLevel, rarity = 'Common', modifierKey = 'standard') {
-    const isEpic = rarity.toLowerCase() === 'epic';
+    const r = rarity ? rarity.toLowerCase() : 'common';
+    const isLegendary = r === 'legendary';
+    const isEpic = r === 'epic';
     const validCurrentLevel = Math.max(1, Math.min(calculatedMaxLevel, Number(currentLevel) || 1));
     const league = battleModifiersData.leagues[modifierKey] || battleModifiersData.leagues.standard;
-    const downgrade = isEpic ? (league.equipLevelLossEpic || 0) : (league.equipLevelLossCommon || 0);
+    const downgrade = isLegendary
+        ? (league.equipLevelLossLegendary || 0)
+        : (isEpic ? (league.equipLevelLossEpic || 0) : (league.equipLevelLossCommon || 0));
 
     if (downgrade > 0) {
         const esportsMaxLevel = Math.max(1, calculatedMaxLevel - downgrade);

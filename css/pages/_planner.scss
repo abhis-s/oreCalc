@@ -169,14 +169,14 @@
             }
         }
         span {
-            &.gold-glow {
-                color: $color-gold-glow !important;
-            }
             &.common-equip {
                 color: $color-rarity-common;
             }
             &.epic-equip {
                 color: $color-rarity-epic;
+            }
+            &.legendary-equip {
+                color: $color-rarity-legendary;
             }
         }
     }
@@ -221,20 +221,57 @@
 
 .level-settings-container {
     display: flex;
-    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-sm $spacing-md;
+    max-width: 100%;
+
+    .input-group-flex {
+        flex: 0 0 auto;
+        gap: $spacing-xs + $spacing-2xs;
+        margin-top: 0;
+
+        label {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        @media (min-width: $breakpoint-desktop) {
+            input[type="number"] {
+                width: $spacing-2xl + $spacing-xl;
+            }
+        }
+    }
 }
 
 .max-level-card-header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: $spacing-md;
     width: 100%;
 
     .custom-max-level-title {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: $spacing-xs + $spacing-2xs;
         margin: 0;
+        flex: 0 0 auto;
+        white-space: nowrap;
+        max-width: 100%;
+
+        @media (max-width: #{$breakpoint-phone - 1px}) {
+            display: block;
+            white-space: normal;
+            text-align: center;
+
+            .info-btn {
+                display: inline-flex;
+                vertical-align: middle;
+                margin-left: $spacing-xs + $spacing-2xs;
+            }
+        }
     }
 }
 
@@ -242,14 +279,18 @@
     .max-level-card-header {
         flex-direction: column;
         align-items: center;
-        gap: 10px;
+        gap: $spacing-md;
     }
 
     .level-settings-container {
-        display: flex;
         flex-direction: column;
+        align-items: stretch;
         width: 100%;
-        gap: 10px;
+        gap: $spacing-md;
+
+        .input-group-flex {
+            width: 100%;
+        }
     }
 }
 

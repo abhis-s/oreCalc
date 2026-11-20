@@ -15,6 +15,7 @@ import { cleanupUpgradePlan, reindexGlobalPriority } from '../../utils/plannerUt
 import { createHeroCard } from '../common/heroDisplayFactory.js';
 import { dom } from '../../dom/domElements.js';
 import { initializeEquipmentDetailsModal, openEquipmentDetailsModal } from './equipmentDetailsModalInputs.js';
+import { initializeEquipmentEconomyNotice } from './equipmentEconomyNotice.js';
 import { openAddComingSoonModal } from './addComingSoonModal.js';
 import { getEquipLevel } from './equipmentDetailsModalData.js';
 import { refreshLayout } from '../../ui/cardLayoutManager.js';
@@ -123,6 +124,7 @@ function triggerDeleteComingSoon(heroLookup, heroName) {
  */
 export function initializeHeroCards(heroesState, uiSettings, plannerMaxLevels, scope = null) {
     initializeEquipmentDetailsModal(scope);
+    initializeEquipmentEconomyNotice();
 
     const container = dom.equipment.heroesContainer;
     if (!container) return;

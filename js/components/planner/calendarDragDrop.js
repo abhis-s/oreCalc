@@ -272,7 +272,7 @@ export function handleChipDropOnCalendar(incomeChipData, chipContainer) {
                 const [displaced] = existingChips.splice(existingManualIndex, 1);
                 handleDisplacedChip(displaced);
             }
-        } else if (baseDraggedType === 'shopOffers' || baseDraggedType === 'eventTrader' || baseDraggedType === 'eventPass' || baseDraggedType === 'supercellEvents') {
+        } else if (baseDraggedType === 'shopOffers' || baseDraggedType === 'eventTrader' || baseDraggedType === 'craftPassTrader' || baseDraggedType === 'eventPass' || baseDraggedType === 'craftPass' || baseDraggedType === 'supercellEvents') {
             const hasAutoChip = existingChips.some(id => id.startsWith(baseDraggedType) && id.endsWith('-auto'));
             if (hasAutoChip) {
                 console.warn(`[Calendar] Cannot place manual chip on an auto-placed ${baseDraggedType}`);

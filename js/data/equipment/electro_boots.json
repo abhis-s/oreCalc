@@ -9,7 +9,7 @@
   "statsMeta": [
     {"key": "auraDamagePerSecond", "category": "ability", "valueUnit": "number"},
     {"key": "auraDamagePerHit", "category": "ability", "valueUnit": "number"},
-    {"key": "selfHealingPerSecond", "category": "heroBoost", "valueUnit": "number"},
+    {"key": "selfHealingPerSecond", "category": "heroBoost", "valueUnit": "number", "isModifiable": false},
     {"key": "hitpointIncrease", "category": "heroBoost", "valueUnit": "number", "isModifiable": true}
   ],
   "levels": {

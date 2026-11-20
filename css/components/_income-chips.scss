@@ -14,7 +14,9 @@
 }
 .raid-medal-trader { background-color: $color-income-raid-medals; --chip-color: #{$color-income-raid-medals}; }
 .gem-trader { background-color: $color-income-gems; --chip-color: #{$color-income-gems}; }
+.craft-pass,
 .event-pass { background-color: $color-income-event-pass; --chip-color: #{$color-income-event-pass}; }
+.craft-pass-trader,
 .event-trader { background-color: $color-income-event-trader; --chip-color: #{$color-income-event-trader}; }
 .clan-war { background-color: $color-income-clan-war; --chip-color: #{$color-income-clan-war}; }
 .cwl { background-color: $color-income-cwl; --chip-color: #{$color-income-cwl}; }

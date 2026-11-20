@@ -98,6 +98,13 @@ import('../../js/i18n/i18nParams.js').then(mod => {
     console.warn('[Dev Server] Failed to load i18nParams.js:', err);
 });
 
+let getSupercellEquipmentBlogUrl = () => '';
+import('../../js/data/languagesData.js').then(mod => {
+    getSupercellEquipmentBlogUrl = mod.getSupercellEquipmentBlogUrl;
+}).catch(err => {
+    console.warn('[Dev Server] Failed to load languagesData.js:', err);
+});
+
 const { generateLocalizedHtml } = require('../build/htmlLocalizer.js');
 
 function getDevEnvironmentData() {
@@ -166,7 +173,7 @@ function getCompiledIndexHtml(lang = 'en') {
         content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
         cachedHtml = content;
     }
-    return generateLocalizedHtml(cachedHtml, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), '');
+    return generateLocalizedHtml(cachedHtml, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), '', getSupercellEquipmentBlogUrl);
 }
 
 function getCompiledHeroJourneyHtml(lang = 'en') {
@@ -178,7 +185,7 @@ function getCompiledHeroJourneyHtml(lang = 'en') {
     const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
     content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
 
-    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'hero-journey');
+    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'hero-journey', getSupercellEquipmentBlogUrl);
 }
 
 function getCompiledClashCalcHtml(lang = 'en') {
@@ -190,7 +197,7 @@ function getCompiledClashCalcHtml(lang = 'en') {
     const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
     content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
 
-    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'ore-calculator');
+    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'ore-calculator', getSupercellEquipmentBlogUrl);
 }
 
 function getCompiledDamageCalcHtml(lang = 'en') {
@@ -202,7 +209,7 @@ function getCompiledDamageCalcHtml(lang = 'en') {
     const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
     content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
 
-    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'damage-calculator');
+    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'damage-calculator', getSupercellEquipmentBlogUrl);
 }
 
 function getCompiledAccountHtml(lang = 'en') {
@@ -214,7 +221,7 @@ function getCompiledAccountHtml(lang = 'en') {
     const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
     content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
 
-    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'account');
+    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'account', getSupercellEquipmentBlogUrl);
 }
 
 function getCompiledAppManagementHtml(lang = 'en') {
@@ -226,7 +233,7 @@ function getCompiledAppManagementHtml(lang = 'en') {
     const { appVersion, buildTime, commitsSinceTag } = getDevEnvironmentData();
     content = content.replace('<meta charset="UTF-8">', getDevEnvScript(appVersion, buildTime, commitsSinceTag));
 
-    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'app-management');
+    return generateLocalizedHtml(content, lang, supportedLanguages, lang === 'en', getDynamicTranslationArgs, process.cwd(), 'app-management', getSupercellEquipmentBlogUrl);
 }
 
 /**

@@ -97,6 +97,6 @@ test('calculateShopOfferIncome calculates correct ores and multi-currency costs 
     assert.equal(result.weekly.shiny, (37500 / 30) * 7);
     assert.equal(result.bimonthly.shiny, 37500 * 2);
 
-    assert.ok(Math.abs(result.monthly.USD - 44.93) < 0.01);
-    assert.ok(Math.abs(result.monthly.EUR - 53.93) < 0.01);
+    assert.equal(result.monthly.USD, 4493);
+    assert.equal(result.monthly.EUR, 5393);
 });

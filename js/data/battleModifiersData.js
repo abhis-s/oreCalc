@@ -13,7 +13,8 @@ export const battleModifiersData = Object.freeze({
             defGuardianBonus: 0.0,
             atkHeroMultiplier: 1.0,
             equipLevelLossCommon: 0,
-            equipLevelLossEpic: 0
+            equipLevelLossEpic: 0,
+            equipLevelLossLegendary: 0
         }),
         legend3: Object.freeze({
             id: 'legend3',
@@ -23,7 +24,8 @@ export const battleModifiersData = Object.freeze({
             defGuardianBonus: 0.10,
             atkHeroMultiplier: 0.90,
             equipLevelLossCommon: 0,
-            equipLevelLossEpic: 0
+            equipLevelLossEpic: 0,
+            equipLevelLossLegendary: 0
         }),
         legend2: Object.freeze({
             id: 'legend2',
@@ -33,7 +35,8 @@ export const battleModifiersData = Object.freeze({
             defGuardianBonus: 0.15,
             atkHeroMultiplier: 0.85,
             equipLevelLossCommon: 0,
-            equipLevelLossEpic: 0
+            equipLevelLossEpic: 0,
+            equipLevelLossLegendary: 0
         }),
         legend1: Object.freeze({
             id: 'legend1',
@@ -43,7 +46,8 @@ export const battleModifiersData = Object.freeze({
             defGuardianBonus: 0.25,
             atkHeroMultiplier: 0.80,
             equipLevelLossCommon: 0,
-            equipLevelLossEpic: 0
+            equipLevelLossEpic: 0,
+            equipLevelLossLegendary: 0
         }),
         esports: Object.freeze({
             id: 'esports',
@@ -53,7 +57,8 @@ export const battleModifiersData = Object.freeze({
             defGuardianBonus: 0.25,
             atkHeroMultiplier: 0.75,
             equipLevelLossCommon: 3,
-            equipLevelLossEpic: 6
+            equipLevelLossEpic: 6,
+            equipLevelLossLegendary: 9
         })
     }),
     rageSpell: Object.freeze({

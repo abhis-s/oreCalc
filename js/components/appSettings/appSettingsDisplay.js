@@ -6,6 +6,7 @@ import { state } from '../../core/state.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 
 import { addCurrencyValidation } from '../../utils/inputValidator.js';
+import { toMajorUnits } from '../../utils/incomeUtils.js';
 import { formatCurrency } from '../../utils/numberFormatter.js';
 
 import { dom } from '../../dom/domElements.js';
@@ -51,16 +52,31 @@ export function populateDropdowns() {
     }
 
     if (currencySelect) {
-        currencySelect.innerHTML = '';
-        Object.keys(currencyData).forEach(code => {
-            const currency = currencyData[code];
-            if (currency.enabled) {
+        const activeCurrency = state.uiSettings?.currency?.code || 'USD';
+        const existingOptions = Array.from(currencySelect.options || []);
+        const enabledCurrencies = Object.keys(currencyData).filter(code => currencyData[code].enabled);
+        const alreadyPopulated = existingOptions.length === enabledCurrencies.length
+            && enabledCurrencies.every((code, index) => existingOptions[index]?.value === code);
+
+        if (alreadyPopulated) {
+            currencySelect.value = activeCurrency;
+            existingOptions.forEach(opt => {
+                opt.selected = opt.value === activeCurrency;
+            });
+        } else {
+            currencySelect.innerHTML = '';
+            enabledCurrencies.forEach(code => {
+                const currency = currencyData[code];
                 const option = document.createElement('option');
                 option.value = code;
                 option.textContent = `${currency.symbol} ${code}`;
+                if (code === activeCurrency) {
+                    option.selected = true;
+                }
                 currencySelect.appendChild(option);
-            }
-        });
+            });
+            currencySelect.value = activeCurrency;
+        }
     }
 }
 
@@ -99,7 +115,8 @@ export function renderGlobalPricingGrid(currencyCode) {
 
     tiers.forEach(tierKey => {
         const tierData = priceTierRegistry[tierKey];
-        const usdPrice = tierData.USD.toFixed(2);
+        const usdMajor = toMajorUnits(tierData.USD, 'USD');
+        const usdPrice = usdMajor.toFixed(2);
 
         const row = document.createElement('div');
         row.className = 'global-pricing-row';
@@ -126,20 +143,21 @@ export function renderGlobalPricingGrid(currencyCode) {
 
         const defaultPrice = tierData[currencyCode];
         if (typeof defaultPrice === 'number') {
-            input.placeholder = formatCurrency(defaultPrice);
+            input.placeholder = formatCurrency(toMajorUnits(defaultPrice, currencyCode), currencyCode);
         } else {
             input.placeholder = defaultPrice || '';
         }
 
         const rawValue = customPricing[tierKey] || customPricing[usdPrice] || '';
         if (rawValue !== '') {
-            const floatVal = parseFloat(rawValue);
-            input.value = !isNaN(floatVal) ? formatCurrency(floatVal) : rawValue;
+            const numVal = parseFloat(rawValue);
+            const majorVal = Number.isInteger(numVal) ? toMajorUnits(numVal, currencyCode) : numVal;
+            input.value = !isNaN(majorVal) ? formatCurrency(majorVal, currencyCode) : rawValue;
         } else {
             input.value = '';
         }
 
-        addCurrencyValidation(input);
+        addCurrencyValidation(input, currencyCode);
         row.appendChild(input);
 
         gridBody.appendChild(row);

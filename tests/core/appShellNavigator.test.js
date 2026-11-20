@@ -664,4 +664,67 @@ describe('Persistent App Shell Navigator Suite', () => {
             }
         });
     });
+
+    describe('Intra-Route Popstate Immunity & Modal History Protection', () => {
+        test('popstate on same tool route and pathname updates committed URL without triggering route fetch or transition', async () => {
+            const prevWin = globalThis.window;
+            const prevDoc = globalThis.document;
+            const prevFetch = globalThis.fetch;
+
+            let popstateHandler = null;
+            let fetchCount = 0;
+            const mockWindow = {
+                location: {
+                    href: 'http://localhost/ore-calculator/?tab=equipment&tag=8PJYGUJC',
+                    origin: 'http://localhost',
+                    pathname: '/ore-calculator/',
+                    search: '?tab=equipment&tag=8PJYGUJC',
+                    hash: ''
+                },
+                history: {
+                    state: null,
+                    pushState: () => {},
+                    replaceState: () => {}
+                },
+                addEventListener: (type, fn) => {
+                    if (type === 'popstate') popstateHandler = fn;
+                },
+                scrollTo: () => {}
+            };
+
+            globalThis.window = /** @type {any} */ (mockWindow);
+            globalThis.document = /** @type {any} */ ({
+                documentElement: { dataset: {} },
+                getElementById: () => null,
+                querySelectorAll: () => [],
+                addEventListener: () => {}
+            });
+            globalThis.fetch = async () => {
+                fetchCount++;
+                return { ok: true, text: async () => '<div>Mock Content</div>' };
+            };
+
+            try {
+                initAppShellNavigator();
+                assert.equal(typeof popstateHandler, 'function', 'initAppShellNavigator must register popstate listener');
+
+                // Simulate popstate on same tool route popping back to home tab query (?tab=home&tag=8PJYGUJC)
+                mockWindow.location.search = '?tab=home&tag=8PJYGUJC';
+                mockWindow.location.href = 'http://localhost/ore-calculator/?tab=home&tag=8PJYGUJC';
+
+                popstateHandler({ state: null });
+
+                // Zero fetches must be made for intra-route query changes
+                assert.equal(fetchCount, 0, 'Intra-route query popstate must not invoke fetchRouteHtml or route transition');
+
+                // Simulate modal pop event with modalStateId in event.state
+                popstateHandler({ state: { modalStateId: 'modal_test_123' } });
+                assert.equal(fetchCount, 0, 'Modal popstate event must be ignored without fetching route');
+            } finally {
+                globalThis.window = prevWin;
+                globalThis.document = prevDoc;
+                globalThis.fetch = prevFetch;
+            }
+        });
+    });
 });

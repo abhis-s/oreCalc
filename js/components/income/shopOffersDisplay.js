@@ -4,7 +4,7 @@ import { translate } from '../../i18n/translator.js';
 
 import { state } from '../../core/state.js';
 
-import { getCurrencySymbol, getPriceForTier } from '../../utils/incomeUtils.js';
+import { getCurrencySymbol, getPriceForTier, toMajorUnits } from '../../utils/incomeUtils.js';
 import { formatCurrency, formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 
 import { renderOfferGrid } from '../common/offerGrid.js';
@@ -61,7 +61,7 @@ export function renderShopOfferRow(offer, offerState) {
     const currencyValue = getPriceForTier(offer.priceTier, currencyCode, customPricing);
     const currencySymbol = getCurrencySymbol(currencyCode);
 
-    costDisplay.innerHTML = `<span>${currencySymbol} ${formatCurrency(currencyValue)}</span>`;
+    costDisplay.innerHTML = `<span>${currencySymbol} ${formatCurrency(toMajorUnits(currencyValue, currencyCode), currencyCode)}</span>`;
 
     const oreType = offer.shiny ? 'shiny' : offer.glowy ? 'glowy' : offer.starry ? 'starry' : (offer.id?.includes('glowy') ? 'glowy' : offer.id?.includes('starry') ? 'starry' : 'shiny');
     const oreValue = (offer.shiny || offer.glowy || offer.starry) || 0;
@@ -202,7 +202,7 @@ export function renderShopOfferGrid(shopOfferState) {
                     const customPricing = state.allPlayersData?.[activeTag]?.currency?.globalPricing?.[currencyCode];
                     const currencyValue = getPriceForTier(offer.priceTier, currencyCode, customPricing);
                     const currencySymbol = getCurrencySymbol(currencyCode);
-                    costDisplay.innerHTML = `<span>${currencySymbol} ${formatCurrency(currencyValue)}</span>`;
+                    costDisplay.innerHTML = `<span>${currencySymbol} ${formatCurrency(toMajorUnits(currencyValue, currencyCode), currencyCode)}</span>`;
                 }
             }
 
@@ -230,14 +230,19 @@ export function renderShopOfferGrid(shopOfferState) {
  * @param {import('../../core/types.js').UISettingsState} uiSettings - User interface and currency settings state.
  */
 export function renderShopOfferIncomeTabDisplay(shopOfferIncome, uiSettings) {
+    const currencySelect = dom.appSettings?.currencySelect;
+    if (currencySelect && uiSettings?.currency?.code && currencySelect.value !== uiSettings.currency.code) {
+        currencySelect.value = uiSettings.currency.code;
+    }
+
     const incomeTabDisplayElements = dom.income.shopOffers.display;
     if (!incomeTabDisplayElements) return;
 
     updateCalculatedValue(incomeTabDisplayElements.shiny, shopOfferIncome.monthly?.shiny || 0);
     updateCalculatedValue(incomeTabDisplayElements.glowy, shopOfferIncome.monthly?.glowy || 0);
     updateCalculatedValue(incomeTabDisplayElements.starry, shopOfferIncome.monthly?.starry || 0);
-    updateCalculatedValue(incomeTabDisplayElements.eur, shopOfferIncome.monthly?.EUR || 0, 2);
-    updateCalculatedValue(incomeTabDisplayElements.usd, shopOfferIncome.monthly?.USD || 0, 2);
+    updateCalculatedValue(incomeTabDisplayElements.eur, toMajorUnits(shopOfferIncome.monthly?.EUR || 0, 'EUR'), currencyData.EUR?.decimals ?? 2);
+    updateCalculatedValue(incomeTabDisplayElements.usd, toMajorUnits(shopOfferIncome.monthly?.USD || 0, 'USD'), currencyData.USD?.decimals ?? 2);
     if (incomeTabDisplayElements.dynamic) {
         let displayCurrencyCode = uiSettings.currency.code.toUpperCase();
         let displaySymbol = currencyData[uiSettings.currency.code]?.symbol || '';
@@ -248,7 +253,8 @@ export function renderShopOfferIncomeTabDisplay(shopOfferIncome, uiSettings) {
         }
 
         const dynamicValue = (shopOfferIncome.monthly?.[displayCurrencyCode] || 0);
-        updateCalculatedValue(incomeTabDisplayElements.dynamic, dynamicValue, 2);
+        const dynamicDecimals = currencyData[displayCurrencyCode]?.decimals ?? 2;
+        updateCalculatedValue(incomeTabDisplayElements.dynamic, toMajorUnits(dynamicValue, displayCurrencyCode), dynamicDecimals);
         incomeTabDisplayElements.dynamicCurrencySymbol.textContent = displaySymbol;
     }
 }

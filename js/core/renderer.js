@@ -10,6 +10,7 @@ import { renderHomeResourcesFooter } from '../components/home/homeResourcesDispl
 import { renderHomeIncomeTable } from '../components/home/homeTableDisplay.js';
 import { renderClanWarIncomeTabDisplay } from '../components/income/clanWarDisplay.js';
 import { renderClanWarInputs } from '../components/income/clanWarInputs.js';
+import { renderCraftPassInputs } from '../components/income/craftPassInputs.js';
 import { renderCwlIncomeTabDisplay } from '../components/income/cwlDisplay.js';
 import { renderCwlInputs } from '../components/income/cwlInputs.js';
 import { renderEventPassIncomeTabDisplay } from '../components/income/eventPassDisplay.js';
@@ -72,6 +73,7 @@ export function renderApp(state) {
         renderClanWarInputs(state.income.clanWar);
         renderCwlInputs(state.income.cwl);
         renderEventPassInputs(state.income.eventPass);
+        renderCraftPassInputs(state.income.craftPass);
         renderSupercellEventsInputs(state.income);
         renderRaidMedalTraderGrid(state.income.raidMedals);
         renderGemTraderGrid(state.income.gems);

@@ -56,28 +56,25 @@
         min-height: 126px;
     }
 
-    html.has-player &:not(.is-stats-collapsed) {
-        min-height: 340px;
-        contain-intrinsic-size: auto 340px;
-
-        @media (max-width: $breakpoint-modal) {
-            min-height: 460px;
-            contain-intrinsic-size: auto 460px;
-        }
-
-        &.is-max-progress,
-        &:has(.home-profile-overall-progress.fully-maxed) {
-            min-height: auto;
-            contain-intrinsic-size: auto;
-        }
-    }
-
     &.is-stats-collapsed {
         min-height: auto;
         contain-intrinsic-size: auto;
 
         .home-profile-stats-container {
             display: none;
+        }
+    }
+
+    &.is-skeleton {
+        opacity: 0.85;
+
+        .player-name,
+        .player-tag,
+        .clan-name-mini,
+        .league-name-mini,
+        #home-profile-trophies {
+            color: $text-secondary;
+            user-select: none;
         }
     }
 }
@@ -732,34 +729,4 @@
     cursor: pointer;
     @include btn-accent-style;
     @include motion-interactive;
-}
-
-.home-profile-sync-notice {
-    display: flex;
-    align-items: flex-start;
-    gap: $spacing-sm;
-    margin-top: $spacing-lg;
-    font-size: clamp(10px, 1.3vw, 11px);
-    color: $text-muted;
-    line-height: 1.4;
-    text-align: left;
-    opacity: 0.8;
-    padding: $spacing-sm $spacing-md;
-    background-color: $bg-surface-tertiary;
-    border-radius: $shape-corner-compact;
-    border: 1px solid $border-secondary;
-
-    @media (max-width: $breakpoint-modal) {
-        margin-top: $spacing-md;
-        padding: 6px 10px;
-    }
-
-    .sync-notice-icon {
-        flex-shrink: 0;
-        width: 14px;
-        height: 14px;
-        fill: $text-muted;
-        position: relative;
-        top: 1px;
-    }
 }

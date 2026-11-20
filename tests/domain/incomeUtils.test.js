@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {
     getPriceForTier,
     getCurrencySymbol,
+    toMajorUnits,
+    toMinorUnits,
     calculateWarIncome,
     calculateWeeklyIncome,
     calculateBimonthlyIncome,
@@ -10,22 +12,42 @@ import {
 } from '../../js/utils/incomeUtils.js';
 
 describe('Income Utility Engine Domain Suite', () => {
-    test('getPriceForTier resolves correct pricing and currency fallback', () => {
+    test('getPriceForTier resolves correct pricing in integer minor units and currency fallback', () => {
         // Known tier
         const usdPrice = getPriceForTier('tier5', 'USD');
         assert.ok(typeof usdPrice === 'number' && usdPrice > 0);
+        assert.equal(usdPrice, 499);
+        assert.ok(Number.isInteger(usdPrice));
 
         // Fallback to USD when currency not explicitly found
         const fallbackPrice = getPriceForTier('tier5', 'UNKNOWN_CURRENCY');
         assert.equal(fallbackPrice, usdPrice);
 
-        // Custom pricing override takes precedence
-        const customPrice = getPriceForTier('tier5', 'USD', { tier5: 7.99 });
-        assert.equal(customPrice, 7.99);
+        // Custom pricing override takes precedence in minor units
+        const customPrice = getPriceForTier('tier5', 'USD', { tier5: 799 });
+        assert.equal(customPrice, 799);
+
+        // Legacy float pricing auto-normalizes to minor units
+        const legacyCustomPrice = getPriceForTier('tier5', 'USD', { tier5: 7.99 });
+        assert.equal(legacyCustomPrice, 799);
 
         // Empty or null tier returns 0
         assert.equal(getPriceForTier(null), 0);
         assert.equal(getPriceForTier(''), 0);
+    });
+
+    test('toMajorUnits and toMinorUnits convert according to ISO decimal factors', () => {
+        // 2-decimal currencies (USD, INR)
+        assert.equal(toMajorUnits(499, 'USD'), 4.99);
+        assert.equal(toMajorUnits(8900, 'INR'), 89);
+        assert.equal(toMinorUnits(4.99, 'USD'), 499);
+        assert.equal(toMinorUnits(89, 'INR'), 8900);
+
+        // 0-decimal currency (JPY)
+        assert.equal(toMajorUnits(160, 'JPY'), 160);
+        assert.equal(toMinorUnits(160, 'JPY'), 160);
+        assert.equal(toMajorUnits(15800, 'JPY'), 15800);
+        assert.equal(toMinorUnits(15800, 'JPY'), 15800);
     });
 
     test('getCurrencySymbol returns canonical symbols', () => {

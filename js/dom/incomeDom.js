@@ -146,6 +146,9 @@ export function getIncomeDOMElements() {
                 },
             },
         },
+        craftPass: {
+            passToggle: document.getElementById('inc-craft-pass-switch'),
+        },
         eventTrader: {
             offersContainer: document.getElementById('inc-event-trader-offers'),
             total: document.getElementById('inc-event-medals-total-value'),

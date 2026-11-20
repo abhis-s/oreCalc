@@ -529,7 +529,7 @@ function updateHeroJourneyDrawer(activeView = 'track') {
     if (!isMounted) return;
     const rawTag = hjState.activeTag || new URLSearchParams(window.location.search).get('tag') || '';
     const cleanTag = rawTag.replace(/^#/, '').trim();
-    const isRealPlayer = Boolean(cleanTag && cleanTag !== 'DEFAULT0' && cleanTag !== 'GUEST');
+    const isRealPlayer = Boolean(cleanTag && cleanTag !== 'DEFAULT0');
 
     renderNavigationDrawerContent({
         activeTool: 'hero-journey',
