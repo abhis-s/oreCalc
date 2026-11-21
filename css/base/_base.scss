@@ -419,6 +419,13 @@ input[type="search"] {
 
 html {
     overscroll-behavior-y: contain;
+    scroll-padding-top: calc(#{$header-height-desktop} + #{$header-top-desktop} + #{$spacing-md} + env(safe-area-inset-top, 0px));
+    scroll-padding-bottom: calc(#{$btn-min-height} + #{$spacing-2xl} + env(safe-area-inset-bottom, 0px));
+
+    @media (max-width: #{$breakpoint-desktop - 1px}) {
+        scroll-padding-top: calc(#{$header-height-mobile} + #{$header-top-mobile} + #{$spacing-md} + env(safe-area-inset-top, 0px));
+        scroll-padding-bottom: calc(#{$header-height-mobile} + #{$spacing-2xl} + #{$spacing-sm} + env(safe-area-inset-bottom, 0px));
+    }
 }
 
 html,

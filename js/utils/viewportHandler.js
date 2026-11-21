@@ -1,6 +1,6 @@
 /**
  * Viewport & Virtual Keyboard Handler
- * Manages input focus scrolling, pins header to VisualViewport on iOS, and shifts toasts above virtual keyboard on all devices.
+ * Manages input focus scrolling, pins header to VisualViewport on iOS, and coordinates floating chrome/toasts with virtual keyboards.
  */
 
 /**
@@ -56,8 +56,107 @@ export function calculateToastKeyboardOffset({
 }
 
 /**
- * Ensures an active input element is not occluded by floating chrome (top header or bottom navigation bar).
- * If the input is behind or within the bottom chrome margin (or top header margin), scrolls it into view.
+ * Determines whether an on-screen software keyboard is actively open without false-positiving on hardware keyboards or split windows.
+ *
+ * @param {Object} options
+ * @param {boolean} options.isTouch
+ * @param {boolean} options.isInputFocused
+ * @param {number} options.layoutHeight
+ * @param {number} options.vvHeight
+ * @param {number} options.vvTop
+ * @param {number} [options.baselineVvHeight=0]
+ * @param {number} [options.screenHeight=0]
+ * @returns {boolean}
+ */
+export function detectSoftwareKeyboardOpen({
+    isTouch,
+    isInputFocused,
+    layoutHeight,
+    vvHeight,
+    vvTop,
+    baselineVvHeight = 0,
+    screenHeight = 0
+}) {
+    if (!isTouch || !isInputFocused || vvHeight <= 0) {
+        return false;
+    }
+
+    if (baselineVvHeight > 0 && (baselineVvHeight - vvHeight) > 100) {
+        return true;
+    }
+
+    if ((layoutHeight - vvHeight) > 80) {
+        return true;
+    }
+
+    if (baselineVvHeight <= 0) {
+        return calculateToastKeyboardOffset({
+            isInputFocused,
+            isTouch,
+            layoutHeight,
+            vvHeight,
+            vvTop,
+            screenHeight
+        }) > 0;
+    }
+
+    return (layoutHeight - (vvHeight + vvTop)) > 50;
+}
+
+/**
+ * Calculates header vertical offset (in px) to keep the fixed header pinned to VisualViewport top on iOS/iPadOS.
+ * Intentionally tracks vvOffsetTop regardless of active focus state so dismissal and focus shifts never yank the header off-screen.
+ *
+ * @param {Object} options
+ * @param {boolean} options.isIOS
+ * @param {number} options.vvOffsetTop
+ * @param {number} [options.vvScale=1]
+ * @param {boolean} [options.isModalOpen=false]
+ * @returns {number}
+ */
+export function calculateHeaderViewportOffset({
+    isIOS,
+    vvOffsetTop,
+    vvScale = 1,
+    isModalOpen = false
+}) {
+    if (!isIOS || isModalOpen || vvScale > 1.05) {
+        return 0;
+    }
+    if (vvOffsetTop > 0.5) {
+        return Math.round(vvOffsetTop * 10) / 10;
+    }
+    return 0;
+}
+
+/**
+ * Checks whether an element rect is occluded relative to the active visual viewport rather than layout viewport top.
+ *
+ * @param {Object} options
+ * @param {number} options.rectTop
+ * @param {number} options.rectBottom
+ * @param {number} options.vvTop
+ * @param {number} options.vvHeight
+ * @param {number} options.topThreshold
+ * @param {number} options.bottomThreshold
+ * @returns {boolean}
+ */
+export function calculateVisualRectOcclusion({
+    rectTop,
+    rectBottom,
+    vvTop,
+    vvHeight,
+    topThreshold,
+    bottomThreshold
+}) {
+    const visibleTop = rectTop - vvTop;
+    const visibleBottom = rectBottom - vvTop;
+    return visibleBottom > (vvHeight - bottomThreshold) || visibleTop < topThreshold;
+}
+
+/**
+ * Ensures an active input element is not occluded by floating chrome (top header, virtual keyboard, or bottom navigation bar).
+ * Uses visual viewport offset compensation so already-visible scrolled inputs are not pushed around redundantly.
  *
  * @param {Element | HTMLElement | null} target
  * @param {{ block?: ScrollLogicalPosition, behavior?: ScrollBehavior }} [options={}]
@@ -70,22 +169,33 @@ function ensureInputVisibleAboveChrome(target, { block = 'center', behavior = 's
 
     const rect = target.getBoundingClientRect();
     const vv = typeof window !== 'undefined' ? window.visualViewport : null;
+    const vvTop = vv ? (vv.offsetTop || 0) : 0;
     const viewportHeight = vv ? vv.height : ((typeof window !== 'undefined' ? window.innerHeight : 0) || 800);
 
     const bottomNav = typeof document !== 'undefined' ? document.querySelector('.bottom-nav-bar') : null;
     let isBottomNavVisible = false;
     if (bottomNav) {
         if (typeof window !== 'undefined' && typeof window.getComputedStyle === 'function') {
-            isBottomNavVisible = window.getComputedStyle(bottomNav).display !== 'none';
+            const cs = window.getComputedStyle(bottomNav);
+            isBottomNavVisible = cs.display !== 'none' && cs.pointerEvents !== 'none';
         } else {
             isBottomNavVisible = true;
         }
     }
 
-    const bottomThreshold = isBottomNavVisible ? 96 : 40;
-    const topThreshold = 80;
+    const bottomThreshold = isBottomNavVisible ? 96 : 36;
+    const topThreshold = 84;
 
-    if (rect.bottom > viewportHeight - bottomThreshold || rect.top < topThreshold) {
+    const isOccluded = calculateVisualRectOcclusion({
+        rectTop: rect.top,
+        rectBottom: rect.bottom,
+        vvTop,
+        vvHeight: viewportHeight,
+        topThreshold,
+        bottomThreshold
+    });
+
+    if (isOccluded) {
         target.scrollIntoView({ block, inline: 'nearest', behavior });
         return true;
     }
@@ -93,157 +203,213 @@ function ensureInputVisibleAboveChrome(target, { block = 'center', behavior = 's
     return false;
 }
 
-/**
- * Initializes virtual keyboard compensation listeners and visualViewport resize handlers for mobile inputs.
- */
 const boundViewportDocs = new WeakSet();
 
 /**
- * Initializes global viewport listeners for iOS Safari header stabilization and toast keyboard elevation.
+ * Initializes global viewport listeners for iOS/iPadOS Safari header stabilization, floating chrome yield, and toast elevation.
  */
 export function initializeViewportHandler() {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
-    // Reset header transform on cold load / reload immediately
-    const initialHeader = document.querySelector('.app-header, .header-container');
-    if (initialHeader) {
-        initialHeader.style.transform = '';
-    }
+    // Clear any legacy inline header transforms/transitions so CSS variable compositing leads cleanly
+    const initialHeaders = document.querySelectorAll('.app-header, .landing-header, .header-container');
+    initialHeaders.forEach((header) => {
+        const el = /** @type {HTMLElement} */ (header);
+        if (el.style.transform) el.style.transform = '';
+        if (el.style.transition) el.style.transition = '';
+    });
+    document.documentElement?.style?.setProperty('--header-vv-offset', '0px');
 
     if (boundViewportDocs.has(document)) return;
     boundViewportDocs.add(document);
 
-    document.addEventListener('focusin', (event) => {
-        const target = /** @type {HTMLElement | null} */ (event.target);
-        if (!target || !target.matches('input, select, textarea')) return;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-        const modalContainer = target.closest('.modal-body, .modal-content, dialog.modal, .modal');
-        if (modalContainer) {
-            setTimeout(() => {
-                target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
-            }, 120);
-        } else if (isTouchDevice()) {
-            setTimeout(() => {
-                ensureInputVisibleAboveChrome(target);
-            }, 160);
+    let lastHeaderOffset = 0;
+    let lastToastOffset = -1;
+    let lastKeyboardOpen = false;
+    let baselineVvHeight = window.visualViewport?.height || window.innerHeight || 0;
+    let prevVvHeight = baselineVvHeight;
+    /** @type {ReturnType<typeof setTimeout> | null} */
+    let focusScrollTimer = null;
+    /** @type {ReturnType<typeof setTimeout> | null} */
+    let vvResizeScrollTimer = null;
+    /** @type {number | null} */
+    let settleRafId = null;
+
+    const cancelPendingInputScrolls = () => {
+        if (focusScrollTimer !== null) {
+            clearTimeout(focusScrollTimer);
+            focusScrollTimer = null;
         }
-    }, { passive: true });
+        if (vvResizeScrollTimer !== null) {
+            clearTimeout(vvResizeScrollTimer);
+            vvResizeScrollTimer = null;
+        }
+    };
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const syncViewportChrome = () => {
+        const vv = window.visualViewport;
+        const activeEl = /** @type {HTMLElement | null} */ (document.activeElement);
+        const isInputFocused = Boolean(activeEl && activeEl.matches('input, select, textarea'));
+        const isModalOpen = Boolean(
+            document.querySelector('dialog.modal[open], dialog.navigation-drawer[open], .modal.show, .modal-backdrop.show')
+            || activeEl?.closest('.modal, .modal-content, .modal-backdrop')
+        );
 
-    if (isIOS && window.visualViewport) {
-        let headerFrame = null;
-        let isTransitioningOut = false;
+        const vvHeight = vv ? vv.height : (window.innerHeight || 0);
+        const vvTop = vv ? (vv.offsetTop || 0) : 0;
+        const vvScale = vv ? (vv.scale || 1) : 1;
+        const layoutHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
 
-        const syncHeaderVisualViewport = () => {
-            if (headerFrame || isTransitioningOut) return;
+        if (!isInputFocused && vvHeight > 0 && vvScale <= 1.05) {
+            baselineVvHeight = Math.max(layoutHeight, vvHeight);
+        }
 
-            headerFrame = requestAnimationFrame(() => {
-                headerFrame = null;
+        const headerOffset = calculateHeaderViewportOffset({
+            isIOS,
+            vvOffsetTop: vvTop,
+            vvScale,
+            isModalOpen
+        });
 
-                const activeEl = document.activeElement;
-                const header = document.querySelector('.app-header, .header-container');
-                if (!header) return;
+        if (headerOffset !== lastHeaderOffset) {
+            lastHeaderOffset = headerOffset;
+            document.documentElement?.style?.setProperty('--header-vv-offset', `${headerOffset}px`);
+        }
 
-                if (activeEl && activeEl.closest('.modal, .modal-content, .modal-backdrop')) {
-                    if (header.style.transform) {
-                        header.style.transform = '';
-                        header.style.transition = '';
-                    }
-                    return;
-                }
+        const isTouch = isTouchDevice();
+        const keyboardOpen = detectSoftwareKeyboardOpen({
+            isTouch,
+            isInputFocused,
+            layoutHeight,
+            vvHeight,
+            vvTop,
+            baselineVvHeight,
+            screenHeight: window.screen ? window.screen.height : 0
+        });
 
-                const isInputFocused = Boolean(activeEl && activeEl.matches('input, select, textarea'));
-                const offsetTop = window.visualViewport.offsetTop;
+        if (keyboardOpen !== lastKeyboardOpen) {
+            lastKeyboardOpen = keyboardOpen;
+            document.body?.classList?.toggle('is-keyboard-open', keyboardOpen);
+        }
 
-                if (isInputFocused && offsetTop > 2) {
-                    header.style.transition = 'none';
-                    header.style.transform = `translate3d(0, ${offsetTop}px, 0)`;
-                } else if (header.style.transform) {
-                    header.style.transform = '';
-                }
-            });
-        };
-
-        window.visualViewport.addEventListener('scroll', syncHeaderVisualViewport, { passive: true });
-        window.visualViewport.addEventListener('resize', syncHeaderVisualViewport, { passive: true });
-        window.addEventListener('scroll', syncHeaderVisualViewport, { passive: true });
-        window.addEventListener('pageshow', syncHeaderVisualViewport, { passive: true });
-
-        document.addEventListener('focusout', (event) => {
-            const target = event.target;
-            if (!target || !target.matches('input, select, textarea')) return;
-            if (target.closest('.modal, .modal-content, .modal-backdrop')) return;
-
-            const header = document.querySelector('.app-header, .header-container');
-            if (!header) return;
-
-            isTransitioningOut = true;
-            header.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
-            header.style.transform = 'translate3d(0, 0, 0)';
-
-            setTimeout(() => {
-                header.style.transform = '';
-                header.style.transition = '';
-                isTransitioningOut = false;
-            }, 300);
-        }, { passive: true });
-    }
-
-    if (window.visualViewport) {
-        let toastFrame = null;
-
-        const syncToastVisualViewport = () => {
-            if (toastFrame) return;
-
-            toastFrame = requestAnimationFrame(() => {
-                toastFrame = null;
-
-                const toastContainer = document.getElementById('toast-container');
-                if (!toastContainer) return;
-
-                const activeEl = document.activeElement;
-                const isInputFocused = Boolean(activeEl && activeEl.matches('input, select, textarea'));
-                const isTouch = isTouchDevice();
-
-                if (!isTouch || !isInputFocused) {
-                    toastContainer.style.removeProperty('--toast-keyboard-offset');
-                    return;
-                }
-
-                const vv = window.visualViewport;
-                if (!vv) return;
-
-                const layoutHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-                const offset = calculateToastKeyboardOffset({
+        const toastContainer = document.getElementById('toast-container');
+        if (toastContainer) {
+            const toastOffset = (isTouch && isInputFocused)
+                ? calculateToastKeyboardOffset({
                     isInputFocused,
                     isTouch,
                     layoutHeight,
-                    vvHeight: vv.height,
-                    vvTop: vv.offsetTop,
-                    screenHeight: window.screen ? window.screen.height : 0
-                });
+                    vvHeight,
+                    vvTop,
+                    screenHeight: baselineVvHeight > 0 ? 0 : (window.screen ? window.screen.height : 0)
+                })
+                : 0;
 
-                if (offset > 0) {
-                    toastContainer.style.setProperty('--toast-keyboard-offset', `${offset}px`);
+            if (toastOffset !== lastToastOffset) {
+                lastToastOffset = toastOffset;
+                if (toastOffset > 0) {
+                    toastContainer.style.setProperty('--toast-keyboard-offset', `${toastOffset}px`);
                 } else {
                     toastContainer.style.removeProperty('--toast-keyboard-offset');
                 }
-            });
-        };
+            }
+        }
+    };
 
-        const handleVisualViewportResize = () => {
+    const scheduleTrailingSync = () => {
+        if (settleRafId !== null) cancelAnimationFrame(settleRafId);
+        settleRafId = requestAnimationFrame(() => {
+            settleRafId = null;
+            syncViewportChrome();
+        });
+    };
+
+    document.addEventListener('focusin', (event) => {
+        const target = /** @type {HTMLElement | null} */ (event.target);
+        if (!target || !target.matches('input, select, textarea')) {
+            syncViewportChrome();
+            return;
+        }
+
+        cancelPendingInputScrolls();
+        syncViewportChrome();
+
+        const modalContainer = target.closest('.modal-body, .modal-content, dialog.modal, .modal');
+        if (modalContainer) {
+            focusScrollTimer = setTimeout(() => {
+                focusScrollTimer = null;
+                if (document.activeElement === target) {
+                    target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+                }
+            }, 120);
+        } else if (isTouchDevice()) {
+            focusScrollTimer = setTimeout(() => {
+                focusScrollTimer = null;
+                if (document.activeElement === target) {
+                    ensureInputVisibleAboveChrome(target);
+                }
+            }, 220);
+        }
+    }, { passive: true });
+
+    document.addEventListener('focusout', (event) => {
+        const target = /** @type {HTMLElement | null} */ (event.target);
+        if (!target || !target.matches('input, select, textarea')) return;
+
+        cancelPendingInputScrolls();
+        syncViewportChrome();
+        scheduleTrailingSync();
+        setTimeout(syncViewportChrome, 350);
+    }, { passive: true });
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('scroll', () => {
+            syncViewportChrome();
+            scheduleTrailingSync();
+        }, { passive: true });
+
+        window.visualViewport.addEventListener('resize', () => {
+            const currentVvHeight = window.visualViewport?.height || 0;
+            const shrank = currentVvHeight > 0 && currentVvHeight < prevVvHeight - 10;
+            prevVvHeight = currentVvHeight;
+
+            syncViewportChrome();
+
+            if (!shrank) {
+                if (vvResizeScrollTimer !== null) {
+                    clearTimeout(vvResizeScrollTimer);
+                    vvResizeScrollTimer = null;
+                }
+                return;
+            }
+
             const activeEl = /** @type {HTMLElement | null} */ (document.activeElement);
             if (activeEl && activeEl.matches('input, select, textarea') && !activeEl.closest('.modal-body, .modal-content, dialog.modal, .modal')) {
-                ensureInputVisibleAboveChrome(activeEl);
+                cancelPendingInputScrolls();
+                vvResizeScrollTimer = setTimeout(() => {
+                    vvResizeScrollTimer = null;
+                    if (document.activeElement === activeEl) {
+                        ensureInputVisibleAboveChrome(activeEl);
+                    }
+                }, 100);
             }
-        };
-
-        window.visualViewport.addEventListener('scroll', syncToastVisualViewport, { passive: true });
-        window.visualViewport.addEventListener('resize', syncToastVisualViewport, { passive: true });
-        window.visualViewport.addEventListener('resize', handleVisualViewportResize, { passive: true });
-        window.addEventListener('scroll', syncToastVisualViewport, { passive: true });
-        document.addEventListener('focusin', syncToastVisualViewport, { passive: true });
-        document.addEventListener('focusout', syncToastVisualViewport, { passive: true });
+        }, { passive: true });
     }
+
+    window.addEventListener('scroll', syncViewportChrome, { passive: true });
+    window.addEventListener('resize', syncViewportChrome, { passive: true });
+    window.addEventListener('orientationchange', () => {
+        baselineVvHeight = 0;
+        prevVvHeight = 0;
+        syncViewportChrome();
+    }, { passive: true });
+    window.addEventListener('pageshow', syncViewportChrome, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) syncViewportChrome();
+    }, { passive: true });
+
+    syncViewportChrome();
 }

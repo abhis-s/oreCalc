@@ -349,13 +349,7 @@ export function openBugReportModal(initialMode = 'bug', options = {}) {
         };
     }
 
-    const privacyLinks = modal.querySelectorAll('#bug-report-privacy-link, #feedback-privacy-link');
-    privacyLinks.forEach(link => {
-        link.onclick = (e) => {
-            e.preventDefault();
-            openPrivacyModal();
-        };
-    });
+    bindPrivacyLinks(modal);
 
     const versionEl = document.getElementById('support-sw-version-text');
     if (versionEl) {
@@ -428,6 +422,20 @@ export function openContactModal(options = {}) {
     openModal(modal, options);
 }
 
+/**
+ * Attaches click handlers to localized privacy policy links inside the support modal.
+ * @param {HTMLElement} modal
+ */
+function bindPrivacyLinks(modal) {
+    const privacyLinks = modal.querySelectorAll('#bug-report-privacy-link, #feedback-privacy-link');
+    privacyLinks.forEach(link => {
+        link.onclick = (e) => {
+            e.preventDefault();
+            openPrivacyModal();
+        };
+    });
+}
+
 if (typeof document !== 'undefined') {
     document.addEventListener('app:update-pending', () => {
         const modal = /** @type {HTMLDialogElement | null} */ (document.getElementById('bug-report-modal'));
@@ -440,6 +448,7 @@ if (typeof document !== 'undefined') {
         const modal = /** @type {HTMLDialogElement | null} */ (document.getElementById('bug-report-modal'));
         if (modal && 'open' in modal && modal.open) {
             syncTroubleshootUpdateState(modal);
+            bindPrivacyLinks(modal);
             const lastUpdatedEl = document.getElementById('support-last-updated-text');
             if (lastUpdatedEl) {
                 const currentLang = state.uiSettings?.language || 'en';

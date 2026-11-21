@@ -76,6 +76,14 @@ describe('String Utilities, Sanitization & Security Hardening Suite', () => {
             assert.ok(!cleaned.includes('javascript:'));
             assert.ok(cleaned.includes('rel="noopener noreferrer"'));
         });
+
+        it('preserves allowlisted modal link ids and classes while stripping disallowed ids', () => {
+            const payload = '<a href="#" id="bug-report-privacy-link" class="theme-link">Privacy</a><a href="#" id="evil-clobber" class="theme-link open-inaccuracies-link">Report</a>';
+            const cleaned = sanitizeHTML(payload);
+            assert.ok(cleaned.includes('id="bug-report-privacy-link"'));
+            assert.ok(cleaned.includes('open-inaccuracies-link'));
+            assert.ok(!cleaned.includes('evil-clobber'));
+        });
     });
 
     describe('4. sanitizeImageUrl CDN & Asset Allowlisting', () => {

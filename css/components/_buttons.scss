@@ -203,15 +203,21 @@
     position: fixed;
     right: 20px;
     z-index: $z-index-fab;
+    isolation: isolate;
 
     opacity: 1;
     pointer-events: auto;
-    transform: scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
     transform-origin: bottom right;
+    will-change: transform, opacity;
     transition: opacity $duration-moderate $ease-standard,
-                transform $duration-moderate $ease-standard,
-                bottom $duration-moderate $ease-standard,
-                right $duration-moderate $ease-standard;
+                transform $duration-moderate $ease-standard;
+
+    body.is-keyboard-open & {
+        opacity: 0;
+        pointer-events: none;
+        transform: translate3d(0, $spacing-lg, 0) scale(0.9);
+    }
 
     .save-button-tooltip {
         background-color: $bg-surface-tertiary;

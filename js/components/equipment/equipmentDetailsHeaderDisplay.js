@@ -262,7 +262,7 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
                 </div>
                 <h3 data-i18n="views.equipment.dataNotAvailable">${dataNotAvailableTitle}</h3>
                 <p data-i18n="views.equipment.detailsNotAvailableDesc">${dataNotAvailableDesc}</p>
-                <p class="empty-state-contribute"><em data-i18n="views.equipment.contributeMissingData">${contributeText}</em></p>
+                <p class="empty-state-contribute"><em data-i18n="views.equipment.contributeMissingData" data-i18n-html="true">${contributeText}</em></p>
             </div>
         `;
     }

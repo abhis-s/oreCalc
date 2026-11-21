@@ -48,8 +48,20 @@ export function escapeHTML(str) {
         .replace(/`/g, '&#96;');
 }
 
+const ALLOWED_HTML_TAGS = new Set(['span', 'strong', 'em', 'code', 'br', 'p', 'b', 'i', 'a']);
+const ALLOWED_HTML_CLASSES = new Set(['user-id-code', 'external-link', 'theme-link', 'open-inaccuracies-link']);
+const ALLOWED_HTML_IDS = new Set([
+    'auth-terms-link',
+    'auth-privacy-link',
+    'add-player-terms-link',
+    'add-player-privacy-link',
+    'bug-report-privacy-link',
+    'feedback-privacy-link'
+]);
+const BLOCKED_HTML_TAGS = new Set(['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'svg', 'img', 'video', 'audio']);
+
 /**
- * Sanitizes HTML input to allow only safe formatting elements and classes.
+ * Sanitizes HTML input to allow only safe formatting elements, classes, and modal link IDs.
  * Discards dangerous elements such as script, iframe, objects, images, audio, video, etc.
  *
  * @param {string} html - The raw HTML string to sanitize.
@@ -62,6 +74,10 @@ export function sanitizeHTML(html) {
             let s = html.replace(/<(script|style|iframe|object|embed|svg|img|video|audio|meta|link)\b[^<]*(?:(?!<\/\1>)<[^<]*)*<\/\1>/gi, '');
             s = s.replace(/<(script|style|iframe|object|embed|svg|img|video|audio|meta|link)\b[^>]*>/gi, '');
             s = s.replace(/\s*on[a-z]+\s*=\s*(?:'[^']*'|"[^"]*"|[^\s>]+)/gi, '');
+            s = s.replace(/\s+id\s*=\s*(?:'([^']*)'|"([^"]*)"|([^\s>]+))/gi, (_, q1, q2, uq) => {
+                const idVal = q1 ?? q2 ?? uq ?? '';
+                return ALLOWED_HTML_IDS.has(idVal) ? ` id="${idVal}"` : '';
+            });
             s = s.replace(/<a\b([^>]*)>/gi, (_, attrs) => {
                 let cleanAttrs = attrs;
                 const hrefMatch = cleanAttrs.match(/\bhref\s*=\s*(['"])(.*?)\1/i);
@@ -83,9 +99,6 @@ export function sanitizeHTML(html) {
         }
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        const allowedTags = new Set(['span', 'strong', 'em', 'code', 'br', 'p', 'b', 'i', 'a']);
-        const allowedClasses = new Set(['user-id-code', 'external-link', 'theme-link']);
-        const blockedTags = new Set(['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'svg', 'img', 'video', 'audio']);
 
         function cleanNode(node) {
             if (node.nodeType === Node.TEXT_NODE) {
@@ -93,13 +106,16 @@ export function sanitizeHTML(html) {
             }
             if (node.nodeType === Node.ELEMENT_NODE) {
                 const tagName = node.tagName.toLowerCase();
-                if (blockedTags.has(tagName)) {
+                if (BLOCKED_HTML_TAGS.has(tagName)) {
                     return document.createDocumentFragment();
                 }
-                if (allowedTags.has(tagName)) {
+                if (ALLOWED_HTML_TAGS.has(tagName)) {
                     const cleanedElement = document.createElement(tagName);
+                    if (node.id && ALLOWED_HTML_IDS.has(node.id)) {
+                        cleanedElement.id = node.id;
+                    }
                     if (node.className) {
-                        const classes = Array.from(node.classList).filter(cls => allowedClasses.has(cls));
+                        const classes = Array.from(node.classList).filter(cls => ALLOWED_HTML_CLASSES.has(cls));
                         if (classes.length > 0) {
                             cleanedElement.className = classes.join(' ');
                         }

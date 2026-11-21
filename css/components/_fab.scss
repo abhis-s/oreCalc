@@ -23,9 +23,13 @@ body.open-fab {
     transform: scale(0.5);
     transform-origin: bottom right;
     transition: opacity $duration-moderate $ease-standard,
-                transform $duration-moderate $ease-standard,
-                bottom $duration-moderate $ease-standard,
-                right $duration-moderate $ease-standard;
+                transform $duration-moderate $ease-standard;
+
+    body.is-keyboard-open & {
+        opacity: 0;
+        pointer-events: none;
+        transform: translate3d(0, $spacing-lg, 0) scale(0.5);
+    }
 }
 
 .fab-button {

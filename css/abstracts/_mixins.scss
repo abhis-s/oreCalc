@@ -78,7 +78,7 @@
     container-type: inline-size;
     container-name: header-shell;
     isolation: isolate;
-    transform: translateZ(0);
+    transform: translate3d(0, var(--header-vv-offset, 0px), 0);
     will-change: transform;
 
     transition: background-color $duration-moderate $ease-smooth,

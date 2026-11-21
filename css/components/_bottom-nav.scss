@@ -163,6 +163,12 @@
     transition: transform $duration-moderate $ease-standard,
                 opacity $duration-moderate $ease-standard;
 
+    body.is-keyboard-open & {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(100%);
+    }
+
     @media (max-width: #{$breakpoint-desktop - 1px}) {
         display: flex !important;
     }

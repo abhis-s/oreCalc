@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 
 import {
     isTouchDevice,
-    calculateToastKeyboardOffset
+    calculateToastKeyboardOffset,
+    detectSoftwareKeyboardOpen,
+    calculateHeaderViewportOffset,
+    calculateVisualRectOcclusion
 } from '../../js/utils/viewportHandler.js';
 
 function mockGlobal(prop, value) {
@@ -168,6 +171,102 @@ describe('Viewport & Virtual Keyboard Handler Tests', () => {
                 vvHeight: 0,
                 vvTop: 0
             }), 0);
+        });
+    });
+
+    describe('detectSoftwareKeyboardOpen detection', () => {
+        test('returns false when desktop or no input focused', () => {
+            assert.equal(detectSoftwareKeyboardOpen({
+                isTouch: false,
+                isInputFocused: true,
+                layoutHeight: 800,
+                vvHeight: 500,
+                vvTop: 0,
+                baselineVvHeight: 800
+            }), false);
+            assert.equal(detectSoftwareKeyboardOpen({
+                isTouch: true,
+                isInputFocused: false,
+                layoutHeight: 800,
+                vvHeight: 500,
+                vvTop: 0,
+                baselineVvHeight: 800
+            }), false);
+        });
+
+        test('returns false for iPad Stage Manager window or external hardware keyboard', () => {
+            assert.equal(detectSoftwareKeyboardOpen({
+                isTouch: true,
+                isInputFocused: true,
+                layoutHeight: 700,
+                vvHeight: 700,
+                vvTop: 0,
+                baselineVvHeight: 700,
+                screenHeight: 1366
+            }), false);
+        });
+
+        test('returns true when virtual keyboard shrinks viewport even when scrolled down to bottom', () => {
+            assert.equal(detectSoftwareKeyboardOpen({
+                isTouch: true,
+                isInputFocused: true,
+                layoutHeight: 1180,
+                vvHeight: 780,
+                vvTop: 400,
+                baselineVvHeight: 1180,
+                screenHeight: 1180
+            }), true);
+        });
+    });
+
+    describe('calculateHeaderViewportOffset iOS visual viewport pinning', () => {
+        test('tracks non-zero vvOffsetTop unconditionally on iOS even after blur during keyboard dismiss', () => {
+            assert.equal(calculateHeaderViewportOffset({
+                isIOS: true,
+                vvOffsetTop: 184.42,
+                vvScale: 1,
+                isModalOpen: false
+            }), 184.4);
+        });
+
+        test('returns 0 when not iOS, when modal is open, when pinch-zoomed, or when offsetTop <= 0.5', () => {
+            assert.equal(calculateHeaderViewportOffset({ isIOS: false, vvOffsetTop: 150, vvScale: 1, isModalOpen: false }), 0);
+            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: 150, vvScale: 1, isModalOpen: true }), 0);
+            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: 150, vvScale: 1.5, isModalOpen: false }), 0);
+            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: -12, vvScale: 1, isModalOpen: false }), 0);
+            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: 0.4, vvScale: 1, isModalOpen: false }), 0);
+        });
+    });
+
+    describe('calculateVisualRectOcclusion coordinate checks', () => {
+        test('accounts for visualViewport offsetTop so scrolled inputs visible above keyboard are not re-scrolled', () => {
+            assert.equal(calculateVisualRectOcclusion({
+                rectTop: 320,
+                rectBottom: 360,
+                vvTop: 200,
+                vvHeight: 450,
+                topThreshold: 84,
+                bottomThreshold: 36
+            }), false);
+        });
+
+        test('detects occlusion when visibleTop enters header band or visibleBottom enters keyboard band', () => {
+            assert.equal(calculateVisualRectOcclusion({
+                rectTop: 240,
+                rectBottom: 280,
+                vvTop: 200,
+                vvHeight: 450,
+                topThreshold: 84,
+                bottomThreshold: 36
+            }), true);
+            assert.equal(calculateVisualRectOcclusion({
+                rectTop: 600,
+                rectBottom: 640,
+                vvTop: 200,
+                vvHeight: 450,
+                topThreshold: 84,
+                bottomThreshold: 36
+            }), true);
         });
     });
 });

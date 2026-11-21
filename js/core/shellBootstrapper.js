@@ -10,6 +10,7 @@ import { initializeState, state } from './state.js';
 import { consolidateLocalStorageKeys } from './storageMigrations.js';
 
 import { initializeModalHistoryManager } from '../utils/modalHistoryManager.js';
+import { initializeViewportHandler } from '../utils/viewportHandler.js';
 
 import { initializeSettingsAccount } from '../components/appSettings/settingsAccountInputs.js';
 import { initializeAuthModal } from '../components/auth/authModalInputs.js';
@@ -136,6 +137,7 @@ export function initSharedShellChrome(options = {}) {
 
     initAppSettings();
     initPwaUiListeners();
+    initializeViewportHandler();
     initializePwaService();
     initializeModalHistoryManager();
     initializeCommitsModal();
