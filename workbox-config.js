@@ -2,10 +2,10 @@ module.exports = {
     globDirectory: 'dist/',
     globPatterns: [
         // Core App Shell HTML routes
-        '{index,ore-calculator/index,hero-journey/index,damage-calculator/index,account/index}.html',
-        '{de,tr,zh}/{index,ore-calculator/index,hero-journey/index,damage-calculator/index,account/index}.html',
+        '{index,ore-calculator/index,hero-journey/index,damage-calculator/index,account/index,app-management/index}.html',
+        '{de,tr,zh}/{index,ore-calculator/index,hero-journey/index,damage-calculator/index,account/index,app-management/index}.html',
         // Core App Shell Stylesheets
-        'css/{main,landing,hero-journey,damage-calculator,account}.min.css',
+        'css/{main,landing,hero-journey,damage-calculator,account,management}.min.css',
         // Core App Shell JavaScript, shared chunks, and code-split dynamic imports
         'js/{app,landingApp,heroJourneyApp,damageApp,accountApp}.js',
         'js/*.js',

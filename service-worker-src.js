@@ -48,32 +48,30 @@ async function detectAvifSupport() {
 }
 
 // Precache controller
-// The manifest below is injected by workbox-cli at build time. It lists both
-// .avif and .webp for every image; we filter in the install event so only the
-// browser-supported format is ever stored in cache.
+// The manifest below is injected by workbox-cli at build time and registered
+// synchronously at top level so every SW wake-up (online or offline) populates
+// cache key lookups even when the 'install' event does not re-run.
 const precacheController = new PrecacheController();
+const fullManifest = self.__WB_MANIFEST || [];
+precacheController.addToCacheList(fullManifest);
 
 // Lifecycle
 
-// The 'install' handler checks for AVIF capability. Depending on the capability,
-// it filters either all `.avif` or all `.webp` files from the Workbox precache manifest
-// to save storage space and bandwidth.
+// The 'install' handler checks for AVIF capability and downloads only the
+// supported image format (.avif or .webp) into precache storage.
 self.addEventListener('install', event => {
     event.waitUntil((async () => {
         const avifSupported = await detectAvifSupport();
         const discardExt    = avifSupported ? '.webp' : '.avif';
 
-        const filteredManifest = (self.__WB_MANIFEST || []).filter(entry => {
+        const filteredManifest = fullManifest.filter(entry => {
             const url = typeof entry === 'string' ? entry : entry.url;
             return !url.endsWith(discardExt);
         });
 
-        precacheController.addToCacheList(filteredManifest);
-        try {
-            await precacheController.install(event);
-        } catch (err) {
-            console.warn('[ServiceWorker] Precache install warning (stale chunk or asset missing):', err);
-        }
+        const installController = new PrecacheController();
+        installController.addToCacheList(filteredManifest);
+        await installController.install(event);
     })());
 });
 
@@ -160,13 +158,21 @@ const navigationStrategy = new NetworkFirst({
 });
 
 registerRoute(
-    ({ request, url }) => request.mode === 'navigate' &&
-        !url.pathname.includes('/api/') &&
-        !url.pathname.includes('/privacy') &&
-        !url.pathname.includes('/terms') &&
-        !url.pathname.includes('/licenses') &&
-        !url.pathname.includes('/legal') &&
-        !url.pathname.includes('/404'),
+    ({ request, url }) => {
+        if (url.origin !== self.location.origin) return false;
+        if (
+            url.pathname.includes('/api/') ||
+            url.pathname.includes('/privacy') ||
+            url.pathname.includes('/terms') ||
+            url.pathname.includes('/licenses') ||
+            url.pathname.includes('/legal') ||
+            url.pathname.includes('/404')
+        ) {
+            return false;
+        }
+        if (request.mode === 'navigate') return true;
+        return request.method === 'GET' && request.destination === '' && (url.pathname === '/' || url.pathname.endsWith('/'));
+    },
     async (options) => {
         try {
             const response = await navigationStrategy.handle(options);
@@ -191,6 +197,8 @@ registerRoute(
             toolSubpath = 'damage-calculator/';
         } else if (pathname.includes('/account')) {
             toolSubpath = 'account/';
+        } else if (pathname.includes('/app-management')) {
+            toolSubpath = 'app-management/';
         }
 
         const candidateUrls = [];

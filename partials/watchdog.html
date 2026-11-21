@@ -448,6 +448,9 @@
                 errorMsg.indexOf('Importing a module script failed') !== -1 ||
                 errorMsg.indexOf('error loading dynamically imported module') !== -1
             )) {
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                    return;
+                }
                 var lastReload = sessionStorage.getItem('oreCalc_lastChunkReload');
                 var now = Date.now();
                 if (!lastReload || (now - parseInt(lastReload, 10) > 10000)) {

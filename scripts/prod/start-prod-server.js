@@ -18,8 +18,14 @@ app.use((req, res, next) => {
 
 const distPath = path.join(__dirname, '../../dist');
 
-// Redirect direct requests for legal/extra HTML files to trailing slash canonical URLs
+// Redirect direct requests for HTML files to canonical trailing-slash directory URLs
 app.use((req, res, next) => {
+    if (req.path.endsWith('/index.html') && req.path !== '/index.html') {
+        const cleanDir = req.path.slice(0, -'index.html'.length);
+        const query = req.url.substring(req.path.length);
+        return res.redirect(301, cleanDir + query);
+    }
+
     if (req.path.endsWith('.html') && req.path !== '/index.html') {
         const cleanPath = req.path.substring(0, req.path.length - 5);
         const query = req.url.substring(req.path.length);

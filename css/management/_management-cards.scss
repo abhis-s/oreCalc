@@ -45,6 +45,40 @@
                     width: 100%;
                 }
             }
+
+            // Keep compact utility buttons (.btn--sm) inline beside the title
+            &:has(> .management-card__actions > .btn--sm:only-child) {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+                align-items: center;
+                column-gap: $spacing-md;
+                row-gap: $spacing-2xs;
+
+                .management-card__title-group {
+                    display: contents;
+                }
+
+                .management-card__title {
+                    grid-column: 1;
+                    grid-row: 1;
+                    min-width: 0;
+                }
+
+                .management-card__desc {
+                    grid-column: 1 / -1;
+                    grid-row: 2;
+                }
+
+                .management-card__actions {
+                    grid-column: 2;
+                    grid-row: 1;
+                    width: auto;
+
+                    .btn {
+                        width: auto;
+                    }
+                }
+            }
         }
     }
 
@@ -173,6 +207,24 @@
     @media (max-width: $breakpoint-phone) {
         flex-direction: column;
         align-items: flex-start;
+
+        // Keep toggle switches and read-only values horizontal on phone widths
+        &:has(> .management-item-actions > .switch),
+        &:has(> .management-item-actions > .management-item-value, > .management-item-actions > .status-indicator) {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+
+            .management-item-actions {
+                width: auto;
+                margin-inline-start: auto;
+            }
+        }
+
+        &:has(> .management-item-actions > .management-item-value, > .management-item-actions > .status-indicator) {
+            flex-wrap: wrap;
+            gap: $spacing-xs $spacing-md;
+        }
     }
 }
 
@@ -250,7 +302,13 @@
 
     @media (max-width: $breakpoint-phone) {
         width: 100%;
+        flex-wrap: wrap;
         justify-content: flex-end;
+
+        > .btn,
+        > .dropdown-style {
+            width: 100%;
+        }
     }
 }
 
@@ -261,6 +319,7 @@
     display: inline-flex;
     align-items: center;
     gap: $spacing-xs;
+    text-align: end;
     user-select: text;
 }
 
