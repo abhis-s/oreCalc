@@ -15,6 +15,7 @@
         "decrease": "Azalt",
         "delete": "Sil",
         "disable": "Devre dışı bırak",
+        "dismiss": "Dismiss",
         "done": "Tamam",
         "download": "İndir",
         "enable": "Etkinleştir",
@@ -23,7 +24,9 @@
         "fix": "Düzelt",
         "hide": "Sakla",
         "increase": "Artır",
+        "installApp": "Install App",
         "later": "Daha sonra",
+        "link": "Link",
         "linkDevice": "Bağlantı Cihazı",
         "load": "Yükle",
         "loadAnyway": "Yine de yükle",
@@ -42,6 +45,7 @@
         "reset": "Sıfırla",
         "restore": "Geri Yükle",
         "save": "Kaydet",
+        "search": "Search",
         "showInfo": "Bilgileri Göster",
         "showLess": "Daha Az Göster",
         "showMore": "Daha Fazla Göster",
@@ -139,18 +143,46 @@
         "version": "Sürüm"
     },
     "auth": {
+        "account": "Account",
         "accountAndDataManagement": "Hesap ve Veri Yönetimi",
         "accountCardDesc": "Köy ilerlemenizi tüm cihazlarda senkronize etmek ve korumak için giriş yapın.",
+        "addedDate": "Added {date}",
+        "addPasskey": "Add Passkey",
+        "avatarAlt": "Avatar",
         "avatars": {
+            "builder": "Builder",
+            "giant": "Giant",
+            "goblin": "Goblin",
+            "golem": "Golem",
+            "hog": "Hog",
             "skeleton": "İskelet"
         },
+        "changeAvatar": "Change Avatar",
+        "chooseAvatar": "Choose Avatar",
+        "codeExpired": "Code Expired",
+        "createAccount": "Create Account",
         "dataBackupAndRestore": "Veri Yedekleme ve Geri Yükleme",
         "dataBackupAndRestoreDesc": "Yerel bir JSON arşivi dışa aktarın veya bir yedekleme dosyasından verilerinizi geri yükleyin.",
+        "defaultPasskeyName": "Passkey",
         "deleteAccount": "Hesabı Sil",
+        "deletePasskey": "Delete passkey",
+        "deviceLinked": "Device Linked",
+        "dividerOr": "OR",
         "explanations": {
             "deleteAccount": "Hesabınızı, kullanıcı adınızı, geçiş anahtarlarınızı ve ilişkili tüm bulut verilerini kalıcı olarak siler."
         },
-        "resetVillageData": "Köy Verilerini Sıfırla"
+        "newBadge": "New",
+        "newPassword": "New Password",
+        "passkeyName": "Passkey Name",
+        "passkeys": "Passkeys",
+        "password": "Password",
+        "providerWindows": "Windows Hello",
+        "resetVillageData": "Köy Verilerini Sıfırla",
+        "securityKey": "Security Key",
+        "setPassword": "Set Password",
+        "signIn": "Sign In",
+        "signOut": "Sign Out",
+        "username": "Username"
     },
     "colors": {
         "blue": "Mavi Vurgu",
@@ -522,9 +554,14 @@
         "tag": "Oyuncu Etiketi"
     },
     "status": {
+        "checking": "Checking...",
+        "downloading": "Downloading...",
         "error": "Hata",
         "info": "Bilgi",
+        "installing": "Installing...",
         "notice": "Bildirim",
+        "offline": "Offline",
+        "online": "Online",
         "saving": "Kaydediliyor...",
         "success": "Başarı",
         "updateAvailable": "Güncelleme Mevcut",
@@ -567,7 +604,22 @@
     },
     "views": {
         "account": {
+            "currentDevice": "This Device",
             "guestDataErasure": "Veri Silme"
+        },
+        "appManagement": {
+            "diagnostics": {
+                "displayMode": "Display Mode",
+                "engine": "Browser Engine",
+                "network": "Network Status"
+            },
+            "startupViews": {
+                "compositeLabel": "{tool} · {subView}"
+            },
+            "storage": {
+                "cleared": "Cache cleared"
+            },
+            "title": "App Management"
         },
         "changelog": {
             "title": "Değişiklik Günlüğü",
@@ -584,16 +636,79 @@
             "title": "Küçük Güncellemeler"
         },
         "damageCalc": {
+            "brandToolName": "DamageCalc",
+            "clusterPlanner": {
+                "clusterEquipmentAllTargets": "All Targets",
+                "clusterEquipmentHits": "Targets hit by",
+                "clusterModeToggle": "Cluster Mode",
+                "clusterTitle": "Target Cluster",
+                "defenseTabTitle": "Defense",
+                "resetAllOverrides": "Reset All",
+                "spellOptionsTitle": "Spell Options",
+                "spellSpaceLabel": "Space"
+            },
             "filters": {
-                "filterHeroes": "Kahramanlar"
+                "craftedHpLvlShort": "HP Lvl",
+                "craftedHpModule": "HP Module",
+                "filterDefenses": "Defenses",
+                "filterGuardians": "Guardians",
+                "filterHeroes": "Kahramanlar",
+                "filterOther": "Other",
+                "filterSurvived": "Survived",
+                "filterTargetsAria": "Filter targets",
+                "filterUnavailable": "Unavailable",
+                "hideDetails": "Hide Details",
+                "resetFiltersBtn": "Reset Filters",
+                "showDetails": "Show Details"
             },
             "meta": {
                 "title": "Ekipman Hasarı & Yıldırım-Deprem Hesaplayıcı | Clash of Clans | ClashCalc"
+            },
+            "offense": {
+                "clanCastleAbbr": "CC",
+                "damageSources": "Damage Sources",
+                "donatedSpellBadge": "Donated Spell",
+                "editLevels": "Edit Levels",
+                "offenseTabTitle": "Offense",
+                "setToThMax": "Set to TH Max",
+                "spellEarthquake": "Earthquake",
+                "spellLightning": "Lightning",
+                "spellsTitle": "Spells",
+                "superchargeLabel": "Supercharge",
+                "thMaxTag": "TH {th} Max"
+            },
+            "popovers": {
+                "combatNoteTitle": "Combat Note",
+                "immunities": "Immunities",
+                "personalStrike": "Personal",
+                "simulationBadge": "Simulation",
+                "statBuildings": "Buildings",
+                "statTroops": "Troops",
+                "stunEffect": "Stun Effect",
+                "walls": "Walls"
+            },
+            "zapQuake": {
+                "cannotDestroyBadge": "Cannot Destroy",
+                "defaultCombo": "Default",
+                "each": "each",
+                "immune": "Immune",
+                "overkillLabel": "Overkill",
+                "remainingHp": "Remaining HP",
+                "selectCombo": "Select",
+                "selectedCombo": "Selected",
+                "showInPage": "Show in page",
+                "spellBadge": "Spell",
+                "tierLabel": "Tier {tier}",
+                "totalDamageLabel": "Total Damage",
+                "tradeoffOptimalBadge": "Optimal",
+                "viewMode": "View Mode",
+                "viewModeDetailed": "Detailed"
             }
         },
         "equipment": {
             "ability": "Yetenek",
             "active": "Aktif",
+            "addEquipment": "Add Equipment",
             "badgeActiveHelp": "Bu yetenek, savaş sırasında Kahraman Yeteneği düğmesine basıldığında devreye girer. Kendi kendini iyileştirme etkileri pasif olarak aktif kalır.",
             "badgePassiveHelp": "Bu yetenek, Kahraman konuşlandırıldığı andan itibaren sürekli olarak aktiftir. Kahraman Yeteneği düğmesine basmak bu etkiyi değiştirmez.",
             "badgeRarityHelp": "Nadirlik: {rarity}",
@@ -605,8 +720,15 @@
             "detailsNotAvailableDesc": "Bu ekipman için detaylı seviye istatistikleri ve yükseltme bilgileri henüz mevcut değil.",
             "epic": "Destansı",
             "generalStats": "Genel İstatistikler",
+            "goals": {
+                "goalBarLabel": "Post-Max Goal",
+                "maxStorage": "Fill Storages",
+                "nextEpic": "Next Epic",
+                "none": "Off"
+            },
             "heroBoost": "Kahraman Takviyesi",
             "heroEquipment": "Kahraman Ekipmanı",
+            "legendary": "Legendary",
             "lvl": "Sev.",
             "maxLevel": "Maksimum Seviye",
             "modifiers": {
@@ -624,6 +746,7 @@
             "notRecommended": "Tavsiye edilmez",
             "overview": "Genel Bakış",
             "passive": "Pasif",
+            "rarityMaxLevel": "Max Lv {level}",
             "recMustHaveHelp": "Bu ekipman, çoğu stratejide öncelikli yükseltme için olmazsa olmaz ve şiddetle tavsiye edilen bir ekipmandır.",
             "recNicheHelp": "Bu ekipman öncelikle belirli niş stratejilerde veya özel ordu kompozisyonlarında etkilidir.",
             "recNotRecommendedHelp": "Diğer kahraman ekipman seçenekleri önemli ölçüde daha yüksek değer sunduğundan, bu ekipmanın şu anda yükseltilmesi önerilmemektedir.",
@@ -632,7 +755,10 @@
             "recUnreleasedHelp": "Bu ekipman henüz piyasaya sürülmedi. Seviye istatistikleri ve detayları, resmi yayınlanmadan önce değişebilir.",
             "reportInaccuracies": "Herhangi bir yanlışlık fark ederseniz, lütfen <a href=\"#\" class=\"theme-link open-inaccuracies-link\">buradan bildirin</a>.",
             "requiredTownHall": "Gerekli Belediye Binası",
+            "selectHero": "Select Hero",
+            "selectRarity": "Select Rarity",
             "statsLastUpdated": "İstatistikler Son Güncelleme: {date}",
+            "storageFullShort": "Full",
             "storedOres": {
                 "help": "<p>Oyun içi deponuzda (demirci) şu anda sakladığınız cevher miktarı.</p><p>Yeşil rozetler, Kahramanın Yolculuğu dönüm noktası yolundan gelecek ve henüz alınmamış cevherleri gösterir.</p>"
             },
@@ -816,6 +942,7 @@
                 "shinyBonusAriaLabel": "Klan Savaşı Parlak Cevher saldırı bonusu",
                 "starryBonusAriaLabel": "Klan Savaşı Yıldız Cevher saldırı bonusu",
                 "title": "Klan Savaşı",
+                "warsCount": "{count} wars",
                 "warsPerMonth": "Aylık Savaşlar"
             },
             "craftPass": {
@@ -832,6 +959,7 @@
                 "cwl2SeasonsHits": "KSL (2 Sezon) | {count} Saldırı",
                 "glowyBonusAriaLabel": "KSL Işıltılı Cevher saldırı bonusu",
                 "help": "Klan Savaş Ligi saldırı bonusları hedeflediğiniz köyün Belediye Binası seviyesine, toplam saldırı sayınıza ve klanınızın genel performansına bağlı olarak hesaplanır.",
+                "hitsCount": "{count} hits",
                 "hitsPerSeason": "Sezon başına saldırı",
                 "resource": "{count} saldırı · %{winRate} galibiyet",
                 "shinyBonusAriaLabel": "KSL Parlak Cevher saldırı bonusu",
@@ -994,9 +1122,26 @@
             "winRatePct": "Galibiyetler %"
         },
         "landing": {
+            "addVillage": "Add Village",
+            "badgeCalculator": "Calculator",
+            "badgeTracker": "Tracker",
+            "capRewardFilters": "Reward Filters",
+            "heroLevelsShort": "Hero Levels",
+            "jumpIncome": "Daily Income",
+            "jumpTable": "Rewards Table",
+            "jumpZapQuake": "ZapQuake",
+            "levelsToMaxCompact": "{count} to Max",
+            "loadVillage": "Load Village",
             "metaDescription": "ClashCalc (eski adıyla OreCalc); Cevher & Ekipman Hesaplayıcı, Kahraman Yolculuğu Takipçisi ve gelişim yol haritaları sunan kapsamlı Clash of Clans araç setidir.",
             "metaTitle": "ClashCalc (eski adıyla OreCalc) | Kapsamlı Clash of Clans Araç Seti",
-            "toolOreCalcDesc": "Orijinal OreCalc hesaplayıcısı. Cevher harcamalarını optimize edin, tüm kahraman ekipmanları için maksimuma ulaşma süresini hesaplayın, Klan Savaşları, CWL ve Yıldız Bonusundan günlük geliri simüle edin ve etkileşimli bir takvimle yükseltmeleri organize edin."
+            "milestoneStatus": "Milestone",
+            "pctMaxed": "{pct}% Maxed",
+            "quickJump": "Quick Jump",
+            "statOptimalSpells": "Optimal Spells",
+            "stayOnHub": "Stay on Hub",
+            "thMaxed": "TH {th} Maxed",
+            "toolOreCalcDesc": "Orijinal OreCalc hesaplayıcısı. Cevher harcamalarını optimize edin, tüm kahraman ekipmanları için maksimuma ulaşma süresini hesaplayın, Klan Savaşları, CWL ve Yıldız Bonusundan günlük geliri simüle edin ve etkileşimli bir takvimle yükseltmeleri organize edin.",
+            "trackProgressShort": "Track Progress"
         },
         "planner": {
             "actions": {
@@ -1118,7 +1263,8 @@
                 "info": "Alternatif olarak, sorunu doğrudan {link} sayfamız üzerinden bildirebilirsiniz.",
                 "privacyInfo": "Bu raporu göndererek, kullanıcı verilerinizin ve verdiğiniz e-posta adresinin {link} politikamıza uygun olarak işlenmesini kabul etmiş olursunuz.",
                 "swDesc": "En son sürümü ve düzeltmeleri zorla almak için yerel uygulama önbelleğini temizleyin.",
-                "title": "Hata Bildirimi"
+                "title": "Hata Bildirimi",
+                "updateNowLabel": "Update Now"
             },
             "cards": {
                 "accountAndSync": "Hesap ve Bulut Senkronizasyonu",
@@ -1128,11 +1274,15 @@
             "cloudSync": {
                 "deviceInfo": "İlerlemenizi birden fazla cihaz arasında bağlayın ve senkronize edin.",
                 "placeholderSyncCode": "Senkronizasyon kodunu yapıştırın (örn; f81d4fae-...)",
+                "syncDisabledTitle": "Sync Disabled",
                 "yourSyncCode": "Senkronizasyon Kodunuz"
             },
             "dataErasure": {
                 "completeDeleteInfo": "Bu işlem, resmi Clash of Clans API'sini kullanarak sahipliğinizi doğrulayacaktır. Doğrulama tamamlandıktan sonra, bu oyuncu etiketini veritabanımızdaki tüm ilgili ClashCalc kullanıcı kimliklerinden kalıcı olarak kaldıracağız. Yeniden doğrulama yapılmadan hiç kimse hesabınızı ekleyemeyecektir.",
                 "requestExclusionFromService": "Hizmetten çıkarılma talebi"
+            },
+            "feedback": {
+                "title": "Feedback"
             },
             "globalPricing": {
                 "desc": "Supercell, bölgesel ve kişiselleştirilmiş fiyatlandırma uygular; bu da paket maliyetlerinin, para biriminin satın alma gücüne, ülkeye veya hesap harcama alışkanlıklarına bağlı olarak küresel olarak farklılık gösterdiği anlamına gelir. Mağazanızdaki gerçek maliyetlerle eşleşecek şekilde özel fiyatları buradan yapılandırabilir ve uygulamanın maliyetlerinizi doğru bir şekilde takip etmesini sağlayabilirsiniz.",
@@ -1203,8 +1353,30 @@
                 "title": "Proje Maliyetleri"
             }
         },
+        "shortcuts": {
+            "categories": {
+                "global": "Global"
+            },
+            "keys": {
+                "keyboardBackspace": "Backspace",
+                "keyboardCommand": "Command",
+                "keyboardCtrl": "Ctrl",
+                "keyboardDown": "Down",
+                "keyboardEnter": "Enter",
+                "keyboardEsc": "ESC",
+                "keyboardLeft": "Left",
+                "keyboardRight": "Right",
+                "keyboardShift": "Shift",
+                "keyboardSpace": "Space",
+                "keyboardTab": "Tab",
+                "keyboardUp": "Up"
+            }
+        },
         "spotright": {
-            "activeVillage": "Aktif"
+            "activeVillage": "Aktif",
+            "beta": "Beta",
+            "recent": "Recent",
+            "scopesHeading": "Filter Scopes"
         },
         "tour": {
             "backupSyncDesc": "Verilerinizi yedeklemek ve birden fazla cihaz arasında otomatik olarak senkronize tutmak için bulut senkronizasyonunu etkinleştirin.",
