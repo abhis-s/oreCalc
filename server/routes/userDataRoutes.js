@@ -93,6 +93,14 @@ router.post('/save', requireMinAppVersion, async (req, res) => {
         const allPlayers = data.allPlayersData || {};
         const uiSettings = (data.uiSettings && typeof data.uiSettings === 'object') ? { ...data.uiSettings } : {};
         delete uiSettings.saveError;
+        if (existingData?.uiSettings && typeof existingData.uiSettings === 'object') {
+            const existingUiTs = Number(existingData.uiSettings.updatedAt) || 0;
+            const incomingUiTs = Number(uiSettings.updatedAt) || 0;
+            if (existingUiTs > incomingUiTs) {
+                Object.assign(uiSettings, existingData.uiSettings);
+                delete uiSettings.saveError;
+            }
+        }
 
         const validTags = (Array.isArray(data.savedPlayerTags) ? data.savedPlayerTags : [])
             .map(t => normalizeTag(t))
@@ -318,24 +326,19 @@ router.post('/save-player', requireMinAppVersion, async (req, res) => {
         }
         const playerDocRef = userRef.collection('players').doc(cleanedTag);
         const sanitizedPlayer = sanitizePlayerData(playerData);
-        const needsSliceProtection = !sanitizedPlayer.heroes || !sanitizedPlayer.income || !sanitizedPlayer.storedOres || !sanitizedPlayer.planner;
-        const needsProfileProtection = !sanitizedPlayer.playerProfile || !sanitizedPlayer.playerProfile.townHallLevel;
-
-        if (needsSliceProtection || needsProfileProtection) {
-            const existingDoc = await playerDocRef.get();
-            const existingDocData = existingDoc.exists ? existingDoc.data() : null;
-            if (existingDocData) {
-                preserveExistingPlayerSlices(sanitizedPlayer, existingDocData);
-            }
-            // Save protection: do not clobber existing valid playerProfile with null/missing
-            if (!sanitizedPlayer.playerProfile || !sanitizedPlayer.playerProfile.townHallLevel) {
-                if (existingDocData?.playerProfile) {
-                    sanitizedPlayer.playerProfile = existingDocData.playerProfile;
-                } else {
-                    const hydrated = await hydratePlayerProfileFromCache(cleanedTag, 'UserData SaveSingle');
-                    if (hydrated) {
-                        sanitizedPlayer.playerProfile = hydrated;
-                    }
+        const existingDoc = await playerDocRef.get();
+        const existingDocData = existingDoc.exists ? existingDoc.data() : null;
+        if (existingDocData) {
+            preserveExistingPlayerSlices(sanitizedPlayer, existingDocData);
+        }
+        // Save protection: do not clobber existing valid playerProfile with null/missing
+        if (!sanitizedPlayer.playerProfile || !sanitizedPlayer.playerProfile.townHallLevel) {
+            if (existingDocData?.playerProfile) {
+                sanitizedPlayer.playerProfile = existingDocData.playerProfile;
+            } else {
+                const hydrated = await hydratePlayerProfileFromCache(cleanedTag, 'UserData SaveSingle');
+                if (hydrated) {
+                    sanitizedPlayer.playerProfile = hydrated;
                 }
             }
         }

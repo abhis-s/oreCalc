@@ -205,6 +205,7 @@
  * @property {string} [cardLayout] - Equipment card density layout ('cozy' | 'compact')
  * @property {'standard' | 'legend3' | 'legend2' | 'legend1' | 'esports' | string} [leagueModifier] - Global battle modifier preference
  * @property {number} [stateResetEpoch] - Server prune or state reset epoch timestamp in milliseconds
+ * @property {number} [updatedAt] - Epoch timestamp in milliseconds of last preference modification
  * @property {boolean} [saveError] - Indicator if local storage saving is suspended due to quota error
  */
 
@@ -383,6 +384,7 @@
  * @property {number | null} [onboardingTimestamp] - Onboarding setup completion timestamp
  * @property {HeroJourneyState} [heroJourney] - Hero Journey progression state
  * @property {CurrencySettings} [currency] - Player-specific currency settings
+ * @property {Record<string, number>} [sliceTimestamps] - Per-slice Last-Write-Wins modification timestamps in milliseconds
  */
 
 /**
@@ -414,6 +416,7 @@
  * @property {PlayerProfile | null} playerProfile - Active player profile
  * @property {number | null} [onboardingTimestamp] - Active player onboarding setup completion timestamp
  * @property {HeroJourneyState} [heroJourney] - Active player hero journey state
+ * @property {Record<string, number>} [sliceTimestamps] - Active player per-slice Last-Write-Wins modification timestamps in milliseconds
  * @property {DerivedState} derived - Calculated output state
  * @property {UISettingsState} uiSettings - User interface preferences
  */

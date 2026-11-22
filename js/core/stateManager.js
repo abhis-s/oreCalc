@@ -2,6 +2,7 @@ import { MAX_SAVED_PLAYERS, STORAGE_KEY_MAP } from './constants.js';
 import { getResettingState, saveState } from './localStorageManager.js';
 import { normalizePlayerTag, getPlayerStorageKey, getStorageItem } from './storageKeys.js';
 import { getDefaultPlayerState, state } from './state.js';
+import { snapshotActivePlayerSlices, stampModifiedPlayerSlices } from './stateSliceSync.js';
 import { getApiBaseUrl } from '../services/apiService.js';
 import { triggerPreferencesSave, triggerCloudSave } from '../services/cloudSaveService.js';
 
@@ -46,11 +47,14 @@ export function registerStateUpdateCallback(callback) {
  * and debounced cloud saves.
  * @param {() => void} updateFn - Function that modifies state.
  * @param {boolean} [silent=false] - If true, skips UI rendering.
- * @param {{ skipSave?: boolean, preferencesOnly?: boolean, skipRecalculate?: boolean, isTabSwitch?: boolean }} [options={}] - Optional execution flags (e.g. skipSave for cross-tab sync, preferencesOnly for decoupled preferences, isTabSwitch/skipRecalculate for view updates).
+ * @param {{ skipSave?: boolean, preferencesOnly?: boolean, skipRecalculate?: boolean, isTabSwitch?: boolean, allowedSlices?: string[] }} [options={}] - Optional execution flags (e.g. skipSave for cross-tab sync, preferencesOnly for decoupled preferences, isTabSwitch/skipRecalculate for view updates).
  */
 export function handleStateUpdate(updateFn, silent = false, options = {}) {
     const prevTimestamp = state.timestamp;
     const prevDirty = state.planner?.calendar?.isDirty;
+    const prevSliceSnapshot = (!options.isTabSwitch && !options.skipSave)
+        ? snapshotActivePlayerSlices(state)
+        : null;
     if (!silent && !options.isTabSwitch && !options.skipSave && state.planner?.calendar) {
         state.planner.calendar.isDirty = true;
     }
@@ -67,6 +71,10 @@ export function handleStateUpdate(updateFn, silent = false, options = {}) {
             state.planner.calendar.isDirty = prevDirty;
         }
         throw err;
+    }
+
+    if (!options.isTabSwitch && !options.skipSave) {
+        stampModifiedPlayerSlices(state, prevSliceSnapshot, Date.parse(state.timestamp) || Date.now(), options);
     }
 
     if (stateUpdateCallback) {
@@ -96,7 +104,7 @@ export function handleStateUpdate(updateFn, silent = false, options = {}) {
         cloudSaveTimeout = setTimeout(() => {
             cloudSaveTimeout = null;
             triggerCloudSave({ silent: true }).catch(() => {});
-        }, 3000);
+        }, 1000);
     } else if (!options.skipSave) {
         if (cloudSaveTimeout) {
             clearTimeout(cloudSaveTimeout);
@@ -157,6 +165,7 @@ export function switchActivePlayer(newTag, options = {}) {
         state.playerProfile = newPlayerData.playerProfile || null;
         state.heroJourney = newPlayerData.heroJourney;
         state.onboardingTimestamp = newPlayerData.onboardingTimestamp ?? null;
+        state.sliceTimestamps = newPlayerData.sliceTimestamps || defaultState.sliceTimestamps;
 
         if (newPlayerData.currency && typeof newPlayerData.currency === 'object') {
             state.uiSettings.currency = {
@@ -248,17 +257,24 @@ function flushPendingSavesOnUnload() {
     }
 }
 
+function flushPendingCloudSaveTimer() {
+    if (cloudSaveTimeout) {
+        clearTimeout(cloudSaveTimeout);
+        cloudSaveTimeout = null;
+        triggerCloudSave({ silent: true }).catch(() => {});
+    }
+}
+
 if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
     window.addEventListener('beforeunload', flushPendingSavesOnUnload);
     window.addEventListener('pagehide', flushPendingSavesOnUnload);
+    window.addEventListener('blur', flushPendingCloudSaveTimer);
 }
 
 if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden' && cloudSaveTimeout) {
-            clearTimeout(cloudSaveTimeout);
-            cloudSaveTimeout = null;
-            triggerCloudSave({ silent: true }).catch(() => {});
+        if (document.visibilityState === 'hidden') {
+            flushPendingCloudSaveTimer();
         }
     });
 }

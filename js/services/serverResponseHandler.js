@@ -11,6 +11,7 @@ import { sanitizePlayerProfile } from '../core/playerStorageSanitizer.js';
 import { getDefaultPlayerState, state } from '../core/state.js';
 import { attachHeroStateAliases } from '../core/stateCleanup.js';
 import { handleStateUpdate } from '../core/stateManager.js';
+import { normalizeSliceTimestamps } from '../core/stateSliceSync.js';
 
 import { isEligibleForCraftPassPrelevel } from '../domain/equipment/craftPassPrelevelDomain.js';
 import { getDefaultEquipmentUnlockLevel, isHeroJourneyFutureOrUnclaimedEquipment } from '../domain/income/heroJourneyResolution.js';
@@ -44,7 +45,7 @@ export async function loadAndProcessPlayerData(playerTag, { verifyToken = null, 
                 console.warn(`Player tag corrected: Original '${playerTag}', Corrected '${cleanedServerTag}'`);
             }
             processPlayerDataResponse(playerData, { updateOrder });
-        }, false, background ? { skipSave: true } : {});
+        }, false, background ? { skipSave: true } : { allowedSlices: ['heroes'] });
         return { success: true, cleanTag: cleanedServerTag, playerData };
     } catch (error) {
         console.error('Failed to load player data:', error);
@@ -122,6 +123,7 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
 
     let basePlayerState;
     const isExistingPlayer = Boolean(state.allPlayersData[cleanedTag]?.heroes);
+    const prevHeroesJson = isExistingPlayer ? JSON.stringify(state.allPlayersData[cleanedTag].heroes) : '';
     if (isExistingPlayer) {
         basePlayerState = structuredClone(state.allPlayersData[cleanedTag]);
     } else if (guestData) {
@@ -393,6 +395,11 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
     };
 
     newPlayerState.lastRefreshedAt = Date.now();
+    const sliceTimestamps = normalizeSliceTimestamps(basePlayerState.sliceTimestamps || guestData?.sliceTimestamps, 0);
+    if (!isExistingPlayer || JSON.stringify(newPlayerState.heroes) !== prevHeroesJson) {
+        sliceTimestamps.heroes = newPlayerState.lastRefreshedAt;
+    }
+    newPlayerState.sliceTimestamps = sliceTimestamps;
 
     if (updateOrder) {
         state.heroes = newPlayerState.heroes;
@@ -401,6 +408,7 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
         state.planner = newPlayerState.planner;
         state.playerProfile = newPlayerState.playerProfile;
         state.heroJourney = newPlayerState.heroJourney;
+        state.sliceTimestamps = newPlayerState.sliceTimestamps;
         reindexGlobalPriority();
         updateSavedPlayerTags(cleanedTag);
     } else {
@@ -412,6 +420,7 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
             state.planner = newPlayerState.planner;
             state.playerProfile = newPlayerState.playerProfile;
             state.heroJourney = newPlayerState.heroJourney;
+            state.sliceTimestamps = newPlayerState.sliceTimestamps;
             reindexGlobalPriority();
         }
         if (!state.savedPlayerTags.includes(cleanedTag)) {

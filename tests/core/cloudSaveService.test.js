@@ -45,6 +45,7 @@ if (typeof globalThis.document === 'undefined') {
 
 const stateModule = await import('../../js/core/state.js');
 const { state, initializeState } = stateModule;
+const { mergePlayerPartitionsLWW } = await import('../../js/core/stateSliceSync.js');
 const { triggerCloudSave, initializeAppData, triggerPreferencesSave, cancelPreferencesSaveTimer } = await import('../../js/services/cloudSaveService.js');
 const { handleStateUpdate, hasPendingCloudSave, cancelCloudSaveTimer } = await import('../../js/core/stateManager.js');
 
@@ -482,5 +483,156 @@ describe('cloudSaveService - Defensive State & Guest Profile Invariants', () => 
 
         assert.equal(state.timestamp, initialTimestamp, 'skipSave must not mutate state.timestamp');
         assert.equal(hasPendingCloudSave(), false, 'skipSave must not schedule a cloud save timer');
+    });
+
+    test('handleStateUpdate advances only the modified slice timestamp in sliceTimestamps', () => {
+        initializeState({
+            appVersion: '3.1.0',
+            timestamp: '2026-11-22T12:00:00.000Z',
+            savedPlayerTags: ['8PJYGUJC'],
+            allPlayersData: {
+                '8PJYGUJC': {
+                    heroes: {},
+                    storedOres: { shiny: 100, glowy: 10, starry: 1, allowOverflow: false },
+                    income: {
+                        raidMedals: { enabled: false, earned: 700, packs: { shiny: 0, glowy: 0, starry: 2 } }
+                    },
+                    sliceTimestamps: {
+                        heroes: 1700000000000,
+                        storedOres: 1700000000000,
+                        income: 1700000000000,
+                        planner: 1700000000000,
+                        heroJourney: 1700000000000,
+                        currency: 1700000000000
+                    }
+                }
+            }
+        });
+        Object.assign(state, stateModule.state);
+
+        handleStateUpdate(() => {
+            state.income.raidMedals.earned = 1300;
+            state.income.raidMedals.packs.glowy = 2;
+        }, true);
+        cancelCloudSaveTimer();
+
+        const ts = state.allPlayersData['8PJYGUJC'].sliceTimestamps;
+        assert.ok(ts.income > 1700000000000, 'Modified income slice timestamp must advance');
+        assert.equal(ts.heroes, 1700000000000, 'Unmodified heroes slice timestamp must remain unchanged');
+        assert.equal(ts.storedOres, 1700000000000, 'Unmodified storedOres slice timestamp must remain unchanged');
+        assert.equal(ts.planner, 1700000000000, 'Unmodified planner slice timestamp must remain unchanged');
+        assert.equal(ts.heroJourney, 1700000000000, 'Unmodified heroJourney slice timestamp must remain unchanged');
+        assert.equal(ts.currency, 1700000000000, 'Unmodified currency slice timestamp must remain unchanged');
+    });
+
+    test('mergePlayerPartitionsLWW and initializeAppData converge concurrent slice edits across devices without clobbering', async () => {
+        const originalFetch = globalThis.fetch;
+        let pushedConvergedPayload = null;
+
+        globalThis.localStorage.setItem('clashCalc_authToken', 'header.eyJ1c2VySWQiOiJ0ZXN0LXV1aWQtMTIzNCJ9.sig');
+        globalThis.localStorage.setItem('clashCalc_username', 'TestChief');
+        globalThis.localStorage.setItem('clashCalc_appSettings', JSON.stringify({
+            theme: 'dark',
+            cloudSync: true,
+            appVersion: '2.2.0',
+            timestamp: '2026-11-22T12:55:00.000Z'
+        }));
+        globalThis.localStorage.setItem('clashCalc_playerTags', JSON.stringify(['8PJYGUJC']));
+
+        // Device A (Local): Edited income at T=1750000000000, heroes untouched since T=1700000000000
+        globalThis.localStorage.setItem('clashCalc_player_8PJYGUJC', JSON.stringify({
+            heroes: { barbarianKing: { enabled: true, level: 90, equipment: { giantGauntlet: { level: 24, checked: true } } } },
+            storedOres: { shiny: 5000, glowy: 300, starry: 40, allowOverflow: false },
+            income: {
+                raidMedals: { enabled: true, earned: 1300, packs: { shiny: 0, glowy: 2, starry: 2 } }
+            },
+            playerProfile: { tag: '8PJYGUJC', name: 'Chief', townHallLevel: 16 },
+            sliceTimestamps: {
+                heroes: 1700000000000,
+                storedOres: 1700000000000,
+                income: 1750000000000,
+                planner: 1700000000000,
+                heroJourney: 1700000000000,
+                currency: 1700000000000
+            }
+        }));
+
+        // Device B (Cloud): Edited heroes at T=1760000000000, income untouched at T=1700000000000 (or 0)
+        globalThis.fetch = async (url, options) => {
+            if (String(url).includes('/api/user-data/load/')) {
+                return {
+                    ok: true,
+                    status: 200,
+                    json: async () => ({
+                        appVersion: '2.2.0',
+                        timestamp: '2026-11-22T12:56:00.000Z',
+                        savedPlayerTags: ['8PJYGUJC'],
+                        uiSettings: { theme: 'dark', cloudSync: true },
+                        allPlayersData: {
+                            '8PJYGUJC': {
+                                heroes: { barbarianKing: { enabled: true, level: 95, equipment: { giantGauntlet: { level: 27, checked: true } } } },
+                                storedOres: { shiny: 5000, glowy: 300, starry: 40, allowOverflow: false },
+                                income: {
+                                    raidMedals: { enabled: false, earned: 700, packs: { shiny: 0, glowy: 0, starry: 0 } }
+                                },
+                                playerProfile: { tag: '8PJYGUJC', name: 'Chief', townHallLevel: 16 },
+                                sliceTimestamps: {
+                                    heroes: 1760000000000,
+                                    storedOres: 1700000000000,
+                                    income: 0,
+                                    planner: 1700000000000,
+                                    heroJourney: 1700000000000,
+                                    currency: 1700000000000
+                                }
+                            }
+                        }
+                    })
+                };
+            }
+            if (String(url).includes('/api/user-data/save')) {
+                pushedConvergedPayload = JSON.parse(options.body);
+                return {
+                    ok: true,
+                    status: 200,
+                    json: async () => ({ message: 'Data saved successfully.' })
+                };
+            }
+            return { ok: true, status: 200, json: async () => ({}) };
+        };
+
+        try {
+            const DirectMergeCheck = mergePlayerPartitionsLWW(
+                { income: { raidMedals: { earned: 1300 } }, sliceTimestamps: { income: 1750000000000, heroes: 0 } },
+                { heroes: { barbarianKing: { level: 95 } }, sliceTimestamps: { income: 0, heroes: 1760000000000 } }
+            );
+            assert.equal(DirectMergeCheck.hasLocalNewer, true);
+            assert.equal(DirectMergeCheck.hasCloudNewer, true);
+
+            const synced = await initializeAppData();
+            assert.ok(synced, 'Must return converged state when cloud has newer heroes and local has newer income');
+
+            const player = synced.allPlayersData['8PJYGUJC'];
+            assert.equal(player.heroes.barbarianKing.equipment.giantGauntlet.level, 27, 'Cloud heroes edit must win for heroes slice');
+            assert.deepEqual(player.income.raidMedals, {
+                enabled: true,
+                earned: 1300,
+                packs: { shiny: 0, glowy: 2, starry: 2 }
+            }, 'Local income edit must win over untouched cloud income slice');
+            assert.equal(player.sliceTimestamps.heroes, 1760000000000);
+            assert.equal(player.sliceTimestamps.income, 1750000000000);
+
+            assert.ok(pushedConvergedPayload, 'Converged state must be pushed back to cloud so all devices converge');
+            assert.deepEqual(pushedConvergedPayload.data.allPlayersData['8PJYGUJC'].income.raidMedals, {
+                enabled: true,
+                earned: 1300,
+                packs: { shiny: 0, glowy: 2, starry: 2 }
+            });
+            assert.equal(
+                pushedConvergedPayload.data.allPlayersData['8PJYGUJC'].heroes.barbarianKing.equipment.giantGauntlet.level,
+                27
+            );
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
     });
 });

@@ -151,7 +151,10 @@ export function saveState(state, immediate = false) {
                     currency: {
                         code: existingData?.currency?.code || state.uiSettings?.currency?.code || 'USD',
                         globalPricing: existingData?.currency?.globalPricing || {}
-                    }
+                    },
+                    sliceTimestamps: isProfileMatch
+                        ? (existingData.sliceTimestamps || state.sliceTimestamps)
+                        : existingData.sliceTimestamps
                 };
 
                 // Strip auto-placed events from calendar dates before saving

@@ -172,8 +172,29 @@ function sanitizePlayerData(playerData) {
             }
         };
     }
+    if (clean.sliceTimestamps && typeof clean.sliceTimestamps === 'object' && !Array.isArray(clean.sliceTimestamps)) {
+        const cleanTimestamps = {};
+        for (const key of LWW_PLAYER_SLICES) {
+            if (clean.sliceTimestamps[key] !== undefined) {
+                const ts = Number(clean.sliceTimestamps[key]);
+                if (Number.isFinite(ts) && ts >= 0) {
+                    cleanTimestamps[key] = Math.trunc(ts);
+                }
+            }
+        }
+        clean.sliceTimestamps = cleanTimestamps;
+    }
     return clean;
 }
+
+const LWW_PLAYER_SLICES = Object.freeze([
+    'heroes',
+    'storedOres',
+    'income',
+    'planner',
+    'currency',
+    'heroJourney'
+]);
 
 const PRESERVED_PLAYER_SLICES = Object.freeze([
     'heroes',
@@ -187,21 +208,64 @@ const PRESERVED_PLAYER_SLICES = Object.freeze([
 
 /**
  * Preserves existing Ore Calculator domain slices (heroes, income, storedOres, planner, etc.)
- * when a partial player payload (such as a standalone Hero Journey partition) is saved.
+ * when a partial player payload (such as a standalone Hero Journey partition) is saved,
+ * and enforces slice-level Last-Write-Wins (LWW) protection when sliceTimestamps are present.
  *
  * @param {Record<string, any>} sanitizedPlayer - Incoming sanitized player object.
  * @param {Record<string, any>|null|undefined} existingDocData - Existing Firestore player document data.
- * @returns {Record<string, any>} Merged player document preserving unprovided domain slices.
+ * @returns {Record<string, any>} Merged player document preserving unprovided or newer domain slices.
  */
 function preserveExistingPlayerSlices(sanitizedPlayer, existingDocData) {
     if (!sanitizedPlayer || typeof sanitizedPlayer !== 'object' || !existingDocData || typeof existingDocData !== 'object') {
         return sanitizedPlayer;
     }
+    const existingTimestamps = (existingDocData.sliceTimestamps && typeof existingDocData.sliceTimestamps === 'object')
+        ? existingDocData.sliceTimestamps
+        : {};
+    const incomingTimestamps = (sanitizedPlayer.sliceTimestamps && typeof sanitizedPlayer.sliceTimestamps === 'object')
+        ? { ...sanitizedPlayer.sliceTimestamps }
+        : {};
+    let hasTimestampEntry = Object.keys(incomingTimestamps).length > 0;
+
     for (const sliceKey of PRESERVED_PLAYER_SLICES) {
+        const existingSliceTs = Number(existingTimestamps[sliceKey]) || 0;
+        const incomingSliceTs = Number(incomingTimestamps[sliceKey]) || 0;
+
         if (sanitizedPlayer[sliceKey] === undefined && existingDocData[sliceKey] !== undefined) {
             sanitizedPlayer[sliceKey] = existingDocData[sliceKey];
+            if (existingSliceTs > 0 && LWW_PLAYER_SLICES.includes(sliceKey)) {
+                incomingTimestamps[sliceKey] = existingSliceTs;
+                hasTimestampEntry = true;
+            }
+        } else if (
+            LWW_PLAYER_SLICES.includes(sliceKey) &&
+            existingDocData[sliceKey] !== undefined &&
+            existingSliceTs > incomingSliceTs
+        ) {
+            sanitizedPlayer[sliceKey] = existingDocData[sliceKey];
+            incomingTimestamps[sliceKey] = existingSliceTs;
+            hasTimestampEntry = true;
         }
     }
+
+    if (hasTimestampEntry) {
+        sanitizedPlayer.sliceTimestamps = incomingTimestamps;
+    }
+
+    if (typeof existingDocData.onboardingTimestamp === 'number') {
+        const incomingOnboard = typeof sanitizedPlayer.onboardingTimestamp === 'number' ? sanitizedPlayer.onboardingTimestamp : 0;
+        if (existingDocData.onboardingTimestamp > incomingOnboard) {
+            sanitizedPlayer.onboardingTimestamp = existingDocData.onboardingTimestamp;
+        }
+    }
+
+    if (typeof existingDocData.lastRefreshedAt === 'number' && Number.isFinite(existingDocData.lastRefreshedAt)) {
+        const incomingRefresh = Number(sanitizedPlayer.lastRefreshedAt) || 0;
+        if (existingDocData.lastRefreshedAt > incomingRefresh) {
+            sanitizedPlayer.lastRefreshedAt = existingDocData.lastRefreshedAt;
+        }
+    }
+
     return sanitizedPlayer;
 }
 
@@ -301,6 +365,9 @@ function sanitizePreferences(prefs) {
     }
     if (typeof prefs.stateResetEpoch === 'number') {
         sanitized.stateResetEpoch = prefs.stateResetEpoch;
+    }
+    if (typeof prefs.updatedAt === 'number' && Number.isFinite(prefs.updatedAt) && prefs.updatedAt >= 0) {
+        sanitized.updatedAt = Math.trunc(prefs.updatedAt);
     }
     return sanitized;
 }

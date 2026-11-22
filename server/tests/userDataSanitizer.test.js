@@ -116,3 +116,52 @@ test('preserveExistingPlayerSlices retains existing income, raidMedals, heroes, 
         hidden: false
     });
 });
+
+test('preserveExistingPlayerSlices enforces slice-level Last-Write-Wins so stale or default slices do not clobber newer cloud slices', () => {
+    const existingDocData = {
+        playerProfile: { tag: '8PJYGUJC', name: 'Chief', townHallLevel: 16 },
+        heroes: { barbarianKing: { level: 90, enabled: true, equipment: {} } },
+        storedOres: { shiny: 5000, glowy: 400, starry: 50 },
+        income: {
+            raidMedals: { enabled: true, earned: 1300, packs: { shiny: 0, glowy: 2, starry: 2 } }
+        },
+        sliceTimestamps: {
+            heroes: 1700000000000,
+            storedOres: 1700000000000,
+            income: 1750000000000,
+            planner: 1700000000000,
+            heroJourney: 1700000000000,
+            currency: 1700000000000
+        }
+    };
+
+    // Incoming payload from another device has newer heroes (1760000000000) but untouched/stale income (0)
+    const incomingPayload = sanitizePlayerData({
+        playerProfile: { tag: '#8PJYGUJC', name: 'Chief', townHallLevel: 16 },
+        heroes: { barbarianKing: { level: 95, enabled: true, equipment: {} } },
+        storedOres: { shiny: 0, glowy: 0, starry: 0 },
+        income: {
+            raidMedals: { enabled: false, earned: 1200, packs: { shiny: 0, glowy: 0, starry: 0 } }
+        },
+        sliceTimestamps: {
+            heroes: 1760000000000,
+            storedOres: 0,
+            income: 0,
+            planner: 0,
+            heroJourney: 0,
+            currency: 0
+        }
+    });
+
+    const merged = preserveExistingPlayerSlices(incomingPayload, existingDocData);
+    assert.equal(merged.heroes.barbarianKing.level, 95, 'Newer incoming heroes slice must be accepted');
+    assert.equal(merged.sliceTimestamps.heroes, 1760000000000);
+    assert.deepEqual(merged.income.raidMedals, {
+        enabled: true,
+        earned: 1300,
+        packs: { shiny: 0, glowy: 2, starry: 2 }
+    }, 'Newer existing income slice must not be clobbered by untouched incoming income slice');
+    assert.equal(merged.sliceTimestamps.income, 1750000000000);
+    assert.deepEqual(merged.storedOres, { shiny: 5000, glowy: 400, starry: 50 });
+    assert.equal(merged.sliceTimestamps.storedOres, 1700000000000);
+});

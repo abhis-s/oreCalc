@@ -302,6 +302,12 @@ export function syncPlayerToStorage(playerData, state = hjState, options = {}) {
             revealBeyondTH: state.revealBeyondTH ?? false,
             hidden: Boolean(existing.heroJourney?.hidden)
         };
+        if (syncCloud) {
+            existing.sliceTimestamps = {
+                ...(existing.sliceTimestamps && typeof existing.sliceTimestamps === 'object' ? existing.sliceTimestamps : {}),
+                heroJourney: existing.lastRefreshedAt
+            };
+        }
 
         try {
             const targetKey = getActivePlayerTagsKey();

@@ -3,6 +3,7 @@ import { translate } from '../i18n/translator.js';
 import { loadState, persistStoredAppSettings, saveState } from '../core/localStorageManager.js';
 import { getActivePlayerPrefix, getActiveUserId, getPlayerStorageKey, isClashCalcHost, normalizePlayerTag } from '../core/storageKeys.js';
 import { initializeState, state } from '../core/state.js';
+import { mergeAppStatesLWW } from '../core/stateSliceSync.js';
 
 import { logger } from '../utils/logger.js';
 import { escapeHTML } from '../utils/stringUtils.js';
@@ -69,6 +70,32 @@ export function setJustSyncedFromQr(value) {
  */
 export function isJustSyncedFromQr() {
     return justSyncedFromQr;
+}
+
+/**
+ * Pushes a resolved state payload to cloud Firestore for the given userId.
+ *
+ * @param {string | null} targetUserId
+ * @param {Record<string, any>} statePayload
+ * @param {boolean} isAuthed
+ */
+async function pushStateToCloud(targetUserId, statePayload, isAuthed) {
+    if (!targetUserId || !statePayload) return;
+    try {
+        const stateToSave = { ...statePayload };
+        if (Array.isArray(stateToSave.savedPlayerTags)) {
+            stateToSave.savedPlayerTags = stateToSave.savedPlayerTags
+                .map(normalizePlayerTag)
+                .filter(t => t && t !== 'DEFAULT0');
+        }
+        if (!isAuthed && (!Array.isArray(stateToSave.savedPlayerTags) || stateToSave.savedPlayerTags.length === 0)) {
+            return;
+        }
+        await saveUserData(targetUserId, stateToSave);
+        logger.log("Local data pushed to cloud.");
+    } catch (error) {
+        logger.error("Failed to push local data to cloud:", error);
+    }
 }
 
 /**
@@ -218,15 +245,30 @@ export async function initializeAppData() {
             const timeDifference = Math.abs(cloudTimestamp - localTimestamp);
             const timeTolerance = 5 * 1000;
 
+            const { mergedState, hasLocalNewer, hasCloudNewer } = mergeAppStatesLWW(localData, cloudData);
+
             if (isAuthed) {
-                if (cloudTimestamp === localTimestamp) {
+                if (!hasCloudNewer && !hasLocalNewer && cloudTimestamp === localTimestamp) {
                     logger.log("Local and cloud data are in sync.");
                     return null;
-                } else if (cloudTimestamp > localTimestamp) {
-                    logger.log("Authenticated account has newer cloud data. Automatically syncing from cloud.");
-                    hydrateMissingCloudPartitions(cloudData);
-                    return cloudData;
                 }
+                if (hasCloudNewer && hasLocalNewer) {
+                    logger.log("Authenticated account has concurrent slice updates. Merging local and cloud slices.");
+                    hydrateMissingCloudPartitions(mergedState);
+                    await pushStateToCloud(getActiveUserId() || userId, mergedState, isAuthed);
+                    return mergedState;
+                }
+                if (hasCloudNewer || (!hasLocalNewer && cloudTimestamp > localTimestamp)) {
+                    logger.log("Authenticated account has newer cloud data. Automatically syncing from cloud.");
+                    hydrateMissingCloudPartitions(mergedState);
+                    return mergedState;
+                }
+                if (hasLocalNewer || localTimestamp > cloudTimestamp) {
+                    logger.log("Local data is newer. Automatically pushing to cloud.");
+                    await pushStateToCloud(getActiveUserId() || userId, mergedState, isAuthed);
+                    return null;
+                }
+                return null;
             } else if (timeDifference < timeTolerance) {
                 logger.log("Local and cloud data are within 5 seconds discrepancy. Considering them in sync.");
                 return null;
@@ -245,51 +287,21 @@ export async function initializeAppData() {
 
                 if (confirmed) {
                     logger.log("User chose to sync. Using cloud data.");
-                    hydrateMissingCloudPartitions(cloudData);
-                    return cloudData;
+                    hydrateMissingCloudPartitions(mergedState);
+                    if (hasLocalNewer) {
+                        await pushStateToCloud(userId, mergedState, isAuthed);
+                    }
+                    return mergedState;
                 } else {
                     logger.log("User chose not to sync. Using local data and pushing to cloud.");
-                    if (userId) {
-                         try {
-                             const localToSave = { ...localData };
-                             if (Array.isArray(localToSave.savedPlayerTags)) {
-                                 localToSave.savedPlayerTags = localToSave.savedPlayerTags
-                                     .map(normalizePlayerTag)
-                                     .filter(t => t && t !== 'DEFAULT0');
-                             }
-                             if (!isAuthed && (!Array.isArray(localToSave.savedPlayerTags) || localToSave.savedPlayerTags.length === 0)) {
-                                 return null;
-                             }
-                             await saveUserData(userId, localToSave);
-                             logger.log("Local data pushed to cloud.");
-                         } catch (error) {
-                             logger.error("Failed to push local data to cloud:", error);
-                         }
-                    }
+                    await pushStateToCloud(userId, localData, isAuthed);
                     return null;
                 }
             }
 
-            if (localTimestamp > cloudTimestamp) {
+            if (localTimestamp > cloudTimestamp || hasLocalNewer) {
                 logger.log("Local data is newer. Automatically pushing to cloud.");
-                const userId = getActiveUserId();
-                if (userId) {
-                    try {
-                        const localToSave = { ...localData };
-                        if (Array.isArray(localToSave.savedPlayerTags)) {
-                            localToSave.savedPlayerTags = localToSave.savedPlayerTags
-                                .map(normalizePlayerTag)
-                                .filter(t => t && t !== 'DEFAULT0');
-                        }
-                        if (!isAuthed && (!Array.isArray(localToSave.savedPlayerTags) || localToSave.savedPlayerTags.length === 0)) {
-                            return null;
-                        }
-                        await saveUserData(userId, localToSave);
-                        logger.log("Local data pushed to cloud.");
-                    } catch (error) {
-                        logger.error("Failed to push local data to cloud:", error);
-                    }
-                }
+                await pushStateToCloud(getActiveUserId() || userId, mergedState, isAuthed);
                 return null;
             }
         }

@@ -14,6 +14,7 @@ import { getDefaultEquipmentUnlockLevel, shouldApplyHeroJourneyAutoLevel, resolv
 import { getISOWeekNumber } from '../utils/dateUtils.js';
 import { toMinorUnits } from '../utils/incomeUtils.js';
 import { migrateComingSoonEquipment, attachHeroStateAliases, normalizeHeroesState, migrateHeroesToKeys } from './stateCleanup.js';
+import { createDefaultSliceTimestamps, normalizeSliceTimestamps } from './stateSliceSync.js';
 
 /** @type {import('./types.js').AppState | any} */
 export let state = {};
@@ -251,6 +252,7 @@ function getDefaultPlayerStateProperties() {
             acceleratedRewards: false,
             revealBeyondTH: false
         },
+        sliceTimestamps: createDefaultSliceTimestamps(0),
     };
 }
 
@@ -381,6 +383,10 @@ export function initializeState(savedState) {
                 if (typeof savedPlayerState.lastRefreshedAt === 'number' && Number.isFinite(savedPlayerState.lastRefreshedAt) && savedPlayerState.lastRefreshedAt > 0) {
                     playerState.lastRefreshedAt = savedPlayerState.lastRefreshedAt;
                 }
+                const legacyFallbackMs = savedPlayerState.sliceTimestamps
+                    ? 0
+                    : (Date.parse(savedState.timestamp || '') || 0);
+                playerState.sliceTimestamps = normalizeSliceTimestamps(savedPlayerState.sliceTimestamps, legacyFallbackMs);
             }
         }
 
@@ -405,6 +411,7 @@ export function initializeState(savedState) {
             state.playerProfile = activePlayerState.playerProfile;
             state.onboardingTimestamp = activePlayerState.onboardingTimestamp ?? null;
             state.heroJourney = activePlayerState.heroJourney || initializeDefaultPlayerState().heroJourney;
+            state.sliceTimestamps = activePlayerState.sliceTimestamps || createDefaultSliceTimestamps(0);
 
             // Ensure player-specific currency is also an object and sync it to UI settings
             if (activePlayerState.currency) {

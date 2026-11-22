@@ -494,17 +494,33 @@ export async function mount(options = {}) {
         };
 
         let lastVisibilityCloudCheck = 0;
-        lifecycleScope.listen(document, 'visibilitychange', async () => {
-            if (!isMounted || document.visibilityState === 'hidden' || hasPendingCloudSave()) return;
-            const now = Date.now();
-            if (now - lastVisibilityCloudCheck < 3000) return;
-            lastVisibilityCloudCheck = now;
-            try {
-                const syncedState = await initializeAppData();
-                if (isMounted && syncedState && !hasPendingCloudSave()) {
-                    await applyCloudSyncedState(syncedState);
-                }
-            } catch (_) {}
+        const checkCloudSyncOnFocus = (delayMs = 0) => {
+            const runCheck = async () => {
+                if (!isMounted || document.visibilityState === 'hidden' || hasPendingCloudSave()) return;
+                const now = Date.now();
+                if (now - lastVisibilityCloudCheck < 3000) return;
+                lastVisibilityCloudCheck = now;
+                try {
+                    const syncedState = await initializeAppData();
+                    if (isMounted && syncedState && !hasPendingCloudSave()) {
+                        await applyCloudSyncedState(syncedState);
+                    }
+                } catch (_) {}
+            };
+            if (delayMs > 0) {
+                lifecycleScope.setTimeout(runCheck, delayMs);
+            } else {
+                void runCheck();
+            }
+        };
+
+        lifecycleScope.listen(document, 'visibilitychange', () => {
+            if (document.visibilityState !== 'hidden') {
+                checkCloudSyncOnFocus(0);
+            }
+        });
+        lifecycleScope.listen(window, 'focus', () => {
+            checkCloudSyncOnFocus(300);
         });
 
         if (appDataInitTimeout) {
