@@ -536,7 +536,19 @@ export function savePlayerProfileToStorage(data, updateOrder = true) {
     const homeHeroes = data.heroes?.filter(h => h.village === 'home' || !h.village) || [];
 
     partition.lastRefreshedAt = Date.now();
-    partition.playerProfile = sanitizePlayerProfile(data);
+    const sanitizedProfile = sanitizePlayerProfile(data);
+    if (sanitizedProfile && existing?.playerProfile && existing.playerProfile.clan?.tag === sanitizedProfile.clan?.tag) {
+        if (!sanitizedProfile.clanWarStats && existing.playerProfile.clanWarStats) {
+            sanitizedProfile.clanWarStats = existing.playerProfile.clanWarStats;
+        }
+        if (!sanitizedProfile.cwlSeasons && existing.playerProfile.cwlSeasons) {
+            sanitizedProfile.cwlSeasons = existing.playerProfile.cwlSeasons;
+        }
+        if (!sanitizedProfile.lastCwlFetchTime && existing.playerProfile.lastCwlFetchTime) {
+            sanitizedProfile.lastCwlFetchTime = existing.playerProfile.lastCwlFetchTime;
+        }
+    }
+    partition.playerProfile = sanitizedProfile;
 
     if (partition.heroes && typeof partition.heroes === 'object') {
         normalizeHeroesState(partition.heroes);

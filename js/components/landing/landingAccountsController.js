@@ -67,7 +67,7 @@ export function orderTagsForRefresh(tags, activeTag = null) {
  * Iterates through saved profiles sequentially and refreshes their data in the background.
  *
  * @param {string[]} tags - Normalized player tags to refresh.
- * @param {((tag: string) => void) | { onTagStart?: (tag: string) => void, onProfileUpdated?: (tag: string) => void, throttleMs?: number, shouldContinue?: () => boolean }} [onProfileUpdatedOrOptions] - Callback or options object.
+ * @param {((tag: string) => void) | { onTagStart?: (tag: string) => void, onProfileUpdated?: (tag: string) => void, throttleMs?: number, shouldContinue?: () => boolean, background?: boolean }} [onProfileUpdatedOrOptions] - Callback or options object.
  * @returns {Promise<{ total: number, successCount: number, failedCount: number }>}
  */
 export async function refreshSavedProfilesSequentially(tags, onProfileUpdatedOrOptions) {
@@ -78,7 +78,7 @@ export async function refreshSavedProfilesSequentially(tags, onProfileUpdatedOrO
         ? { onProfileUpdated: onProfileUpdatedOrOptions, throttleMs: 0 }
         : (onProfileUpdatedOrOptions || {});
 
-    const { onTagStart, onProfileUpdated, throttleMs = 0, shouldContinue } = options;
+    const { onTagStart, onProfileUpdated, throttleMs = 0, shouldContinue, background = false } = options;
     const validTags = tags.filter(tag => tag && tag !== 'DEFAULT0');
     summary.total = validTags.length;
 
@@ -91,7 +91,7 @@ export async function refreshSavedProfilesSequentially(tags, onProfileUpdatedOrO
             onTagStart(tag);
         }
         try {
-            const result = await loadAndProcessPlayerData(tag, { updateOrder: false });
+            const result = await loadAndProcessPlayerData(tag, { updateOrder: false, background });
             if (typeof shouldContinue === 'function' && !shouldContinue()) {
                 break;
             }
@@ -262,9 +262,10 @@ export function initLandingAccountsManager({
      * card animations, live showcase update, and completion toast.
      *
      * @param {string[]} tagsToRefresh - Ordered player tags to refresh.
+     * @param {{ background?: boolean }} [refreshOptions={}]
      * @returns {Promise<void>}
      */
-    const executeAccountsRefresh = async (tagsToRefresh) => {
+    const executeAccountsRefresh = async (tagsToRefresh, refreshOptions = {}) => {
         const currentTags = tagsToRefresh.filter(t => t && t !== 'DEFAULT0');
         if (currentTags.length === 0) return;
 
@@ -284,6 +285,7 @@ export function initLandingAccountsManager({
         try {
             summary = await refreshSavedProfilesSequentially(currentTags, {
                 throttleMs: ACCOUNT_REFRESH_DELAY_MS,
+                background: Boolean(refreshOptions.background),
                 shouldContinue: () => !isDestroyed,
                 onTagStart: (tag) => {
                     const targetCard = document.querySelector(`.landing-account-card[data-tag="${tag}"]`);
@@ -436,7 +438,7 @@ export function initLandingAccountsManager({
         const backgroundTags = orderTagsForRefresh(savedProfiles.map(p => p.cleanTag), activeTag);
         const staleTags = getStaleTagsForRefresh(backgroundTags);
         if (staleTags.length > 0) {
-            void executeAccountsRefresh(staleTags);
+            void executeAccountsRefresh(staleTags, { background: true });
         }
     }
 

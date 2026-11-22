@@ -122,7 +122,7 @@ async function triggerWarLogFetch(clanTag) {
         calculatedStats.hasCalculated = true;
         calculatedStats.isFetching = false;
         // Trigger a silent update to re-evaluate popovers and refresh UI
-        handleStateUpdate(() => {}, true);
+        handleStateUpdate(() => {}, true, { skipSave: true });
     }
 }
 

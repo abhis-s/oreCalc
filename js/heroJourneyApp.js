@@ -156,7 +156,7 @@ async function loadPlayer(tag) {
             hjState.revealBeyondTH = savedPartition.heroJourney.revealBeyondTH ?? false;
         }
 
-        syncPlayerToStorage(data, hjState);
+        syncPlayerToStorage(data, hjState, { syncCloud: false });
 
         renderHeroJourneyPlayerDropdown(normalizedServer);
         loadResult = { success: true, data };

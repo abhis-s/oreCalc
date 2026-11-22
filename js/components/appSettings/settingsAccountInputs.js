@@ -152,7 +152,7 @@ export function initializeSettingsAccount(options = {}) {
 
     const handleUpdateClick = () => {
         toggleAccountPopover(false);
-        showUpdateModal();
+        showUpdateModal(typeof window !== 'undefined' ? window.__WB__ : null);
     };
 
     const popoverUpdateBtn = document.getElementById('account-popover-update-btn');

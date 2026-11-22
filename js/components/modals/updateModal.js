@@ -82,6 +82,7 @@ export function updateNavigationBadges() {
  * @param {any} [wb] - Workbox PWA service worker instance.
  */
 export function showUpdateModal(wb) {
+    const activeWb = wb || (typeof window !== 'undefined' ? window.__WB__ : null);
     const modal = document.getElementById('update-available-modal');
     const laterBtn = document.getElementById('update-later-btn') || document.getElementById('update-later-button');
     const reloadBtn = document.getElementById('update-reload-btn') || document.getElementById('update-reload-button');
@@ -111,14 +112,24 @@ export function showUpdateModal(wb) {
             return;
         }
 
-        sessionStorage.setItem('clashCalc_lastSwReload', now.toString());
         sessionStorage.removeItem('oreCalcUpdateDetectedAt');
         updateNavigationBadges();
 
-        wb.addEventListener('controlling', () => {
+        if (activeWb && typeof activeWb.addEventListener === 'function' && typeof activeWb.messageSkipWaiting === 'function') {
+            let hasReloaded = false;
+            const triggerPageReload = () => {
+                if (hasReloaded) return;
+                hasReloaded = true;
+                sessionStorage.setItem('clashCalc_lastSwReload', Date.now().toString());
+                window.location.reload();
+            };
+            activeWb.addEventListener('controlling', triggerPageReload);
+            activeWb.messageSkipWaiting();
+            setTimeout(triggerPageReload, 1500);
+        } else {
+            sessionStorage.setItem('clashCalc_lastSwReload', now.toString());
             window.location.reload();
-        });
-        wb.messageSkipWaiting();
+        }
     };
 
     const updateCountdown = () => {

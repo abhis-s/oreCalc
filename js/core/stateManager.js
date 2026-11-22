@@ -9,6 +9,14 @@ let stateUpdateCallback = null;
 let cloudSaveTimeout = null;
 
 /**
+ * Returns whether a debounced cloud save timer is currently pending.
+ * @returns {boolean} True if a cloud save is scheduled.
+ */
+export function hasPendingCloudSave() {
+    return cloudSaveTimeout !== null;
+}
+
+/**
  * Cancels any active pending debounced cloud save timer.
  */
 export function cancelCloudSaveTimer() {
@@ -43,19 +51,19 @@ export function registerStateUpdateCallback(callback) {
 export function handleStateUpdate(updateFn, silent = false, options = {}) {
     const prevTimestamp = state.timestamp;
     const prevDirty = state.planner?.calendar?.isDirty;
-    if (!silent && !options.isTabSwitch && state.planner?.calendar) {
+    if (!silent && !options.isTabSwitch && !options.skipSave && state.planner?.calendar) {
         state.planner.calendar.isDirty = true;
     }
-    if (!options.isTabSwitch) {
+    if (!options.isTabSwitch && !options.skipSave) {
         state.timestamp = new Date().toISOString();
     }
     try {
         updateFn();
     } catch (err) {
-        if (!options.isTabSwitch) {
+        if (!options.isTabSwitch && !options.skipSave) {
             state.timestamp = prevTimestamp;
         }
-        if (!silent && !options.isTabSwitch && state.planner?.calendar) {
+        if (!silent && !options.isTabSwitch && !options.skipSave && state.planner?.calendar) {
             state.planner.calendar.isDirty = prevDirty;
         }
         throw err;
@@ -68,7 +76,7 @@ export function handleStateUpdate(updateFn, silent = false, options = {}) {
         saveState(state, Boolean(options.preferencesOnly));
     }
 
-    if (options.isTabSwitch) {
+    if (options.isTabSwitch || options.skipSave) {
         return;
     }
 
@@ -86,6 +94,7 @@ export function handleStateUpdate(updateFn, silent = false, options = {}) {
             clearTimeout(cloudSaveTimeout);
         }
         cloudSaveTimeout = setTimeout(() => {
+            cloudSaveTimeout = null;
             triggerCloudSave({ silent: true }).catch(() => {});
         }, 3000);
     } else if (!options.skipSave) {
@@ -157,83 +166,99 @@ export function switchActivePlayer(newTag, options = {}) {
     }, Boolean(options.silent), options);
 }
 
+function flushPendingSavesOnUnload() {
+    if (
+        getResettingState() ||
+        !state ||
+        !Array.isArray(state.savedPlayerTags) ||
+        state.savedPlayerTags.length === 0 ||
+        !state.allPlayersData ||
+        getStorageItem(STORAGE_KEY_MAP.playerTags.canonical, STORAGE_KEY_MAP.playerTags.legacy) === null
+    ) {
+        return;
+    }
+
+    saveState(state, true);
+
+    const isAuthedBeforeUnload = typeof localStorage !== 'undefined' && Boolean(localStorage.getItem('clashCalc_authToken') && localStorage.getItem('clashCalc_username'));
+    const hasRealPlayer = Array.isArray(state.savedPlayerTags) && state.savedPlayerTags.some(t => t && t !== 'DEFAULT0');
+    if (!isAuthedBeforeUnload && !hasRealPlayer) {
+        return;
+    }
+
+    if (cloudSaveTimeout && (isAuthedBeforeUnload || state.uiSettings?.cloudSync !== false)) {
+        clearTimeout(cloudSaveTimeout);
+        cloudSaveTimeout = null;
+
+        const currentUserId = getStorageItem(STORAGE_KEY_MAP.userId.canonical, STORAGE_KEY_MAP.userId.legacy);
+        if (currentUserId) {
+            const currentPlayerTag = state.savedPlayerTags[0];
+            if (currentPlayerTag && state.allPlayersData[currentPlayerTag]) {
+                const existing = state.allPlayersData[currentPlayerTag];
+                state.allPlayersData[currentPlayerTag] = {
+                    ...existing,
+                    heroes: state.heroes,
+                    storedOres: state.storedOres,
+                    income: state.income,
+                    planner: state.planner,
+                    playerProfile: state.playerProfile,
+                    heroJourney: state.heroJourney,
+                    onboardingTimestamp: existing.onboardingTimestamp !== undefined
+                        ? existing.onboardingTimestamp
+                        : (state.onboardingTimestamp ?? null),
+                    currency: {
+                        code: state.uiSettings.currency?.code || 'USD',
+                        globalPricing: existing?.currency?.globalPricing || {}
+                    }
+                };
+            }
+
+            const stateToSave = {
+                appVersion: state.appVersion,
+                savedPlayerTags: state.savedPlayerTags,
+                uiSettings: state.uiSettings,
+                allPlayersData: state.allPlayersData,
+                timestamp: state.timestamp,
+            };
+
+            const url = `${getApiBaseUrl()}/api/user-data/save`;
+            const payload = JSON.stringify({ userId: currentUserId, data: stateToSave });
+            if (payload.length > 64 * 1024) return;
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'x-app-version': (typeof window !== 'undefined' && window.__ENV__?.APP_VERSION) || state.appVersion || '3.1.0'
+            };
+            const token = typeof localStorage !== 'undefined' ? localStorage.getItem('clashCalc_authToken') : null;
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            if (typeof fetch === 'function') {
+                fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: payload,
+                    keepalive: true
+                }).catch(() => {});
+            } else if (!token && typeof navigator !== 'undefined' && navigator.sendBeacon) {
+                const blob = new Blob([payload], { type: 'application/json' });
+                navigator.sendBeacon(url, blob);
+            }
+        }
+    }
+}
+
 if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-    window.addEventListener('beforeunload', () => {
-        if (
-            getResettingState() ||
-            !state ||
-            !Array.isArray(state.savedPlayerTags) ||
-            state.savedPlayerTags.length === 0 ||
-            !state.allPlayersData ||
-            getStorageItem(STORAGE_KEY_MAP.playerTags.canonical, STORAGE_KEY_MAP.playerTags.legacy) === null
-        ) {
-            return;
-        }
+    window.addEventListener('beforeunload', flushPendingSavesOnUnload);
+    window.addEventListener('pagehide', flushPendingSavesOnUnload);
+}
 
-        saveState(state, true);
-
-        const isAuthedBeforeUnload = typeof localStorage !== 'undefined' && Boolean(localStorage.getItem('clashCalc_authToken') && localStorage.getItem('clashCalc_username'));
-        const hasRealPlayer = Array.isArray(state.savedPlayerTags) && state.savedPlayerTags.some(t => t && t !== 'DEFAULT0');
-        if (!isAuthedBeforeUnload && !hasRealPlayer) {
-            return;
-        }
-
-        if (cloudSaveTimeout && (isAuthedBeforeUnload || state.uiSettings?.cloudSync !== false)) {
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden' && cloudSaveTimeout) {
             clearTimeout(cloudSaveTimeout);
             cloudSaveTimeout = null;
-
-            const currentUserId = getStorageItem(STORAGE_KEY_MAP.userId.canonical, STORAGE_KEY_MAP.userId.legacy);
-            if (currentUserId) {
-                const currentPlayerTag = state.savedPlayerTags[0];
-                if (currentPlayerTag && state.allPlayersData[currentPlayerTag]) {
-                    const existing = state.allPlayersData[currentPlayerTag];
-                    state.allPlayersData[currentPlayerTag] = {
-                        ...existing,
-                        heroes: state.heroes,
-                        storedOres: state.storedOres,
-                        income: state.income,
-                        planner: state.planner,
-                        playerProfile: state.playerProfile,
-                        heroJourney: state.heroJourney,
-                        onboardingTimestamp: existing.onboardingTimestamp !== undefined
-                            ? existing.onboardingTimestamp
-                            : (state.onboardingTimestamp ?? null),
-                        currency: {
-                            code: state.uiSettings.currency?.code || 'USD',
-                            globalPricing: existing?.currency?.globalPricing || {}
-                        }
-                    };
-                }
-
-                const stateToSave = {
-                    appVersion: state.appVersion,
-                    savedPlayerTags: state.savedPlayerTags,
-                    uiSettings: state.uiSettings,
-                    allPlayersData: state.allPlayersData,
-                    timestamp: state.timestamp,
-                };
-
-                const url = `${getApiBaseUrl()}/api/user-data/save`;
-                const payload = JSON.stringify({ userId: currentUserId, data: stateToSave });
-                if (payload.length > 64 * 1024) return;
-
-                const headers = { 'Content-Type': 'application/json' };
-                const token = typeof localStorage !== 'undefined' ? localStorage.getItem('clashCalc_authToken') : null;
-                if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                }
-                if (typeof fetch === 'function') {
-                    fetch(url, {
-                        method: 'POST',
-                        headers,
-                        body: payload,
-                        keepalive: true
-                    }).catch(() => {});
-                } else if (!token && typeof navigator !== 'undefined' && navigator.sendBeacon) {
-                    const blob = new Blob([payload], { type: 'application/json' });
-                    navigator.sendBeacon(url, blob);
-                }
-            }
+            triggerCloudSave({ silent: true }).catch(() => {});
         }
     });
 }

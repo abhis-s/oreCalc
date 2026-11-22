@@ -151,8 +151,8 @@ async function applySyncedAccountState(syncedState) {
     if (activeLanguage) {
         state.uiSettings.language = activeLanguage;
     }
-    cleanupOrphanedPlayerPartitions(state);
     saveState(state, true);
+    cleanupOrphanedPlayerPartitions(state);
 
     const activeTag = state.savedPlayerTags?.find(t => t && normalizePlayerTag(t) !== 'DEFAULT0') || null;
     syncPlayerTagToUrl(activeTag);

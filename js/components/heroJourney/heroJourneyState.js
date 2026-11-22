@@ -282,8 +282,10 @@ export function buildStateFromPlayerData(playerData, state) {
  * Saves or updates a fetched player profile in localStorage if it exists or is saved.
  * @param {Object} playerData - Live player data payload.
  * @param {StandaloneHJState} [state=hjState] - Current standalone state.
+ * @param {{ syncCloud?: boolean }} [options={}] - Persistence options.
  */
-export function syncPlayerToStorage(playerData, state = hjState) {
+export function syncPlayerToStorage(playerData, state = hjState, options = {}) {
+    const { syncCloud = true } = options;
     if (!playerData || !playerData.tag) return;
     const cleanTag = normalizePlayerTag(playerData.tag);
     if (!cleanTag || cleanTag === 'DEFAULT0') return;
@@ -329,7 +331,7 @@ export function syncPlayerToStorage(playerData, state = hjState) {
         localStorage.removeItem(legacyKey);
 
         const userId = getActiveUserId();
-        if (userId) {
+        if (userId && syncCloud) {
             saveSinglePlayerData(userId, cleanTag, existing).catch(() => {});
         }
     } catch {}

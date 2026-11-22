@@ -140,122 +140,134 @@ export function checkAndGenerateRecurringChips() {
     const currentYear = now.getUTCFullYear();
     const currentMonthYear = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
-    if (state.planner.calendar.lastRecurringProcessed === currentMonthYear) return;
+    if (!state.planner?.calendar || state.planner.calendar.lastRecurringProcessed === currentMonthYear) return;
+
+    const settings = state.planner.calendar.customChipSettings;
+    if (!settings) {
+        state.planner.calendar.lastRecurringProcessed = currentMonthYear;
+        return;
+    }
+
+    /** @type {any[]} */
+    const generatedChips = [];
+    const generate = (type, data, count = 1) => {
+        for (let i = 0; i < count; i++) {
+            const shortId = Math.random().toString(36).substring(2, 7);
+            const newId = `custom-${type}-${shortId}-${i}`;
+            generatedChips.push({ ...data, id: newId, isCustom: true, isRecurring: true, instance: i + 1 });
+        }
+    };
+
+    // Star Bonus
+    if (settings?.starBonus?.monthly && settings.starBonus.count > 0) {
+        const rawMultiplier = settings.starBonus.multiplier || '2x';
+        const sbType = 'starBonus' + rawMultiplier; // e.g. "starBonus3x"
+        const baseIncome = getSourceById('starBonus')?.getBaseIncome(state) || { shiny: 0, glowy: 0, starry: 0 };
+        const multValue = parseInt(String(rawMultiplier).replace('x', ''), 10) || 1;
+        generate(sbType, {
+            type: sbType,
+            multiplier: rawMultiplier,
+            shiny: baseIncome.shiny * multValue,
+            glowy: baseIncome.glowy * multValue,
+            starry: baseIncome.starry * multValue
+        }, settings.starBonus.count);
+    }
+
+    // Shop Offers
+    if (settings.shopOffers?.monthly) {
+        generate('shopOffers', { type: 'shopOffers', shiny: settings.shopOffers.shiny, glowy: settings.shopOffers.glowy, starry: settings.shopOffers.starry }, 1);
+    }
+
+    // Gem Trader (Weekly -> ~4 per month)
+    if (settings.gemTrader?.weekly) {
+        generate('gemTrader', { type: 'gemTrader', shiny: settings.gemTrader.shiny, glowy: settings.gemTrader.glowy, starry: settings.gemTrader.starry }, 4);
+    }
+
+    // Raid Medal Trader (Weekly -> ~4 per month)
+    if (settings.raidMedalTrader?.weekly) {
+        generate('raidMedalTrader', { type: 'raidMedalTrader', shiny: settings.raidMedalTrader.shiny, glowy: settings.raidMedalTrader.glowy, starry: settings.raidMedalTrader.starry }, 4);
+    }
+
+    // Bimonthly Seasonal Passes & Traders
+    for (const seasonalType of ['eventPass', 'eventTrader', 'craftPass', 'craftPassTrader']) {
+        const seasonalSettings = settings[seasonalType];
+        if (seasonalSettings?.monthly) {
+            const seasonalSource = incomeData[seasonalType];
+            const availableMonths = seasonalSource?.schedule?.availableMonths?.[currentYear] || [];
+            if (availableMonths.includes(currentMonth + 1)) {
+                generate(seasonalType, {
+                    type: seasonalType,
+                    shiny: seasonalSettings.shiny,
+                    glowy: seasonalSettings.glowy,
+                    starry: seasonalSettings.starry
+                }, 1);
+            }
+        }
+    }
+
+    // Clan War
+    if (settings.clanWar?.monthly && settings.clanWar.count > 0) {
+        const factor = settings.clanWar.result === 'win' ? 1.0 : (settings.clanWar.result === 'loss' ? 0.5 : 0.75);
+        generate('clanWar', {
+            type: 'clanWar',
+            result: settings.clanWar.result,
+            shiny: Math.round(2 * (settings.clanWar.shiny || 0) * factor),
+            glowy: Math.round(2 * (settings.clanWar.glowy || 0) * factor),
+            starry: Math.round(2 * (settings.clanWar.starry || 0) * factor)
+        }, settings.clanWar.count);
+    }
+
+    // CWL
+    if (settings.cwl?.monthly && settings.cwl.count > 0) {
+        const factor = settings.cwl.result === 'win' ? 1.0 : (settings.cwl.result === 'loss' ? 0.5 : 0.75);
+        generate('cwl', {
+            type: 'cwl',
+            result: settings.cwl.result,
+            shiny: Math.round(1 * (settings.cwl.shiny || 0) * factor),
+            glowy: Math.round(1 * (settings.cwl.glowy || 0) * factor),
+            starry: Math.round(1 * (settings.cwl.starry || 0) * factor)
+        }, settings.cwl.count);
+    }
+
+    // Prospector
+    if (settings.prospector?.monthly) {
+        if (state.income.prospector?.assistedConversion) {
+            const conversions = getProspectorConversions(state);
+            let countIndex = 0;
+            conversions.forEach(conv => {
+                const days = conv.days || 30;
+                const fromRate = conv.amount || oreMaxValues[conv.from];
+                const toRate = convertOres(conv.from, conv.to, fromRate);
+
+                const chipData = { type: 'prospector', shiny: 0, glowy: 0, starry: 0 };
+                chipData[conv.from] = -fromRate;
+                chipData[conv.to] = toRate;
+
+                for (let i = 0; i < days; i++) {
+                    const shortId = Math.random().toString(36).substring(2, 7);
+                    const newId = `custom-prospector-${shortId}-${countIndex}`;
+                    generatedChips.push({ ...chipData, id: newId, isCustom: true, isRecurring: true, instance: countIndex + 1 });
+                    countIndex++;
+                }
+            });
+        } else if (settings.prospector.count > 0) {
+            generate('prospector', {
+                type: 'prospector',
+                shiny: settings.prospector.shiny,
+                glowy: settings.prospector.glowy,
+                starry: settings.prospector.starry
+            }, settings.prospector.count);
+        }
+    }
+
+    if (generatedChips.length === 0) {
+        state.planner.calendar.lastRecurringProcessed = currentMonthYear;
+        return;
+    }
 
     handleStateUpdate(() => {
-        const settings = state.planner.calendar.customChipSettings;
         const customChips = state.planner.calendar.customChips || [];
-
-        const generate = (type, data, count = 1) => {
-            for (let i = 0; i < count; i++) {
-                const shortId = Math.random().toString(36).substring(2, 7);
-                const newId = `custom-${type}-${shortId}-${i}`;
-                customChips.push({ ...data, id: newId, isCustom: true, isRecurring: true, instance: i + 1 });
-            }
-        };
-
-        // Star Bonus
-        if (settings?.starBonus?.monthly && settings.starBonus.count > 0) {
-            const rawMultiplier = settings.starBonus.multiplier || '2x';
-            const sbType = 'starBonus' + rawMultiplier; // e.g. "starBonus3x"
-            const baseIncome = getSourceById('starBonus')?.getBaseIncome(state) || { shiny: 0, glowy: 0, starry: 0 };
-            const multValue = parseInt(String(rawMultiplier).replace('x', ''), 10) || 1;
-            generate(sbType, {
-                type: sbType,
-                multiplier: rawMultiplier,
-                shiny: baseIncome.shiny * multValue,
-                glowy: baseIncome.glowy * multValue,
-                starry: baseIncome.starry * multValue
-            }, settings.starBonus.count);
-        }
-
-        // Shop Offers
-        if (settings.shopOffers.monthly) {
-            generate('shopOffers', { type: 'shopOffers', shiny: settings.shopOffers.shiny, glowy: settings.shopOffers.glowy, starry: settings.shopOffers.starry }, 1);
-        }
-
-        // Gem Trader (Weekly -> ~4 per month)
-        if (settings.gemTrader.weekly) {
-            generate('gemTrader', { type: 'gemTrader', shiny: settings.gemTrader.shiny, glowy: settings.gemTrader.glowy, starry: settings.gemTrader.starry }, 4);
-        }
-
-        // Raid Medal Trader (Weekly -> ~4 per month)
-        if (settings.raidMedalTrader.weekly) {
-            generate('raidMedalTrader', { type: 'raidMedalTrader', shiny: settings.raidMedalTrader.shiny, glowy: settings.raidMedalTrader.glowy, starry: settings.raidMedalTrader.starry }, 4);
-        }
-
-        // Bimonthly Seasonal Passes & Traders
-        for (const seasonalType of ['eventPass', 'eventTrader', 'craftPass', 'craftPassTrader']) {
-            const seasonalSettings = settings[seasonalType];
-            if (seasonalSettings?.monthly) {
-                const seasonalSource = incomeData[seasonalType];
-                const availableMonths = seasonalSource?.schedule?.availableMonths?.[currentYear] || [];
-                if (availableMonths.includes(currentMonth + 1)) {
-                    generate(seasonalType, {
-                        type: seasonalType,
-                        shiny: seasonalSettings.shiny,
-                        glowy: seasonalSettings.glowy,
-                        starry: seasonalSettings.starry
-                    }, 1);
-                }
-            }
-        }
-
-        // Clan War
-        if (settings.clanWar.monthly && settings.clanWar.count > 0) {
-            const factor = settings.clanWar.result === 'win' ? 1.0 : (settings.clanWar.result === 'loss' ? 0.5 : 0.75);
-            generate('clanWar', {
-                type: 'clanWar',
-                result: settings.clanWar.result,
-                shiny: Math.round(2 * (settings.clanWar.shiny || 0) * factor),
-                glowy: Math.round(2 * (settings.clanWar.glowy || 0) * factor),
-                starry: Math.round(2 * (settings.clanWar.starry || 0) * factor)
-            }, settings.clanWar.count);
-        }
-
-        // CWL
-        if (settings.cwl.monthly && settings.cwl.count > 0) {
-            const factor = settings.cwl.result === 'win' ? 1.0 : (settings.cwl.result === 'loss' ? 0.5 : 0.75);
-            generate('cwl', {
-                type: 'cwl',
-                result: settings.cwl.result,
-                shiny: Math.round(1 * (settings.cwl.shiny || 0) * factor),
-                glowy: Math.round(1 * (settings.cwl.glowy || 0) * factor),
-                starry: Math.round(1 * (settings.cwl.starry || 0) * factor)
-            }, settings.cwl.count);
-        }
-
-        // Prospector
-        if (settings.prospector.monthly) {
-            if (state.income.prospector?.assistedConversion) {
-                const conversions = getProspectorConversions(state);
-                let countIndex = 0;
-                conversions.forEach(conv => {
-                    const days = conv.days || 30;
-                    const fromRate = conv.amount || oreMaxValues[conv.from];
-                    const toRate = convertOres(conv.from, conv.to, fromRate);
-
-                    const chipData = { type: 'prospector', shiny: 0, glowy: 0, starry: 0 };
-                    chipData[conv.from] = -fromRate;
-                    chipData[conv.to] = toRate;
-
-                    for (let i = 0; i < days; i++) {
-                        const shortId = Math.random().toString(36).substring(2, 7);
-                        const newId = `custom-prospector-${shortId}-${countIndex}`;
-                        customChips.push({ ...chipData, id: newId, isCustom: true, isRecurring: true, instance: countIndex + 1 });
-                        countIndex++;
-                    }
-                });
-            } else if (settings.prospector.count > 0) {
-                generate('prospector', {
-                    type: 'prospector',
-                    shiny: settings.prospector.shiny,
-                    glowy: settings.prospector.glowy,
-                    starry: settings.prospector.starry
-                }, settings.prospector.count);
-            }
-        }
-
+        customChips.push(...generatedChips);
         state.planner.calendar.customChips = customChips;
         state.planner.calendar.lastRecurringProcessed = currentMonthYear;
     }, true);

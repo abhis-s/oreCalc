@@ -175,6 +175,36 @@ function sanitizePlayerData(playerData) {
     return clean;
 }
 
+const PRESERVED_PLAYER_SLICES = Object.freeze([
+    'heroes',
+    'storedOres',
+    'income',
+    'planner',
+    'currency',
+    'onboardingTimestamp',
+    'heroJourney'
+]);
+
+/**
+ * Preserves existing Ore Calculator domain slices (heroes, income, storedOres, planner, etc.)
+ * when a partial player payload (such as a standalone Hero Journey partition) is saved.
+ *
+ * @param {Record<string, any>} sanitizedPlayer - Incoming sanitized player object.
+ * @param {Record<string, any>|null|undefined} existingDocData - Existing Firestore player document data.
+ * @returns {Record<string, any>} Merged player document preserving unprovided domain slices.
+ */
+function preserveExistingPlayerSlices(sanitizedPlayer, existingDocData) {
+    if (!sanitizedPlayer || typeof sanitizedPlayer !== 'object' || !existingDocData || typeof existingDocData !== 'object') {
+        return sanitizedPlayer;
+    }
+    for (const sliceKey of PRESERVED_PLAYER_SLICES) {
+        if (sanitizedPlayer[sliceKey] === undefined && existingDocData[sliceKey] !== undefined) {
+            sanitizedPlayer[sliceKey] = existingDocData[sliceKey];
+        }
+    }
+    return sanitizedPlayer;
+}
+
 /**
  * Hydrates a sanitized playerProfile from the global playersCache collection when missing.
  *
@@ -361,6 +391,7 @@ module.exports = {
     isLegacyOreCalcOrigin,
     isRestrictedFromOreCalc,
     sanitizePlayerData,
+    preserveExistingPlayerSlices,
     hydratePlayerProfileFromCache,
     sanitizePreferences,
     requireMinAppVersion,

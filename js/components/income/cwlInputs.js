@@ -364,7 +364,7 @@ async function triggerCwlLogFetch(clanTag) {
     } finally {
         calculatedCwlStats.hasCalculated = true;
         calculatedCwlStats.isFetching = false;
-        handleStateUpdate(() => {}, true);
+        handleStateUpdate(() => {}, true, { skipSave: true });
     }
 }
 

@@ -7,7 +7,6 @@ import { recalculateAll } from './calculator.js';
 import { renderApp } from './renderer.js';
 import { state } from './state.js';
 import { applyThemeSettings } from './themeManager.js';
-import { isPlayerRefreshStale } from './playerRefreshThrottler.js';
 
 import { autoPlaceIncomeChipsForRange } from '../utils/autoPlaceChips.js';
 import { checkAndGenerateRecurringChips } from '../utils/chipManager.js';
@@ -48,7 +47,7 @@ import { initializePlanner } from '../components/planner/planner.js';
 import { initializePriorityListModal } from '../components/planner/priorityListModal.js';
 import { initializePlayerDropdown } from '../components/player/playerDropdown.js';
 import { initializePlayerModal } from '../components/player/playerModal.js';
-import { initAutoRefreshTriggers, refreshActivePlayerData } from '../components/player/playerRefreshController.js';
+import { initAutoRefreshTriggers } from '../components/player/playerRefreshController.js';
 import { initializeGuidedSetupModal } from '../components/guidedSetup/guidedSetupModal.js';
 import { initSpotright } from '../components/spotright/spotrightController.js';
 import { initShortcutsModalListener } from '../components/shortcuts/shortcutsModal.js';
@@ -206,13 +205,6 @@ export async function bootstrapUIComponents(initialLang, lifecycleScope = null) 
     initAppFooter({ version: state.appVersion });
 
     initAutoRefreshTriggers();
-
-    const activeTag = state.savedPlayerTags[0];
-    if (activeTag && activeTag !== 'DEFAULT0') {
-        if (isPlayerRefreshStale(activeTag)) {
-            void refreshActivePlayerData({ background: true });
-        }
-    }
 }
 
 /**

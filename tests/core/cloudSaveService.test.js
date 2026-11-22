@@ -43,9 +43,10 @@ if (typeof globalThis.document === 'undefined') {
     };
 }
 
-const { state } = await import('../../js/core/state.js');
+const stateModule = await import('../../js/core/state.js');
+const { state, initializeState } = stateModule;
 const { triggerCloudSave, initializeAppData, triggerPreferencesSave, cancelPreferencesSaveTimer } = await import('../../js/services/cloudSaveService.js');
-const { handleStateUpdate } = await import('../../js/core/stateManager.js');
+const { handleStateUpdate, hasPendingCloudSave, cancelCloudSaveTimer } = await import('../../js/core/stateManager.js');
 
 describe('cloudSaveService - Defensive State & Guest Profile Invariants', () => {
     beforeEach(() => {
@@ -388,5 +389,98 @@ describe('cloudSaveService - Defensive State & Guest Profile Invariants', () => 
 
         const result = await savePromise;
         assert.equal(result, false, 'Cancelled preferences save must resolve with false');
+    });
+
+    test('initializeAppData automatically adopts newer cloud state for authenticated users even within 5-second window and hydrates existing partitions', async () => {
+        const originalFetch = globalThis.fetch;
+        globalThis.localStorage.setItem('clashCalc_authToken', 'header.eyJ1c2VySWQiOiJ0ZXN0LXV1aWQtMTIzNCJ9.sig');
+        globalThis.localStorage.setItem('clashCalc_username', 'TestChief');
+        globalThis.localStorage.setItem('clashCalc_appSettings', JSON.stringify({
+            theme: 'dark',
+            cloudSync: true,
+            appVersion: '2.2.0',
+            timestamp: '2026-11-22T12:54:27.426Z'
+        }));
+        globalThis.localStorage.setItem('clashCalc_playerTags', JSON.stringify(['8PJYGUJC']));
+        globalThis.localStorage.setItem('clashCalc_player_8PJYGUJC', JSON.stringify({
+            heroes: {},
+            income: {
+                raidMedals: { enabled: false, earned: 700, packs: { shiny: 0, glowy: 0, starry: 2 } }
+            },
+            playerProfile: { tag: '8PJYGUJC', name: 'Chief', townHallLevel: 16 },
+            lastRefreshedAt: 1700000000000
+        }));
+
+        globalThis.fetch = async (url) => {
+            if (String(url).includes('/api/user-data/load/')) {
+                return {
+                    ok: true,
+                    status: 200,
+                    json: async () => ({
+                        appVersion: '2.2.0',
+                        timestamp: '2026-11-22T12:54:29.000Z',
+                        savedPlayerTags: ['8PJYGUJC'],
+                        uiSettings: { theme: 'dark', cloudSync: true },
+                        allPlayersData: {
+                            '8PJYGUJC': {
+                                heroes: {},
+                                income: {
+                                    raidMedals: { enabled: false, earned: 700, packs: { shiny: 0, glowy: 2, starry: 2 } }
+                                },
+                                playerProfile: { tag: '8PJYGUJC', name: 'Chief', townHallLevel: 16 },
+                                lastRefreshedAt: 1700000050000
+                            }
+                        }
+                    })
+                };
+            }
+            return { ok: true, status: 200, json: async () => ({}) };
+        };
+
+        try {
+            const synced = await initializeAppData();
+            assert.ok(synced, 'Authenticated user must adopt newer cloud state automatically');
+            assert.deepEqual(synced.allPlayersData['8PJYGUJC'].income.raidMedals.packs, {
+                shiny: 0,
+                glowy: 2,
+                starry: 2
+            });
+
+            const rawPartition = globalThis.localStorage.getItem('clashCalc_player_8PJYGUJC') || globalThis.localStorage.getItem('oreCalc_player_8PJYGUJC');
+            assert.ok(rawPartition);
+            const storedPartition = JSON.parse(rawPartition);
+            assert.deepEqual(storedPartition.income.raidMedals.packs, {
+                shiny: 0,
+                glowy: 2,
+                starry: 2
+            });
+            assert.equal(storedPartition.lastRefreshedAt, 1700000050000);
+
+            initializeState(synced);
+            Object.assign(state, stateModule.state);
+            assert.equal(stateModule.state.allPlayersData['8PJYGUJC'].lastRefreshedAt, 1700000050000, 'initializeState must preserve lastRefreshedAt');
+            assert.deepEqual(stateModule.state.income.raidMedals.packs, {
+                shiny: 0,
+                glowy: 2,
+                starry: 2
+            });
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
+
+    test('handleStateUpdate with skipSave preserves state.timestamp and does not schedule cloud save', () => {
+        const initialTimestamp = '2026-11-22T12:00:00.000Z';
+        state.timestamp = initialTimestamp;
+        state.savedPlayerTags = ['8PJYGUJC'];
+        state.allPlayersData = { '8PJYGUJC': { heroes: {} } };
+        cancelCloudSaveTimer();
+
+        handleStateUpdate(() => {
+            state.activeTab = 'income-tab';
+        }, true, { skipSave: true });
+
+        assert.equal(state.timestamp, initialTimestamp, 'skipSave must not mutate state.timestamp');
+        assert.equal(hasPendingCloudSave(), false, 'skipSave must not schedule a cloud save timer');
     });
 });

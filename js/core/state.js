@@ -378,6 +378,9 @@ export function initializeState(savedState) {
                 playerState.onboardingTimestamp = typeof savedPlayerState.onboardingTimestamp === 'number'
                     ? savedPlayerState.onboardingTimestamp
                     : (savedPlayerState.onboardingTimestamp ?? null);
+                if (typeof savedPlayerState.lastRefreshedAt === 'number' && Number.isFinite(savedPlayerState.lastRefreshedAt) && savedPlayerState.lastRefreshedAt > 0) {
+                    playerState.lastRefreshedAt = savedPlayerState.lastRefreshedAt;
+                }
             }
         }
 
@@ -709,7 +712,7 @@ function ensureStateDefaults(s) {
             }
         }
 
-        if (hasMigrationOccurred) {
+        if (hasMigrationOccurred && !s.timestamp) {
             s.timestamp = new Date().toISOString();
         }
     }

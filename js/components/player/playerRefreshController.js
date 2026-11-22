@@ -62,7 +62,10 @@ export async function refreshActivePlayerData({ background = false, force = fals
     activeRefreshPromise = (async () => {
         try {
             startTopProgressBar();
-            const result = await loadAndProcessPlayerData(cleanTag, { updateOrder: false });
+            const result = await loadAndProcessPlayerData(cleanTag, {
+                updateOrder: false,
+                background: Boolean(background && !force)
+            });
             finishTopProgressBar();
 
             if (result.success) {

@@ -90,7 +90,7 @@ export async function revalidatePlayerData(tag, hadCachedData = false) {
 
         savePlayerProfileToStorage(data, false);
         const userId = getActiveUserId();
-        if (userId) {
+        if (userId && !hadCachedData) {
             const canonicalKey = getPlayerStorageKey(serverTag);
             const partition = safeJsonParse(localStorage.getItem(canonicalKey), null);
             if (partition) {

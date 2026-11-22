@@ -93,14 +93,7 @@ async function initAccountApp(scope) {
         }
     }
 
-    if (isAuth) {
-        fetchAccountDetails().then((details) => {
-            if (!isMounted) return;
-            if (details) {
-                renderAccountPageShell(true, getAuthenticatedUser());
-            }
-        }).catch(() => {});
-        loadAndRenderSessions();
+    const syncAccountCloudData = () => {
         initializeAppData().then((cloudData) => {
             if (!isMounted) return;
             if (cloudData) {
@@ -109,20 +102,35 @@ async function initAccountApp(scope) {
                 if (activeLanguage) {
                     state.uiSettings.language = activeLanguage;
                 }
-                cleanupOrphanedPlayerPartitions(state);
                 saveState(state, true);
+                cleanupOrphanedPlayerPartitions(state);
             }
             renderAccountPageShell(true, getAuthenticatedUser());
             renderDrawer();
         }).catch(() => {});
+    };
+
+    if (isAuth) {
+        fetchAccountDetails().then((details) => {
+            if (!isMounted) return;
+            if (details) {
+                renderAccountPageShell(true, getAuthenticatedUser());
+            }
+        }).catch(() => {});
+        loadAndRenderSessions();
+        syncAccountCloudData();
     }
 
-    scope.listen(document, 'auth:state-change', () => {
+    scope.listen(document, 'auth:state-change', (e) => {
         if (!isMounted) return;
         const authed = isAuthenticated();
         renderAccountPageShell(authed, getAuthenticatedUser());
         if (authed) {
             loadAndRenderSessions();
+            const action = /** @type {CustomEvent} */ (e)?.detail?.action;
+            if (action === 'pairing-claim' || action === 'login') {
+                syncAccountCloudData();
+            }
         }
         renderDrawer();
     });

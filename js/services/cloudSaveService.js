@@ -1,6 +1,6 @@
 import { translate } from '../i18n/translator.js';
 
-import { loadState, saveState } from '../core/localStorageManager.js';
+import { loadState, persistStoredAppSettings, saveState } from '../core/localStorageManager.js';
 import { getActivePlayerPrefix, getActiveUserId, getPlayerStorageKey, isClashCalcHost, normalizePlayerTag } from '../core/storageKeys.js';
 import { initializeState, state } from '../core/state.js';
 
@@ -72,7 +72,7 @@ export function isJustSyncedFromQr() {
 }
 
 /**
- * Hydrates any player partitions present in cloud but missing locally to local storage.
+ * Hydrates and synchronizes cloud player partitions into localStorage and in-memory state.
  *
  * @param {any} cloudData
  */
@@ -88,17 +88,27 @@ function hydrateMissingCloudPartitions(cloudData) {
         const localKey = getPlayerStorageKey(clean, activePrefix);
         const localStr = typeof localStorage !== 'undefined' ? localStorage.getItem(localKey) : null;
         const localObj = localStr ? safeJsonParse(localStr, null) : null;
-        if (!localObj || (!localObj.playerProfile && cPlayerData?.playerProfile)) {
-            try {
-                const mergedObj = localObj ? { ...localObj, playerProfile: cPlayerData.playerProfile } : cPlayerData;
-                if (typeof localStorage !== 'undefined') {
-                    localStorage.setItem(localKey, JSON.stringify(mergedObj));
-                }
-                if (state?.allPlayersData) {
-                    state.allPlayersData[clean] = mergedObj;
-                }
-            } catch (_) {}
-        }
+        try {
+            const mergedObj = {
+                ...(localObj || {}),
+                ...(cPlayerData || {}),
+                playerProfile: cPlayerData?.playerProfile || localObj?.playerProfile || null
+            };
+            const latestRefreshed = Math.max(
+                Number(localObj?.lastRefreshedAt) || 0,
+                Number(cPlayerData?.lastRefreshedAt) || 0
+            );
+            if (latestRefreshed > 0) {
+                mergedObj.lastRefreshedAt = latestRefreshed;
+            }
+            if (typeof localStorage !== 'undefined') {
+                localStorage.setItem(localKey, JSON.stringify(mergedObj));
+            }
+            if (state?.allPlayersData) {
+                state.allPlayersData[clean] = mergedObj;
+            }
+            cloudData.allPlayersData[clean] = mergedObj;
+        } catch (_) {}
     }
 }
 
@@ -208,7 +218,16 @@ export async function initializeAppData() {
             const timeDifference = Math.abs(cloudTimestamp - localTimestamp);
             const timeTolerance = 5 * 1000;
 
-            if (timeDifference < timeTolerance) {
+            if (isAuthed) {
+                if (cloudTimestamp === localTimestamp) {
+                    logger.log("Local and cloud data are in sync.");
+                    return null;
+                } else if (cloudTimestamp > localTimestamp) {
+                    logger.log("Authenticated account has newer cloud data. Automatically syncing from cloud.");
+                    hydrateMissingCloudPartitions(cloudData);
+                    return cloudData;
+                }
+            } else if (timeDifference < timeTolerance) {
                 logger.log("Local and cloud data are within 5 seconds discrepancy. Considering them in sync.");
                 return null;
             } else if (cloudTimestamp > localTimestamp) {
@@ -249,7 +268,9 @@ export async function initializeAppData() {
                     }
                     return null;
                 }
-            } else if (localTimestamp > cloudTimestamp) {
+            }
+
+            if (localTimestamp > cloudTimestamp) {
                 logger.log("Local data is newer. Automatically pushing to cloud.");
                 const userId = getActiveUserId();
                 if (userId) {
@@ -429,6 +450,9 @@ export async function triggerPreferencesSave(options = {}) {
                 delete preferences.saveError;
 
                 await saveUserPreferences(currentUserId, preferences);
+                const syncedPrefTime = new Date().toISOString();
+                state.timestamp = syncedPrefTime;
+                persistStoredAppSettings({ timestamp: syncedPrefTime });
                 if (!silent) emitSavingStatus('success');
                 resolvers.forEach(r => r(true));
             } catch (error) {

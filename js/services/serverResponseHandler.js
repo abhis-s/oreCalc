@@ -22,10 +22,10 @@ import { fetchPlayerData } from './apiService.js';
  * Fetches remote player profile data and syncs equipment, heroes, and town hall state.
  *
  * @param {string} playerTag - Clash of Clans player tag.
- * @param {{ verifyToken?: string | null, timeoutMs?: number | null, updateOrder?: boolean }} [options={}] - Request options.
+ * @param {{ verifyToken?: string | null, timeoutMs?: number | null, updateOrder?: boolean, background?: boolean }} [options={}] - Request options.
  * @returns {Promise<import('../core/types.js').ServerResponseResult>} Execution status and error metadata.
  */
-export async function loadAndProcessPlayerData(playerTag, { verifyToken = null, timeoutMs = null, updateOrder = true } = {}) {
+export async function loadAndProcessPlayerData(playerTag, { verifyToken = null, timeoutMs = null, updateOrder = true, background = false } = {}) {
     if (!playerTag || playerTag.trim() === '') {
         return { success: false, message: translate('errors.playerTagRequired'), isNetworkError: false };
     }
@@ -44,7 +44,7 @@ export async function loadAndProcessPlayerData(playerTag, { verifyToken = null, 
                 console.warn(`Player tag corrected: Original '${playerTag}', Corrected '${cleanedServerTag}'`);
             }
             processPlayerDataResponse(playerData, { updateOrder });
-        });
+        }, false, background ? { skipSave: true } : {});
         return { success: true, cleanTag: cleanedServerTag, playerData };
     } catch (error) {
         console.error('Failed to load player data:', error);
@@ -198,7 +198,19 @@ export function processPlayerDataResponse(playerData, { updateOrder = true } = {
     const homeHeroes = playerData.heroes?.filter(h => h.village === 'home') || [];
     const homeEquipment = playerData.heroEquipment?.filter(e => e.village === 'home') || [];
 
-    newPlayerState.playerProfile = sanitizePlayerProfile(playerData);
+    const sanitizedProfile = sanitizePlayerProfile(playerData);
+    if (sanitizedProfile && basePlayerState.playerProfile && basePlayerState.playerProfile.clan?.tag === sanitizedProfile.clan?.tag) {
+        if (!sanitizedProfile.clanWarStats && basePlayerState.playerProfile.clanWarStats) {
+            sanitizedProfile.clanWarStats = basePlayerState.playerProfile.clanWarStats;
+        }
+        if (!sanitizedProfile.cwlSeasons && basePlayerState.playerProfile.cwlSeasons) {
+            sanitizedProfile.cwlSeasons = basePlayerState.playerProfile.cwlSeasons;
+        }
+        if (!sanitizedProfile.lastCwlFetchTime && basePlayerState.playerProfile.lastCwlFetchTime) {
+            sanitizedProfile.lastCwlFetchTime = basePlayerState.playerProfile.lastCwlFetchTime;
+        }
+    }
+    newPlayerState.playerProfile = sanitizedProfile;
 
     const serverHeroMap = new Map(homeHeroes.map(hero => [hero.name, hero]));
     const serverEquipMap = new Map(homeEquipment.map(eq => [eq.name, eq]));

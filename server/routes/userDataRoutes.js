@@ -8,6 +8,7 @@ const {
     isLegacyOreCalcOrigin,
     isRestrictedFromOreCalc,
     sanitizePlayerData,
+    preserveExistingPlayerSlices,
     hydratePlayerProfileFromCache,
     sanitizePreferences,
     requireMinAppVersion,
@@ -138,12 +139,17 @@ router.post('/save', requireMinAppVersion, async (req, res) => {
                 incomingCleanTags.add(cleanedDocTag);
                 const playerDocRef = playersCollection.doc(cleanedDocTag);
                 const sanitizedPlayer = sanitizePlayerData(playerData);
+                const existingDoc = existingPlayersSnapshot.docs.find(d => d.id === cleanedDocTag);
+                const existingDocData = existingDoc ? existingDoc.data() : null;
+
+                if (existingDocData) {
+                    preserveExistingPlayerSlices(sanitizedPlayer, existingDocData);
+                }
 
                 // Save protection: do not clobber existing valid playerProfile with null/missing
                 if (!sanitizedPlayer.playerProfile || !sanitizedPlayer.playerProfile.townHallLevel) {
-                    const existingDoc = existingPlayersSnapshot.docs.find(d => d.id === cleanedDocTag);
-                    if (existingDoc && existingDoc.data()?.playerProfile) {
-                        sanitizedPlayer.playerProfile = existingDoc.data().playerProfile;
+                    if (existingDocData?.playerProfile) {
+                        sanitizedPlayer.playerProfile = existingDocData.playerProfile;
                     } else {
                         const hydrated = await hydratePlayerProfileFromCache(cleanedDocTag, 'UserData Save');
                         if (hydrated) {
@@ -312,16 +318,24 @@ router.post('/save-player', requireMinAppVersion, async (req, res) => {
         }
         const playerDocRef = userRef.collection('players').doc(cleanedTag);
         const sanitizedPlayer = sanitizePlayerData(playerData);
+        const needsSliceProtection = !sanitizedPlayer.heroes || !sanitizedPlayer.income || !sanitizedPlayer.storedOres || !sanitizedPlayer.planner;
+        const needsProfileProtection = !sanitizedPlayer.playerProfile || !sanitizedPlayer.playerProfile.townHallLevel;
 
-        // Save protection: do not clobber existing valid playerProfile with null/missing
-        if (!sanitizedPlayer.playerProfile || !sanitizedPlayer.playerProfile.townHallLevel) {
+        if (needsSliceProtection || needsProfileProtection) {
             const existingDoc = await playerDocRef.get();
-            if (existingDoc.exists && existingDoc.data()?.playerProfile) {
-                sanitizedPlayer.playerProfile = existingDoc.data().playerProfile;
-            } else {
-                const hydrated = await hydratePlayerProfileFromCache(cleanedTag, 'UserData SaveSingle');
-                if (hydrated) {
-                    sanitizedPlayer.playerProfile = hydrated;
+            const existingDocData = existingDoc.exists ? existingDoc.data() : null;
+            if (existingDocData) {
+                preserveExistingPlayerSlices(sanitizedPlayer, existingDocData);
+            }
+            // Save protection: do not clobber existing valid playerProfile with null/missing
+            if (!sanitizedPlayer.playerProfile || !sanitizedPlayer.playerProfile.townHallLevel) {
+                if (existingDocData?.playerProfile) {
+                    sanitizedPlayer.playerProfile = existingDocData.playerProfile;
+                } else {
+                    const hydrated = await hydratePlayerProfileFromCache(cleanedTag, 'UserData SaveSingle');
+                    if (hydrated) {
+                        sanitizedPlayer.playerProfile = hydrated;
+                    }
                 }
             }
         }

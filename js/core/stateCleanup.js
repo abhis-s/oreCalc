@@ -343,6 +343,13 @@ export function cleanupOrphanedPlayerPartitions(stateObj = null) {
         collectTags('clashCalc_playerTags');
         collectTags('oreCalc_playerTags');
 
+        if (allowedTags.size === 0 && Array.isArray(stateObj?.savedPlayerTags)) {
+            stateObj.savedPlayerTags.forEach(t => {
+                const clean = normalizePlayerTag(t);
+                if (clean) allowedTags.add(clean);
+            });
+        }
+
         const isGuestAllowed = allowedTags.has('DEFAULT0') || allowedTags.size === 0;
 
         const allKeys = typeof localStorage.key === 'function'

@@ -222,7 +222,7 @@ export function persistAppSettings(patch) {
  * @param {boolean} [isSwatchClick=false]
  */
 function applyAppTheme(theme, accentColor, isInteraction = false, isSwatchClick = false) {
-    handleStateUpdate(() => {
+    const syncUiSettingsInMemory = () => {
         if (!state.uiSettings) {
             state.uiSettings = {};
         }
@@ -232,7 +232,13 @@ function applyAppTheme(theme, accentColor, isInteraction = false, isSwatchClick 
             const stored = getAppSettings();
             state.uiSettings.language = stored.language && stored.language !== 'auto' ? stored.language : 'en';
         }
-    }, true, { preferencesOnly: true });
+    };
+
+    if (isInteraction) {
+        handleStateUpdate(syncUiSettingsInMemory, true, { preferencesOnly: true });
+    } else {
+        syncUiSettingsInMemory();
+    }
 
     const origin = isInteraction ? { isSwatchClick } : null;
     applyThemeSettings(theme, accentColor, origin);
@@ -266,7 +272,9 @@ function applyAppTheme(theme, accentColor, isInteraction = false, isSwatchClick 
         swatch.classList.toggle('is-active', swatchColor === accentColor);
     });
 
-    persistAppSettings({ theme, accentColor });
+    if (isInteraction) {
+        persistAppSettings({ theme, accentColor });
+    }
 }
 
 /**

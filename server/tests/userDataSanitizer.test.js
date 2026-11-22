@@ -3,7 +3,8 @@ const assert = require('node:assert/strict');
 
 const {
     sanitizePreferences,
-    sanitizePlayerData
+    sanitizePlayerData,
+    preserveExistingPlayerSlices
 } = require('../services/userDataSanitizer.js');
 
 test('sanitizePreferences preserves all supported league modifiers', () => {
@@ -75,5 +76,43 @@ test('sanitizePlayerData normalizes lab troops using canonical scaling keys', ()
     assert.deepEqual(sanitized.playerProfile.labTroops, {
         barbarian: 12,
         archer: 11
+    });
+});
+
+test('preserveExistingPlayerSlices retains existing income, raidMedals, heroes, storedOres, and planner when saving partial Hero Journey payload', () => {
+    const existingDocData = {
+        playerProfile: { tag: '8PJYGUJC', name: 'Chief', townHallLevel: 16 },
+        heroes: { barbarianKing: { level: 95, enabled: true, equipment: {} } },
+        storedOres: { shiny: 5000, glowy: 400, starry: 50 },
+        income: {
+            raidMedals: { enabled: true, earned: 1300, packs: { shiny: 0, glowy: 2, starry: 2 } }
+        },
+        planner: { calendar: { dates: {} } },
+        currency: { code: 'EUR', globalPricing: {} },
+        onboardingTimestamp: 1781000000000,
+        heroJourney: { acceleratedRewards: false, revealBeyondTH: false, hidden: false }
+    };
+
+    const incomingPartialHjPayload = sanitizePlayerData({
+        lastRefreshedAt: 1795000000000,
+        playerProfile: { tag: '#8PJYGUJC', name: 'Chief', townHallLevel: 16 },
+        heroJourney: { acceleratedRewards: true, revealBeyondTH: true, hidden: false }
+    });
+
+    const merged = preserveExistingPlayerSlices(incomingPartialHjPayload, existingDocData);
+    assert.deepEqual(merged.income.raidMedals, {
+        enabled: true,
+        earned: 1300,
+        packs: { shiny: 0, glowy: 2, starry: 2 }
+    });
+    assert.deepEqual(merged.storedOres, { shiny: 5000, glowy: 400, starry: 50 });
+    assert.deepEqual(merged.heroes, existingDocData.heroes);
+    assert.deepEqual(merged.planner, existingDocData.planner);
+    assert.deepEqual(merged.currency, existingDocData.currency);
+    assert.equal(merged.onboardingTimestamp, 1781000000000);
+    assert.deepEqual(merged.heroJourney, {
+        acceleratedRewards: true,
+        revealBeyondTH: true,
+        hidden: false
     });
 });

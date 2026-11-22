@@ -12,18 +12,21 @@ import { recalculateAll } from './core/calculator.js';
 import { detectLanguage, getLanguageFromPath, isValidRoute, syncLanguageUrl } from './core/languageRouter.js';
 import { loadState, saveState } from './core/localStorageManager.js';
 import { getStorageItem, isClashCalcHost, normalizePlayerTag } from './core/storageKeys.js';
-import { loadPlayerData, updateSavedPlayerTags } from './core/playerStorage.js';
+import { loadPlayerData, setActivePlayerTag } from './core/playerStorage.js';
+import { isPlayerRefreshStale } from './core/playerRefreshThrottler.js';
 import { renderApp } from './core/renderer.js';
 import { initializeState, state } from './core/state.js';
+import { cleanupOrphanedPlayerPartitions } from './core/stateCleanup.js';
 import { autoPlaceIncomeChipsForRange } from './utils/autoPlaceChips.js';
 import { getMaxDate, getMinDate } from './utils/dateUtils.js';
 import { compareVersions } from './utils/versionUtils.js';
-import { registerStateUpdateCallback, switchActivePlayer } from './core/stateManager.js';
+import { hasPendingCloudSave, registerStateUpdateCallback, switchActivePlayer } from './core/stateManager.js';
 import { loadAndProcessPlayerData } from './services/serverResponseHandler.js';
 import {
     THEME_PALETTE,
     animatePreloaderBackground,
     applyTheme,
+    applyThemeSettings,
     availableAccents,
     setThemeRenderCallback
 } from './core/themeManager.js';
@@ -47,6 +50,7 @@ import { initializePwaService } from './services/pwaService.js';
 import { setJustSyncedFromQr, importUserData, initializeAppData, isJustSyncedFromQr } from './services/cloudSaveService.js';
 import { showAddPlayerModal } from './components/player/playerModalInputs.js';
 import { resetPlayerDropdownState } from './components/player/playerDropdownInputs.js';
+import { refreshActivePlayerData } from './components/player/playerRefreshController.js';
 import { markUserMigrated } from './services/apiService.js';
 import { finalizeRouteMount, mountWhenReady } from './core/shellBootstrapper.js';
 import { RouteLifecycleScope } from './core/routeLifecycleScope.js';
@@ -302,8 +306,8 @@ export async function mount(options = {}) {
             }
 
             if (state.allPlayersData[urlTag]?.heroes) {
-                switchActivePlayer(urlTag);
-                updateSavedPlayerTags(urlTag);
+                switchActivePlayer(urlTag, { skipSave: true, silent: true });
+                setActivePlayerTag(urlTag);
                 syncPlayerTagToUrl(urlTag);
             } else {
                 const result = await loadAndProcessPlayerData(urlTag);
@@ -455,6 +459,54 @@ export async function mount(options = {}) {
         handlePreloaderTeardown(isPreloaderEnabled ? preloader : null, lifecycleScope);
         initializePwaService();
 
+        const applyCloudSyncedState = async (syncedState) => {
+            if (!syncedState || !isMounted) return;
+            const originalVersion = syncedState.appVersion || '1.0.0';
+            const activeLanguage = getLanguageFromPath() || state.uiSettings?.language || 'en';
+            const currentUrlTag = getPlayerTagFromUrl();
+            initializeState(syncedState);
+            state.uiSettings.language = activeLanguage;
+            if (activeLanguage !== 'en') {
+                await loadTranslations(activeLanguage);
+            }
+            if (currentUrlTag && state.allPlayersData?.[currentUrlTag]?.heroes) {
+                switchActivePlayer(currentUrlTag, { skipSave: true, silent: true });
+                setActivePlayerTag(currentUrlTag);
+                syncPlayerTagToUrl(currentUrlTag);
+            } else if (state.savedPlayerTags?.[0] && state.savedPlayerTags[0] !== 'DEFAULT0') {
+                syncPlayerTagToUrl(state.savedPlayerTags[0]);
+            }
+            if (state.planner?.calendar) {
+                const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
+                const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
+                autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
+                state.planner.calendar.isHydrated = true;
+            }
+            if (state.appVersion !== originalVersion) {
+                logger.log(`Upgraded synced state version from ${originalVersion} to ${state.appVersion}`);
+            }
+            saveState(state, true);
+            cleanupOrphanedPlayerPartitions(state);
+            applyThemeSettings(state.uiSettings?.theme || 'dark', state.uiSettings?.accentColor || 'blue');
+            initAppFooter({ version: state.appVersion });
+            recalculateAll(state);
+            renderApp(state);
+        };
+
+        let lastVisibilityCloudCheck = 0;
+        lifecycleScope.listen(document, 'visibilitychange', async () => {
+            if (!isMounted || document.visibilityState === 'hidden' || hasPendingCloudSave()) return;
+            const now = Date.now();
+            if (now - lastVisibilityCloudCheck < 3000) return;
+            lastVisibilityCloudCheck = now;
+            try {
+                const syncedState = await initializeAppData();
+                if (isMounted && syncedState && !hasPendingCloudSave()) {
+                    await applyCloudSyncedState(syncedState);
+                }
+            } catch (_) {}
+        });
+
         if (appDataInitTimeout) {
             clearTimeout(appDataInitTimeout);
             appDataInitTimeout = null;
@@ -470,31 +522,15 @@ export async function mount(options = {}) {
                 const syncedState = await initializeAppData();
                 if (!isMounted) return;
                 if (syncedState) {
-                    const originalVersion = syncedState.appVersion || '1.0.0';
-                    const activeLanguage = getLanguageFromPath() || state.uiSettings?.language || 'en';
-                    initializeState(syncedState);
-                    state.uiSettings.language = activeLanguage;
-                    if (activeLanguage !== 'en') {
-                        await loadTranslations(activeLanguage);
-                    }
-                    if (state.planner?.calendar) {
-                        const { month: MIN_MONTH, year: MIN_YEAR } = getMinDate();
-                        const { month: MAX_MONTH, year: MAX_YEAR } = getMaxDate();
-                        autoPlaceIncomeChipsForRange(MIN_MONTH, MIN_YEAR, MAX_MONTH, MAX_YEAR, true);
-                        state.planner.calendar.isHydrated = true;
-                    }
-                    if (state.appVersion !== originalVersion) {
-                        logger.log(`Upgraded synced state version from ${originalVersion} to ${state.appVersion}`);
-                        saveState(state, true);
-                    } else {
-                        saveState(state);
-                    }
-                    initAppFooter({ version: state.appVersion });
-                    recalculateAll(state);
-                    renderApp(state);
+                    await applyCloudSyncedState(syncedState);
                 }
                 if (isJustSyncedFromQr()) {
                     setJustSyncedFromQr(false);
+                }
+
+                const activeTag = state.savedPlayerTags?.[0];
+                if (isMounted && activeTag && activeTag !== 'DEFAULT0' && isPlayerRefreshStale(activeTag)) {
+                    void refreshActivePlayerData({ background: true });
                 }
             } catch (error) {
                 if (window.handleChunkError && window.handleChunkError(error)) return;
@@ -505,7 +541,7 @@ export async function mount(options = {}) {
             } finally {
                 appDataInitTimeout = null;
             }
-        }, 2000);
+        }, isPreloaderEnabled ? 2000 : 0);
 
         initializeGlobalInterceptors();
         finalizeRouteMount('ore-calculator', { mount, destroy, isStandalone: false });
