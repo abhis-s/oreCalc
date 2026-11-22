@@ -1,5 +1,5 @@
 import { translate } from '../../i18n/translator.js';
-import { showCardHelpPopover, hideCardHelpPopover } from '../../utils/cardHelpPopover.js';
+import { showCardHelpPopover, hideCardHelpPopover, isCardHelpPopoverPinned } from '../../utils/cardHelpPopover.js';
 import {
     saveCurrentFilterScrollPosition,
     getActiveFilterKey,
@@ -284,7 +284,9 @@ export function initHeroJourneyControls(hjState, renderUI, resetFiltersFn) {
             if (btn) {
                 const related = /** @type {Node | null} */ (e.relatedTarget);
                 if (!related || (!btn.contains(related) && !document.getElementById('card-help-popover')?.contains(related))) {
-                    hideCardHelpPopover();
+                    if (!isCardHelpPopoverPinned()) {
+                        hideCardHelpPopover();
+                    }
                 }
             }
         });

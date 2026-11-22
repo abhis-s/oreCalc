@@ -19,13 +19,16 @@ import {
  */
 export function renderModifierTabs(modifierTabsContainer, hasValidLevels, hasStatsMeta, activeModifierTab) {
     if (!modifierTabsContainer) return;
+    const modifierRow = typeof document !== 'undefined' ? document.getElementById('eq-details-modifier-row') : null;
     if (!hasValidLevels || !hasStatsMeta) {
+        if (modifierRow) modifierRow.hidden = true;
         modifierTabsContainer.hidden = true;
         modifierTabsContainer.style.display = '';
         modifierTabsContainer.innerHTML = '';
         return;
     }
 
+    if (modifierRow) modifierRow.hidden = false;
     modifierTabsContainer.hidden = false;
     modifierTabsContainer.style.display = '';
     renderBattleModifierSwitcher(modifierTabsContainer, activeModifierTab, { includePercentages: false });
@@ -178,6 +181,8 @@ export function renderEmptyState(modal, equipmentName, equipmentRarity, equipmen
     if (contentWrapper) contentWrapper.style.display = '';
     if (propsGrid) propsGrid.style.display = 'none';
     if (recBannerContainer) recBannerContainer.innerHTML = '';
+    const modifierRow = document.getElementById('eq-details-modifier-row');
+    if (modifierRow) modifierRow.hidden = true;
     if (modifierTabsContainer) {
         modifierTabsContainer.hidden = true;
         modifierTabsContainer.style.display = '';

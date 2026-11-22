@@ -496,6 +496,7 @@
             user-select: none;
             background: transparent;
             border: none;
+            color: $text-primary;
             width: 100%;
             border-radius: $shape-corner-small;
             transition: background-color $transition-fast;
@@ -530,7 +531,8 @@
 
             .account-popover-prefs-chevron {
                 transition: transform $transition-fast;
-                fill: $text-secondary;
+                color: $text-secondary;
+                fill: currentColor;
             }
         }
 

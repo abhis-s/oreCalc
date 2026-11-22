@@ -363,18 +363,18 @@ export function updateUnitStatsHover(unitStatsContent, data, levelsArray, curren
         let decreaseWidth = basePct;
         let isComparing = false;
 
-        if (hoverLevelObj && hoveredEquipLevel !== activeLevel) {
-            const diff = Math.round((safeHover - safeBase) * 100) / 100;
-            const isSame = diff === 0;
+        const statKey = meta.key ? `${meta.key}_${idx}` : `stat_${idx}`;
+        const diff = (hoverLevelObj && hoveredEquipLevel !== activeLevel)
+            ? Math.round((safeHover - safeBase) * 100) / 100
+            : 0;
+        const isSame = diff === 0;
+
+        if (hoverLevelObj && hoveredEquipLevel !== activeLevel && !isSame) {
             const isGain = isLowerBetter ? diff < 0 : diff > 0;
 
             isComparing = true;
 
-            if (isSame) {
-                mainWidth = basePct;
-                increaseWidth = basePct;
-                decreaseWidth = basePct;
-            } else if (isGain) {
+            if (isGain) {
                 if (isLowerBetter) {
                     mainWidth = hoverPct;
                     increaseWidth = hoverPct;
@@ -399,9 +399,8 @@ export function updateUnitStatsHover(unitStatsContent, data, levelsArray, curren
             const diffSign = formatDiffVal(diff, meta.valueUnit, { tilesSuffix: translate('views.equipment.tilesSuffix') || 'tiles' });
             const formattedBase = formatVal(safeBase, meta.valueUnit);
             const formattedHover = formatVal(safeHover, meta.valueUnit);
-            const deltaTextClass = isGain ? 'val-increase' : (isSame ? '' : 'val-decrease');
+            const deltaTextClass = isGain ? 'val-increase' : 'val-decrease';
 
-            const statKey = meta.key ? `${meta.key}_${idx}` : `stat_${idx}`;
             if (!/** @type {any} */ (unitStatsContent).__lastHoveredUnitValues) {
                 /** @type {any} */ (unitStatsContent).__lastHoveredUnitValues = {};
             }
@@ -455,6 +454,9 @@ export function updateUnitStatsHover(unitStatsContent, data, levelsArray, curren
                 }
             }
         } else {
+            if (hoverLevelObj && hoveredEquipLevel !== activeLevel) {
+                /** @type {any} */ (unitStatsContent).__lastHoveredUnitValues[statKey] = safeBase;
+            }
             rowEl.classList.remove('is-comparing');
             const valEl = rowEl.querySelector('.stat-val');
             if (valEl) {

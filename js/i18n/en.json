@@ -971,6 +971,7 @@
                 "requiresOverflowHint": "Requires storage overflow mode"
             },
             "heroBoost": "Hero Boost",
+            "heroBoostHelp": "These stats may adjust based on the selected battle modifier.",
             "heroEquipment": "Hero Equipment",
             "heroJourneyPreLevelInfo": "Unlocks from Hero's Journey at Town Hall {th} (Node {node}), already upgraded to Level {level}.",
             "legendary": "Legendary",

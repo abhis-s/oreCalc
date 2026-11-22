@@ -5,7 +5,7 @@ import { selectIsEquipmentMaxed } from '../../core/selectors.js';
 import { state } from '../../core/state.js';
 import { getActiveCustomComingSoon, isOfficialComingSoonDefined } from '../../domain/equipment/comingSoonEquipmentDomain.js';
 
-import { hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
+import { hideCardHelpPopover, isCardHelpPopoverPinned, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { formatDate } from '../../utils/dateUtils.js';
 import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
@@ -86,7 +86,11 @@ function attachPriorityOresPopover(oresEl, item, startLevel, heroName, equipName
     });
     oresEl.addEventListener('pointerleave', (e) => {
         if (e.pointerType === 'touch') return;
-        hideCardHelpPopover();
+        const related = /** @type {Node | null} */ (e.relatedTarget);
+        if (related && document.getElementById('card-help-popover')?.contains(related)) return;
+        if (!isCardHelpPopoverPinned()) {
+            hideCardHelpPopover();
+        }
     });
 }
 

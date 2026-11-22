@@ -248,11 +248,24 @@ async function navigateTo(targetUrl, options = {}) {
     }
 
     const abortController = new AbortController();
+    let didCommitHistory = false;
+    const fallbackHardNavigate = () => {
+        if (didCommitHistory) {
+            if (typeof window.location.replace === 'function') {
+                window.location.replace(url.href);
+            }
+            if (url.hash && typeof window.location.reload === 'function') {
+                window.location.reload();
+            }
+        } else {
+            window.location.href = url.href;
+        }
+    };
     const timeoutId = setTimeout(() => {
         try {
             abortController.abort();
         } catch (_) {}
-        window.location.href = url.href;
+        fallbackHardNavigate();
     }, NAVIGATION_TIMEOUT_MS);
 
     try {
@@ -297,6 +310,23 @@ async function navigateTo(targetUrl, options = {}) {
                 activeExtras.innerHTML = '';
             }
 
+            // Commit destination URL and route before drawer updates and app mounts read window.location
+            if (!options.isPopState) {
+                const shouldReplace = Boolean(options.replaceHistory) ||
+                    Boolean(typeof window !== 'undefined' && window.history?.state?.modalStateId) ||
+                    (typeof navigator !== 'undefined' && navigator.userActivation?.hasBeenActive === false);
+                if (shouldReplace && typeof window !== 'undefined' && window.history && typeof window.history.replaceState === 'function') {
+                    window.history.replaceState({}, document.title, url.href);
+                    didCommitHistory = true;
+                } else if (typeof window !== 'undefined' && window.history && typeof window.history.pushState === 'function') {
+                    window.history.pushState({}, document.title, url.href);
+                    didCommitHistory = true;
+                }
+            }
+
+            currentActiveRoute = targetRoute;
+            lastCommittedPathname = url.pathname + url.search;
+
             navigatorUiHooks.onUpdateDrawer?.({ activeTool: targetRoute });
             navigatorUiHooks.onAfterRouteSwap?.(targetRoute);
 
@@ -316,20 +346,6 @@ async function navigateTo(targetUrl, options = {}) {
                     }
                 }
             }
-
-            if (!options.isPopState) {
-                const shouldReplace = Boolean(options.replaceHistory) ||
-                    Boolean(typeof window !== 'undefined' && window.history?.state?.modalStateId) ||
-                    (typeof navigator !== 'undefined' && navigator.userActivation?.hasBeenActive === false);
-                if (shouldReplace && typeof window !== 'undefined' && window.history && typeof window.history.replaceState === 'function') {
-                    window.history.replaceState({}, document.title, url.href);
-                } else if (typeof window !== 'undefined' && window.history && typeof window.history.pushState === 'function') {
-                    window.history.pushState({}, document.title, url.href);
-                }
-            }
-
-            currentActiveRoute = targetRoute;
-            lastCommittedPathname = url.pathname + url.search;
         };
 
         document.documentElement.dataset.transitionType = 'page-switch';
@@ -396,7 +412,7 @@ async function navigateTo(targetUrl, options = {}) {
         return true;
     } catch (_) {
         clearTimeout(timeoutId);
-        window.location.href = url.href;
+        fallbackHardNavigate();
         return false;
     } finally {
         isTransitioning = false;

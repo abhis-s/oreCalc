@@ -75,24 +75,36 @@ export function getDamageSourcesGridHtml(state) {
             ? `${escapeHTML(src.name)} (${lvlShort} ${src.level} · -${downgradeDiff})`
             : `${escapeHTML(src.name)} (${lvlShort} ${src.level})`;
 
+        const infoAriaLabel = `${escapeHTML(src.name)} (${escapeHTML(translate('actions.showInfo') || 'Show Information')})`;
+
         sourcesHtml += `
-            <button type="button"
-                class="calc-source-toggle-btn ${isEnabled ? 'is-active' : 'is-inactive'} ${isDowngraded ? 'is-downgraded' : ''}"
-                data-source-key="${src.key}"
-                data-source-info="${src.key}"
-                data-source-type="${src.type}"
-                data-source-level="${src.level}"
-                data-source-raw-level="${src.rawLevel || src.level}"
-                aria-label="${ariaLabel}"
-                aria-pressed="${isEnabled}">
-                <clashcalc-assets-image
-                    src="${src.icon}"
-                    alt="${escapeHTML(src.name)}"
-                    size="thumbnail"
-                    class="calc-source-toggle-btn__icon">
-                </clashcalc-assets-image>
-                <span class="calc-source-toggle-btn__lvl ${isDowngraded ? 'calc-source-toggle-btn__lvl--downgraded' : ''}">${src.level}</span>
-            </button>
+            <div class="calc-source-item">
+                <button type="button"
+                    class="calc-source-toggle-btn ${isEnabled ? 'is-active' : 'is-inactive'} ${isDowngraded ? 'is-downgraded' : ''}"
+                    data-source-key="${src.key}"
+                    data-source-info="${src.key}"
+                    data-source-type="${src.type}"
+                    data-source-level="${src.level}"
+                    data-source-raw-level="${src.rawLevel || src.level}"
+                    aria-label="${ariaLabel}"
+                    aria-pressed="${isEnabled}">
+                    <clashcalc-assets-image
+                        src="${src.icon}"
+                        alt="${escapeHTML(src.name)}"
+                        size="thumbnail"
+                        class="calc-source-toggle-btn__icon">
+                    </clashcalc-assets-image>
+                    <span class="calc-source-toggle-btn__lvl ${isDowngraded ? 'calc-source-toggle-btn__lvl--downgraded' : ''}">${src.level}</span>
+                </button>
+                <button type="button"
+                    class="info-btn calc-source-item__info-btn"
+                    data-source-info="${src.key}"
+                    data-source-level="${src.level}"
+                    data-source-info-btn="true"
+                    aria-label="${infoAriaLabel}">
+                    <clashcalc-assets-svg name="info" width="12" height="12"></clashcalc-assets-svg>
+                </button>
+            </div>
         `;
     }
 
@@ -124,38 +136,58 @@ export function getDamageSourcesGridHtml(state) {
                 </clashcalc-assets-image>
                 <span class="calc-source-cc-badge">${escapeHTML(translate('views.damageCalc.offense.clanCastleAbbr'))}</span>
             </button>
-            <button type="button"
-                class="calc-source-toggle-btn ${isCcZapEnabled ? 'is-active' : 'is-inactive'}"
-                data-source-key="cc_lightning"
-                data-source-info="cc_lightning"
-                data-source-type="cc_spell"
-                data-source-level="${ccZapLvl}"
-                aria-label="${escapeHTML(ccZapName)} (${lvlShort} ${ccZapLvl})"
-                aria-pressed="${isCcZapEnabled}">
-                <clashcalc-assets-image
-                    src="/assets/spells/lightning.png"
-                    alt="${escapeHTML(ccZapName)}"
-                    size="thumbnail"
-                    class="calc-source-toggle-btn__icon">
-                </clashcalc-assets-image>
-                <span class="calc-source-toggle-btn__lvl">${ccZapLvl}</span>
-            </button>
-            <button type="button"
-                class="calc-source-toggle-btn ${isCcEqEnabled ? 'is-active' : 'is-inactive'}"
-                data-source-key="cc_earthquake"
-                data-source-info="cc_earthquake"
-                data-source-type="cc_spell"
-                data-source-level="${ccEqLvl}"
-                aria-label="${escapeHTML(ccEqName)} (${lvlShort} ${ccEqLvl})"
-                aria-pressed="${isCcEqEnabled}">
-                <clashcalc-assets-image
-                    src="/assets/spells/earthquake.png"
-                    alt="${escapeHTML(ccEqName)}"
-                    size="thumbnail"
-                    class="calc-source-toggle-btn__icon">
-                </clashcalc-assets-image>
-                <span class="calc-source-toggle-btn__lvl">${ccEqLvl}</span>
-            </button>
+            <div class="calc-source-item">
+                <button type="button"
+                    class="calc-source-toggle-btn ${isCcZapEnabled ? 'is-active' : 'is-inactive'}"
+                    data-source-key="cc_lightning"
+                    data-source-info="cc_lightning"
+                    data-source-type="cc_spell"
+                    data-source-level="${ccZapLvl}"
+                    aria-label="${escapeHTML(ccZapName)} (${lvlShort} ${ccZapLvl})"
+                    aria-pressed="${isCcZapEnabled}">
+                    <clashcalc-assets-image
+                        src="/assets/spells/lightning.png"
+                        alt="${escapeHTML(ccZapName)}"
+                        size="thumbnail"
+                        class="calc-source-toggle-btn__icon">
+                    </clashcalc-assets-image>
+                    <span class="calc-source-toggle-btn__lvl">${ccZapLvl}</span>
+                </button>
+                <button type="button"
+                    class="info-btn calc-source-item__info-btn"
+                    data-source-info="cc_lightning"
+                    data-source-level="${ccZapLvl}"
+                    data-source-info-btn="true"
+                    aria-label="${escapeHTML(ccZapName)} (${escapeHTML(translate('actions.showInfo') || 'Show Information')})">
+                    <clashcalc-assets-svg name="info" width="12" height="12"></clashcalc-assets-svg>
+                </button>
+            </div>
+            <div class="calc-source-item">
+                <button type="button"
+                    class="calc-source-toggle-btn ${isCcEqEnabled ? 'is-active' : 'is-inactive'}"
+                    data-source-key="cc_earthquake"
+                    data-source-info="cc_earthquake"
+                    data-source-type="cc_spell"
+                    data-source-level="${ccEqLvl}"
+                    aria-label="${escapeHTML(ccEqName)} (${lvlShort} ${ccEqLvl})"
+                    aria-pressed="${isCcEqEnabled}">
+                    <clashcalc-assets-image
+                        src="/assets/spells/earthquake.png"
+                        alt="${escapeHTML(ccEqName)}"
+                        size="thumbnail"
+                        class="calc-source-toggle-btn__icon">
+                    </clashcalc-assets-image>
+                    <span class="calc-source-toggle-btn__lvl">${ccEqLvl}</span>
+                </button>
+                <button type="button"
+                    class="info-btn calc-source-item__info-btn"
+                    data-source-info="cc_earthquake"
+                    data-source-level="${ccEqLvl}"
+                    data-source-info-btn="true"
+                    aria-label="${escapeHTML(ccEqName)} (${escapeHTML(translate('actions.showInfo') || 'Show Information')})">
+                    <clashcalc-assets-svg name="info" width="12" height="12"></clashcalc-assets-svg>
+                </button>
+            </div>
         </div>
     `;
 

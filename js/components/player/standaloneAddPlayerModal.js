@@ -1,6 +1,6 @@
 import { translate } from '../../i18n/translator.js';
 import { validatePlayerTagInput } from '../../utils/playerTagValidator.js';
-import { getAddPlayerHelpContent, hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
+import { getAddPlayerHelpContent, hideCardHelpPopover, isCardHelpPopoverPinned, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { canDismissModalOnEscape, closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { openPrivacyModal, openTermsOfUseModal } from '../appSettings/settingsLegalModals.js';
 import { enhanceClipboardInput, triggerAutoPaste } from '../common/clipboardInputController.js';
@@ -167,7 +167,11 @@ export function initStandaloneAddPlayerModal({ onLoadPlayer, scope = null }) {
         });
         infoBtn?.addEventListener('pointerleave', (e) => {
             if (e.pointerType === 'touch') return;
-            hideCardHelpPopover();
+            const related = /** @type {Node | null} */ (e.relatedTarget);
+            if (related && document.getElementById('card-help-popover')?.contains(related)) return;
+            if (!isCardHelpPopoverPinned()) {
+                hideCardHelpPopover();
+            }
         });
 
         modal.addEventListener('click', (e) => {

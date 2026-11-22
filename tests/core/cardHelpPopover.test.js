@@ -184,6 +184,8 @@ describe('cardHelpPopover - Hover-to-Click Grace & Pinning Lifecycle Suite', () 
     let showCardHelpPopover;
     let hideCardHelpPopover;
     let isCardHelpPopoverPinned;
+    let isCardHelpPopoverOpen;
+    let consumeHelpPopoverEscapeDismissal;
     let loadTranslations;
 
     beforeEach(async () => {
@@ -199,6 +201,8 @@ describe('cardHelpPopover - Hover-to-Click Grace & Pinning Lifecycle Suite', () 
         showCardHelpPopover = popoverMod.showCardHelpPopover;
         hideCardHelpPopover = popoverMod.hideCardHelpPopover;
         isCardHelpPopoverPinned = popoverMod.isCardHelpPopoverPinned;
+        isCardHelpPopoverOpen = popoverMod.isCardHelpPopoverOpen;
+        consumeHelpPopoverEscapeDismissal = popoverMod.consumeHelpPopoverEscapeDismissal;
 
         hideCardHelpPopover();
     });
@@ -272,5 +276,80 @@ describe('cardHelpPopover - Hover-to-Click Grace & Pinning Lifecycle Suite', () 
 
         assert.ok(!mockHelpPopover.classList.contains('show'), 'Outside pointerdown closed tooltip');
         assert.equal(isCardHelpPopoverPinned(), false, 'Pinned state reset on outside dismissal');
+    });
+
+    test('uses popover=manual, re-asserts showPopover on fresh hover pin, switches triggers cleanly, and yields Escape once', () => {
+        let topLayerOpen = false;
+        let showPopoverCalls = 0;
+        const prevMatches = mockHelpPopover.matches;
+        const prevShowPopover = mockHelpPopover.showPopover;
+        const prevHidePopover = mockHelpPopover.hidePopover;
+
+        mockHelpPopover.matches = (sel) => (sel === ':popover-open' ? topLayerOpen : false);
+        mockHelpPopover.showPopover = () => {
+            topLayerOpen = true;
+            showPopoverCalls += 1;
+        };
+        mockHelpPopover.hidePopover = () => {
+            topLayerOpen = false;
+        };
+
+        const createTrigger = (id) => {
+            const attrs = new Map();
+            return {
+                id,
+                setAttribute: (k, v) => attrs.set(k, String(v)),
+                getAttribute: (k) => attrs.get(k) || null,
+                removeAttribute: (k) => attrs.delete(k),
+                contains: (node) => node?.id === id,
+                closest: () => ({ id }),
+                getBoundingClientRect: () => ({ top: 100, bottom: 130, left: 50, right: 150, width: 100, height: 30 })
+            };
+        };
+
+        try {
+            const triggerA = createTrigger('info-btn-a');
+            const triggerB = createTrigger('info-btn-b');
+
+            // 1. Fresh hover opens top layer using popover="manual"
+            showCardHelpPopover(triggerA, 'Content A', { isToggle: false });
+            assert.equal(mockHelpPopover.getAttribute('popover'), 'manual');
+            assert.equal(isCardHelpPopoverOpen(), true);
+            assert.equal(topLayerOpen, true);
+
+            // Simulate top-layer unexpectedly closed before click while promoting fresh hover to pinned
+            topLayerOpen = false;
+            showCardHelpPopover(triggerA, 'Content A', { isToggle: true });
+            assert.equal(isCardHelpPopoverPinned(), true);
+            assert.equal(topLayerOpen, true);
+            assert.ok(showPopoverCalls >= 2);
+
+            // 2. Switching from Trigger A to Trigger B via pointerdown + click leaves Trigger B open
+            for (const handler of (mockDocListeners.get('pointerdown') || [])) {
+                handler({ target: triggerB });
+            }
+            assert.equal(isCardHelpPopoverOpen(), false);
+            showCardHelpPopover(triggerB, 'Content B', { isToggle: true });
+            assert.equal(isCardHelpPopoverOpen(), true);
+            assert.equal(isCardHelpPopoverPinned(), true);
+
+            // 3. Escape closes active popover and sets single-use escape yield flag for parent <dialog> cancel listeners
+            let propagationStopped = false;
+            for (const handler of (mockDocListeners.get('keydown') || [])) {
+                handler({
+                    key: 'Escape',
+                    preventDefault: () => {},
+                    stopImmediatePropagation: () => { propagationStopped = true; }
+                });
+            }
+            assert.equal(propagationStopped, true);
+            assert.equal(isCardHelpPopoverOpen(), false);
+            assert.equal(consumeHelpPopoverEscapeDismissal(), true);
+            assert.equal(consumeHelpPopoverEscapeDismissal(), false);
+        } finally {
+            mockHelpPopover.matches = prevMatches;
+            mockHelpPopover.showPopover = prevShowPopover;
+            mockHelpPopover.hidePopover = prevHidePopover;
+        }
     });
 });

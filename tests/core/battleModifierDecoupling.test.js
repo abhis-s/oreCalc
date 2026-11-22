@@ -29,7 +29,8 @@ import { getDefaultModifierKey } from '../../js/domain/equipment/modifierCalcula
 import {
     getModifierLabel,
     MODIFIER_PERCENTAGE_SUFFIXES,
-    getBattleModifierSwitcherMarkup
+    getBattleModifierSwitcherMarkup,
+    getBattleModifierInfoPopoverContent
 } from '../../js/components/common/battleModifierSwitcher.js';
 import { loadTranslations } from '../../js/i18n/translator.js';
 import enJson from '../../js/i18n/en.json' with { type: 'json' };
@@ -272,5 +273,23 @@ test('Battle Modifier Decoupling & Unified Architecture', async (t) => {
         const markupWithoutPct = getBattleModifierSwitcherMarkup('legend3', { includePercentages: false });
         assert.ok(markupWithoutPct.includes('data-i18n="views.equipment.modifiers.legend3"'));
         assert.ok(!markupWithoutPct.includes('<span class="mod-tab-percent">'));
+    });
+
+    await t.test('getBattleModifierInfoPopoverContent builds localized modifier breakdown popover', async () => {
+        appGlobalState.uiSettings.language = 'en';
+        await loadTranslations('en');
+        const enPopover = getBattleModifierInfoPopoverContent();
+        assert.ok(enPopover.header.length > 0);
+        assert.ok(enPopover.body.includes('calc-popover-stat-list'));
+        assert.ok(enPopover.body.includes(getModifierLabel('legend3', true)));
+        assert.ok(enPopover.body.includes(getModifierLabel('esports', true)));
+
+        appGlobalState.uiSettings.language = 'de';
+        await loadTranslations('de');
+        const dePopover = getBattleModifierInfoPopoverContent();
+        assert.ok(dePopover.body.includes(getModifierLabel('legend1', true)));
+
+        appGlobalState.uiSettings.language = 'en';
+        await loadTranslations('en');
     });
 });

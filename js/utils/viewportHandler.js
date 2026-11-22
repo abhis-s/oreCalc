@@ -104,23 +104,25 @@ export function detectSoftwareKeyboardOpen({
 }
 
 /**
- * Calculates header vertical offset (in px) to keep the fixed header pinned to VisualViewport top on iOS/iPadOS.
- * Intentionally tracks vvOffsetTop regardless of active focus state so dismissal and focus shifts never yank the header off-screen.
+ * Calculates header vertical offset (in px) to keep the fixed header pinned to VisualViewport top on iOS/iPadOS
+ * while a software keyboard session is active (open or dismissing), ignoring non-keyboard overscroll rubberbanding.
  *
  * @param {Object} options
  * @param {boolean} options.isIOS
  * @param {number} options.vvOffsetTop
  * @param {number} [options.vvScale=1]
  * @param {boolean} [options.isModalOpen=false]
+ * @param {boolean} [options.isKeyboardActive=false]
  * @returns {number}
  */
 export function calculateHeaderViewportOffset({
     isIOS,
     vvOffsetTop,
     vvScale = 1,
-    isModalOpen = false
+    isModalOpen = false,
+    isKeyboardActive = false
 }) {
-    if (!isIOS || isModalOpen || vvScale > 1.05) {
+    if (!isIOS || isModalOpen || !isKeyboardActive || vvScale > 1.05) {
         return 0;
     }
     if (vvOffsetTop > 0.5) {
@@ -229,8 +231,11 @@ export function initializeViewportHandler() {
     let lastHeaderOffset = 0;
     let lastToastOffset = -1;
     let lastKeyboardOpen = false;
+    let isKeyboardPinActive = false;
     let baselineVvHeight = window.visualViewport?.height || window.innerHeight || 0;
     let prevVvHeight = baselineVvHeight;
+    /** @type {ReturnType<typeof setTimeout> | null} */
+    let keyboardDismissTimer = null;
     /** @type {ReturnType<typeof setTimeout> | null} */
     let focusScrollTimer = null;
     /** @type {ReturnType<typeof setTimeout> | null} */
@@ -267,18 +272,6 @@ export function initializeViewportHandler() {
             baselineVvHeight = Math.max(layoutHeight, vvHeight);
         }
 
-        const headerOffset = calculateHeaderViewportOffset({
-            isIOS,
-            vvOffsetTop: vvTop,
-            vvScale,
-            isModalOpen
-        });
-
-        if (headerOffset !== lastHeaderOffset) {
-            lastHeaderOffset = headerOffset;
-            document.documentElement?.style?.setProperty('--header-vv-offset', `${headerOffset}px`);
-        }
-
         const isTouch = isTouchDevice();
         const keyboardOpen = detectSoftwareKeyboardOpen({
             isTouch,
@@ -289,6 +282,43 @@ export function initializeViewportHandler() {
             baselineVvHeight,
             screenHeight: window.screen ? window.screen.height : 0
         });
+
+        if (keyboardOpen) {
+            isKeyboardPinActive = true;
+            if (keyboardDismissTimer !== null) {
+                clearTimeout(keyboardDismissTimer);
+                keyboardDismissTimer = null;
+            }
+        } else if (isKeyboardPinActive) {
+            const viewportRestored = baselineVvHeight <= 0 || vvHeight >= baselineVvHeight - 50;
+            if (vvTop <= 0.5 && viewportRestored) {
+                isKeyboardPinActive = false;
+                if (keyboardDismissTimer !== null) {
+                    clearTimeout(keyboardDismissTimer);
+                    keyboardDismissTimer = null;
+                }
+            } else if (!isInputFocused && keyboardDismissTimer === null) {
+                // Clear header pin after dismissal transition if WebKit leaves residual vvOffsetTop
+                keyboardDismissTimer = setTimeout(() => {
+                    keyboardDismissTimer = null;
+                    isKeyboardPinActive = false;
+                    syncViewportChrome();
+                }, 650);
+            }
+        }
+
+        const headerOffset = calculateHeaderViewportOffset({
+            isIOS,
+            vvOffsetTop: vvTop,
+            vvScale,
+            isModalOpen,
+            isKeyboardActive: keyboardOpen || isKeyboardPinActive
+        });
+
+        if (headerOffset !== lastHeaderOffset) {
+            lastHeaderOffset = headerOffset;
+            document.documentElement?.style?.setProperty('--header-vv-offset', `${headerOffset}px`);
+        }
 
         if (keyboardOpen !== lastKeyboardOpen) {
             lastKeyboardOpen = keyboardOpen;
@@ -404,6 +434,11 @@ export function initializeViewportHandler() {
     window.addEventListener('orientationchange', () => {
         baselineVvHeight = 0;
         prevVvHeight = 0;
+        isKeyboardPinActive = false;
+        if (keyboardDismissTimer !== null) {
+            clearTimeout(keyboardDismissTimer);
+            keyboardDismissTimer = null;
+        }
         syncViewportChrome();
     }, { passive: true });
     window.addEventListener('pageshow', syncViewportChrome, { passive: true });

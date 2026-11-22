@@ -96,7 +96,26 @@ if (typeof HTMLElement !== 'undefined') {
             }
         }
 
-        attributeChangedCallback() {
+        attributeChangedCallback(name, oldValue, newValue) {
+            if (oldValue === newValue) return;
+            if (this._hasRendered) {
+                const existingImg = this.querySelector('img');
+                if (existingImg) {
+                    if (name === 'class') {
+                        const nextClass = newValue || '';
+                        const existingPicture = this.querySelector('picture');
+                        if (existingPicture) {
+                            existingPicture.className = nextClass;
+                        }
+                        existingImg.className = nextClass;
+                        return;
+                    }
+                    if (name === 'alt') {
+                        existingImg.alt = newValue || '';
+                        return;
+                    }
+                }
+            }
             this.render();
         }
 

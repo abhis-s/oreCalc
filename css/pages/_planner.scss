@@ -139,14 +139,13 @@
         align-items: center;
 
         clashcalc-assets-image,
-        orecalc-assets-image,
-        picture,
-        img {
+        orecalc-assets-image {
             width: 25px;
             height: 25px;
             margin-right: $spacing-sm;
             object-fit: contain;
-            display: inline-block;
+            display: inline-flex;
+            flex-shrink: 0;
         }
 
         img {
@@ -155,6 +154,7 @@
 
                 &.grayscale {
                     filter: grayscale(100%) drop-shadow(0 0 4px $color-gold-glow-shadow) drop-shadow(0 0 8px $color-gold-glow-shadow);
+                    transform: translateZ(0);
                 }
             }
             &.over-leveled-glow {
@@ -162,10 +162,12 @@
 
                 &.grayscale {
                     filter: grayscale(100%) drop-shadow(0 0 4px $accent-primary-soft) drop-shadow(0 0 8px $accent-primary-soft);
+                    transform: translateZ(0);
                 }
             }
             &.grayscale {
                 filter: grayscale(100%);
+                transform: translateZ(0);
             }
         }
         span {

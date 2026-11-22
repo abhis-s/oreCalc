@@ -289,6 +289,7 @@ function renderActiveView() {
     attachDamageCalcListeners(damageCalcState, document.body, renderActiveView, damageLifecycleScope);
     updateUIWithTranslations(true);
     renderNavigationDrawerContent({
+        activeTool: 'damage-calculator',
         activeView: damageCalcState.activeTab,
         playerTag: damageCalcState.activeTag || getPlayerTagFromUrl() || '',
         onGuestLoad: () => {

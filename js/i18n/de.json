@@ -971,6 +971,7 @@
                 "requiresOverflowHint": "Erfordert Speicher-Überlaufmodus"
             },
             "heroBoost": "Helden-Boost",
+            "heroBoostHelp": "Diese Werte können sich je nach ausgewähltem Kampf-Modifikator ändern.",
             "heroEquipment": "Heldenausrüstung",
             "heroJourneyPreLevelInfo": "Wird auf der Heldenreise bei Rathaus {th} (Knoten {node}) freigeschaltet, bereits auf Level {level} aufgewertet.",
             "legendary": "Legendär",

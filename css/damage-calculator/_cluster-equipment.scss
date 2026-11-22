@@ -66,11 +66,18 @@
 
     &.is-inactive {
         opacity: 0.45;
-        filter: grayscale(85%);
+
+        img {
+            filter: grayscale(85%);
+            transform: translateZ(0);
+        }
 
         &:hover {
             opacity: 0.75;
-            filter: grayscale(30%);
+
+            img {
+                filter: grayscale(30%);
+            }
         }
 
         .calc-cluster-equip-switch__lvl {

@@ -913,9 +913,10 @@
     gap: $spacing-xs;
 
     &.locked {
-        .equipment-image {
+        img.equipment-image {
             filter: grayscale(100%);
             opacity: 0.45;
+            transform: translateZ(0);
         }
 
         .equipment-level-box {

@@ -8,13 +8,14 @@ import { MAX_TOWN_HALL } from '../../core/constants.js';
 import { state } from '../../core/state.js';
 import { getTownHallIconUrl } from '../../domain/townHall/townHallSchedule.js';
 
-import { getAddPlayerHelpContent, hideCardHelpPopover, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
+import { getAddPlayerHelpContent, hideCardHelpPopover, isCardHelpPopoverPinned, showCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { formatRegionalDate } from '../../utils/dateUtils.js';
 import { toMajorUnits } from '../../utils/incomeUtils.js';
 import { formatNumber, updateCalculatedValue } from '../../utils/numberFormatter.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 
 import { bindSelectInput } from '../common/formBindingUtils.js';
+import { getBattleModifierInfoPopoverContent } from '../common/battleModifierSwitcher.js';
 import { openBugReportModal } from '../appSettings/settingsSupportModals.js';
 import { dom } from '../../dom/domElements.js';
 
@@ -34,23 +35,6 @@ export function initializeIncomeCardHandler() {
     if (hasAttachedIncomeHelpListeners) return;
     hasAttachedIncomeHelpListeners = true;
 
-    let activeHelpBtn = null;
-
-    const hideHelpPopover = () => {
-        hideCardHelpPopover();
-        activeHelpBtn = null;
-    };
-
-    const showHelpPopover = (btn, content) => {
-        if (activeHelpBtn === btn) {
-            hideHelpPopover();
-            return;
-        }
-
-        activeHelpBtn = btn;
-        showCardHelpPopover(btn, content, { isToggle: true });
-    };
-
     const isOreCalcRoute = () => typeof window === 'undefined' || !window.location?.pathname || window.location.pathname.includes('/ore-calculator');
 
     document.addEventListener('click', (e) => {
@@ -62,7 +46,7 @@ export function initializeIncomeCardHandler() {
         if (bugReportLink) {
             e.preventDefault();
             e.stopPropagation();
-            hideHelpPopover();
+            hideCardHelpPopover();
             openBugReportModal();
             return;
         }
@@ -71,20 +55,20 @@ export function initializeIncomeCardHandler() {
         if (btn) {
             e.stopPropagation();
             const text = getIncomeCardPopoverContent(btn);
-            showHelpPopover(btn, text);
+            showCardHelpPopover(btn, text, { isToggle: true });
         } else {
-            hideHelpPopover();
+            hideCardHelpPopover();
         }
     });
 
     document.addEventListener('mouseover', (e) => {
         if (!isOreCalcRoute()) return;
         if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-        const targetBtn = /** @type {HTMLElement | null} */ (e.target)?.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info], .info-btn, [data-info]');
-        if (targetBtn && activeHelpBtn !== targetBtn) {
+        const targetBtn = /** @type {HTMLElement | null} */ (/** @type {Element | null} */ (e.target)?.closest?.('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info], .info-btn, [data-info]'));
+        if (targetBtn) {
             const text = getIncomeCardPopoverContent(targetBtn);
             if (text) {
-                showHelpPopover(targetBtn, text);
+                showCardHelpPopover(targetBtn, text, { isToggle: false });
             }
         }
     });
@@ -92,17 +76,28 @@ export function initializeIncomeCardHandler() {
     document.addEventListener('mouseout', (e) => {
         if (!isOreCalcRoute()) return;
         if (e.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-        const targetBtn = /** @type {HTMLElement | null} */ (e.target)?.closest('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info], .info-btn, .info-button, [data-info]');
-        if (targetBtn && activeHelpBtn === targetBtn) {
+        const targetBtn = /** @type {HTMLElement | null} */ (/** @type {Element | null} */ (e.target)?.closest?.('.eq-badge[data-info], .hero-journey-upcoming-badge[data-info], .info-btn, .info-button, [data-info]'));
+        if (targetBtn) {
             const related = /** @type {Node | null} */ (e.relatedTarget);
-            if (!related || !targetBtn.contains(related)) {
-                hideHelpPopover();
+            const popoverEl = document.getElementById('card-help-popover');
+            if (!related || (!targetBtn.contains(related) && !popoverEl?.contains(related))) {
+                if (!isCardHelpPopoverPinned()) {
+                    hideCardHelpPopover();
+                }
             }
         }
     });
 
-    window.addEventListener('scroll', hideHelpPopover, { capture: true, passive: true });
-    window.addEventListener('resize', hideHelpPopover, { passive: true });
+    const handleScrollDismiss = (e) => {
+        const popoverEl = document.getElementById('card-help-popover');
+        if (e?.target && popoverEl?.contains?.(/** @type {Node} */ (e.target))) {
+            return;
+        }
+        hideCardHelpPopover();
+    };
+
+    window.addEventListener('scroll', handleScrollDismiss, { capture: true, passive: true });
+    window.addEventListener('resize', hideCardHelpPopover, { passive: true });
 }
 
 function getStarBonusThRewardsPopoverContent() {
@@ -202,6 +197,9 @@ function getIncomeCardPopoverContent(btnOrKey) {
         }
     }
 
+    if (infoKey === 'modifier') {
+        return getBattleModifierInfoPopoverContent();
+    }
     if (infoKey === 'player.addPlayerHelp') {
         body = getAddPlayerHelpContent();
     } else if (infoKey === 'views.income.starBonus.thRewardsTitle') {

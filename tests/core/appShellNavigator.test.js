@@ -506,6 +506,131 @@ describe('Persistent App Shell Navigator Suite', () => {
                 globalThis.DOMParser = prevDOMParser;
             }
         });
+
+        test('performSwap commits history URL before onUpdateDrawer and mount execute', async () => {
+            const prevWin = globalThis.window;
+            const prevDoc = globalThis.document;
+            const prevFetch = globalThis.fetch;
+            const prevDOMParser = globalThis.DOMParser;
+
+            let clickHandler = null;
+            const observedPaths = [];
+            const replacedUrls = [];
+
+            globalThis.window = /** @type {any} */ ({
+                location: {
+                    href: 'http://localhost/ore-calculator/',
+                    origin: 'http://localhost',
+                    pathname: '/ore-calculator/',
+                    search: '',
+                    hash: '',
+                    replace: (u) => { replacedUrls.push(u); }
+                },
+                history: {
+                    state: null,
+                    pushState: (_state, _title, url) => {
+                        const parsed = new URL(url, 'http://localhost');
+                        globalThis.window.location.href = parsed.href;
+                        globalThis.window.location.pathname = parsed.pathname;
+                        globalThis.window.location.search = parsed.search;
+                    },
+                    replaceState: (_state, _title, url) => {
+                        const parsed = new URL(url, 'http://localhost');
+                        globalThis.window.location.href = parsed.href;
+                        globalThis.window.location.pathname = parsed.pathname;
+                        globalThis.window.location.search = parsed.search;
+                    }
+                },
+                scrollTo: () => {},
+                addEventListener: () => {}
+            });
+            globalThis.document = /** @type {any} */ ({
+                title: 'OreCalc',
+                head: { querySelectorAll: () => [], appendChild: () => {} },
+                body: { className: 'dark-mode', classList: { remove: () => {} }, appendChild: () => {} },
+                documentElement: { dataset: {}, removeAttribute: () => {}, classList: { contains: () => true } },
+                getElementById: () => null,
+                querySelector: () => null,
+                querySelectorAll: () => [],
+                addEventListener: (type, fn) => {
+                    if (type === 'click') clickHandler = fn;
+                }
+            });
+            globalThis.fetch = async () => /** @type {any} */ ({
+                ok: true,
+                text: async () => '<!DOCTYPE html><html><head><title>Hero Journey</title></head><body><main id="main-content"></main></body></html>'
+            });
+            globalThis.DOMParser = /** @type {any} */ (class {
+                parseFromString() {
+                    return {
+                        title: 'Hero Journey',
+                        querySelector: () => null,
+                        querySelectorAll: () => [],
+                        getElementById: () => null
+                    };
+                }
+            });
+
+            try {
+                registerNavigatorUiHooks({
+                    onUpdateDrawer: (opts) => {
+                        observedPaths.push(['drawer', opts.activeTool, globalThis.window.location.pathname]);
+                    }
+                });
+                registerAppRoute('hero-journey', {
+                    mount: () => {
+                        observedPaths.push(['mount', globalThis.window.location.pathname]);
+                    },
+                    destroy: () => {}
+                });
+                initAppShellNavigator();
+
+                const journeyAnchor = {
+                    getAttribute: (name) => (name === 'href' ? '/hero-journey/?tag=8PJYGUJC' : null),
+                    hasAttribute: () => false,
+                    closest: (sel) => (sel === 'a' ? journeyAnchor : null)
+                };
+
+                clickHandler({
+                    target: journeyAnchor,
+                    button: 0,
+                    preventDefault: () => {}
+                });
+                await new Promise(resolve => setTimeout(resolve, 20));
+
+                assert.deepEqual(observedPaths, [
+                    ['drawer', 'hero-journey', '/hero-journey/'],
+                    ['mount', '/hero-journey/']
+                ]);
+
+                // Verify fallback after post-commit mount error uses location.replace rather than duplicating pushState
+                registerAppRoute('damage-calculator', {
+                    mount: () => { throw new Error('Simulated mount error'); },
+                    destroy: () => {}
+                });
+                const dmgAnchor = {
+                    getAttribute: (name) => (name === 'href' ? '/damage-calculator/?tag=8PJYGUJC' : null),
+                    hasAttribute: () => false,
+                    closest: (sel) => (sel === 'a' ? dmgAnchor : null)
+                };
+                clickHandler({
+                    target: dmgAnchor,
+                    button: 0,
+                    preventDefault: () => {}
+                });
+                await new Promise(resolve => setTimeout(resolve, 20));
+
+                assert.deepEqual(replacedUrls, ['http://localhost/damage-calculator/?tag=8PJYGUJC']);
+            } finally {
+                registerNavigatorUiHooks({ onUpdateDrawer: null, onAfterRouteSwap: null, onShowLoader: null });
+                registerAppRoute('hero-journey', { mount: () => {}, destroy: () => {} });
+                registerAppRoute('damage-calculator', { mount: () => {}, destroy: () => {} });
+                globalThis.window = prevWin;
+                globalThis.document = prevDoc;
+                globalThis.fetch = prevFetch;
+                globalThis.DOMParser = prevDOMParser;
+            }
+        });
     });
 
     describe('Drawer Dock Active Tool Synchronization & Route Immunity', () => {

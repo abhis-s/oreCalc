@@ -242,4 +242,79 @@ describe('Modal Dismissal & Escape Ownership Suite', () => {
             globalThis.document = origDoc;
         }
     });
+
+    test('incomeCardHandler hover-then-click pins popover instead of toggling closed and preserves pin on mouseout', async () => {
+        const attrs = new Map();
+        const popoverNode = createNode('card-help-popover', 'card-help-popover', {
+            dataset: {},
+            innerHTML: '',
+            matches: (sel) => (sel === ':popover-open' ? popoverNode._topOpen : false),
+            setAttribute: (k, v) => attrs.set(k, String(v)),
+            getAttribute: (k) => (attrs.has(k) ? attrs.get(k) : null),
+            hasAttribute: (k) => attrs.has(k),
+            removeAttribute: (k) => attrs.delete(k),
+            showPopover: () => { popoverNode._topOpen = true; },
+            hidePopover: () => { popoverNode._topOpen = false; },
+            contains: (node) => node === popoverNode,
+            getBoundingClientRect: () => ({ top: 100, bottom: 200, left: 40, right: 240, width: 200, height: 100 })
+        });
+        popoverNode._topOpen = false;
+
+        const infoBtn = createNode('eq-details-modifier-info-btn', 'info-btn', {
+            getAttribute: (k) => (k === 'data-info' ? 'modifier' : null),
+            removeAttribute: () => {},
+            contains: (node) => node === infoBtn,
+            closest: (sel) => (sel.includes('.info-btn') || sel.includes('[data-info]') ? infoBtn : null),
+            getBoundingClientRect: () => ({ top: 80, bottom: 104, left: 50, right: 74, width: 24, height: 24 })
+        });
+        const outsideNode = createNode('outside', '', {
+            closest: () => null
+        });
+
+        const map = new Map([['card-help-popover', popoverNode]]);
+        const doc = createDocHost(map, () => []);
+        doc.body.appendChild = () => {};
+
+        const origDoc = globalThis.document;
+        const origMatchMedia = globalThis.window.matchMedia;
+        globalThis.document = /** @type {any} */ (doc);
+        globalThis.window.matchMedia = () => /** @type {any} */ ({ matches: true });
+
+        const { hideCardHelpPopover, isCardHelpPopoverOpen, isCardHelpPopoverPinned } = await import('../../js/utils/cardHelpPopover.js');
+        const { initializeIncomeCardHandler } = await import('../../js/components/income/incomeCardHandler.js');
+
+        try {
+            initializeIncomeCardHandler();
+
+            // 1. Desktop mouseover opens unpinned popover
+            const overEv = new Event('mouseover', { bubbles: true });
+            Object.defineProperty(overEv, 'target', { value: infoBtn, enumerable: true });
+            doc.dispatchEvent(overEv);
+            assert.equal(isCardHelpPopoverOpen(), true);
+            assert.equal(isCardHelpPopoverPinned(), false);
+
+            // 2. Subsequent click pins the popover open instead of toggling closed
+            dispatchClick(doc, infoBtn);
+            assert.equal(isCardHelpPopoverOpen(), true);
+            assert.equal(isCardHelpPopoverPinned(), true);
+
+            // 3. Moving mouse away keeps pinned popover open
+            const outEv = new Event('mouseout', { bubbles: true });
+            Object.defineProperty(outEv, 'target', { value: infoBtn, enumerable: true });
+            Object.defineProperty(outEv, 'relatedTarget', { value: outsideNode, enumerable: true });
+            doc.dispatchEvent(outEv);
+            assert.equal(isCardHelpPopoverOpen(), true);
+            assert.equal(isCardHelpPopoverPinned(), true);
+
+            // 4. Second explicit click dismisses the pinned popover
+            dispatchClick(doc, infoBtn);
+            assert.equal(isCardHelpPopoverOpen(), false);
+            assert.equal(isCardHelpPopoverPinned(), false);
+        } finally {
+            await new Promise(resolve => setTimeout(resolve, 0));
+            hideCardHelpPopover();
+            globalThis.document = origDoc;
+            globalThis.window.matchMedia = origMatchMedia;
+        }
+    });
 });

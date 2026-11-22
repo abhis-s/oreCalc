@@ -10,6 +10,39 @@ let activeTargetElem = null;
 let isDismissBound = false;
 let lastHoverOpenTimestamp = 0;
 let isPinnedByClick = false;
+let escapeDismissActive = false;
+/** @type {ReturnType<typeof setTimeout> | null} */
+let escapeDismissTimer = null;
+
+/**
+ * Checks whether the card help popover is currently visible or open in the top layer.
+ * @returns {boolean}
+ */
+export function isCardHelpPopoverOpen() {
+    if (!helpPopover && typeof document !== 'undefined') {
+        helpPopover = document.getElementById('card-help-popover');
+    }
+    if (!helpPopover) return false;
+    let isTopLayerOpen = false;
+    try {
+        isTopLayerOpen = typeof helpPopover.matches === 'function' ? helpPopover.matches(':popover-open') : false;
+    } catch (_) {}
+    return Boolean(helpPopover.classList?.contains('show') || isTopLayerOpen);
+}
+
+/**
+ * Consumes a recent Escape dismissal of #card-help-popover so parent <dialog> cancel listeners yield once.
+ * @returns {boolean}
+ */
+export function consumeHelpPopoverEscapeDismissal() {
+    if (!escapeDismissActive) return false;
+    escapeDismissActive = false;
+    if (escapeDismissTimer !== null) {
+        clearTimeout(escapeDismissTimer);
+        escapeDismissTimer = null;
+    }
+    return true;
+}
 
 function bindOutsideDismissListener() {
     if (isDismissBound || typeof document === 'undefined') return;
@@ -30,7 +63,70 @@ function bindOutsideDismissListener() {
     document.addEventListener('pointerdown', handleOutsideTap, { capture: true, passive: true });
     document.addEventListener('touchstart', handleOutsideTap, { capture: true, passive: true });
 
-    if (helpPopover && typeof helpPopover.addEventListener === 'function') {
+    const clearEscapeDismissSoon = () => {
+        if (escapeDismissTimer !== null) {
+            clearTimeout(escapeDismissTimer);
+        }
+        escapeDismissTimer = setTimeout(() => {
+            escapeDismissTimer = null;
+            escapeDismissActive = false;
+        }, 0);
+    };
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape' && e.key !== 'Esc') return;
+        if (!isCardHelpPopoverOpen()) return;
+        escapeDismissActive = true;
+        if (escapeDismissTimer !== null) {
+            clearTimeout(escapeDismissTimer);
+        }
+        // Clear escape yield guard on next interaction window if no <dialog cancel> or keyup follows
+        escapeDismissTimer = setTimeout(() => {
+            escapeDismissTimer = null;
+            escapeDismissActive = false;
+        }, 600);
+        hideCardHelpPopover();
+        e.preventDefault?.();
+        if (typeof e.stopImmediatePropagation === 'function') {
+            e.stopImmediatePropagation();
+        } else {
+            e.stopPropagation?.();
+        }
+    }, { capture: true });
+
+    document.addEventListener('keyup', (e) => {
+        if ((e.key === 'Escape' || e.key === 'Esc') && escapeDismissActive) {
+            clearEscapeDismissSoon();
+        }
+    }, { capture: true });
+}
+
+function getOrCreateHelpPopover() {
+    if (!helpPopover) {
+        helpPopover = document.getElementById('card-help-popover');
+    }
+    if (!helpPopover) {
+        helpPopover = document.createElement('div');
+        helpPopover.id = 'card-help-popover';
+        helpPopover.className = 'card-help-popover';
+        if (typeof helpPopover.setAttribute === 'function') {
+            helpPopover.setAttribute('popover', 'manual');
+            helpPopover.setAttribute('role', 'tooltip');
+        }
+        document.body.appendChild(helpPopover);
+    } else if (typeof helpPopover.setAttribute === 'function') {
+        if (helpPopover.getAttribute?.('popover') !== 'manual') {
+            helpPopover.setAttribute('popover', 'manual');
+        }
+        if (!helpPopover.hasAttribute || !helpPopover.hasAttribute('role')) {
+            helpPopover.setAttribute('role', 'tooltip');
+        }
+    }
+    bindOutsideDismissListener();
+    if (helpPopover && !helpPopover.dataset?.hasToggleListener && typeof helpPopover.addEventListener === 'function') {
+        if (helpPopover.dataset) {
+            helpPopover.dataset.hasToggleListener = 'true';
+        }
         helpPopover.addEventListener('toggle', (event) => {
             if (event.newState === 'closed') {
                 if (activeTargetElem && typeof activeTargetElem.removeAttribute === 'function') {
@@ -45,32 +141,6 @@ function bindOutsideDismissListener() {
             }
         });
     }
-}
-
-function getOrCreateHelpPopover() {
-    if (!helpPopover) {
-        helpPopover = document.getElementById('card-help-popover');
-    }
-    if (!helpPopover) {
-        helpPopover = document.createElement('div');
-        helpPopover.id = 'card-help-popover';
-        helpPopover.className = 'card-help-popover';
-        if (typeof helpPopover.setAttribute === 'function') {
-            helpPopover.setAttribute('popover', 'auto');
-            helpPopover.setAttribute('role', 'tooltip');
-        }
-        document.body.appendChild(helpPopover);
-    } else {
-        if (typeof helpPopover.setAttribute === 'function') {
-            if (!helpPopover.hasAttribute || !helpPopover.hasAttribute('popover')) {
-                helpPopover.setAttribute('popover', 'auto');
-            }
-            if (!helpPopover.hasAttribute || !helpPopover.hasAttribute('role')) {
-                helpPopover.setAttribute('role', 'tooltip');
-            }
-        }
-    }
-    bindOutsideDismissListener();
     if (helpPopover && !helpPopover.dataset?.hasLeaveListener && typeof helpPopover.addEventListener === 'function') {
         if (helpPopover.dataset) {
             helpPopover.dataset.hasLeaveListener = 'true';
@@ -132,12 +202,26 @@ export function hideCardHelpPopover() {
  */
 export function showCardHelpPopover(targetElem, content, { isToggle = false } = {}) {
     const popover = getOrCreateHelpPopover();
+    const ensurePopoverShown = () => {
+        if (typeof popover.showPopover === 'function') {
+            try {
+                let isOpen = false;
+                try {
+                    isOpen = typeof popover.matches === 'function' ? popover.matches(':popover-open') : false;
+                } catch (_) {}
+                if (!isOpen) {
+                    popover.showPopover();
+                }
+            } catch (_) {}
+        }
+    };
 
     if (activeTargetElem === targetElem && popover.classList.contains('show')) {
         if (isToggle) {
             const isFreshHover = !isPinnedByClick && (Date.now() - lastHoverOpenTimestamp < 800);
             if (isFreshHover) {
                 isPinnedByClick = true;
+                ensurePopoverShown();
                 return;
             }
             hideCardHelpPopover();
@@ -177,17 +261,7 @@ export function showCardHelpPopover(targetElem, content, { isToggle = false } = 
     popover.innerHTML = innerHTML;
     popover.classList.add('show');
 
-    if (typeof popover.showPopover === 'function') {
-        try {
-            let isOpen = false;
-            try {
-                isOpen = typeof popover.matches === 'function' ? popover.matches(':popover-open') : false;
-            } catch (_) {}
-            if (!isOpen) {
-                popover.showPopover();
-            }
-        } catch (_) {}
-    }
+    ensurePopoverShown();
 
     const positionPopover = () => {
         if (activeTargetElem !== targetElem) return;

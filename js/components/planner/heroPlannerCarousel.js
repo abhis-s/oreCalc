@@ -43,6 +43,11 @@ function updateExistingHeroSwitches(heroesState) {
                 equipToggle.checked = equipState.checked !== false;
             }
 
+            const equipImage = item.querySelector('.equipment-image');
+            if (equipImage) {
+                equipImage.classList.toggle('grayscale', equipState.checked === false);
+            }
+
             const equipLabel = item.querySelector('span');
             if (equipLabel) {
                 equipLabel.textContent = translate(`entities.equipment.${equipKey}`);

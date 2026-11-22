@@ -3,10 +3,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { renderLevelTable } from '../../js/components/equipment/equipmentDetailsTableDisplay.js';
 import { getMaxLabTroopLevelForTownHall } from '../../js/data/labTroopsData.js';
-import { getCurrentUnitStatsStateMap } from '../../js/components/equipment/equipmentDetailsUnitStatsDisplay.js';
+import { updateStatsProgressHover } from '../../js/components/equipment/equipmentDetailsStatsDisplay.js';
+import { getCurrentUnitStatsStateMap, updateUnitStatsHover } from '../../js/components/equipment/equipmentDetailsUnitStatsDisplay.js';
 import { state } from '../../js/core/state.js';
 
 const barbarianPuppetData = JSON.parse(readFileSync(new URL('../../js/data/equipment/barbarian_puppet.json', import.meta.url), 'utf8'));
+const healerPuppetData = JSON.parse(readFileSync(new URL('../../js/data/equipment/healer_puppet.json', import.meta.url), 'utf8'));
 
 describe('Equipment Details Table Display & Data Contracts', () => {
     test('renderLevelTable sets data-level attribute on each level row matching level index', () => {
@@ -204,6 +206,86 @@ describe('Equipment Details Table Display & Data Contracts', () => {
             assert.equal(syncedStats.hitpoints.numVal, 290);
         } finally {
             state.playerProfile = prevProfile;
+        }
+    });
+
+    test('renderLevelTable renders heroBoostHelp info button only when heroBoost has modifiable stats', () => {
+        const mockTableHead = { innerHTML: '', querySelector: () => null, querySelectorAll: () => [] };
+        const mockTableBody = { innerHTML: '' };
+        const healerLevels = Object.keys(healerPuppetData.levels)
+            .sort((a, b) => Number(a) - Number(b))
+            .map(lvl => healerPuppetData.levels[lvl]);
+
+        renderLevelTable(mockTableHead, mockTableBody, healerPuppetData, healerLevels, 9, 18, 'common', 'archerQueen', 17, 'standard', null);
+        assert.ok(mockTableHead.innerHTML.includes('data-info="views.equipment.heroBoostHelp"'));
+        assert.ok(mockTableHead.innerHTML.includes('category-info-btn'));
+
+        const nonModifiableData = {
+            rarity: 'common',
+            statsMeta: [
+                { key: 'speedIncrease', category: 'heroBoost', valueUnit: 'number', isModifiable: false }
+            ]
+        };
+        const nonModLevels = Array.from({ length: 18 }, (_, i) => [i + 1]);
+        renderLevelTable(mockTableHead, mockTableBody, nonModifiableData, nonModLevels, 1, 18, 'common', 'barbarianKing', 17, 'standard', null);
+        assert.equal(mockTableHead.innerHTML.includes('views.equipment.heroBoostHelp'), false);
+    });
+
+    test('hover comparison skips unchanged equipment and spawned unit stats instead of rendering zero deltas', () => {
+        const prevRaf = globalThis.requestAnimationFrame;
+        globalThis.requestAnimationFrame = () => 0;
+
+        try {
+            const createStatRow = () => {
+                const valEl = {
+                    innerHTML: '',
+                    querySelector: () => null
+                };
+                return {
+                    isComparing: false,
+                    valEl,
+                    classList: {
+                        toggle: (_cls, force) => {},
+                        remove: () => {}
+                    },
+                    querySelector: (sel) => (sel === '.stat-val' ? valEl : null)
+                };
+            };
+
+            const barbRows = barbarianPuppetData.statsMeta.map(() => createStatRow());
+            const barbContainer = {
+                querySelectorAll: (sel) => (sel === '.stat-progress-row' ? barbRows : [])
+            };
+            const barbLevels = Object.keys(barbarianPuppetData.levels)
+                .sort((a, b) => Number(a) - Number(b))
+                .map(lvl => barbarianPuppetData.levels[lvl]);
+
+            // Hovering lvl 2 from lvl 1: summonedUnitsCount stays 8 -> 8, healthRecovery changes 110 -> 165
+            updateStatsProgressHover(barbContainer, barbarianPuppetData, barbLevels, 1, 18, 'common', 'standard', 2);
+            assert.equal(barbRows[0].valEl.innerHTML.includes('stat-val-compare'), false);
+            assert.ok(barbRows[0].valEl.innerHTML.includes('stat-val-number'));
+            assert.ok(barbRows[0].valEl.innerHTML.includes('>8<'));
+            assert.ok(barbRows[3].valEl.innerHTML.includes('stat-val-compare'));
+            assert.ok(barbRows[3].valEl.innerHTML.includes('+55'));
+
+            const healerRows = healerPuppetData.spawnedUnits.statsMeta.map(() => createStatRow());
+            const healerContainer = {
+                querySelector: () => null,
+                querySelectorAll: (sel) => (sel === '.stat-progress-row' ? healerRows : [])
+            };
+            const healerLevels = Object.keys(healerPuppetData.levels)
+                .sort((a, b) => Number(a) - Number(b))
+                .map(lvl => healerPuppetData.levels[lvl]);
+
+            // Hovering lvl 12 (healer 7: [72, 62, 1700]) from lvl 9 (healer 6: [72, 56, 1600])
+            updateUnitStatsHover(healerContainer, healerPuppetData, healerLevels, 9, 18, 'common', 'standard', 12);
+            assert.equal(healerRows[0].valEl.innerHTML.includes('stat-val-compare'), false);
+            assert.ok(healerRows[0].valEl.innerHTML.includes('unit-stat-val-number'));
+            assert.ok(healerRows[0].valEl.innerHTML.includes('>72<'));
+            assert.ok(healerRows[1].valEl.innerHTML.includes('stat-val-compare'));
+            assert.ok(healerRows[1].valEl.innerHTML.includes('+6'));
+        } finally {
+            globalThis.requestAnimationFrame = prevRaf;
         }
     });
 });

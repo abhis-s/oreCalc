@@ -4,14 +4,13 @@
  */
 
 import { MAX_TOWN_HALL } from '../../core/constants.js';
-import { battleModifiersData } from '../../data/battleModifiersData.js';
 import { getDefensesData } from '../../data/defenseTargetsData.js';
 import { equipmentDamageData } from '../../data/equipmentDamageData.js';
 import { EQUIPMENT_MAX_LEVELS } from '../../data/equipmentCommonData.js';
 import { getBuildingAssetUrl } from '../../core/buildingAssetHelper.js';
 import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
-import { getModifierLabel } from '../common/battleModifierSwitcher.js';
+import { getBattleModifierInfoPopoverContent } from '../common/battleModifierSwitcher.js';
 import { getActiveModifier } from './damageCalcState.js';
 import {
     getEquipmentStatsPopoverContent,
@@ -34,44 +33,7 @@ function getTownHallPopoverAssetUrl() {
  */
 export function getGenericInfoPopoverContent(infoKey) {
     if (infoKey === 'modifier') {
-        const modifierOrder = ['legend3', 'legend2', 'legend1', 'esports'];
-        const leagues = battleModifiersData.leagues || {};
-        const bullets = modifierOrder.map(modKey => {
-            const cfg = leagues[modKey];
-            if (!cfg) return '';
-            const defDps = Math.round((cfg.defDpsBonus || 0) * 100);
-            const defHero = Math.round((cfg.defHeroBonus || 0) * 100);
-            const defGuardian = Math.round((cfg.defGuardianBonus || 0) * 100);
-            const atkHero = Math.round((1 - (cfg.atkHeroMultiplier ?? 1)) * 100);
-            const label = getModifierLabel(modKey, true);
-            const desc = (cfg.equipLevelLossCommon > 0 || cfg.equipLevelLossEpic > 0 || cfg.equipLevelLossLegendary > 0)
-                ? translate('views.damageCalc.popovers.modifierEsportsRules', {
-                    defDps,
-                    defHero,
-                    defGuardian,
-                    atkHero,
-                    commonLoss: cfg.equipLevelLossCommon || 0,
-                    epicLoss: cfg.equipLevelLossEpic || 0,
-                    legendaryLoss: cfg.equipLevelLossLegendary || 0
-                })
-                : translate('views.damageCalc.popovers.modifierLeagueRules', {
-                    defDps,
-                    defHero,
-                    defGuardian,
-                    atkHero
-                });
-            return `<li><strong>${escapeHTML(label)}:</strong> ${escapeHTML(desc)}</li>`;
-        }).filter(Boolean);
-        return {
-            header: `
-                <clashcalc-assets-svg name="info" width="18" height="18" class="popover-img"></clashcalc-assets-svg>
-                <div class="popover-title-group">
-                    <span class="popover-title">${escapeHTML(translate('views.damageCalc.popovers.modifierTitle') || 'Battle Modifiers & League Rules')}</span>
-                    <span class="popover-badge">${escapeHTML(translate('views.damageCalc.offense.battleModifier') || 'Modifiers')}</span>
-                </div>
-            `,
-            body: `<ul class="calc-popover-stat-list">${bullets.join('')}</ul>`
-        };
+        return getBattleModifierInfoPopoverContent();
     }
     if (infoKey === 'supercharge') {
         return {

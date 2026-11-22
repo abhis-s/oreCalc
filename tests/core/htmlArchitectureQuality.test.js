@@ -75,7 +75,7 @@ describe('Native HTMLDialogElement Overlay Architecture', () => {
     });
 
     describe('Native HTML Popover & Accessible Tooltip Runtime Attributes', () => {
-        test('showCardHelpPopover configures popover="auto", role="tooltip", and aria-describedby on target', async () => {
+        test('showCardHelpPopover configures popover="manual", role="tooltip", and aria-describedby on target', async () => {
             const { showCardHelpPopover, hideCardHelpPopover } = await import('../../js/utils/cardHelpPopover.js');
             const prevDoc = globalThis.document;
             const prevWin = globalThis.window;
@@ -131,7 +131,7 @@ describe('Native HTMLDialogElement Overlay Architecture', () => {
 
             try {
                 showCardHelpPopover(/** @type {any} */ (targetEl), 'Helpful tooltip text');
-                assert.equal(createdPopover.getAttribute('popover'), 'auto');
+                assert.equal(createdPopover.getAttribute('popover'), 'manual');
                 assert.equal(createdPopover.getAttribute('role'), 'tooltip');
                 assert.equal(targetEl.getAttribute('aria-describedby'), 'card-help-popover');
 

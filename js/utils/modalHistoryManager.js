@@ -7,7 +7,11 @@
  */
 
 import { MOTION_DURATION_EXIT_MS } from '../core/constants.js';
-import { hideCardHelpPopover } from './cardHelpPopover.js';
+import {
+    consumeHelpPopoverEscapeDismissal,
+    hideCardHelpPopover,
+    isCardHelpPopoverOpen
+} from './cardHelpPopover.js';
 import { trapFocus, ensureModalAriaSemantics, getInitialModalFocusTarget } from './modalFocusManager.js';
 
 let modalStack = [];
@@ -247,6 +251,10 @@ function observeModalTarget(el) {
         // Native cancel event listener (fired on Escape key in native dialogs)
         el.addEventListener('cancel', (e) => {
             e.preventDefault();
+            if (isCardHelpPopoverOpen() || consumeHelpPopoverEscapeDismissal()) {
+                hideCardHelpPopover();
+                return;
+            }
             if (el.id === 'guided-setup-modal' || el.id === 'notice-modal') return;
             closeModalAnimated(el);
         });

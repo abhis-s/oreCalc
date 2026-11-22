@@ -220,21 +220,38 @@ describe('Viewport & Virtual Keyboard Handler Tests', () => {
     });
 
     describe('calculateHeaderViewportOffset iOS visual viewport pinning', () => {
-        test('tracks non-zero vvOffsetTop unconditionally on iOS even after blur during keyboard dismiss', () => {
+        test('tracks non-zero vvOffsetTop on iOS when keyboard session is active even after blur during dismiss', () => {
             assert.equal(calculateHeaderViewportOffset({
                 isIOS: true,
                 vvOffsetTop: 184.42,
                 vvScale: 1,
-                isModalOpen: false
+                isModalOpen: false,
+                isKeyboardActive: true
             }), 184.4);
         });
 
+        test('returns 0 when no keyboard session is active (e.g. bottom rubberband overscroll)', () => {
+            assert.equal(calculateHeaderViewportOffset({
+                isIOS: true,
+                vvOffsetTop: 64,
+                vvScale: 1,
+                isModalOpen: false,
+                isKeyboardActive: false
+            }), 0);
+            assert.equal(calculateHeaderViewportOffset({
+                isIOS: true,
+                vvOffsetTop: 64,
+                vvScale: 1,
+                isModalOpen: false
+            }), 0);
+        });
+
         test('returns 0 when not iOS, when modal is open, when pinch-zoomed, or when offsetTop <= 0.5', () => {
-            assert.equal(calculateHeaderViewportOffset({ isIOS: false, vvOffsetTop: 150, vvScale: 1, isModalOpen: false }), 0);
-            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: 150, vvScale: 1, isModalOpen: true }), 0);
-            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: 150, vvScale: 1.5, isModalOpen: false }), 0);
-            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: -12, vvScale: 1, isModalOpen: false }), 0);
-            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: 0.4, vvScale: 1, isModalOpen: false }), 0);
+            assert.equal(calculateHeaderViewportOffset({ isIOS: false, vvOffsetTop: 150, vvScale: 1, isModalOpen: false, isKeyboardActive: true }), 0);
+            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: 150, vvScale: 1, isModalOpen: true, isKeyboardActive: true }), 0);
+            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: 150, vvScale: 1.5, isModalOpen: false, isKeyboardActive: true }), 0);
+            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: -12, vvScale: 1, isModalOpen: false, isKeyboardActive: true }), 0);
+            assert.equal(calculateHeaderViewportOffset({ isIOS: true, vvOffsetTop: 0.4, vvScale: 1, isModalOpen: false, isKeyboardActive: true }), 0);
         });
     });
 

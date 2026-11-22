@@ -52,7 +52,12 @@ export function renderLevelTable(tableHead, tableBody, data, levelsArray, curren
 
     const categorySuperHeadersHTML = categoryGroups.map(group => {
         const title = translate(`views.equipment.${group.category}`);
-        return `<th colspan="${group.count}" class="category-header category-${group.category}" data-i18n="views.equipment.${group.category}">${title}</th>`;
+        const hasModifiableHeroBoost = group.category === 'heroBoost' &&
+            (data?.statsMeta || []).some(meta => (meta.category || 'ability') === 'heroBoost' && isStatModifiable(meta));
+        const infoBtnHTML = hasModifiableHeroBoost
+            ? `<button type="button" class="info-btn category-info-btn" data-info="views.equipment.heroBoostHelp" aria-label="${escapeHTML(translate('actions.showInfo'))}" data-i18n-aria-label="actions.showInfo"><clashcalc-assets-svg name="info" class="info-icon" width="13" height="13"></clashcalc-assets-svg></button>`
+            : '';
+        return `<th colspan="${group.count}" class="category-header category-${group.category}"><span class="category-header-content"><span data-i18n="views.equipment.${group.category}">${title}</span>${infoBtnHTML}</span></th>`;
     }).join('');
 
     const oreCostCount = isStarry ? 3 : 2;

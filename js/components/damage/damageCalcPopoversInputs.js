@@ -99,16 +99,16 @@ export function attachDamageCalcPopoverListeners(rootContainer, state, scope = n
         }
 
         // Damage sources bar popover (equipment, lightning, earthquake)
-        const sourceTrigger = /** @type {HTMLElement | null} */ (target.closest('[data-source-info]'));
-        if (sourceTrigger) {
-            if (!isClick) {
-                const sourceKey = sourceTrigger.dataset?.sourceInfo || sourceTrigger.getAttribute?.('data-source-info') || '';
-                const level = Number(sourceTrigger.dataset?.sourceLevel ?? sourceTrigger.getAttribute?.('data-source-level')) || 0;
-                const content = getDamageSourcePopoverContent(sourceKey, level, currentDamageState || state);
-                if (content) {
-                    showCardHelpPopover(sourceTrigger, content, { isToggle: false });
-                    return true;
-                }
+        // Pointer devices hover the source button directly; touch devices tap the dedicated info button
+        const sourceInfoBtn = /** @type {HTMLElement | null} */ (target.closest('[data-source-info-btn]'));
+        const sourceTrigger = /** @type {HTMLElement | null} */ (sourceInfoBtn || target.closest('[data-source-info]'));
+        if (sourceTrigger && (!isClick || Boolean(sourceInfoBtn))) {
+            const sourceKey = sourceTrigger.dataset?.sourceInfo || sourceTrigger.getAttribute?.('data-source-info') || '';
+            const level = Number(sourceTrigger.dataset?.sourceLevel ?? sourceTrigger.getAttribute?.('data-source-level')) || 0;
+            const content = getDamageSourcePopoverContent(sourceKey, level, currentDamageState || state);
+            if (content) {
+                showCardHelpPopover(sourceTrigger, content, { isToggle: isClick });
+                return true;
             }
         }
 
@@ -156,7 +156,7 @@ export function attachDamageCalcPopoverListeners(rootContainer, state, scope = n
             if (!trigger) return;
             const handled = handlePopoverTrigger(trigger, true);
             if (handled) {
-                if (trigger.closest('.info-btn, .sim-action-card__info-btn, .calc-note-badge, .calc-combo-defense-card__info-btn, [data-combo-defense-info], [data-combo-badge], [data-shared-combo-info]')) {
+                if (trigger.closest('.info-btn, .sim-action-card__info-btn, .calc-note-badge, .calc-combo-defense-card__info-btn, [data-combo-defense-info], [data-combo-badge], [data-shared-combo-info], [data-source-info-btn]')) {
                     e.stopPropagation();
                 }
             }

@@ -61,10 +61,11 @@
     }
 
     &.hero-disabled {
-        .hero-icon,
-        .equipment-image {
+        img.hero-icon,
+        img.equipment-image {
             filter: grayscale(100%);
             opacity: 0.5;
+            transform: translateZ(0);
         }
 
         .upgrade-btn {
@@ -172,9 +173,12 @@
         &:active {
             transform: scale(0.95);
         }
+    }
 
+    img.equipment-image {
         &.grayscale {
             filter: grayscale(100%);
+            transform: translateZ(0);
         }
 
         &.gold-glow {
@@ -182,13 +186,16 @@
 
             &.grayscale {
                 filter: grayscale(100%) drop-shadow(0 0 6px $color-gold-glow-shadow);
+                transform: translateZ(0);
             }
         }
+
         &.over-leveled-glow {
             filter: drop-shadow(0 0 6px $accent-primary-soft);
 
             &.grayscale {
                 filter: grayscale(100%) drop-shadow(0 0 6px $accent-primary-soft);
+                transform: translateZ(0);
             }
         }
     }
@@ -212,7 +219,7 @@
 
 .equipment-item[data-equip-type="epic"] {
     @media (hover: hover) and (pointer: fine) {
-        &:hover .equipment-image:not(.grayscale):not(.gold-glow):not(.over-leveled-glow) {
+        &:hover img.equipment-image:not(.grayscale):not(.gold-glow):not(.over-leveled-glow) {
             filter: drop-shadow(0 0 6px rgba(186, 104, 200, 0.6));
         }
     }
@@ -220,7 +227,7 @@
 
 .equipment-item[data-equip-type="legendary"] {
     @media (hover: hover) and (pointer: fine) {
-        &:hover .equipment-image:not(.grayscale):not(.gold-glow):not(.over-leveled-glow) {
+        &:hover img.equipment-image:not(.grayscale):not(.gold-glow):not(.over-leveled-glow) {
             filter: $filter-glow-legendary;
         }
     }

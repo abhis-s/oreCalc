@@ -304,31 +304,29 @@ export function updateStatsProgressHover(statsProgressList, data, levelsArray, c
                 const isGain = isLowerBetter ? diff < 0 : diff > 0;
                 const hoverPct = Math.min(100, Math.max(0, Math.round((hoverNumVal / maxVal) * 100)));
 
-                isComparing = true;
+                if (!isSame) {
+                    isComparing = true;
 
-                if (isSame) {
-                    mainWidth = basePct;
-                    increaseWidth = basePct;
-                    decreaseWidth = basePct;
-                } else if (isGain) {
-                    if (isLowerBetter) {
-                        mainWidth = hoverPct;
-                        increaseWidth = hoverPct;
-                        decreaseWidth = basePct;
+                    if (isGain) {
+                        if (isLowerBetter) {
+                            mainWidth = hoverPct;
+                            increaseWidth = hoverPct;
+                            decreaseWidth = basePct;
+                        } else {
+                            mainWidth = basePct;
+                            increaseWidth = hoverPct;
+                            decreaseWidth = basePct;
+                        }
                     } else {
-                        mainWidth = basePct;
-                        increaseWidth = hoverPct;
-                        decreaseWidth = basePct;
-                    }
-                } else {
-                    if (isLowerBetter) {
-                        mainWidth = basePct;
-                        increaseWidth = hoverPct;
-                        decreaseWidth = hoverPct;
-                    } else {
-                        mainWidth = hoverPct;
-                        increaseWidth = hoverPct;
-                        decreaseWidth = basePct;
+                        if (isLowerBetter) {
+                            mainWidth = basePct;
+                            increaseWidth = hoverPct;
+                            decreaseWidth = hoverPct;
+                        } else {
+                            mainWidth = hoverPct;
+                            increaseWidth = hoverPct;
+                            decreaseWidth = basePct;
+                        }
                     }
                 }
             }
@@ -337,6 +335,7 @@ export function updateStatsProgressHover(statsProgressList, data, levelsArray, c
         rowEl.classList.toggle('is-comparing', isComparing);
         const valEl = rowEl.querySelector('.stat-val');
         if (valEl) {
+            const statKey = meta.key ? `${meta.key}_${idx}` : `stat_${idx}`;
             if (isComparing && typeof baseNumVal === 'number' && hoverLevelObj) {
                 const rawHoverVal = getStatValue(hoverLevelObj);
                 const hoverNumVal = (typeof rawHoverVal === 'number') ? Math.round(rawHoverVal * multiplier * 100) / 100 : rawHoverVal;
@@ -345,11 +344,9 @@ export function updateStatsProgressHover(statsProgressList, data, levelsArray, c
                 const formattedBase = formatVal(baseNumVal, meta.valueUnit);
                 const formattedHover = formatVal(hoverNumVal, meta.valueUnit);
 
-                const isSame = diff === 0;
                 const isGain = isLowerBetter ? diff < 0 : diff > 0;
-                const deltaTextClass = isGain ? 'val-increase' : (isSame ? '' : 'val-decrease');
+                const deltaTextClass = isGain ? 'val-increase' : 'val-decrease';
 
-                const statKey = meta.key ? `${meta.key}_${idx}` : `stat_${idx}`;
                 if (!/** @type {any} */ (statsProgressList).__lastHoveredValues) {
                     /** @type {any} */ (statsProgressList).__lastHoveredValues = {};
                 }
@@ -397,6 +394,9 @@ export function updateStatsProgressHover(statsProgressList, data, levelsArray, c
                     }
                 }
             } else {
+                if (hoverLevelObj && hoverLevelObj !== activeLevelObj && typeof baseNumVal === 'number') {
+                    /** @type {any} */ (statsProgressList).__lastHoveredValues[statKey] = baseNumVal;
+                }
                 valEl.innerHTML = `<span class="stat-val-number ${modClass}">${formatVal(baseNumVal, meta.valueUnit)}</span>`;
             }
         }

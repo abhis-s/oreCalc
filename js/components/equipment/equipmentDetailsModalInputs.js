@@ -7,6 +7,7 @@ import { state } from '../../core/state.js';
 import { handleStateUpdate } from '../../core/stateManager.js';
 
 import { computeEffectiveLevels, getDefaultModifierKey, resolveModifierRecommendation } from '../../domain/equipment/modifierCalculator.js';
+import { hideCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { canDismissModalOnEscape, closeModalAnimated, openModal } from '../../utils/modalHistoryManager.js';
 import { toCamelCase } from '../../utils/stringUtils.js';
 
@@ -47,6 +48,7 @@ async function navigateEquipment(direction) {
 
     const targetIdx = await findValidEquipmentIndex(list, currentIdx, direction);
     if (targetIdx !== -1) {
+        hideCardHelpPopover();
         const targetEquip = list[targetIdx];
         const targetLevel = getEquipLevel(targetEquip.key || targetEquip.name, targetEquip.heroName, targetEquip.heroKey);
         openEquipmentDetailsModal(targetEquip.key, targetLevel);
@@ -61,6 +63,7 @@ function handleEquipmentModalKeydown(e) {
 
     if (e.key === 'Escape') {
         if (!canDismissModalOnEscape(activeModal)) return;
+        hideCardHelpPopover();
         closeModalAnimated(activeModal, () => resetModalSessionState());
         return;
     }
@@ -95,7 +98,10 @@ export function initializeEquipmentDetailsModal(scope = null) {
     const prevBtn = document.getElementById('eq-details-prev-btn');
     const nextBtn = document.getElementById('eq-details-next-btn');
 
-    const handleClose = () => closeModalAnimated(modal, () => resetModalSessionState());
+    const handleClose = () => {
+        hideCardHelpPopover();
+        closeModalAnimated(modal, () => resetModalSessionState());
+    };
     if (closeBtn && modal) {
         closeBtn.addEventListener('click', handleClose);
     }
@@ -518,7 +524,7 @@ export async function openEquipmentDetailsModal(equipmentName, currentLevel = 1)
             applyViewMode(currentViewMode === 'unitStats' ? 'unitStats' : 'overview');
 
             unitStatsToggleBtn.onclick = () => {
-                const modTabs = document.getElementById('eq-details-modifier-tabs');
+                const modTabs = document.getElementById('eq-details-modifier-row') || document.getElementById('eq-details-modifier-tabs');
                 const firstRect = modTabs ? modTabs.getBoundingClientRect() : null;
                 const nextMode = currentViewMode === 'overview' ? 'unitStats' : 'overview';
                 setModalSessionState({ viewModePreference: nextMode });

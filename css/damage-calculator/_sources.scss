@@ -106,6 +106,42 @@
     }
 }
 
+.calc-source-item {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+
+    > .calc-source-item__info-btn {
+        position: absolute;
+        top: -$spacing-xs - $spacing-2xs;
+        right: -$spacing-xs - $spacing-2xs;
+        z-index: $z-index-base;
+        padding: $spacing-2xs;
+        background-color: $bg-surface-secondary;
+        border: 1px solid $border-primary;
+        border-radius: $shape-corner-full;
+        color: $text-secondary;
+        box-shadow: $elevation-1;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: -$spacing-xs;
+        }
+
+        &:active,
+        &:focus-visible {
+            color: $accent-primary;
+            border-color: $border-accent;
+        }
+
+        // Hidden on hover-capable fine-pointer devices so tile hover requires no aiming
+        @media (hover: hover) and (pointer: fine) {
+            display: none;
+        }
+    }
+}
+
 .calc-source-toggle-btn {
     position: relative;
     display: inline-flex;
@@ -144,11 +180,18 @@
 
     &.is-inactive {
         opacity: 0.45;
-        filter: grayscale(85%);
+
+        img {
+            filter: grayscale(85%);
+            transform: translateZ(0);
+        }
 
         &:hover {
             opacity: 0.75;
-            filter: grayscale(30%);
+
+            img {
+                filter: grayscale(30%);
+            }
         }
 
         .calc-source-toggle-btn__lvl {
@@ -254,11 +297,18 @@
 
     &.is-inactive {
         opacity: 0.45;
-        filter: grayscale(85%);
+
+        img {
+            filter: grayscale(85%);
+            transform: translateZ(0);
+        }
 
         &:hover {
             opacity: 0.75;
-            filter: grayscale(30%);
+
+            img {
+                filter: grayscale(30%);
+            }
         }
     }
 }
