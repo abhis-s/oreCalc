@@ -207,6 +207,8 @@
         "defaultPasskeyName": "Passkey",
         "deleteAccount": "Delete Account",
         "deletePasskey": "Delete passkey",
+        "deviceAlreadyLinked": "This device is already linked to your account.",
+        "deviceAlreadyLinkedTitle": "Already Linked",
         "deviceLinked": "Device Linked",
         "deviceLinkedSuccess": "Device linked successfully",
         "devicePairedSuccess": "Device linked successfully! Signed in to your account.",
@@ -219,6 +221,7 @@
             "resetDefaults": "Resets all local calculations and preferences to defaults.",
             "resetTracked": "Wipes all village progress and calculations."
         },
+        "generatingPairingCode": "Generating QR code...",
         "installPromptIos": "To install, tap the Share button in your browser and select 'Add to Home Screen'.",
         "installPromptMacSafari": "To install, select File > Add to Dock in Safari.",
         "newBadge": "New",
@@ -249,6 +252,7 @@
         "ruleMatch": "Passwords match",
         "ruleMinLength": "Minimum 6 characters",
         "securityKey": "Security Key",
+        "sessionExpired": "Your session has expired. Please sign in again.",
         "sessionRevoked": "Session signed out.",
         "setPassword": "Set Password",
         "signIn": "Sign In",
@@ -701,6 +705,7 @@
             "passwordNotSetDesc": "Your account is passkey-only. Add a password as a fallback to sign in on devices without biometric authentication.",
             "security": "Security & Authentication",
             "sessions": "Active Sessions",
+            "sessionsDesc": "Inactive devices are automatically signed out after 90 days. Up to 15 devices can stay signed in at once.",
             "title": "Account & Security"
         },
         "appManagement": {

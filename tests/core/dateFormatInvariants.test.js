@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { formatDate, formatRegionalDate } from '../../js/utils/dateUtils.js';
+import { formatDate, formatRegionalDate, formatRelativeDateTime } from '../../js/utils/dateUtils.js';
 import { formatInvoiceMonth } from '../../js/components/appSettings/settingsRunningCostsModal.js';
 import { state } from '../../js/core/state.js';
 
@@ -93,5 +93,26 @@ test('dateFormatInvariants - Textual Month & Numeric Ambiguity Prevention Suite'
             const match = content.match(numericDateInSpanRegex);
             assert.ok(!match, `Found hardcoded raw numeric date in template ${file}: ${match ? match[0] : ''}`);
         }
+    });
+
+    await t.test('formatRelativeDateTime formats Today, Yesterday, and older dates cleanly across locales', () => {
+        const refNow = new Date(2026, 10, 23, 14, 30, 0);
+        const sameDay = new Date(2026, 10, 23, 9, 15, 0);
+        const yesterday = new Date(2026, 10, 22, 23, 45, 0);
+        const olderDate = new Date(2026, 10, 10, 16, 0, 0);
+
+        assert.ok(formatRelativeDateTime(sameDay, 'en', refNow).startsWith('Today, '));
+        assert.ok(formatRelativeDateTime(yesterday, 'en', refNow).startsWith('Yesterday, '));
+        assert.ok(formatRelativeDateTime(sameDay, 'de', refNow).startsWith('Heute, '));
+        assert.ok(formatRelativeDateTime(yesterday, 'de', refNow).startsWith('Gestern, '));
+        assert.ok(formatRelativeDateTime(sameDay, 'tr', refNow).startsWith('Bugün, '));
+        assert.ok(formatRelativeDateTime(yesterday, 'tr', refNow).startsWith('Dün, '));
+        assert.ok(formatRelativeDateTime(sameDay, 'zh', refNow).startsWith('今天, '));
+        assert.ok(formatRelativeDateTime(yesterday, 'zh', refNow).startsWith('昨天, '));
+
+        const olderEn = formatRelativeDateTime(olderDate, 'en', refNow);
+        assert.ok(!olderEn.includes('Today') && !olderEn.includes('Yesterday'));
+        assert.ok(olderEn.includes('Nov'));
+        assert.equal(formatRelativeDateTime(new Date('invalid'), 'en', refNow), '');
     });
 });

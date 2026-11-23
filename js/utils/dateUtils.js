@@ -1,6 +1,7 @@
 import { getLocale, getWeekStart } from '../data/languagesData.js';
 
 const dateTimeFormatCache = new Map();
+const relativeTimeFormatCache = new Map();
 let defaultDateLocale = 'en';
 
 /**
@@ -80,6 +81,21 @@ function normalizeDateOptions(options) {
 }
 
 /**
+ * Retrieves a cached Intl.RelativeTimeFormat instance.
+ *
+ * @param {string} locale - Locale identifier.
+ * @returns {Intl.RelativeTimeFormat} Formatter instance.
+ */
+function getCachedRelativeTimeFormat(locale) {
+    let formatter = relativeTimeFormatCache.get(locale);
+    if (!formatter) {
+        formatter = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+        relativeTimeFormatCache.set(locale, formatter);
+    }
+    return formatter;
+}
+
+/**
  * Formats a date using localized formatting options.
  *
  * @param {Date} date - Date to format.
@@ -91,6 +107,43 @@ export function formatDate(date, options, locale = defaultDateLocale) {
     const effectiveLocale = getLocale(locale || defaultDateLocale);
     const effectiveOptions = normalizeDateOptions(options);
     return getCachedDateTimeFormat(effectiveLocale, effectiveOptions).format(date);
+}
+
+/**
+ * Formats a timestamp as localized "Today, <time>" or "Yesterday, <time>" when within
+ * the current or previous local calendar day, falling back to formatted date + time otherwise.
+ *
+ * @param {Date | number | string} date - Target timestamp or Date instance.
+ * @param {string} [locale=defaultDateLocale] - UI language locale.
+ * @param {Date} [referenceNow=new Date()] - Reference "now" timestamp (for deterministic testing).
+ * @returns {string} Formatted relative or calendar date-time string.
+ */
+export function formatRelativeDateTime(date, locale = defaultDateLocale, referenceNow = new Date()) {
+    const targetDate = date instanceof Date ? date : new Date(date);
+    if (isNaN(targetDate.getTime())) return '';
+
+    const effectiveLocale = getLocale(locale || defaultDateLocale);
+    const todayStart = new Date(referenceNow.getFullYear(), referenceNow.getMonth(), referenceNow.getDate());
+    const targetStart = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+    const diffDays = Math.round((targetStart.getTime() - todayStart.getTime()) / 86400000);
+
+    if ((diffDays === 0 || diffDays === -1) && typeof Intl !== 'undefined' && typeof Intl.RelativeTimeFormat === 'function') {
+        const dayLabel = getCachedRelativeTimeFormat(effectiveLocale).format(diffDays, 'day');
+        const capitalizedDay = dayLabel
+            ? dayLabel.charAt(0).toLocaleUpperCase(effectiveLocale) + dayLabel.slice(1)
+            : '';
+        const timeFormatted = formatDate(targetDate, { hour: '2-digit', minute: '2-digit' }, locale);
+        return capitalizedDay ? `${capitalizedDay}, ${timeFormatted}` : timeFormatted;
+    }
+
+    const isCurrentYear = targetDate.getFullYear() === referenceNow.getFullYear();
+    return formatDate(targetDate, {
+        month: 'short',
+        day: 'numeric',
+        ...(isCurrentYear ? {} : { year: 'numeric' }),
+        hour: '2-digit',
+        minute: '2-digit'
+    }, locale);
 }
 
 /**

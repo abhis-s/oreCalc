@@ -11,7 +11,8 @@ import {
     fetchPairingStatus,
     fetchSessions,
     revokeOtherSessions,
-    revokeSession
+    revokeSession,
+    validateAndRenewSession
 } from '../../services/authSessionClientService.js';
 import { translate } from '../../i18n/translator.js';
 import { showConfirm } from '../../ui/noticeModal.js';
@@ -20,10 +21,13 @@ import { logger } from '../../utils/logger.js';
 import { renderPairingQRCode } from '../../utils/qrCodeHelper.js';
 import {
     renderActiveSessionsList,
+    setPairingQRLoading,
     setPairingQROverlay,
     togglePairingDrawer,
     updatePairingTimer
 } from './accountPageSessionsDisplay.js';
+
+const DEFAULT_VISIBLE_SESSIONS = 5;
 
 /** @type {any} */
 let pairingTimerInterval = null;
@@ -34,6 +38,10 @@ let remainingPairingSeconds = 0;
 let newlyPairedSessionId = null;
 /** @type {string|null} */
 let currentActivePairingToken = null;
+let pairingFlowGeneration = 0;
+/** @type {Array<{ sessionId: string, platform: string, browser: string, createdAt: number, lastActiveAt: number, isCurrent: boolean }>} */
+let cachedSessions = [];
+let isSessionsListExpanded = false;
 let isSessionsModuleInitialized = false;
 
 /**
@@ -43,9 +51,16 @@ export async function loadAndRenderSessions() {
     if (!isAuthenticated()) return;
     try {
         const sessions = await fetchSessions();
-        renderActiveSessionsList(sessions, newlyPairedSessionId);
+        cachedSessions = sessions;
+        if (sessions.length <= DEFAULT_VISIBLE_SESSIONS) {
+            isSessionsListExpanded = false;
+        }
+        renderActiveSessionsList(cachedSessions, newlyPairedSessionId, isSessionsListExpanded);
     } catch (err) {
         logger.warn('[Sessions] Failed to fetch sessions:', err);
+        if (err?.message === 'sessionRevoked' || err?.message === 'unauthenticated') {
+            await validateAndRenewSession({ force: true });
+        }
     }
 }
 
@@ -108,7 +123,13 @@ function stopPairingTimers() {
  * Stops pairing timers, clears the QR canvas, and invalidates active token on server immediately.
  */
 function stopAndCancelPairing() {
+    pairingFlowGeneration += 1;
     stopPairingTimers();
+    setPairingQRLoading(false);
+
+    const refreshBtn = /** @type {HTMLButtonElement|null} */ (document.getElementById('account-btn-refresh-pairing'));
+    if (refreshBtn) refreshBtn.disabled = false;
+
     if (currentActivePairingToken) {
         const tokenToCancel = currentActivePairingToken;
         currentActivePairingToken = null;
@@ -128,13 +149,32 @@ function stopAndCancelPairing() {
 /**
  * Reacts to a confirmed device pairing claim.
  *
- * @param {{ deviceName?: string, sessionId?: string }} claimData
+ * @param {{ deviceName?: string, sessionId?: string, alreadyLinked?: boolean }} claimData
  */
 async function handlePairingClaimed(claimData) {
     stopPairingTimers();
+    setPairingQRLoading(false);
     currentActivePairingToken = null;
-    const refreshBtn = document.getElementById('account-btn-refresh-pairing');
+    const refreshBtn = /** @type {HTMLButtonElement|null} */ (document.getElementById('account-btn-refresh-pairing'));
     const closeBtn = document.getElementById('account-btn-close-pairing');
+
+    if (claimData.alreadyLinked) {
+        setPairingQROverlay({
+            type: 'success',
+            title: translate('auth.deviceAlreadyLinkedTitle') || 'Already Linked',
+            desc: claimData.deviceName || translate('auth.deviceAlreadyLinked') || 'This device is already linked to your account.'
+        });
+        updatePairingTimer(0, 'alreadyLinked');
+
+        if (refreshBtn) {
+            refreshBtn.classList.remove('is-hidden');
+            refreshBtn.disabled = false;
+        }
+        if (closeBtn) closeBtn.classList.remove('is-hidden');
+
+        await loadAndRenderSessions();
+        return;
+    }
 
     setPairingQROverlay({
         type: 'success',
@@ -157,7 +197,10 @@ async function handlePairingClaimed(claimData) {
  */
 function handlePairingExpired() {
     stopPairingTimers();
+    setPairingQRLoading(false);
     currentActivePairingToken = null;
+    const refreshBtn = /** @type {HTMLButtonElement|null} */ (document.getElementById('account-btn-refresh-pairing'));
+    if (refreshBtn) refreshBtn.disabled = false;
     updatePairingTimer(0, 'expired');
     setPairingQROverlay({
         type: 'expired',
@@ -170,6 +213,7 @@ function handlePairingExpired() {
  * Initiates the QR pairing flow, generating a new token, starting the countdown and status polling.
  */
 async function startPairingFlow() {
+    const flowId = ++pairingFlowGeneration;
     stopPairingTimers();
     if (currentActivePairingToken) {
         const tokenToCancel = currentActivePairingToken;
@@ -178,31 +222,62 @@ async function startPairingFlow() {
     }
 
     setPairingQROverlay({ type: 'hidden' });
-    updatePairingTimer(90, 'normal');
+    setPairingQRLoading(true);
+    updatePairingTimer(0, 'loading');
 
-    const refreshBtn = document.getElementById('account-btn-refresh-pairing');
+    const refreshBtn = /** @type {HTMLButtonElement|null} */ (document.getElementById('account-btn-refresh-pairing'));
     const closeBtn = document.getElementById('account-btn-close-pairing');
-    if (refreshBtn) refreshBtn.classList.remove('is-hidden');
+    if (refreshBtn) {
+        refreshBtn.classList.remove('is-hidden');
+        refreshBtn.disabled = true;
+    }
     if (closeBtn) closeBtn.classList.add('is-hidden');
 
     const qrContainer = document.getElementById('account-pairing-qr-canvas');
     if (qrContainer) {
-        qrContainer.innerHTML = '<div class="account-pairing-loading"><div class="button-loader"><span></span><span></span><span></span></div></div>';
+        qrContainer.innerHTML = '';
+        qrContainer.removeAttribute('data-token');
     }
 
     try {
         const data = await createPairingToken();
         const activeToken = data.pairingToken;
-        currentActivePairingToken = activeToken;
-        remainingPairingSeconds = data.expiresIn || 90;
-        updatePairingTimer(remainingPairingSeconds, 'normal');
-
-        if (qrContainer) {
-            qrContainer.setAttribute('data-token', activeToken);
-            renderPairingQRCode(qrContainer, activeToken, 200);
+        if (flowId !== pairingFlowGeneration) {
+            cancelPairingToken(activeToken).catch(() => {});
+            return;
         }
 
+        currentActivePairingToken = activeToken;
+        remainingPairingSeconds = data.expiresIn || 90;
+
+        let qrInstance = null;
+        if (qrContainer) {
+            qrContainer.setAttribute('data-token', activeToken);
+            qrInstance = renderPairingQRCode(qrContainer, activeToken, 200);
+        }
+
+        const drawPromise = qrInstance?._canvasDrawingPromise || qrInstance?._svgDrawingPromise;
+        if (drawPromise && typeof drawPromise.then === 'function') {
+            await drawPromise.catch(() => {});
+        }
+
+        if (flowId !== pairingFlowGeneration) {
+            if (currentActivePairingToken === activeToken) {
+                currentActivePairingToken = null;
+                cancelPairingToken(activeToken).catch(() => {});
+            }
+            return;
+        }
+
+        setPairingQRLoading(false);
+        if (refreshBtn) refreshBtn.disabled = false;
+        updatePairingTimer(remainingPairingSeconds, 'normal');
+
         pairingTimerInterval = setInterval(async () => {
+            if (flowId !== pairingFlowGeneration) {
+                stopPairingTimers();
+                return;
+            }
             remainingPairingSeconds -= 1;
             if (remainingPairingSeconds <= 0) {
                 stopPairingTimers();
@@ -211,6 +286,7 @@ async function startPairingFlow() {
                 // Final status check safeguard: inspect whether the token was claimed right at the cutoff
                 try {
                     const finalStatus = await fetchPairingStatus(activeToken);
+                    if (flowId !== pairingFlowGeneration) return;
                     if (finalStatus.status === 'claimed') {
                         await handlePairingClaimed(finalStatus);
                         return;
@@ -219,15 +295,22 @@ async function startPairingFlow() {
                     logger.warn('[Pairing] Final status check failed:', err);
                 }
 
-                handlePairingExpired();
+                if (flowId === pairingFlowGeneration) {
+                    handlePairingExpired();
+                }
             } else {
                 updatePairingTimer(remainingPairingSeconds, 'normal');
             }
         }, 1000);
 
         pairingStatusPollInterval = setInterval(async () => {
+            if (flowId !== pairingFlowGeneration) {
+                stopPairingTimers();
+                return;
+            }
             try {
                 const statusRes = await fetchPairingStatus(activeToken);
+                if (flowId !== pairingFlowGeneration) return;
                 if (statusRes.status === 'claimed') {
                     await handlePairingClaimed(statusRes);
                 } else if (statusRes.status === 'expired') {
@@ -238,11 +321,16 @@ async function startPairingFlow() {
             }
         }, 5000);
     } catch (err) {
+        if (flowId !== pairingFlowGeneration) return;
         logger.error('[Pairing] Create token failed:', err);
         currentActivePairingToken = null;
+        setPairingQRLoading(false);
+        if (refreshBtn) refreshBtn.disabled = false;
         if (qrContainer) {
             qrContainer.innerHTML = '';
+            qrContainer.removeAttribute('data-token');
         }
+        updatePairingTimer(0, 'expired');
         showToast(translate('apiErrors.default'), 'error');
     }
 }
@@ -261,8 +349,12 @@ async function checkAndHandlePairingParam() {
     window.history.replaceState({}, document.title, cleanUrl);
 
     try {
-        await claimPairingToken(pairToken);
-        showToast(translate('auth.devicePairedSuccess'), 'success');
+        const result = await claimPairingToken(pairToken);
+        if (result?.alreadyLinked) {
+            showToast(translate('auth.deviceAlreadyLinked') || 'This device is already linked to your account.', 'info');
+        } else {
+            showToast(translate('auth.devicePairedSuccess'), 'success');
+        }
     } catch (err) {
         logger.warn('[Pairing] Claim failed:', err);
         showToast(translate('auth.pairingCodeExpired'), 'warning');
@@ -287,6 +379,12 @@ export function initAccountSessionsModule() {
         }
     });
 
+    const expandSessionsBtn = document.getElementById('account-btn-toggle-sessions-expand');
+    expandSessionsBtn?.addEventListener('click', () => {
+        isSessionsListExpanded = !isSessionsListExpanded;
+        renderActiveSessionsList(cachedSessions, newlyPairedSessionId, isSessionsListExpanded);
+    });
+
     const togglePairingBtn = document.getElementById('account-btn-toggle-pairing');
     togglePairingBtn?.addEventListener('click', () => {
         const isOpen = togglePairingDrawer();
@@ -304,8 +402,11 @@ export function initAccountSessionsModule() {
     closePairingBtn?.addEventListener('click', () => {
         togglePairingDrawer(false);
         stopAndCancelPairing();
-        const refreshBtn = document.getElementById('account-btn-refresh-pairing');
-        if (refreshBtn) refreshBtn.classList.remove('is-hidden');
+        const refreshBtn = /** @type {HTMLButtonElement|null} */ (document.getElementById('account-btn-refresh-pairing'));
+        if (refreshBtn) {
+            refreshBtn.classList.remove('is-hidden');
+            refreshBtn.disabled = false;
+        }
         closePairingBtn?.classList.add('is-hidden');
     });
 
@@ -319,7 +420,12 @@ export function initAccountSessionsModule() {
             if (isAuthenticated()) {
                 loadAndRenderSessions();
             } else {
+                pairingFlowGeneration += 1;
+                currentActivePairingToken = null;
+                cachedSessions = [];
+                isSessionsListExpanded = false;
                 stopPairingTimers();
+                setPairingQRLoading(false);
                 setPairingQROverlay({ type: 'hidden' });
             }
         });

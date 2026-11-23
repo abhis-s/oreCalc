@@ -12,9 +12,11 @@ const {
 } = require('../services/authService.js');
 const { extractAuthUser, requireAuth } = require('../middleware/authMiddleware.js');
 const {
+    SESSION_ACTIVITY_THROTTLE_MS,
     generateSessionId,
     createSessionRecord,
-    appendSession
+    appendSession,
+    pruneExpiredSessions
 } = require('../services/sessionService.js');
 const {
     isTurnstileEnabled,
@@ -202,6 +204,30 @@ router.get('/account', requireAuth, async (req, res) => {
         const account = doc.data();
         if (await isUserDeleted(account.userId)) {
             return res.status(410).json({ reason: 'deletedUser', message: 'This user account has been permanently deleted.' });
+        }
+
+        const now = Date.now();
+        const rawSessions = Array.isArray(account.sessions) ? account.sessions : [];
+        const activeSessions = pruneExpiredSessions(rawSessions, now);
+        let sessionsChanged = activeSessions.length !== rawSessions.length;
+
+        if (authUser.sid) {
+            const matchIdx = activeSessions.findIndex(s => s.sessionId === authUser.sid);
+            if (matchIdx === -1) {
+                if (sessionsChanged) {
+                    await accountRef.update({ sessions: activeSessions });
+                }
+                return res.status(401).json({ reason: 'sessionRevoked', message: 'This session is no longer active.' });
+            }
+            const currentSession = activeSessions[matchIdx];
+            if (now - (Number(currentSession.lastActiveAt || currentSession.createdAt) || 0) >= SESSION_ACTIVITY_THROTTLE_MS) {
+                activeSessions[matchIdx] = { ...currentSession, lastActiveAt: now };
+                sessionsChanged = true;
+            }
+        }
+
+        if (sessionsChanged) {
+            await accountRef.update({ sessions: activeSessions });
         }
 
         res.status(200).json({

@@ -12,9 +12,9 @@ import {
     toggleWakeLock,
     getWakeLockPreference,
     isWakeLockSupported,
-    getEnvironmentDiagnostics,
-    detectBrowserEngine
+    getEnvironmentDiagnostics
 } from '../../services/appManagementService.js';
+import { detectBrowserEngine } from '../../utils/devicePlatform.js';
 import {
     isHapticsSupported,
     getHapticsPreference,

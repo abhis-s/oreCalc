@@ -1,32 +1,13 @@
 const crypto = require('crypto');
 
-const MAX_SESSIONS = 20;
-const PAIRING_TOKEN_TTL_MS = 90 * 1000; // 90 seconds (1.5 minutes)
+const MAX_SESSIONS = 15;
+const SESSION_TTL_MS = 90 * 24 * 60 * 60 * 1000; // 90 days
+const TOKEN_RENEWAL_WINDOW_MS = 15 * 24 * 60 * 60 * 1000; // 15 days
+const SESSION_ACTIVITY_THROTTLE_MS = 30 * 60 * 1000; // 30 minutes
+const VALID_CLIENT_PLATFORMS = new Set(['iPadOS', 'iOS', 'Android', 'macOS', 'Windows', 'Linux']);
 
-/**
- * @typedef {Object} PairingChallenge
- * @property {string} username
- * @property {string} userId
- * @property {number} expiresAt
- * @property {'pending'|'claimed'|'expired'} [status]
- * @property {boolean} [claimed]
- * @property {string|null} [deviceName]
- * @property {string|null} [sessionId]
- * @property {number} [claimedAt]
- */
-
-/** @type {Map<string, PairingChallenge>} */
-const pairingChallenges = new Map();
-
-// Periodic cleanup of expired pairing tokens every 60 seconds
-setInterval(() => {
-    const now = Date.now();
-    for (const [token, record] of pairingChallenges.entries()) {
-        if (now > record.expiresAt) {
-            pairingChallenges.delete(token);
-        }
-    }
-}, 60 * 1000).unref();
+/** @type {Map<string, number>} */
+const sessionActivityCache = new Map();
 
 /**
  * Parses user agent string to extract platform and browser identifiers.
@@ -55,7 +36,7 @@ function parseUserAgent(ua) {
     }
 
     let browser = 'Browser';
-    if (/Edg\//i.test(ua)) {
+    if (/Edg\/|EdgiOS\//i.test(ua)) {
         browser = 'Edge';
     } else if (/Chrome\/|CriOS\//i.test(ua)) {
         browser = 'Chrome';
@@ -79,14 +60,27 @@ function generateSessionId() {
 
 /**
  * Constructs a session metadata record from the incoming request.
+ * Resolves iPadOS accurately when desktop-mode Safari/WebKit sends a macOS User-Agent.
  *
- * @param {import('express').Request} req - Express request.
+ * @param {import('express').Request | Record<string, any>} req - Express request.
  * @param {string} sessionId - Unique session ID.
  * @returns {{ sessionId: string, platform: string, browser: string, ip: string, createdAt: number, lastActiveAt: number }}
  */
 function createSessionRecord(req, sessionId) {
     const ua = req.headers ? req.headers['user-agent'] : '';
-    const { platform, browser } = parseUserAgent(typeof ua === 'string' ? ua : '');
+    const { platform: parsedPlatform, browser } = parseUserAgent(typeof ua === 'string' ? ua : '');
+    let platform = parsedPlatform;
+
+    const rawClientPlatform = req?.body?.clientPlatform;
+    if (
+        typeof rawClientPlatform === 'string' &&
+        VALID_CLIENT_PLATFORMS.has(rawClientPlatform) &&
+        rawClientPlatform === 'iPadOS' &&
+        (platform === 'macOS' || platform === 'Other' || platform === 'Unknown' || platform === 'iPadOS')
+    ) {
+        platform = 'iPadOS';
+    }
+
     const ip = (req.headers && typeof req.headers['cf-connecting-ip'] === 'string')
         ? req.headers['cf-connecting-ip']
         : (req.ip || '');
@@ -103,19 +97,290 @@ function createSessionRecord(req, sessionId) {
 }
 
 /**
- * Appends a new session to the account sessions array, capping at MAX_SESSIONS.
+ * Removes expired sessions that have been inactive beyond the configured TTL.
+ *
+ * @param {Array<any>} sessions - Stored session records.
+ * @param {number} [now=Date.now()] - Reference timestamp in ms.
+ * @param {number} [ttlMs=SESSION_TTL_MS] - Session inactivity lifetime in ms.
+ * @returns {Array<any>} Active non-expired session records.
+ */
+function pruneExpiredSessions(sessions, now = Date.now(), ttlMs = SESSION_TTL_MS) {
+    if (!Array.isArray(sessions)) return [];
+    return sessions.filter((s) => {
+        if (!s || typeof s !== 'object') return false;
+        const lastSeen = Number(s.lastActiveAt || s.createdAt) || 0;
+        if (!lastSeen) return false;
+        return now - lastSeen <= ttlMs;
+    });
+}
+
+/**
+ * Appends a new session to the account sessions array, pruning expired sessions
+ * and evicting the earliest-seen (LRU) sessions beyond MAX_SESSIONS.
  *
  * @param {Array<any>} existingSessions - Current session array.
  * @param {any} newSession - Newly generated session record.
- * @returns {Array<any>} Trimmed updated sessions array.
+ * @param {number} [now] - Optional reference timestamp for expiration pruning.
+ * @returns {Array<any>} Trimmed updated sessions array sorted newest-first.
  */
-function appendSession(existingSessions, newSession) {
-    const list = Array.isArray(existingSessions) ? [...existingSessions] : [];
-    list.unshift(newSession);
+function appendSession(existingSessions, newSession, now) {
+    const referenceNow = Number.isFinite(now)
+        ? Number(now)
+        : (Number(newSession?.lastActiveAt || newSession?.createdAt) || Date.now());
+    const active = pruneExpiredSessions(existingSessions, referenceNow);
+    const filtered = newSession?.sessionId
+        ? active.filter(s => s.sessionId !== newSession.sessionId)
+        : active;
+    const list = [newSession, ...filtered];
+    list.sort((a, b) => (Number(b.lastActiveAt || b.createdAt) || 0) - (Number(a.lastActiveAt || a.createdAt) || 0));
     if (list.length > MAX_SESSIONS) {
         list.length = MAX_SESSIONS;
     }
     return list;
+}
+
+/**
+ * Resolves the session update for a QR pairing claim, deduplicating an already logged-in
+ * device on the same account instead of creating a duplicate session entry.
+ *
+ * @param {Array<any>} existingSessions - Stored sessions on target account.
+ * @param {{ sessionId: string, platform: string, browser: string, ip: string, createdAt: number, lastActiveAt: number }} candidateSession
+ * @param {{ username?: string, userId?: string, sid?: string|null }|null} callerAuth - Authenticated caller from Bearer JWT, if any.
+ * @param {{ username?: string, userId?: string }} targetAccount - Target account owning the pairing token.
+ * @param {number} [now] - Optional reference timestamp.
+ * @returns {{ sessions: Array<any>, sessionId: string, alreadyLinked: boolean }}
+ */
+function resolveClaimSession(existingSessions, candidateSession, callerAuth, targetAccount, now) {
+    const referenceNow = Number.isFinite(now)
+        ? Number(now)
+        : (Number(candidateSession?.lastActiveAt || candidateSession?.createdAt) || Date.now());
+    const active = pruneExpiredSessions(existingSessions, referenceNow);
+
+    const isSameAccount = Boolean(
+        callerAuth?.userId &&
+        callerAuth?.username &&
+        targetAccount?.userId &&
+        callerAuth.userId === targetAccount.userId &&
+        String(callerAuth.username).toLowerCase() === String(targetAccount.username || '').toLowerCase()
+    );
+
+    if (isSameAccount) {
+        let matchIdx = -1;
+        if (callerAuth.sid) {
+            matchIdx = active.findIndex(s => s.sessionId === callerAuth.sid);
+        } else {
+            matchIdx = active.findIndex(s =>
+                s.browser === candidateSession.browser &&
+                (s.platform === candidateSession.platform || (candidateSession.platform === 'iPadOS' && s.platform === 'macOS'))
+            );
+        }
+
+        if (matchIdx !== -1) {
+            const existing = active[matchIdx];
+            const updatedPlatform = (candidateSession.platform && candidateSession.platform !== 'Unknown')
+                ? candidateSession.platform
+                : existing.platform;
+            const updatedBrowser = (candidateSession.browser && candidateSession.browser !== 'Browser')
+                ? candidateSession.browser
+                : existing.browser;
+
+            const updatedSessions = [...active];
+            updatedSessions[matchIdx] = {
+                ...existing,
+                platform: updatedPlatform,
+                browser: updatedBrowser,
+                ip: candidateSession.ip || existing.ip || '',
+                lastActiveAt: referenceNow
+            };
+            updatedSessions.sort((a, b) => (Number(b.lastActiveAt || b.createdAt) || 0) - (Number(a.lastActiveAt || a.createdAt) || 0));
+            return {
+                sessions: updatedSessions,
+                sessionId: existing.sessionId,
+                alreadyLinked: true
+            };
+        }
+    }
+
+    return {
+        sessions: appendSession(active, candidateSession, referenceNow),
+        sessionId: candidateSession.sessionId,
+        alreadyLinked: false
+    };
+}
+
+/**
+ * Validates whether an authenticated caller's session is still active (not expired, revoked,
+ * or evicted), refreshes activity, and signals 15-day sliding token renewal or legacy upgrade.
+ *
+ * @param {Array<any>} existingSessions - Stored sessions on account.
+ * @param {{ sessionId: string, platform: string, browser: string, ip: string, createdAt: number, lastActiveAt: number }} candidateSession
+ * @param {{ sid?: string|null, exp?: number|null }} callerAuth - Decoded caller JWT context.
+ * @param {number} [now=Date.now()] - Reference timestamp in ms.
+ * @returns {{ valid: boolean, reason?: string, sessionId?: string, sessions: Array<any>, changed: boolean, shouldRenewToken?: boolean }}
+ */
+function validateAndRefreshSession(existingSessions, candidateSession, callerAuth, now = Date.now()) {
+    const rawList = Array.isArray(existingSessions) ? existingSessions : [];
+    const pruned = pruneExpiredSessions(rawList, now);
+    const prunedChanged = pruned.length !== rawList.length;
+
+    if (callerAuth?.sid) {
+        const idx = pruned.findIndex(s => s.sessionId === callerAuth.sid);
+        if (idx === -1) {
+            return {
+                valid: false,
+                reason: 'sessionRevoked',
+                sessions: pruned,
+                changed: prunedChanged
+            };
+        }
+
+        const existing = pruned[idx];
+        const lastActive = Number(existing.lastActiveAt || existing.createdAt) || 0;
+        const needsTouch = now - lastActive >= SESSION_ACTIVITY_THROTTLE_MS;
+        const shouldRenewToken = typeof callerAuth.exp === 'number' && ((callerAuth.exp * 1000) - now <= TOKEN_RENEWAL_WINDOW_MS);
+        const needsPlatformSelfHeal = candidateSession?.platform === 'iPadOS' && existing.platform !== 'iPadOS';
+
+        if (!needsTouch && !shouldRenewToken && !needsPlatformSelfHeal) {
+            return {
+                valid: true,
+                sessionId: existing.sessionId,
+                sessions: pruned,
+                changed: prunedChanged,
+                shouldRenewToken: false
+            };
+        }
+
+        const updatedSessions = [...pruned];
+        updatedSessions[idx] = {
+            ...existing,
+            platform: needsPlatformSelfHeal ? 'iPadOS' : (existing.platform || candidateSession.platform),
+            browser: existing.browser || candidateSession.browser,
+            ip: candidateSession?.ip || existing.ip || '',
+            lastActiveAt: now
+        };
+        updatedSessions.sort((a, b) => (Number(b.lastActiveAt || b.createdAt) || 0) - (Number(a.lastActiveAt || a.createdAt) || 0));
+
+        return {
+            valid: true,
+            sessionId: existing.sessionId,
+            sessions: updatedSessions,
+            changed: true,
+            shouldRenewToken
+        };
+    }
+
+    // Legacy JWT issued without sid: adopt matching platform+browser session or append one, and issue sid-bound token
+    const legacyMatchIdx = pruned.findIndex(s =>
+        s.browser === candidateSession.browser &&
+        (s.platform === candidateSession.platform || (candidateSession.platform === 'iPadOS' && s.platform === 'macOS'))
+    );
+
+    if (legacyMatchIdx !== -1) {
+        const existing = pruned[legacyMatchIdx];
+        const updatedSessions = [...pruned];
+        updatedSessions[legacyMatchIdx] = {
+            ...existing,
+            platform: (candidateSession.platform && candidateSession.platform !== 'Unknown') ? candidateSession.platform : existing.platform,
+            ip: candidateSession?.ip || existing.ip || '',
+            lastActiveAt: now
+        };
+        updatedSessions.sort((a, b) => (Number(b.lastActiveAt || b.createdAt) || 0) - (Number(a.lastActiveAt || a.createdAt) || 0));
+        return {
+            valid: true,
+            sessionId: existing.sessionId,
+            sessions: updatedSessions,
+            changed: true,
+            shouldRenewToken: true
+        };
+    }
+
+    const updatedSessions = appendSession(pruned, candidateSession, now);
+    return {
+        valid: true,
+        sessionId: candidateSession.sessionId,
+        sessions: updatedSessions,
+        changed: true,
+        shouldRenewToken: true
+    };
+}
+
+/**
+ * Removes a target session on logout while pruning any expired sessions.
+ *
+ * @param {Array<any>} existingSessions - Current session array.
+ * @param {string|null} sid - Active session ID from JWT.
+ * @param {{ platform?: string, browser?: string }|null} [fallbackMeta=null] - Fallback platform/browser for legacy non-sid tokens.
+ * @param {number} [now=Date.now()] - Reference timestamp in ms.
+ * @returns {Array<any>} Updated sessions array.
+ */
+function removeSession(existingSessions, sid, fallbackMeta = null, now = Date.now()) {
+    const active = pruneExpiredSessions(existingSessions, now);
+    if (sid) {
+        return active.filter(s => s.sessionId !== sid);
+    }
+    if (fallbackMeta?.platform && fallbackMeta?.browser) {
+        let removedOne = false;
+        return active.filter((s) => {
+            if (!removedOne && s.platform === fallbackMeta.platform && s.browser === fallbackMeta.browser) {
+                removedOne = true;
+                return false;
+            }
+            return true;
+        });
+    }
+    return active;
+}
+
+/**
+ * Throttled fire-and-forget updater for session lastActiveAt during authenticated activity.
+ *
+ * @param {string} username - Account username.
+ * @param {string|null} sid - Active session ID.
+ * @param {any} dbInstance - Firestore database instance.
+ * @returns {Promise<void>}
+ */
+async function touchSessionActivity(username, sid, dbInstance) {
+    if (!username || !sid || !dbInstance) return;
+    const now = Date.now();
+    const cleanUsername = String(username).trim().toLowerCase();
+    const cacheKey = `${cleanUsername}:${sid}`;
+    const lastTouched = sessionActivityCache.get(cacheKey) || 0;
+    if (now - lastTouched < SESSION_ACTIVITY_THROTTLE_MS) {
+        return;
+    }
+
+    if (sessionActivityCache.size > 5000) {
+        for (const [k, ts] of sessionActivityCache.entries()) {
+            if (now - ts >= SESSION_ACTIVITY_THROTTLE_MS) {
+                sessionActivityCache.delete(k);
+            }
+        }
+    }
+    sessionActivityCache.set(cacheKey, now);
+
+    try {
+        const accountRef = dbInstance.collection('accounts').doc(cleanUsername);
+        const doc = await accountRef.get();
+        if (!doc.exists) return;
+
+        const rawSessions = Array.isArray(doc.data()?.sessions) ? doc.data().sessions : [];
+        const active = pruneExpiredSessions(rawSessions, now);
+        const idx = active.findIndex(s => s.sessionId === sid);
+        if (idx === -1) return;
+
+        const existing = active[idx];
+        const prevActiveAt = Number(existing.lastActiveAt || existing.createdAt) || 0;
+        const prunedChanged = active.length !== rawSessions.length;
+        const needsUpdate = now - prevActiveAt >= SESSION_ACTIVITY_THROTTLE_MS;
+        if (!prunedChanged && !needsUpdate) return;
+
+        const updated = [...active];
+        if (needsUpdate) {
+            updated[idx] = { ...existing, lastActiveAt: now };
+            updated.sort((a, b) => (Number(b.lastActiveAt || b.createdAt) || 0) - (Number(a.lastActiveAt || a.createdAt) || 0));
+        }
+        await accountRef.update({ sessions: updated });
+    } catch (_) {}
 }
 
 /**
@@ -147,115 +412,19 @@ function formatSessionsForClient(sessions, currentSid) {
     return formatted;
 }
 
-/**
- * Creates an ephemeral pairing token for cross-device authentication.
- *
- * @param {string} username - Account username.
- * @param {string} userId - User identifier.
- * @returns {{ pairingToken: string, expiresIn: number }}
- */
-function createPairingToken(username, userId) {
-    const token = 'ptk_' + crypto.randomUUID().replace(/-/g, '');
-    const expiresAt = Date.now() + PAIRING_TOKEN_TTL_MS;
-    pairingChallenges.set(token, {
-        username,
-        userId,
-        expiresAt,
-        status: 'pending',
-        claimed: false,
-        deviceName: null,
-        sessionId: null
-    });
-
-    return {
-        pairingToken: token,
-        expiresIn: Math.floor(PAIRING_TOKEN_TTL_MS / 1000)
-    };
-}
-
-/**
- * Consumes a single-use pairing token if valid and unexpired.
- *
- * @param {string} token - Candidate pairing token.
- * @param {{ deviceName?: string, sessionId?: string }} [clientContext] - Claiming device context.
- * @returns {{ username: string, userId: string }|null}
- */
-function consumePairingToken(token, clientContext = {}) {
-    if (!token || typeof token !== 'string') return null;
-    const challenge = pairingChallenges.get(token);
-    if (!challenge) return null;
-    if (challenge.claimed) return null;
-    if (Date.now() > challenge.expiresAt) {
-        pairingChallenges.delete(token);
-        return null;
-    }
-
-    challenge.claimed = true;
-    challenge.status = 'claimed';
-    challenge.deviceName = clientContext.deviceName || 'Mobile Device';
-    challenge.sessionId = clientContext.sessionId || null;
-    challenge.claimedAt = Date.now();
-
-    return {
-        username: challenge.username,
-        userId: challenge.userId
-    };
-}
-
-/**
- * Retrieves current status of an ephemeral pairing token.
- *
- * @param {string} token - Candidate pairing token.
- * @returns {{ status: 'pending'|'claimed'|'expired'|'notFound', deviceName?: string, sessionId?: string }}
- */
-function getPairingTokenStatus(token) {
-    if (!token || typeof token !== 'string') return { status: 'notFound' };
-    const challenge = pairingChallenges.get(token);
-    if (!challenge) return { status: 'notFound' };
-
-    if (challenge.claimed) {
-        return {
-            status: 'claimed',
-            deviceName: challenge.deviceName,
-            sessionId: challenge.sessionId
-        };
-    }
-
-    if (Date.now() > challenge.expiresAt) {
-        return { status: 'expired' };
-    }
-
-    return { status: 'pending' };
-}
-
-/**
- * Cancels and invalidates an ephemeral pairing token immediately.
- *
- * @param {string} token - Candidate pairing token.
- * @param {string} [username] - Optional username guard to verify issuer ownership.
- * @returns {boolean} Whether the challenge was found and successfully deleted.
- */
-function cancelPairingToken(token, username) {
-    if (!token || typeof token !== 'string') return false;
-    const challenge = pairingChallenges.get(token);
-    if (!challenge) return false;
-
-    if (username && typeof username === 'string' && challenge.username.toLowerCase() !== username.toLowerCase()) {
-        return false;
-    }
-
-    return pairingChallenges.delete(token);
-}
-
 module.exports = {
     MAX_SESSIONS,
+    SESSION_TTL_MS,
+    TOKEN_RENEWAL_WINDOW_MS,
+    SESSION_ACTIVITY_THROTTLE_MS,
     parseUserAgent,
     generateSessionId,
     createSessionRecord,
+    pruneExpiredSessions,
     appendSession,
-    formatSessionsForClient,
-    createPairingToken,
-    consumePairingToken,
-    getPairingTokenStatus,
-    cancelPairingToken
+    resolveClaimSession,
+    validateAndRefreshSession,
+    removeSession,
+    touchSessionActivity,
+    formatSessionsForClient
 };

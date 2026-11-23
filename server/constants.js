@@ -63,7 +63,7 @@ const RATE_LIMIT_DEFAULTS = deepFreeze({
 
 const AUTH_CONSTANTS = deepFreeze({
     SALT_ROUNDS: 12,
-    TOKEN_EXPIRY: '30d',
+    TOKEN_EXPIRY: '90d',
     USERNAME_REGEX: /^[a-zA-Z0-9_]{3,20}$/,
     MIN_PASSWORD_LENGTH: 6,
     MAX_PASSWORD_LENGTH: 72,

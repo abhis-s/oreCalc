@@ -4,6 +4,7 @@ const { RATE_LIMIT_DEFAULTS, SERVER_CONSTANTS } = require('../constants.js');
 const { isValidUserId, isValidTag, normalizeTag, compareVersions } = require('../utils/validation.js');
 const { db, FieldValue, isUserDeleted } = require('../services/firebase.js');
 const { extractAuthUser, isAuthorizedForUser } = require('../middleware/authMiddleware.js');
+const { touchSessionActivity } = require('../services/sessionService.js');
 const {
     isLegacyOreCalcOrigin,
     isRestrictedFromOreCalc,
@@ -181,6 +182,10 @@ router.post('/save', requireMinAppVersion, async (req, res) => {
         }
 
         await batch.commit();
+        const authUser = /** @type {any} */ (req).authUser;
+        if (authUser?.username && authUser?.sid) {
+            void touchSessionActivity(authUser.username, authUser.sid, db);
+        }
         res.status(200).json({ message: 'Data saved successfully.' });
     } catch (error) {
         console.error('Error saving user data:', error);
@@ -354,6 +359,10 @@ router.post('/save-player', requireMinAppVersion, async (req, res) => {
         }, { merge: true });
 
         await batch.commit();
+        const authUser = /** @type {any} */ (req).authUser;
+        if (authUser?.username && authUser?.sid) {
+            void touchSessionActivity(authUser.username, authUser.sid, db);
+        }
         res.status(200).json({ message: 'Player data saved successfully.' });
     } catch (error) {
         console.error('Error saving single player data:', error);

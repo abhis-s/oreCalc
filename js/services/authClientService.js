@@ -16,6 +16,7 @@ import {
 import { setResettingState } from '../core/localStorageManager.js';
 import { syncPlayerTagToUrl } from '../core/playerUrlRouter.js';
 import { state } from '../core/state.js';
+import { detectOperatingSystem } from '../utils/devicePlatform.js';
 import { generateUUID } from '../utils/uuidGenerator.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
 
@@ -129,16 +130,56 @@ export async function throwApiError(response) {
 }
 
 /**
+ * Decodes the JSON payload of a JWT string without verifying its signature.
+ *
+ * @param {string} token - Candidate JWT string.
+ * @returns {Record<string, any>|null} Decoded payload or null when malformed.
+ */
+export function decodeJwtPayload(token) {
+    if (typeof token !== 'string' || !token) return null;
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    try {
+        let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        while (base64.length % 4 !== 0) {
+            base64 += '=';
+        }
+        if (typeof atob !== 'function') return null;
+        const json = atob(base64);
+        const parsed = safeJsonParse(json, null);
+        return parsed && typeof parsed === 'object' ? parsed : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Checks whether a JWT token carries a numeric expiration timestamp in the past.
+ * Non-JWT tokens or tokens lacking an exp claim return false.
+ *
+ * @param {string} token - Candidate JWT token.
+ * @param {number} [now=Date.now()] - Reference epoch timestamp in ms.
+ * @returns {boolean} True if expired.
+ */
+export function isTokenLocallyExpired(token, now = Date.now()) {
+    const payload = decodeJwtPayload(token);
+    return Boolean(payload && typeof payload.exp === 'number' && now >= payload.exp * 1000);
+}
+
+/**
  * Applies an authenticated session locally and broadcasts state change.
- * Purges prior local guest/player data on login or pairing claim.
+ * Purges prior local guest/player data on login or new-device pairing claim.
  *
  * @param {{ token?: string, username?: string, userId?: string, avatar?: string, hasPassword?: boolean }} data
- * @param {'login' | 'register' | 'pairing-claim'} [action='login']
+ * @param {'login' | 'register' | 'pairing-claim' | 'pairing-already-linked' | 'token-refresh'} [action='login']
  */
 export function applyAuthSession(data, action = 'login') {
     if (!data || !data.token || !data.username) return;
     if (typeof localStorage !== 'undefined') {
-        if (action !== 'register' && data.userId) {
+        const shouldPreserveLocalData = action === 'register' ||
+            action === 'pairing-already-linked' ||
+            action === 'token-refresh';
+        if (!shouldPreserveLocalData && data.userId) {
             purgeLocalDataOnLogin(data.userId);
         }
         localStorage.setItem(AUTH_TOKEN_KEY, data.token);
@@ -154,6 +195,11 @@ export function applyAuthSession(data, action = 'login') {
             localStorage.setItem(AUTH_AVATAR_KEY, data.avatar);
         }
     }
+    if (typeof sessionStorage !== 'undefined') {
+        try {
+            sessionStorage.setItem('clashCalc_sessionVerifiedAt', String(Date.now()));
+        } catch (_) {}
+    }
     if (typeof document !== 'undefined') {
         document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action, user: data } }));
     }
@@ -163,7 +209,7 @@ export function applyAuthSession(data, action = 'login') {
  * Registers an account using standard username and password.
  *
  * @param {string} username - Desired username.
- * @param {string} password - Password (min 8 chars).
+ * @param {string} password - Password (min 6 chars).
  * @param {string} [turnstileToken=''] - Optional Turnstile CAPTCHA response token.
  * @returns {Promise<{ token: string, username: string, userId: string }>}
  */
@@ -174,7 +220,7 @@ export async function registerWithPassword(username, password, turnstileToken = 
     const response = await fetch(url, {
         method: 'POST',
         headers: getRequestHeaders(),
-        body: JSON.stringify({ username, password, currentUserId, turnstileToken })
+        body: JSON.stringify({ username, password, currentUserId, turnstileToken, clientPlatform: detectOperatingSystem() })
     });
 
     if (!response.ok) {
@@ -199,7 +245,7 @@ export async function loginWithPassword(username, password, turnstileToken = '')
     const response = await fetch(url, {
         method: 'POST',
         headers: getRequestHeaders(),
-        body: JSON.stringify({ username, password, turnstileToken })
+        body: JSON.stringify({ username, password, turnstileToken, clientPlatform: detectOperatingSystem() })
     });
 
     if (!response.ok) {
@@ -378,6 +424,15 @@ export function logout() {
 export function resetApplication() {
     setResettingState(true);
     syncPlayerTagToUrl(null);
+    if (isAuthenticated() && typeof fetch === 'function') {
+        try {
+            Promise.resolve(fetch(`${getApiBaseUrl()}/api/auth/logout`, {
+                method: 'POST',
+                headers: getRequestHeaders(),
+                keepalive: true
+            })).catch(() => {});
+        } catch (_) {}
+    }
     logout();
     if (typeof window !== 'undefined' && window.location) {
         if (window.location.hash || window.location.search) {
@@ -579,10 +634,11 @@ export function initCrossTabAuthSync() {
                         document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: 'logout' } }));
                     }
                 } else {
-                    // Another tab logged in
+                    // Another tab logged in or silently renewed its token
                     const user = getAuthenticatedUser();
+                    const syncAction = event.oldValue ? 'token-refresh' : 'login';
                     if (typeof document?.dispatchEvent === 'function') {
-                        document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: 'login', user } }));
+                        document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: syncAction, user } }));
                     }
                 }
             } else if (event.key === AUTH_AVATAR_KEY || event.key === AUTH_USERNAME_KEY) {

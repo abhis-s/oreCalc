@@ -253,7 +253,7 @@ test('sessionService manages sessions array and client formatting', () => {
 });
 
 test('pairing challenges generate and consume single-use tokens', () => {
-    const { createPairingToken, consumePairingToken, getPairingTokenStatus } = require('../services/sessionService.js');
+    const { createPairingToken, consumePairingToken, getPairingTokenStatus } = require('../services/pairingService.js');
 
     const { pairingToken, expiresIn } = createPairingToken('pair_user', 'uid_pair_999');
     assert.ok(pairingToken.startsWith('ptk_'));
@@ -284,7 +284,7 @@ test('pairing challenges generate and consume single-use tokens', () => {
 });
 
 test('cancelPairingToken invalidates challenge immediately and guards against mismatched issuers', () => {
-    const { createPairingToken, cancelPairingToken, getPairingTokenStatus, consumePairingToken } = require('../services/sessionService.js');
+    const { createPairingToken, cancelPairingToken, getPairingTokenStatus, consumePairingToken } = require('../services/pairingService.js');
 
     const { pairingToken } = createPairingToken('pair_owner', 'uid_pair_777');
     assert.equal(getPairingTokenStatus(pairingToken).status, 'pending');
@@ -412,4 +412,207 @@ test('pruneExpiredAuthChallenges purges expired challenges from memory and Fires
     };
     const errorResult = await pruneExpiredAuthChallenges(mockErrorFirestore);
     assert.equal(errorResult.firestorePurged, 0);
+});
+
+test('AUTH_CONSTANTS and sessionService enforce 90-day retention, 15-device LRU cap, and iPadOS/EdgiOS parsing', () => {
+    const { AUTH_CONSTANTS } = require('../constants.js');
+    const {
+        MAX_SESSIONS,
+        SESSION_TTL_MS,
+        TOKEN_RENEWAL_WINDOW_MS,
+        parseUserAgent,
+        createSessionRecord,
+        pruneExpiredSessions,
+        appendSession,
+        removeSession
+    } = require('../services/sessionService.js');
+
+    assert.equal(AUTH_CONSTANTS.TOKEN_EXPIRY, '90d');
+    assert.equal(MAX_SESSIONS, 15);
+    assert.equal(SESSION_TTL_MS, 90 * 24 * 60 * 60 * 1000);
+    assert.equal(TOKEN_RENEWAL_WINDOW_MS, 15 * 24 * 60 * 60 * 1000);
+
+    // EdgiOS detection
+    assert.deepEqual(
+        parseUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 EdgiOS/120.0.2210.126 Mobile/15E148 Safari/605.1.15'),
+        { platform: 'iOS', browser: 'Edge' }
+    );
+
+    // iPadOS desktop-mode override via validated clientPlatform
+    const macDesktopUa = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15';
+    const ipadRecord = createSessionRecord({
+        headers: { 'user-agent': macDesktopUa },
+        body: { clientPlatform: 'iPadOS' }
+    }, 'sess_ipad');
+    assert.equal(ipadRecord.platform, 'iPadOS');
+    assert.equal(ipadRecord.browser, 'Safari');
+
+    // Invalid or non-iPadOS clientPlatform does not corrupt Windows UA
+    const winRecord = createSessionRecord({
+        headers: { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36' },
+        body: { clientPlatform: 'iPadOS' }
+    }, 'sess_win');
+    assert.equal(winRecord.platform, 'Windows');
+
+    // pruneExpiredSessions drops entries older than 90 days
+    const now = 1_800_000_000_000;
+    const staleSess = { sessionId: 'sess_stale', createdAt: now - SESSION_TTL_MS - 1, lastActiveAt: now - SESSION_TTL_MS - 1 };
+    const freshSess = { sessionId: 'sess_fresh', createdAt: now - 1000, lastActiveAt: now - 1000 };
+    assert.deepEqual(pruneExpiredSessions([staleSess, freshSess], now).map(s => s.sessionId), ['sess_fresh']);
+
+    // appendSession prunes expired and evicts earliest-seen (LRU) when cap of 15 is exceeded
+    const existing = [staleSess];
+    for (let i = 0; i < MAX_SESSIONS; i++) {
+        existing.push({
+            sessionId: `sess_${i}`,
+            platform: 'macOS',
+            browser: 'Chrome',
+            createdAt: now - 100000 + i,
+            lastActiveAt: now - 100000 + i
+        });
+    }
+    const appended = appendSession(existing, {
+        sessionId: 'sess_new',
+        platform: 'iOS',
+        browser: 'Safari',
+        createdAt: now,
+        lastActiveAt: now
+    }, now);
+    assert.equal(appended.length, MAX_SESSIONS);
+    assert.equal(appended[0].sessionId, 'sess_new');
+    assert.equal(appended.some(s => s.sessionId === 'sess_stale'), false);
+    assert.equal(appended.some(s => s.sessionId === 'sess_0'), false, 'Earliest-seen session must be evicted');
+    assert.equal(appended.some(s => s.sessionId === 'sess_1'), true);
+
+    // removeSession deletes matching sid and prunes expired
+    const afterLogout = removeSession([staleSess, freshSess], 'sess_fresh', null, now);
+    assert.deepEqual(afterLogout, []);
+});
+
+test('resolveClaimSession deduplicates already-authenticated device sessions and flags alreadyLinked', () => {
+    const { resolveClaimSession, createSessionRecord } = require('../services/sessionService.js');
+    const now = 1_800_000_000_000;
+    const existingSessions = [
+        { sessionId: 'sess_existing', platform: 'macOS', browser: 'Safari', ip: '1.1.1.1', createdAt: now - 50000, lastActiveAt: now - 50000 },
+        { sessionId: 'sess_other', platform: 'iOS', browser: 'Safari', ip: '2.2.2.2', createdAt: now - 60000, lastActiveAt: now - 60000 }
+    ];
+    const targetAccount = { username: 'Chief', userId: 'uid_123' };
+
+    // 1. Same account & active sid: reuses existing sessionId, heals iPadOS platform, sets alreadyLinked=true
+    const ipadCandidate = {
+        ...createSessionRecord({
+            headers: { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15' },
+            body: { clientPlatform: 'iPadOS' }
+        }, 'sess_cand_1'),
+        createdAt: now,
+        lastActiveAt: now
+    };
+    const sameDeviceRes = resolveClaimSession(
+        existingSessions,
+        ipadCandidate,
+        { username: 'chief', userId: 'uid_123', sid: 'sess_existing' },
+        targetAccount,
+        now
+    );
+    assert.equal(sameDeviceRes.alreadyLinked, true);
+    assert.equal(sameDeviceRes.sessionId, 'sess_existing');
+    assert.equal(sameDeviceRes.sessions.length, 2);
+    const updatedExisting = sameDeviceRes.sessions.find(s => s.sessionId === 'sess_existing');
+    assert.equal(updatedExisting?.platform, 'iPadOS');
+    assert.equal(updatedExisting?.lastActiveAt, now);
+    assert.equal(updatedExisting?.createdAt, now - 50000);
+
+    // 2. Unauthenticated caller: appends new session, alreadyLinked=false
+    const unauthCandidate = { sessionId: 'sess_new_device', platform: 'Android', browser: 'Chrome', ip: '3.3.3.3', createdAt: now, lastActiveAt: now };
+    const unauthRes = resolveClaimSession(existingSessions, unauthCandidate, null, targetAccount, now);
+    assert.equal(unauthRes.alreadyLinked, false);
+    assert.equal(unauthRes.sessionId, 'sess_new_device');
+    assert.equal(unauthRes.sessions.length, 3);
+
+    // 3. Different logged-in account: appends new session for targetAccount, alreadyLinked=false
+    const diffAccRes = resolveClaimSession(
+        existingSessions,
+        unauthCandidate,
+        { username: 'other', userId: 'uid_other', sid: 'sess_existing' },
+        targetAccount,
+        now
+    );
+    assert.equal(diffAccRes.alreadyLinked, false);
+    assert.equal(diffAccRes.sessions.length, 3);
+
+    // 4. Same account but previously revoked sid: appends new session
+    const revokedRes = resolveClaimSession(
+        existingSessions,
+        unauthCandidate,
+        { username: 'Chief', userId: 'uid_123', sid: 'sess_revoked' },
+        targetAccount,
+        now
+    );
+    assert.equal(revokedRes.alreadyLinked, false);
+    assert.equal(revokedRes.sessions.length, 3);
+});
+
+test('validateAndRefreshSession enforces revocation, 15-day sliding renewal window, and legacy non-sid upgrade', () => {
+    const { validateAndRefreshSession, TOKEN_RENEWAL_WINDOW_MS } = require('../services/sessionService.js');
+    const now = 1_800_000_000_000;
+    const candidate = { sessionId: 'sess_cand', platform: 'iOS', browser: 'Safari', ip: '', createdAt: now, lastActiveAt: now };
+    const sessions = [
+        { sessionId: 'sess_active', platform: 'iOS', browser: 'Safari', ip: '', createdAt: now - 1000, lastActiveAt: now - 1000 }
+    ];
+
+    // 1. Valid session outside 15-day renewal window -> valid, shouldRenewToken=false
+    const farExpSec = Math.floor((now + TOKEN_RENEWAL_WINDOW_MS + 60 * 60 * 1000) / 1000);
+    const okRes = validateAndRefreshSession(sessions, candidate, { sid: 'sess_active', exp: farExpSec }, now);
+    assert.equal(okRes.valid, true);
+    assert.equal(okRes.shouldRenewToken, false);
+
+    // 2. Valid session inside 15-day renewal window -> valid, shouldRenewToken=true
+    const nearExpSec = Math.floor((now + TOKEN_RENEWAL_WINDOW_MS - 60 * 1000) / 1000);
+    const renewRes = validateAndRefreshSession(sessions, candidate, { sid: 'sess_active', exp: nearExpSec }, now);
+    assert.equal(renewRes.valid, true);
+    assert.equal(renewRes.shouldRenewToken, true);
+    assert.equal(renewRes.sessionId, 'sess_active');
+
+    // 3. Revoked session -> invalid sessionRevoked
+    const revokedRes = validateAndRefreshSession(sessions, candidate, { sid: 'sess_deleted', exp: farExpSec }, now);
+    assert.equal(revokedRes.valid, false);
+    assert.equal(revokedRes.reason, 'sessionRevoked');
+
+    // 4. Legacy token without sid -> adopts session and upgrades to sid-bound token
+    const legacyRes = validateAndRefreshSession(sessions, candidate, { sid: null, exp: farExpSec }, now);
+    assert.equal(legacyRes.valid, true);
+    assert.equal(legacyRes.shouldRenewToken, true);
+    assert.equal(legacyRes.sessionId, 'sess_active');
+});
+
+test('two-phase pairing reservation blocks concurrent double-claim and propagates alreadyLinked', () => {
+    const {
+        createPairingToken,
+        reservePairingToken,
+        completePairingClaim,
+        releasePairingToken,
+        getPairingTokenStatus
+    } = require('../services/pairingService.js');
+
+    const { pairingToken } = createPairingToken('two_phase_user', 'uid_tp_1');
+    const reserved = reservePairingToken(pairingToken);
+    assert.ok(reserved);
+    assert.equal(reservePairingToken(pairingToken), null, 'Concurrent second reservation must be rejected');
+    assert.equal(getPairingTokenStatus(pairingToken).status, 'pending');
+
+    // Release on simulated failure restores availability
+    releasePairingToken(pairingToken);
+    const reReserved = reservePairingToken(pairingToken);
+    assert.ok(reReserved);
+
+    completePairingClaim(pairingToken, {
+        deviceName: 'Safari on iPadOS',
+        sessionId: 'sess_existing',
+        alreadyLinked: true
+    });
+    const finalStatus = getPairingTokenStatus(pairingToken);
+    assert.equal(finalStatus.status, 'claimed');
+    assert.equal(finalStatus.alreadyLinked, true);
+    assert.equal(finalStatus.sessionId, 'sess_existing');
+    assert.equal(finalStatus.deviceName, 'Safari on iPadOS');
 });

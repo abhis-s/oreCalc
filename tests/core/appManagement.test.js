@@ -8,14 +8,16 @@ import {
     formatStorageSize,
     getStartupRoutePreference,
     setStartupRoutePreference,
-    detectBrowserEngine,
-    detectOperatingSystem,
     getEnvironmentDiagnostics,
     isWakeLockSupported,
     getWakeLockPreference,
     toggleWakeLock,
     initScreenWakeLock
 } from '../../js/services/appManagementService.js';
+import {
+    detectBrowserEngine,
+    detectOperatingSystem
+} from '../../js/utils/devicePlatform.js';
 import {
     getStartupOptionLabel,
     formatStartupSubViewLabel,

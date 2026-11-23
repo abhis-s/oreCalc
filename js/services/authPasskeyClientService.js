@@ -12,6 +12,7 @@ import {
     WebAuthnAbortService
 } from '@simplewebauthn/browser';
 import { translate } from '../i18n/translator.js';
+import { detectOperatingSystem } from '../utils/devicePlatform.js';
 import { logger } from '../utils/logger.js';
 import { getApiBaseUrl } from './apiService.js';
 import {
@@ -200,7 +201,8 @@ export async function registerWithPasskey(username, deviceName = '', turnstileTo
             currentUserId,
             attestationResponse,
             passkeyName: finalPasskeyName,
-            deviceName: finalPasskeyName
+            deviceName: finalPasskeyName,
+            clientPlatform: detectOperatingSystem()
         })
     });
 
@@ -252,7 +254,8 @@ export async function loginWithPasskey(username = '') {
         body: JSON.stringify({
             challengeId,
             assertionResponse,
-            username
+            username,
+            clientPlatform: detectOperatingSystem()
         })
     });
 
@@ -387,7 +390,8 @@ export async function authenticateWithPasskeyAutofill() {
             body: JSON.stringify({
                 challengeId,
                 assertionResponse,
-                username: ''
+                username: '',
+                clientPlatform: detectOperatingSystem()
             })
         });
     } catch {

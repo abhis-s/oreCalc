@@ -8,12 +8,13 @@ import { getActiveUserId } from '../../core/storageKeys.js';
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { state } from '../../core/state.js';
 import { translate } from '../../i18n/translator.js';
-import { formatDate, getDefaultDateLocale } from '../../utils/dateUtils.js';
+import { formatRelativeDateTime, getDefaultDateLocale } from '../../utils/dateUtils.js';
 import { renderSyncQRCode } from '../../utils/qrCodeHelper.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
 import { setAnimatedButtonContent } from './accountDisplayUtils.js';
 
 const NEW_SESSION_AGE_LIMIT_MS = 10 * 60 * 1000;
+const DEFAULT_VISIBLE_SESSIONS = 5;
 
 /**
  * Toggles the cross-device pairing drawer.
@@ -195,10 +196,30 @@ export function setPairingQROverlay({ type, title = '', desc = '' }) {
 }
 
 /**
+ * Toggles the QR pairing preloader visibility and busy state.
+ *
+ * @param {boolean} isLoading - Whether QR generation/rendering is in progress.
+ */
+export function setPairingQRLoading(isLoading) {
+    const loader = document.getElementById('account-pairing-qr-loader');
+    const wrap = document.getElementById('account-pairing-qr-wrap');
+    if (loader) {
+        loader.classList.toggle('is-hidden', !isLoading);
+    }
+    if (wrap) {
+        if (isLoading) {
+            wrap.setAttribute('aria-busy', 'true');
+        } else {
+            wrap.removeAttribute('aria-busy');
+        }
+    }
+}
+
+/**
  * Updates the pairing code expiration countdown timer display.
  *
  * @param {number} remainingSeconds - Remaining seconds until token expiration.
- * @param {'normal' | 'expired' | 'claimed'} [state='normal'] - Timer display state.
+ * @param {'normal' | 'expired' | 'claimed' | 'alreadyLinked' | 'loading'} [state='normal'] - Timer display state.
  */
 export function updatePairingTimer(remainingSeconds, state = 'normal') {
     const timerRow = document.querySelector('.account-pairing-timer-row');
@@ -207,10 +228,26 @@ export function updatePairingTimer(remainingSeconds, state = 'normal') {
 
     if (timerRow) {
         timerRow.classList.toggle('is-expired', state === 'expired');
-        timerRow.classList.toggle('is-success', state === 'claimed');
+        timerRow.classList.toggle('is-success', state === 'claimed' || state === 'alreadyLinked');
     }
 
     const iconEl = timerRow?.querySelector('clashcalc-assets-svg');
+
+    if (state === 'loading') {
+        timerEl.textContent = translate('auth.generatingPairingCode') || 'Generating QR code...';
+        if (iconEl) {
+            iconEl.setAttribute('name', 'timer');
+        }
+        return;
+    }
+
+    if (state === 'alreadyLinked') {
+        timerEl.textContent = translate('auth.deviceAlreadyLinked') || 'This device is already linked to your account.';
+        if (iconEl) {
+            iconEl.setAttribute('name', 'check');
+        }
+        return;
+    }
 
     if (state === 'claimed') {
         timerEl.textContent = translate('auth.deviceLinkedSuccess') || 'Device linked successfully';
@@ -247,6 +284,9 @@ export function updatePairingTimer(remainingSeconds, state = 'normal') {
  */
 function getDeviceIconName(platform) {
     const p = (platform || '').toLowerCase();
+    if (p.includes('ipad') || p.includes('tablet')) {
+        return 'tablet';
+    }
     if (p.includes('ios') || p.includes('android') || p.includes('mobile') || p.includes('phone')) {
         return 'phone';
     }
@@ -257,14 +297,17 @@ function getDeviceIconName(platform) {
 }
 
 /**
- * Renders the active device sessions list.
+ * Renders the active device sessions list with default pagination (5 devices) and expand toggle.
  *
  * @param {Array<{ sessionId: string, platform: string, browser: string, createdAt: number, lastActiveAt: number, isCurrent: boolean }>} sessions
  * @param {string|null} [newlyPairedSessionId=null] - Session ID of newly linked device to highlight.
+ * @param {boolean} [isExpanded=false] - Whether all sessions beyond DEFAULT_VISIBLE_SESSIONS are revealed.
  */
-export function renderActiveSessionsList(sessions, newlyPairedSessionId = null) {
+export function renderActiveSessionsList(sessions, newlyPairedSessionId = null, isExpanded = false) {
     const listEl = document.getElementById('account-sessions-list');
     const revokeOtherBtn = /** @type {HTMLButtonElement|null} */ (document.getElementById('account-btn-revoke-other-sessions'));
+    const expandBtn = document.getElementById('account-btn-toggle-sessions-expand');
+    const expandLabel = document.getElementById('account-sessions-expand-label');
     if (!listEl) return;
 
     const safeSessions = Array.isArray(sessions) ? sessions : [];
@@ -288,12 +331,35 @@ export function renderActiveSessionsList(sessions, newlyPairedSessionId = null) 
         titleEl.textContent = safeSessions.length >= 2 ? `${baseTitle} (${safeSessions.length})` : baseTitle;
     }
 
+    if (expandBtn) {
+        if (safeSessions.length > DEFAULT_VISIBLE_SESSIONS) {
+            const expanded = Boolean(isExpanded);
+            const remainingCount = safeSessions.length - DEFAULT_VISIBLE_SESSIONS;
+            expandBtn.removeAttribute('hidden');
+            expandBtn.setAttribute('aria-expanded', String(expanded));
+            expandBtn.classList.toggle('is-expanded', expanded);
+            if (expandLabel) {
+                expandLabel.textContent = expanded
+                    ? (translate('actions.showLess') || 'Show Less')
+                    : `${translate('actions.showMore') || 'Show More'} (${remainingCount})`;
+            }
+        } else {
+            expandBtn.setAttribute('hidden', '');
+            expandBtn.setAttribute('aria-expanded', 'false');
+            expandBtn.classList.remove('is-expanded');
+        }
+    }
+
     if (safeSessions.length === 0) {
         listEl.innerHTML = '';
         return;
     }
 
-    listEl.innerHTML = safeSessions.map((sess) => {
+    const visibleSessions = (isExpanded || safeSessions.length <= DEFAULT_VISIBLE_SESSIONS)
+        ? safeSessions
+        : safeSessions.slice(0, DEFAULT_VISIBLE_SESSIONS);
+
+    listEl.innerHTML = visibleSessions.map((sess) => {
         const safePlatform = escapeHTML(sess.platform || 'Other');
         const safeBrowser = escapeHTML(sess.browser || 'Browser');
         const safeId = escapeHTML(sess.sessionId);
@@ -309,15 +375,7 @@ export function renderActiveSessionsList(sessions, newlyPairedSessionId = null) 
         if (sess.isCurrent) {
             activeMeta = translate('views.account.currentDevice') || 'This Device';
         } else if (sess.lastActiveAt) {
-            const date = new Date(sess.lastActiveAt);
-            const isCurrentYear = date.getFullYear() === new Date().getFullYear();
-            const formatted = formatDate(date, {
-                month: 'short',
-                day: 'numeric',
-                ...(isCurrentYear ? {} : { year: 'numeric' }),
-                hour: '2-digit',
-                minute: '2-digit'
-            }, currentLang);
+            const formatted = formatRelativeDateTime(new Date(sess.lastActiveAt), currentLang);
             activeMeta = translate('views.account.lastActive', { time: formatted }) || `Last active: ${formatted}`;
         }
 

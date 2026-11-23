@@ -207,6 +207,8 @@
         "defaultPasskeyName": "Passkey",
         "deleteAccount": "Konto löschen",
         "deletePasskey": "Passkey löschen",
+        "deviceAlreadyLinked": "Dieses Gerät ist bereits mit deinem Konto verknüpft.",
+        "deviceAlreadyLinkedTitle": "Bereits verknüpft",
         "deviceLinked": "Gerät verknüpft",
         "deviceLinkedSuccess": "Gerät erfolgreich verknüpft",
         "devicePairedSuccess": "Gerät erfolgreich verknüpft! Angemeldet in deinem Konto.",
@@ -219,6 +221,7 @@
             "resetDefaults": "Setzt alle lokalen Berechnungen und Einstellungen auf Standardwerte zurück.",
             "resetTracked": "Löscht alle Dorffortschritte und Berechnungen."
         },
+        "generatingPairingCode": "QR-Code wird erstellt...",
         "installPromptIos": "Tippe im Teilen-Menü deines Browsers auf 'Zum Home-Bildschirm'.",
         "installPromptMacSafari": "Wähle im Safari-Menü 'Ablage' > 'Zum Dock hinzufügen'.",
         "newBadge": "Neu",
@@ -249,6 +252,7 @@
         "ruleMatch": "Passwörter stimmen überein",
         "ruleMinLength": "Mindestens 6 Zeichen",
         "securityKey": "Sicherheitsschlüssel",
+        "sessionExpired": "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.",
         "sessionRevoked": "Sitzung abgemeldet.",
         "setPassword": "Passwort festlegen",
         "signIn": "Anmelden",
@@ -701,6 +705,7 @@
             "passwordNotSetDesc": "Dein Konto verwendet ausschließlich Passkeys. Lege ein Passwort fest, um dich auch ohne Biometrie anzumelden.",
             "security": "Sicherheit & Authentifizierung",
             "sessions": "Aktive Sitzungen",
+            "sessionsDesc": "Inaktive Geräte werden nach 90 Tagen automatisch abgemeldet. Bis zu 15 Geräte können gleichzeitig angemeldet bleiben.",
             "title": "Konto & Sicherheit"
         },
         "appManagement": {

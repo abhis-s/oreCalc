@@ -17,6 +17,7 @@ import {
     fetchPasskeys,
     getSuggestedPasskeyName
 } from '../../services/authPasskeyClientService.js';
+import { revokeCurrentSession } from '../../services/authSessionClientService.js';
 import { saveUserData } from '../../services/apiService.js';
 import { initializeState, state } from '../../core/state.js';
 import { saveState, setResettingState } from '../../core/localStorageManager.js';
@@ -55,6 +56,7 @@ let isAccountInputsInitialized = false;
 async function handleSignOut() {
     const confirmed = await showConfirm(translate('auth.signOutConfirm'));
     if (confirmed) {
+        await revokeCurrentSession();
         setResettingState(true);
         syncPlayerTagToUrl(null);
         logout();

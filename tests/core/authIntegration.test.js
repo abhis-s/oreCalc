@@ -138,8 +138,10 @@ import { loadTranslations } from '../../js/i18n/translator.js';
 await loadTranslations('en');
 const {
     applyAuthSession,
+    decodeJwtPayload,
     getAuthenticatedUser,
     isAuthenticated,
+    isTokenLocallyExpired,
     logout,
     purgeLocalDataOnLogin,
     resetApplication,
@@ -147,6 +149,9 @@ const {
     initCrossTabAuthSync,
     resetCrossTabAuthSyncForTesting
 } = await import('../../js/services/authClientService.js');
+const {
+    validateAndRenewSession
+} = await import('../../js/services/authSessionClientService.js');
 const {
     normalizeWebAuthnError,
     isPasskeyAutofillSupported,
@@ -738,6 +743,128 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.equal(events.length, 2);
         assert.equal(events[1].action, 'login');
 
+        // Re-populate partition and verify pairing-already-linked + token-refresh preserve local data
+        store.set('clashCalc_player_ABC123', JSON.stringify({ townHallLevel: 16 }));
+        applyAuthSession({
+            token: 'refreshed.jwt.token',
+            username: 'existingUser',
+            userId: 'user-id-login-2',
+            hasPassword: false,
+            avatar: 'goblin'
+        }, 'pairing-already-linked');
+        assert.ok(store.get('clashCalc_player_ABC123'), 'pairing-already-linked must preserve local partitions');
+
+        applyAuthSession({
+            token: 'renewed.jwt.token',
+            username: 'existingUser',
+            userId: 'user-id-login-2',
+            hasPassword: false,
+            avatar: 'goblin'
+        }, 'token-refresh');
+        assert.ok(store.get('clashCalc_player_ABC123'), 'token-refresh must preserve local partitions');
+        assert.equal(store.get('clashCalc_authToken'), 'renewed.jwt.token');
+
         globalThis.document.removeEventListener('auth:state-change', handler);
+    });
+
+    test('decodeJwtPayload and isTokenLocallyExpired safely inspect JWT expiration claims', () => {
+        const now = 1_800_000_000_000;
+        const makeJwt = (payloadObj) => {
+            const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+            const body = Buffer.from(JSON.stringify(payloadObj)).toString('base64url');
+            return `${header}.${body}.sig`;
+        };
+
+        const expiredToken = makeJwt({ sub: 'alice', userId: 'uid_1', exp: Math.floor(now / 1000) - 60 });
+        const validToken = makeJwt({ sub: 'alice', userId: 'uid_1', sid: 'sess_1', exp: Math.floor(now / 1000) + 3600 });
+        const noExpToken = makeJwt({ userId: 'uid_1' });
+
+        assert.equal(decodeJwtPayload(validToken)?.sid, 'sess_1');
+        assert.equal(decodeJwtPayload('not-a-jwt'), null);
+        assert.equal(isTokenLocallyExpired(expiredToken, now), true);
+        assert.equal(isTokenLocallyExpired(validToken, now), false);
+        assert.equal(isTokenLocallyExpired(noExpToken, now), false);
+        assert.equal(isTokenLocallyExpired('opaque.token', now), false);
+    });
+
+    test('initCrossTabAuthSync dispatches token-refresh when replacing an existing token', () => {
+        resetCrossTabAuthSyncForTesting();
+        initCrossTabAuthSync();
+
+        /** @type {any[]} */
+        const events = [];
+        const handler = (e) => events.push(e.detail);
+        globalThis.document.addEventListener('auth:state-change', handler);
+
+        store.set('clashCalc_authToken', 'renewed.cross.tab.jwt');
+        store.set('clashCalc_username', 'cross_tab_user');
+        globalThis.window.dispatchEvent({
+            type: 'storage',
+            key: 'clashCalc_authToken',
+            newValue: 'renewed.cross.tab.jwt',
+            oldValue: 'old.cross.tab.jwt'
+        });
+
+        assert.equal(events.length, 1);
+        assert.equal(events[0].action, 'token-refresh');
+
+        globalThis.document.removeEventListener('auth:state-change', handler);
+    });
+
+    test('validateAndRenewSession renews tokens inside 15-day window without purging data and logs out on 401 sessionRevoked', async () => {
+        const originalFetch = globalThis.fetch;
+        const makeJwt = (payloadObj) => {
+            const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+            const body = Buffer.from(JSON.stringify(payloadObj)).toString('base64url');
+            return `${header}.${body}.sig`;
+        };
+
+        const nearExpiryExp = Math.floor((Date.now() + 5 * 24 * 60 * 60 * 1000) / 1000);
+        const renewedExp = Math.floor((Date.now() + 90 * 24 * 60 * 60 * 1000) / 1000);
+        const oldJwt = makeJwt({ sub: 'alice', userId: 'uid_renew', sid: 'sess_1', exp: nearExpiryExp });
+        const freshJwt = makeJwt({ sub: 'alice', userId: 'uid_renew', sid: 'sess_1', exp: renewedExp });
+
+        store.set('clashCalc_authToken', oldJwt);
+        store.set('clashCalc_username', 'alice');
+        store.set('clashCalc_userId', 'uid_renew');
+        store.set('clashCalc_player_8PJYGUJC', JSON.stringify({ townHallLevel: 17 }));
+
+        globalThis.fetch = async (url) => {
+            if (String(url).includes('/api/auth/session/refresh')) {
+                return {
+                    ok: true,
+                    status: 200,
+                    json: async () => ({
+                        valid: true,
+                        renewed: true,
+                        token: freshJwt,
+                        username: 'alice',
+                        userId: 'uid_renew',
+                        avatar: 'archer',
+                        hasPassword: true
+                    })
+                };
+            }
+            return { ok: false, status: 404, json: async () => ({}) };
+        };
+
+        try {
+            const renewRes = await validateAndRenewSession();
+            assert.equal(renewRes.status, 'renewed');
+            assert.equal(store.get('clashCalc_authToken'), freshJwt);
+            assert.ok(store.get('clashCalc_player_8PJYGUJC'), 'Silent renewal must preserve local village data');
+
+            // Revoked server-side response clears local auth session cleanly
+            globalThis.fetch = async () => ({
+                ok: false,
+                status: 401,
+                json: async () => ({ reason: 'sessionRevoked' })
+            });
+            const revokedRes = await validateAndRenewSession({ force: true });
+            assert.equal(revokedRes.status, 'expired');
+            assert.equal(isAuthenticated(), false);
+        } finally {
+            globalThis.fetch = originalFetch;
+        }
     });
 });

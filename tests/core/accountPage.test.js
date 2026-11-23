@@ -922,4 +922,70 @@ describe('Account Page Presenter & Interaction Suite', () => {
         assert.strictEqual(pairingBtn.textContent, 'Dismiss');
         assert.strictEqual(pairingBtn.getAttribute('data-i18n'), 'actions.dismiss');
     });
+
+    test('setPairingQRLoading and updatePairingTimer handle loading and alreadyLinked preloader states', async () => {
+        const { setPairingQRLoading, updatePairingTimer } = await import('../../js/components/account/accountPageSessionsDisplay.js');
+
+        const loader = getOrCreateMockElement('account-pairing-qr-loader');
+        loader.classList.add('is-hidden');
+        const wrap = getOrCreateMockElement('account-pairing-qr-wrap');
+        const timerRow = getOrCreateMockElement('account-pairing-timer-row');
+        const timerEl = getOrCreateMockElement('account-pairing-timer');
+
+        setPairingQRLoading(true);
+        assert.strictEqual(loader.classList.contains('is-hidden'), false);
+        assert.strictEqual(wrap.getAttribute('aria-busy'), 'true');
+
+        updatePairingTimer(0, 'loading');
+        assert.strictEqual(timerEl.textContent, 'Generating QR code...');
+        assert.strictEqual(timerRow.classList.contains('is-expired'), false);
+
+        setPairingQRLoading(false);
+        assert.strictEqual(loader.classList.contains('is-hidden'), true);
+        assert.strictEqual(wrap.hasAttribute('aria-busy'), false);
+
+        updatePairingTimer(0, 'alreadyLinked');
+        assert.strictEqual(timerEl.textContent, 'This device is already linked to your account.');
+        assert.strictEqual(timerRow.classList.contains('is-success'), true);
+    });
+
+    test('renderActiveSessionsList paginates past 5 devices, maps iPadOS to tablet icon, and formats Today/Yesterday timestamps', async () => {
+        const { renderActiveSessionsList } = await import('../../js/components/account/accountPageSessionsDisplay.js');
+
+        const listEl = globalThis.document.getElementById('account-sessions-list');
+        const sessionsTitle = globalThis.document.getElementById('account-sessions-title');
+        const expandBtn = globalThis.document.getElementById('account-btn-toggle-sessions-expand');
+        const expandLabel = globalThis.document.getElementById('account-sessions-expand-label');
+
+        const now = Date.now();
+        const yesterday = now - 24 * 60 * 60 * 1000;
+        const sessions = [
+            { sessionId: 'sess_1', platform: 'macOS', browser: 'Chrome', isCurrent: true, createdAt: now, lastActiveAt: now },
+            { sessionId: 'sess_2', platform: 'iPadOS', browser: 'Safari', isCurrent: false, createdAt: now - 60000, lastActiveAt: now - 60000 },
+            { sessionId: 'sess_3', platform: 'iOS', browser: 'Safari', isCurrent: false, createdAt: yesterday, lastActiveAt: yesterday },
+            { sessionId: 'sess_4', platform: 'Windows', browser: 'Edge', isCurrent: false, createdAt: now - 3 * 86400000, lastActiveAt: now - 3 * 86400000 },
+            { sessionId: 'sess_5', platform: 'Android', browser: 'Chrome', isCurrent: false, createdAt: now - 4 * 86400000, lastActiveAt: now - 4 * 86400000 },
+            { sessionId: 'sess_6', platform: 'Linux', browser: 'Firefox', isCurrent: false, createdAt: now - 5 * 86400000, lastActiveAt: now - 5 * 86400000 },
+            { sessionId: 'sess_7', platform: 'macOS', browser: 'Firefox', isCurrent: false, createdAt: now - 6 * 86400000, lastActiveAt: now - 6 * 86400000 }
+        ];
+
+        renderActiveSessionsList(sessions, null, false);
+        assert.strictEqual(sessionsTitle.textContent, 'Active Sessions (7)');
+        assert.strictEqual(expandBtn.hasAttribute('hidden'), false);
+        assert.strictEqual(expandBtn.getAttribute('aria-expanded'), 'false');
+        assert.strictEqual(expandLabel.textContent, 'Show More (2)');
+        assert.ok(listEl.innerHTML.includes('name="tablet"'));
+        assert.ok(listEl.innerHTML.includes('Today,'));
+        assert.ok(listEl.innerHTML.includes('Yesterday,'));
+        assert.ok(listEl.innerHTML.includes('sess_5'));
+        assert.ok(!listEl.innerHTML.includes('sess_6'));
+        assert.ok(!listEl.innerHTML.includes('sess_7'));
+
+        renderActiveSessionsList(sessions, null, true);
+        assert.strictEqual(expandBtn.getAttribute('aria-expanded'), 'true');
+        assert.strictEqual(expandBtn.classList.contains('is-expanded'), true);
+        assert.strictEqual(expandLabel.textContent, 'Show Less');
+        assert.ok(listEl.innerHTML.includes('sess_6'));
+        assert.ok(listEl.innerHTML.includes('sess_7'));
+    });
 });

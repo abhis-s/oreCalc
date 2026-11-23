@@ -5,7 +5,9 @@
 
 import { translate } from '../../i18n/translator.js';
 import { showConfirm } from '../../ui/noticeModal.js';
+import { showToast } from '../../ui/toast.js';
 import { getAuthenticatedUser, logout } from '../../services/authClientService.js';
+import { revokeCurrentSession, validateAndRenewSession } from '../../services/authSessionClientService.js';
 import { setResettingState } from '../../core/localStorageManager.js';
 import { openAuthModal } from '../auth/authModalInputs.js';
 import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
@@ -15,6 +17,18 @@ import { showUpdateModal } from '../modals/updateModal.js';
 
 let activeAccountDismissListener = null;
 let activeAccountEscapeListener = null;
+let hasAttachedSessionVisibilityListener = false;
+
+/**
+ * Validates the active authenticated session and surfaces an expiry toast if invalidated.
+ */
+async function runSessionValidationCheck() {
+    if (!getAuthenticatedUser()) return;
+    const result = await validateAndRenewSession();
+    if (result.status === 'expired') {
+        showToast(translate('auth.sessionExpired') || 'Your session has expired. Please sign in again.', 'warning');
+    }
+}
 
 /**
  * Toggles or sets the open state of the header account popover.
@@ -86,6 +100,19 @@ export function initializeSettingsAccount(options = {}) {
     updateAccountUI(getAuthenticatedUser());
     toggleAccountPopover(false);
 
+    if (getAuthenticatedUser()) {
+        void runSessionValidationCheck();
+    }
+
+    if (!hasAttachedSessionVisibilityListener && typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+        hasAttachedSessionVisibilityListener = true;
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && getAuthenticatedUser()) {
+                void runSessionValidationCheck();
+            }
+        });
+    }
+
     const headerBtn = document.getElementById('header-account-btn');
     if (headerBtn?.getAttribute?.('data-account-initialized') === 'true' || headerBtn?.dataset?.accountInitialized === 'true') {
         return;
@@ -115,6 +142,7 @@ export function initializeSettingsAccount(options = {}) {
         toggleAccountPopover(false);
         const confirmed = await showConfirm(translate('auth.signOutConfirm'));
         if (confirmed) {
+            await revokeCurrentSession();
             setResettingState(true);
             syncPlayerTagToUrl(null);
             logout();

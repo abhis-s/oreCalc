@@ -13,6 +13,30 @@
     gap: $spacing-xs;
 }
 
+.account-sessions-expand-btn {
+    align-self: center;
+    gap: $spacing-xs;
+    width: 100%;
+
+    &[hidden] {
+        display: none !important;
+    }
+
+    &__label {
+        font-weight: $font-weight-medium;
+    }
+
+    &__icon {
+        display: inline-flex;
+        flex-shrink: 0;
+        transition: transform $transition-fast;
+    }
+
+    &.is-expanded &__icon {
+        transform: rotate(180deg);
+    }
+}
+
 .account-session-item {
     display: flex;
     align-items: center;
@@ -232,18 +256,130 @@
     }
 }
 
+@property --pairing-spinner-arc-start {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@property --pairing-spinner-arc-end {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@property --pairing-spinner-dash {
+    syntax: '*';
+    inherits: false;
+    initial-value: #{', pairing-spinner-dash 3s ease-in-out infinite'};
+}
+
 .account-pairing-loading {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 100%;
-    color: $accent-primary;
+    border-radius: inherit;
+    background-color: $bg-surface-primary;
+    z-index: $z-index-interactive;
 
-    .button-loader span {
-        animation-play-state: running;
-        width: 8px;
-        height: 8px;
+    &.is-hidden {
+        display: none !important;
+    }
+}
+
+progress.account-pairing-spinner:indeterminate {
+    --_from: calc(90deg + var(--pairing-spinner-arc-start, 0deg));
+    --_to: calc(90deg + var(--pairing-spinner-arc-end, 158deg));
+    --size: #{$icon-size-4xl};
+    --thickness: #{$spacing-xs};
+    --spinner-color: #{$accent-primary};
+    --track-color: color-mix(in srgb, #{$accent-primary} 18%, transparent);
+    --spinner-duration: 1.5s;
+    --_used-spinner-duration: var(--spinner-duration);
+
+    position: relative;
+    width: var(--size);
+    height: var(--size);
+    border-radius: $shape-corner-full;
+    appearance: none;
+    background: conic-gradient(
+        from var(--_from),
+        var(--spinner-color) calc(var(--_to) - var(--_from)),
+        transparent 0
+    ) var(--track-color);
+    animation: pairing-spinner-spin var(--_used-spinner-duration) linear infinite var(--pairing-spinner-dash, );
+
+    &::-webkit-progress-bar {
+        display: none;
+        background: none;
+    }
+
+    &::-webkit-progress-value {
+        display: none;
+        background: none;
+    }
+
+    &::-moz-progress-bar {
+        display: none;
+        background: none;
+    }
+
+    &::slider-fill {
+        display: none;
+        background: none;
+    }
+
+    @supports (background-clip: border-area) {
+        background-clip: border-area;
+        border: var(--thickness) solid transparent;
+        background-origin: border-box;
+    }
+
+    @supports not (background-clip: border-area) {
+        --clip-boundary: calc(100% - var(--thickness));
+        mask-image: radial-gradient(
+            farthest-side,
+            transparent var(--clip-boundary),
+            black var(--clip-boundary)
+        );
+        border: 0;
+    }
+
+    @media (forced-colors: active) {
+        forced-color-adjust: none;
+        --spinner-color: CanvasText;
+        --track-color: Canvas;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --_used-spinner-duration: 6s;
+        --pairing-spinner-dash: #{' '};
+        --pairing-spinner-arc-end: 158deg;
+        animation-duration: var(--_used-spinner-duration) !important;
+        animation-iteration-count: infinite !important;
+    }
+}
+
+@keyframes pairing-spinner-spin {
+    to {
+        rotate: 1turn;
+    }
+}
+
+@keyframes pairing-spinner-dash {
+    from {
+        --pairing-spinner-arc-start: 0deg;
+        --pairing-spinner-arc-end: 3deg;
+    }
+    50% {
+        --pairing-spinner-arc-start: 100deg;
+        --pairing-spinner-arc-end: 358deg;
+    }
+    to {
+        --pairing-spinner-arc-start: 360deg;
+        --pairing-spinner-arc-end: 363deg;
     }
 }
 

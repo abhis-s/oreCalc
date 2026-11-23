@@ -18,7 +18,8 @@ function extractAuthUser(req, res, next) {
             /** @type {any} */ (req).authUser = {
                 username: decoded.sub,
                 userId: decoded.userId,
-                sid: decoded.sid || null
+                sid: decoded.sid || null,
+                exp: typeof decoded.exp === 'number' ? decoded.exp : null
             };
         } catch (_) {
             /** @type {any} */ (req).authUser = null;

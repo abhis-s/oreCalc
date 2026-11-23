@@ -14,6 +14,7 @@ import { normalizeHeroesState, migrateHeroesToKeys } from '../core/stateCleanup.
 
 import { loadUserData, markUserMigrated, saveSinglePlayerData, saveUserData, saveUserPreferences } from './apiService.js';
 import { isAuthenticated, purgeAccountDataOnLogout } from './authClientService.js';
+import { validateAndRenewSession } from './authSessionClientService.js';
 
 /** @type {{ showAlert: (message: string, titleKey?: any, okBtnKey?: any) => Promise<boolean>, showConfirm: (message: string, titleKey?: any, okBtnKey?: any, cancelBtnKey?: any) => Promise<boolean> }} */
 let cloudDialogHandler = {
@@ -199,6 +200,11 @@ export async function initializeAppData() {
                         window.location.reload();
                     }
                 }
+                return null;
+            }
+            const sessionCheck = await validateAndRenewSession({ force: true });
+            if (sessionCheck.status === 'expired') {
+                await showAlert(translate('auth.sessionExpired'));
                 return null;
             }
             await showAlert(translate('apiErrors.unauthorizedAccess'));
@@ -602,21 +608,31 @@ export async function triggerCloudSave(options = {}) {
                 }
                 return false;
             }
-            if (error.message === 'apiErrors.unauthorizedAccess' && !isAuthenticated()) {
-                logger.warn('Unauthenticated client holding protected account userId during save. Purging unauthorized account data.');
-                purgeAccountDataOnLogout();
-                if (typeof window !== 'undefined' && window.location) {
-                    if (window.location.search || window.location.hash) {
-                        try {
-                            const preservedState = window.history?.state ? { ...window.history.state } : null;
-                            history.replaceState(preservedState, '', window.location.pathname || '/');
-                        } catch (_) {}
+            if (error.message === 'apiErrors.unauthorizedAccess') {
+                if (!isAuthenticated()) {
+                    logger.warn('Unauthenticated client holding protected account userId during save. Purging unauthorized account data.');
+                    purgeAccountDataOnLogout();
+                    if (typeof window !== 'undefined' && window.location) {
+                        if (window.location.search || window.location.hash) {
+                            try {
+                                const preservedState = window.history?.state ? { ...window.history.state } : null;
+                                history.replaceState(preservedState, '', window.location.pathname || '/');
+                            } catch (_) {}
+                        }
+                        if (typeof window.location.reload === 'function') {
+                            window.location.reload();
+                        }
                     }
-                    if (typeof window.location.reload === 'function') {
-                        window.location.reload();
-                    }
+                    return false;
                 }
-                return false;
+                const sessionCheck = await validateAndRenewSession({ force: true });
+                if (sessionCheck.status === 'expired') {
+                    if (!silent) {
+                        emitSavingStatus('error');
+                        await showAlert(translate('auth.sessionExpired'));
+                    }
+                    return false;
+                }
             }
             if (!silent) {
                 emitSavingStatus('error');
