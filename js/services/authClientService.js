@@ -111,6 +111,12 @@ export function getRequestHeaders(extraHeaders = {}) {
  * @returns {Promise<never>}
  */
 export async function throwApiError(response) {
+    if (response.status === 429) {
+        const retryHeader = response.headers?.get?.('Retry-After') || response.headers?.get?.('RateLimit-Reset');
+        const parsedSeconds = Number(retryHeader);
+        const seconds = Number.isFinite(parsedSeconds) && parsedSeconds > 0 ? Math.ceil(parsedSeconds) : 900;
+        throw new Error(`apiErrors.rateLimitedWithTime:${seconds}`);
+    }
     let errorData = null;
     try {
         errorData = await response.json();

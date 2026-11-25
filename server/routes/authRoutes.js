@@ -31,14 +31,42 @@ const {
 } = require('../services/avatarLockService.js');
 const { sendSupporterRedeemedAdminEmail } = require('../services/supporterMailService.js');
 
+/**
+ * Identifies JWT-authenticated self-service management routes that should use
+ * the generous authenticated limiter instead of the strict brute-force login limiter.
+ *
+ * @param {import('express').Request} req
+ * @returns {boolean}
+ */
+function isAuthManageRoute(req) {
+    const method = (req.method || '').toUpperCase();
+    const routePath = req.path || '';
+    if (method === 'PATCH' && routePath === '/profile') return true;
+    if (method === 'POST' && (
+        routePath === '/logout' ||
+        routePath === '/session/refresh' ||
+        routePath === '/sessions/revoke-others' ||
+        routePath === '/pairing/token' ||
+        routePath === '/pairing/cancel'
+    )) return true;
+    if (method === 'DELETE' && routePath.startsWith('/sessions/')) return true;
+    return false;
+}
+
 const router = express.Router();
 // @ts-ignore
 const authLimiter = rateLimit({
     ...RATE_LIMIT_DEFAULTS.auth,
-    skip: (req) => process.env.NODE_ENV === 'development' || req.method === 'GET'
+    skip: (req) => process.env.NODE_ENV === 'development' || req.method === 'GET' || isAuthManageRoute(req)
+});
+// @ts-ignore
+const authManageLimiter = rateLimit({
+    ...RATE_LIMIT_DEFAULTS.authManage,
+    skip: (req) => process.env.NODE_ENV === 'development' || !isAuthManageRoute(req)
 });
 
 router.use(authLimiter);
+router.use(authManageLimiter);
 router.use(extractAuthUser);
 router.use((_req, res, next) => {
     if (typeof res.setHeader === 'function') {

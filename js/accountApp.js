@@ -124,10 +124,15 @@ async function initAccountApp(scope) {
     scope.listen(document, 'auth:state-change', (e) => {
         if (!isMounted) return;
         const authed = isAuthenticated();
-        renderAccountPageShell(authed, getAuthenticatedUser());
-        if (authed) {
+        const action = /** @type {CustomEvent} */ (e)?.detail?.action;
+        const isLightweightProfileUpdate = action === 'profile-update' ||
+            action === 'supporter-update' ||
+            action === 'supporter-redeemed';
+        renderAccountPageShell(authed, getAuthenticatedUser(), {
+            skipPasskeysFetch: isLightweightProfileUpdate
+        });
+        if (authed && !isLightweightProfileUpdate) {
             loadAndRenderSessions();
-            const action = /** @type {CustomEvent} */ (e)?.detail?.action;
             if (action === 'pairing-claim' || action === 'login') {
                 syncAccountCloudData();
             }

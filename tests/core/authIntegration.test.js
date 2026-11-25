@@ -927,4 +927,26 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
             globalThis.document.removeEventListener('auth:state-change', onChange);
         }
     });
+
+    test('throwApiError maps 429 rate-limit responses to localized rateLimitedWithTime error key', async () => {
+        const { throwApiError } = await import('../../js/services/authClientService.js');
+
+        await assert.rejects(
+            () => throwApiError({
+                status: 429,
+                headers: { get: (k) => (k === 'Retry-After' ? '420' : null) },
+                json: async () => { throw new Error('not json'); }
+            }),
+            { message: 'apiErrors.rateLimitedWithTime:420' }
+        );
+
+        await assert.rejects(
+            () => throwApiError({
+                status: 429,
+                headers: { get: () => null },
+                json: async () => ({})
+            }),
+            { message: 'apiErrors.rateLimitedWithTime:900' }
+        );
+    });
 });

@@ -156,7 +156,7 @@ test('isAuthorizedForUser enforces ownership rules based on authRequired flag', 
 });
 
 test('AUTH_CONSTANTS exposes valid avatar specifications', () => {
-    const { AUTH_CONSTANTS, getRandomAvatar } = require('../constants.js');
+    const { AUTH_CONSTANTS, RATE_LIMIT_DEFAULTS, getRandomAvatar } = require('../constants.js');
     assert.ok(Array.isArray(AUTH_CONSTANTS.VALID_AVATARS));
     assert.ok(AUTH_CONSTANTS.VALID_CLASSIC_AVATARS.length > 0);
     assert.ok(AUTH_CONSTANTS.VALID_EMOTE_AVATARS.length > 0);
@@ -169,6 +169,10 @@ test('AUTH_CONSTANTS exposes valid avatar specifications', () => {
     assert.ok(AUTH_CONSTANTS.VALID_CLASSIC_AVATARS.includes(randomAvatar));
     assert.equal(AUTH_CONSTANTS.BONUS_AVATARS.includes(randomAvatar), false);
     assert.ok(AUTH_CONSTANTS.VALID_AVATARS.includes(randomAvatar));
+
+    assert.ok(RATE_LIMIT_DEFAULTS.authManage.max > RATE_LIMIT_DEFAULTS.auth.max);
+    assert.equal(RATE_LIMIT_DEFAULTS.auth.message.reason, 'rateLimited');
+    assert.equal(RATE_LIMIT_DEFAULTS.authManage.message.reason, 'rateLimited');
 });
 
 test('password update flow verifies current password and validates new password constraints', async () => {

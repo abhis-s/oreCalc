@@ -59,6 +59,11 @@ function resolveAvatarGridColumns(activeGrid) {
 async function handleSelectAvatar(avatar) {
     if (!avatar) return;
 
+    const currentUser = getAuthenticatedUser();
+    if (currentUser?.avatar === avatar) {
+        return;
+    }
+
     const profileImg = document.getElementById('account-profile-avatar-img');
     if (profileImg) {
         stopAvatarAnimation(profileImg, avatar, '200');

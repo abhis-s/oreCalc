@@ -297,8 +297,9 @@ export function hasRealPlayerProfile() {
  *
  * @param {boolean} isAuthenticated - Whether a valid cloud user session exists.
  * @param {{ username: string, avatar?: string, hasPassword?: boolean, isSupporter?: boolean } | null} [user=null] - Authenticated user details.
+ * @param {{ skipPasskeysFetch?: boolean }} [options={}] - Optional render flags to avoid redundant network fetches on lightweight profile updates.
  */
-export function renderAccountPageShell(isAuthenticated, user = null) {
+export function renderAccountPageShell(isAuthenticated, user = null, { skipPasskeysFetch = false } = {}) {
     const guestView = document.getElementById('account-guest-view');
     const authView = document.getElementById('account-auth-view');
 
@@ -341,17 +342,19 @@ export function renderAccountPageShell(isAuthenticated, user = null) {
         const isPairingOpen = Boolean(pairingDrawer && !pairingDrawer.hasAttribute('hidden'));
         togglePairingDrawer(isPairingOpen);
 
-        fetchPasskeys().then((passkeys) => {
-            const count = Array.isArray(passkeys) ? passkeys.length : 0;
-            renderPasskeysInlineList(passkeys);
-            renderPasswordSection(user.hasPassword !== false, count);
-            renderAvatarLockStates(getAvatarMilestoneContext(user, passkeys));
-        }).catch(() => {
-            resetAvatarMilestoneCache();
-            renderPasskeysInlineList([]);
-            renderPasswordSection(user.hasPassword !== false, 0);
-            renderAvatarLockStates(getAvatarMilestoneContext(user, []));
-        });
+        if (!skipPasskeysFetch) {
+            fetchPasskeys().then((passkeys) => {
+                const count = Array.isArray(passkeys) ? passkeys.length : 0;
+                renderPasskeysInlineList(passkeys);
+                renderPasswordSection(user.hasPassword !== false, count);
+                renderAvatarLockStates(getAvatarMilestoneContext(user, passkeys));
+            }).catch(() => {
+                resetAvatarMilestoneCache();
+                renderPasskeysInlineList([]);
+                renderPasswordSection(user.hasPassword !== false, 0);
+                renderAvatarLockStates(getAvatarMilestoneContext(user, []));
+            });
+        }
     } else {
         resetAvatarMilestoneCache();
         stopAvatarAnimation(document.getElementById('account-profile-avatar-img'), 'archer', '200');

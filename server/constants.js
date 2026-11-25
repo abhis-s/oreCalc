@@ -45,7 +45,7 @@ const RATE_LIMIT_DEFAULTS = deepFreeze({
         windowMs: 60 * 60 * 1000,
         max: 5,
         keyGenerator: getClientIp,
-        message: 'Too many destructive operations from this IP, please try again after an hour.'
+        message: { reason: 'rateLimited', message: 'Too many destructive operations from this IP, please try again after an hour.' }
     },
     proxy: {
         windowMs: 15 * 60 * 1000,
@@ -57,7 +57,13 @@ const RATE_LIMIT_DEFAULTS = deepFreeze({
         windowMs: 15 * 60 * 1000,
         max: 20,
         keyGenerator: getClientIp,
-        message: 'Too many authentication attempts from this IP, please try again after 15 minutes.'
+        message: { reason: 'rateLimited', message: 'Too many authentication attempts from this IP, please try again after 15 minutes.' }
+    },
+    authManage: {
+        windowMs: 15 * 60 * 1000,
+        max: 100,
+        keyGenerator: getClientIp,
+        message: { reason: 'rateLimited', message: 'Too many account update requests from this IP, please try again after 15 minutes.' }
     }
 });
 

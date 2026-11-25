@@ -6,6 +6,7 @@ const CODE_SEGMENT_LENGTH = 4;
 
 const SUPPORTED_BMC_GRANT_EVENTS = Object.freeze(new Set([
     'donation.created',
+    'recurring_donation.started',
     'membership.started',
     'subscription.created'
 ]));
