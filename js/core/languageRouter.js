@@ -82,6 +82,10 @@ export function getLocalizedPath(lang, loc = (typeof window !== 'undefined' ? wi
         pathSegments.shift();
     }
 
+    if (pathSegments.length > 0 && pathSegments.at(-1)?.toLowerCase() === 'index.html') {
+        pathSegments.pop();
+    }
+
     const currentSearch = loc.search || '';
     const currentHash = loc.hash || '';
     let formattedPath = pathSegments.join('/');
@@ -132,6 +136,10 @@ export function syncLanguageUrl(lang, replace = false) {
 
     if (hasLangPrefix) {
         pathSegments.shift();
+    }
+
+    if (pathSegments.length > 0 && pathSegments.at(-1)?.toLowerCase() === 'index.html') {
+        pathSegments.pop();
     }
 
     let formattedPath = pathSegments.join('/');

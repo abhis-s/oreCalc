@@ -34,7 +34,6 @@ export function initExternalLinkCatcher(root = document) {
         if (href.startsWith('#') || href.startsWith('javascript:')) return;
 
         // Skip domain migration banner navigation between legacy and current domain
-        if (link.classList.contains('domain-notice-cta') || link.closest('.domain-notice')) return;
 
         const isMailto = href.startsWith('mailto:');
         const currentHost = typeof window !== 'undefined' ? window.location.host : '';

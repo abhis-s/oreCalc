@@ -36,7 +36,6 @@ import { initializeRaidMedalTrader } from '../components/income/raidMedalTraderI
 import { initializeShopOffers } from '../components/income/shopOffersInputs.js';
 import { initializeStarBonusSelector } from '../components/income/starBonusInputs.js';
 import { initializeSupercellEventsInputs } from '../components/income/supercellEventsInputs.js';
-import { initDomainNotice } from '../components/common/domainNotice.js';
 import { initAppFooter } from '../components/common/appFooter.js';
 import { initializeHeader } from '../components/layout/header.js';
 import { initializeNavGlideController } from '../components/layout/navGlideController.js';
@@ -138,9 +137,6 @@ export async function bootstrapUIComponents(initialLang, lifecycleScope = null) 
         logger.warn('Failed to check and generate recurring chips on startup:', err);
     }
 
-    initDomainNotice({
-        activePlayerTag: state.activePlayerTag || state.savedPlayerTags?.[0] || null
-    });
     initializeHeader();
     initializePullToRefresh();
     initializeGlobalHaptics();

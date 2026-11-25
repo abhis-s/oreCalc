@@ -466,7 +466,6 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         store.set('clashCalc_planner_TESTTAG1', JSON.stringify({ chips: [] }));
         store.set('clashCalc_history_TESTTAG1', JSON.stringify({ records: [] }));
         store.set('clashCalc_activePlayerTag', 'TESTTAG1');
-        store.set('clashCalc_domainNoticeDismissed', 'true');
         store.set('clashCalc_SWUpdatedTime', '1720000000000');
         store.set('clashCalc_appSettings', JSON.stringify({
             theme: 'light',
@@ -505,7 +504,6 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.ok(newUserId);
         assert.notEqual(newUserId, 'protected-user-uuid-1111');
 
-        assert.equal(store.get('clashCalc_domainNoticeDismissed'), 'true');
         assert.equal(store.get('clashCalc_SWUpdatedTime'), '1720000000000');
 
         const settings = JSON.parse(store.get('clashCalc_appSettings'));

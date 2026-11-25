@@ -159,37 +159,6 @@ describe('External Link Catcher Domain Suite', () => {
         }
     });
 
-    test('bypasses internal domain migration CTA banners', async () => {
-        initExternalLinkCatcher(mockDocument);
-        const handler = clickListeners[0];
-
-        const targetWithClass = createMockAnchor({
-            href: 'https://clashcalc.com/ore-calculator/',
-            classes: ['domain-notice-cta']
-        });
-        let defaultPrevented = false;
-        await handler({
-            target: targetWithClass,
-            preventDefault: () => { defaultPrevented = true; }
-        });
-        assert.equal(defaultPrevented, false);
-        assert.equal(openedUrls.length, 0);
-
-        const targetWithinBanner = createMockAnchor({
-            href: 'https://clashcalc.com/hero-journey/',
-            closestMap: {
-                '.domain-notice': {}
-            }
-        });
-        defaultPrevented = false;
-        await handler({
-            target: targetWithinBanner,
-            preventDefault: () => { defaultPrevented = true; }
-        });
-        assert.equal(defaultPrevented, false);
-        assert.equal(openedUrls.length, 0);
-    });
-
     test('bypasses same-host and relative internal links', async () => {
         initExternalLinkCatcher(mockDocument);
         const handler = clickListeners[0];

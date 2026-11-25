@@ -274,6 +274,32 @@ describe('Language Router Domain Suite', () => {
             assert.equal(replacedUrl, '/de/#planner', 'Must replaceState when user activation is absent');
         });
 
+        test('strips trailing index.html from localized URLs and canonicals', () => {
+            let replacedUrl = null;
+            const mockCanonical = { href: '' };
+
+            cleanups.push(mockGlobal('window', {
+                location: { pathname: '/index.html', search: '', hash: '' }
+            }));
+            cleanups.push(mockGlobal('document', {
+                documentElement: { lang: '' },
+                querySelector: (sel) => sel === 'link[rel="canonical"]' ? mockCanonical : null
+            }));
+            cleanups.push(mockGlobal('history', {
+                replaceState: (_state, _title, url) => { replacedUrl = url; },
+                pushState: () => {}
+            }));
+
+            syncLanguageUrl('en', true);
+            assert.equal(replacedUrl, '/');
+            assert.equal(mockCanonical.href, 'https://clashcalc.com/');
+
+            globalThis.window.location.pathname = '/ore-calculator/index.html';
+            syncLanguageUrl('de', true);
+            assert.equal(replacedUrl, '/de/ore-calculator/');
+            assert.equal(mockCanonical.href, 'https://clashcalc.com/de/ore-calculator/');
+        });
+
         test('ignores unsupported language codes safely', () => {
             let pushedUrl = null;
             cleanups.push(mockGlobal('history', {

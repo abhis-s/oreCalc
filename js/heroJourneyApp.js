@@ -58,7 +58,6 @@ import {
     resetFilters as handleResetFilters,
     syncTypeFiltersUI
 } from './components/heroJourney/heroJourneyControlsInputs.js';
-import { initDomainNotice } from './components/common/domainNotice.js';
 import { renderNavigationDrawerContent } from './components/common/navigationDrawerDisplay.js';
 
 const resetFilters = () => handleResetFilters(hjState, renderUI);
@@ -420,7 +419,6 @@ async function init(scope) {
     setHeroJourneyStateProvider(() => buildStateFromPlayerData(hjState.playerData, hjState));
     await bootstrapShellLanguageAndStorage();
     initSharedShellChrome({
-        domainNotice: false,
         headerOptions: {
             headerElement: '.app-header',
             hasTabs: false,
@@ -454,7 +452,6 @@ async function init(scope) {
     const rawUrlTag = urlParams.get('tag') || urlParams.get('p') || urlParams.get('player');
     let initialTag = getTagFromUrl();
     const cleanInitialTag = normalizePlayerTag(initialTag);
-    let resolvedHjTag = cleanInitialTag;
 
     if (!cleanInitialTag || cleanInitialTag === 'DEFAULT0') {
         if (hasUrlTagParam && (!rawUrlTag || !rawUrlTag.trim() || cleanInitialTag === 'DEFAULT0')) {
@@ -463,16 +460,10 @@ async function init(scope) {
         const savedProfiles = getSavedProfiles();
         if (savedProfiles.length > 0) {
             initialTag = savedProfiles[0].cleanTag || savedProfiles[0].tag;
-            resolvedHjTag = normalizePlayerTag(initialTag);
         } else {
             initialTag = '';
-            resolvedHjTag = null;
         }
     }
-
-    initDomainNotice({
-        activePlayerTag: resolvedHjTag || null
-    });
 
     const finalCleanTag = normalizePlayerTag(initialTag);
     if (finalCleanTag && finalCleanTag !== 'DEFAULT0') {

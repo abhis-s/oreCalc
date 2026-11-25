@@ -394,7 +394,6 @@ export async function mount(options = {}) {
 
         await bootstrapShellLanguageAndStorage({ hydrateState: true });
         initSharedShellChrome({
-            domainNotice: false,
             headerOptions: {
                 headerElement: '.landing-header',
                 hasPill: true,

@@ -20,7 +20,6 @@ import { initAppFooter } from '../components/common/appFooter.js';
 import { initAppHeader } from '../components/common/appHeader.js';
 import { getAppSettings, initAppSettings, persistAppSettings } from '../components/common/appSettingsManager.js';
 import { setupNavigatorUiHooks } from '../components/common/appShellNavigatorHooks.js';
-import { initDomainNotice } from '../components/common/domainNotice.js';
 import { initExternalLinkCatcher } from '../components/common/externalLinkCatcher.js';
 import { initNavigationDrawer } from '../components/common/navigationDrawer.js';
 import { initializePlayerModal } from '../components/player/playerModal.js';
@@ -121,16 +120,11 @@ function initPwaUiListeners() {
  * Initializes shared shell chrome, header, footer, and global modals across standalone routes.
  * @param {Object} [options={}]
  * @param {import('../components/common/appHeader.js').AppHeaderOptions | null} [options.headerOptions=null]
- * @param {boolean} [options.domainNotice=true]
- * @param {Object} [options.domainNoticeOptions]
  * @param {Object} [options.accountOptions]
  * @param {boolean} [options.includePlayerModal=false]
  * @param {Object} [options.footerOptions]
  */
 export function initSharedShellChrome(options = {}) {
-    if (options.domainNotice !== false) {
-        initDomainNotice(options.domainNoticeOptions);
-    }
     if (options.headerOptions) {
         initAppHeader(options.headerOptions);
     }
