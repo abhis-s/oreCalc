@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const sharp = require('sharp');
+const { isApng, optimizeApng } = require('./apngOptimizer.js');
 
 /**
  * Ensures that the destination directory exists before synchronously writing a file.
@@ -59,6 +60,9 @@ async function optimizeImages(distDir, verbose = false) {
 
     const validPngFiles = imageFiles.filter(file => {
         const fullPath = path.join(assetsDir, file.toString());
+        if (fullPath.includes('/avatars/emotes/static/') || fullPath.includes('\\avatars\\emotes\\static\\')) {
+            return false;
+        }
         return fullPath.endsWith('.png') && fs.existsSync(fullPath) && fs.statSync(fullPath).isFile();
     });
 
@@ -82,6 +86,26 @@ async function optimizeImages(distDir, verbose = false) {
             const fileBuffer = fs.readFileSync(fullPath);
 
             if (isSubfolder) {
+                if (isApng(fileBuffer)) {
+                    const staticMasterPath = path.join(path.dirname(fullPath), 'static', fileName);
+                    let staticBuffer = null;
+                    if (fs.existsSync(staticMasterPath)) {
+                        staticBuffer = fs.readFileSync(staticMasterPath);
+                    }
+                    await optimizeApng(fileBuffer, baseName, [200, 100], verbose, staticBuffer);
+                    if (fs.existsSync(fullPath)) {
+                        try {
+                            fs.unlinkSync(fullPath);
+                        } catch (e) {
+                        }
+                    }
+                    resizedCount++;
+                    if (verbose) {
+                        console.log(`Optimized APNG -> Animated WebP: ${file}`);
+                    }
+                    continue;
+                }
+
                 const webp100Buf = await sharp(fileBuffer).resize(100, 100).webp({ quality: 80 }).toBuffer();
                 writeFileEnsuringDir(`${baseName}-100.webp`, webp100Buf);
 
@@ -140,6 +164,14 @@ async function optimizeImages(distDir, verbose = false) {
 
     const workers = Array.from({ length: workerCount }, () => worker());
     await Promise.all(workers);
+
+    const distStaticEmotesDir = path.join(assetsDir, 'avatars/emotes/static');
+    if (fs.existsSync(distStaticEmotesDir)) {
+        try {
+            fs.rmSync(distStaticEmotesDir, { recursive: true, force: true });
+        } catch (e) {
+        }
+    }
 
     console.log(`[OK] Image optimization complete: ${resizedCount} equipment/resources resized, ${convertedCount} converted to AVIF/WebP, ${keepPngCount} PWA icons preserved.`);
 }

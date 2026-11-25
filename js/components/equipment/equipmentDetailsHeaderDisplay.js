@@ -59,8 +59,10 @@ export function renderModalHeader(modal, data, equipmentName, heroInfo, equipInf
     const typeBadge = document.getElementById('eq-details-type-badge');
     const rarityBadge = document.getElementById('eq-details-rarity-badge');
 
-    const heroImageSrc = (heroInfo && heroInfo.emblem) ? heroInfo.emblem : (data?.heroImage || (heroInfo ? heroInfo.image : ''));
-    const equipImageSrc = data?.equipmentImage || (equipInfo ? equipInfo.image : '');
+    const rawHeroSrc = (heroInfo && heroInfo.emblem) ? heroInfo.emblem : (data?.heroImage || (heroInfo ? heroInfo.image : ''));
+    const heroImageSrc = rawHeroSrc && !rawHeroSrc.startsWith('/') ? `/${rawHeroSrc}` : rawHeroSrc;
+    const rawEquipSrc = data?.equipmentImage || (equipInfo ? equipInfo.image : '');
+    const equipImageSrc = rawEquipSrc && !rawEquipSrc.startsWith('/') ? `/${rawEquipSrc}` : rawEquipSrc;
     const effectiveRarity = data?.rarity || equipmentRarity || 'Common';
     const effectiveType = data?.type || equipmentType || 'Active';
 
@@ -69,8 +71,8 @@ export function renderModalHeader(modal, data, equipmentName, heroInfo, equipInf
     const translatedType = translate(`views.equipment.${effectiveType.toLowerCase()}`);
     const heroEquipFallbackText = translate('views.equipment.heroEquipment');
 
-    if (heroEmblem && heroImageSrc) heroEmblem.src = heroImageSrc;
-    if (itemImg && equipImageSrc) itemImg.src = equipImageSrc;
+    if (heroEmblem && heroImageSrc) heroEmblem.setAttribute('src', heroImageSrc);
+    if (itemImg && equipImageSrc) itemImg.setAttribute('src', equipImageSrc);
     if (titleEl) titleEl.textContent = translatedTitle;
     if (descEl) descEl.textContent = heroEquipFallbackText;
 

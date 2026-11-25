@@ -24,6 +24,12 @@ const {
     isIpAllowlisted,
     verifyTurnstileToken
 } = require('../services/turnstileService.js');
+const {
+    isAvatarUnlockedForUser,
+    reconcileEquippedAvatar,
+    verifyAndRedeemSupporterCode
+} = require('../services/avatarLockService.js');
+const { sendSupporterRedeemedAdminEmail } = require('../services/supporterMailService.js');
 
 const router = express.Router();
 // @ts-ignore
@@ -119,7 +125,14 @@ router.post('/register-password', async (req, res) => {
         });
 
         const token = generateToken({ username: displayUsername, userId: finalUserId }, sessionId);
-        res.status(201).json({ token, username: displayUsername, userId: finalUserId, avatar: initialAvatar, hasPassword: true });
+        res.status(201).json({
+            token,
+            username: displayUsername,
+            userId: finalUserId,
+            avatar: initialAvatar,
+            hasPassword: true,
+            isSupporter: false
+        });
     } catch (err) {
         if (/** @type {any} */ (err).code === 'ALREADY_EXISTS') {
             return res.status(409).json({ reason: 'usernameTaken', message: 'This username is already taken.' });
@@ -179,7 +192,8 @@ router.post('/login-password', async (req, res) => {
             username: account.username,
             userId: account.userId,
             avatar: account.avatar,
-            hasPassword: true
+            hasPassword: true,
+            isSupporter: Boolean(account.isSupporter)
         });
     } catch (err) {
         console.error('[Auth] Password login error:', err);
@@ -230,12 +244,15 @@ router.get('/account', requireAuth, async (req, res) => {
             await accountRef.update({ sessions: activeSessions });
         }
 
+        const { avatar: reconciledAvatar } = await reconcileEquippedAvatar(account, accountRef, db);
+
         res.status(200).json({
             username: account.username,
             userId: account.userId,
-            avatar: account.avatar,
+            avatar: reconciledAvatar,
             hasPassword: Boolean(account.passwordHash),
             passkeysCount: (account.passkeys || []).length,
+            isSupporter: Boolean(account.isSupporter),
             createdAt: account.createdAt
         });
     } catch (err) {
@@ -263,11 +280,64 @@ router.patch('/profile', requireAuth, async (req, res) => {
             return res.status(404).json({ reason: 'accountNotFound', message: 'Account not found.' });
         }
 
+        const accountData = doc.data() || {};
+        if (AUTH_CONSTANTS.BONUS_AVATARS.includes(avatar)) {
+            const isEligible = await isAvatarUnlockedForUser(accountData, avatar, db);
+            if (!isEligible) {
+                return res.status(403).json({
+                    reason: 'avatarLocked',
+                    message: 'This avatar requires completing its milestone before equipping.'
+                });
+            }
+        }
+
         await accountRef.update({ avatar });
         res.status(200).json({ message: 'Profile updated.', avatar });
     } catch (err) {
         console.error('[Auth] Update profile error:', err);
         res.status(500).json({ reason: 'internalError', message: 'Failed to update profile.' });
+    }
+});
+
+// @ts-ignore
+const supporterRedeemLimiter = rateLimit({
+    ...RATE_LIMIT_DEFAULTS.sensitive,
+    skip: () => process.env.NODE_ENV === 'development'
+});
+
+router.post('/redeem-supporter', requireAuth, supporterRedeemLimiter, async (req, res) => {
+    const authUser = /** @type {any} */ (req).authUser;
+    const { code } = req.body || {};
+
+    try {
+        const cleanUsername = authUser.username.toLowerCase();
+        const accountRef = db.collection('accounts').doc(cleanUsername);
+        const doc = await accountRef.get();
+        if (!doc.exists) {
+            return res.status(404).json({ reason: 'accountNotFound', message: 'Account not found.' });
+        }
+
+        const accountData = doc.data() || {};
+        const result = await verifyAndRedeemSupporterCode(accountData, code, db);
+        if (!result.success) {
+            return res.status(400).json({ reason: result.reason, message: result.message });
+        }
+
+        if (result.newlyActivated) {
+            sendSupporterRedeemedAdminEmail({
+                username: accountData.username || authUser.username,
+                userId: accountData.userId || authUser.userId,
+                source: result.source,
+                note: result.note,
+                bmcEventId: result.bmcEventId,
+                codeHash: result.codeHash
+            }).catch(() => {});
+        }
+
+        res.status(200).json({ message: result.message, isSupporter: true });
+    } catch (err) {
+        console.error('[Auth] Redeem supporter error:', err);
+        res.status(500).json({ reason: 'internalError', message: 'Failed to redeem supporter code.' });
     }
 });
 

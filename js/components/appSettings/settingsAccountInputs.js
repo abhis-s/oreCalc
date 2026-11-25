@@ -14,6 +14,7 @@ import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 import { updateAccountUI, configureAccountPopover, togglePopoverPanel } from './settingsAccountDisplay.js';
 import { promptPwaInstall } from '../../services/pwaService.js';
 import { showUpdateModal } from '../modals/updateModal.js';
+import { isEmoteAvatar, playAvatarAnimationOnce } from '../../utils/avatarUtils.js';
 
 let activeAccountDismissListener = null;
 let activeAccountEscapeListener = null;
@@ -159,13 +160,39 @@ export function initializeSettingsAccount(options = {}) {
     const popoverLogoutBtn = document.getElementById('account-popover-logout-btn');
     popoverLogoutBtn?.addEventListener('click', handleLogout);
 
+    const triggerHeaderAvatarAnimation = () => {
+        const user = getAuthenticatedUser();
+        const avatar = user?.avatar;
+        if (!avatar || !isEmoteAvatar(avatar)) return;
+        const headerAvatarImg = document.getElementById('header-account-avatar-img');
+        if (headerAvatarImg) {
+            playAvatarAnimationOnce(headerAvatarImg, avatar, '100');
+        }
+    };
+
+    headerBtn?.addEventListener('pointerenter', triggerHeaderAvatarAnimation);
+    headerBtn?.addEventListener('focus', triggerHeaderAvatarAnimation);
     headerBtn?.addEventListener('click', (e) => {
         e.stopPropagation();
+        triggerHeaderAvatarAnimation();
         toggleAccountPopover();
     });
 
+    const triggerPopoverAvatarAnimation = () => {
+        const user = getAuthenticatedUser();
+        const avatar = user?.avatar;
+        if (!avatar || !isEmoteAvatar(avatar)) return;
+        const popoverImg = document.getElementById('account-popover-avatar-img');
+        if (popoverImg) {
+            playAvatarAnimationOnce(popoverImg, avatar, '100');
+        }
+    };
+
     const popoverAvatarBtn = document.getElementById('account-popover-avatar-link');
+    popoverAvatarBtn?.addEventListener('pointerenter', triggerPopoverAvatarAnimation);
+    popoverAvatarBtn?.addEventListener('focus', triggerPopoverAvatarAnimation);
     popoverAvatarBtn?.addEventListener('click', (e) => {
+        triggerPopoverAvatarAnimation();
         if (popoverAvatarBtn.classList.contains('is-static') || popoverAvatarBtn.getAttribute('aria-disabled') === 'true') {
             e.preventDefault();
             return;

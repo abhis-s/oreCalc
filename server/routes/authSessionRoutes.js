@@ -111,7 +111,8 @@ router.post('/session/refresh', requireAuth, async (req, res) => {
                 username: account.username,
                 userId: account.userId,
                 avatar: account.avatar,
-                hasPassword: Boolean(account.passwordHash)
+                hasPassword: Boolean(account.passwordHash),
+                isSupporter: Boolean(account.isSupporter)
             });
         }
 
@@ -270,6 +271,7 @@ router.post('/pairing/claim', async (req, res) => {
             userId: account.userId,
             avatar: account.avatar,
             hasPassword: Boolean(account.passwordHash),
+            isSupporter: Boolean(account.isSupporter),
             alreadyLinked
         });
     } catch (err) {

@@ -28,6 +28,7 @@ const userDataRoutes = require('./routes/userDataRoutes.js');
 const authRoutes = require('./routes/authRoutes.js');
 const supportRoutes = require('./routes/supportRoutes.js');
 const billingRoutes = require('./routes/billingRoutes.js');
+const webhookRoutes = require('./routes/webhookRoutes.js');
 
 const { pruneInactiveUsers } = require('./scripts/prune-inactive-users.js');
 const { startCwlBackgroundScraper } = require('./services/warScraperService.js');
@@ -64,6 +65,9 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'x-verify-token', 'x-user-id', 'x-app-version'],
     exposedHeaders: ['Retry-After', 'RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset']
 }));
+
+// Mount raw-body webhook receivers before global JSON body parsing so HMAC signatures verify exact bytes
+app.use('/api/webhooks', webhookRoutes);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));

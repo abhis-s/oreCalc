@@ -20,7 +20,7 @@ import { escapeHTML } from './stringUtils.js';
  * @param {string|null} fetchpriority - Optional fetchpriority attribute ('high', 'low', 'auto').
  * @returns {string} The HTML <picture> markup.
  */
-function getImage(src, className = '', size = 'standard', alt = '', width = null, height = null, loading = 'lazy', fetchpriority = null) {
+export function getImage(src, className = '', size = 'standard', alt = '', width = null, height = null, loading = 'lazy', fetchpriority = null) {
     if (!src || typeof src !== 'string') return '';
 
     // Disallow data URIs completely
@@ -37,9 +37,16 @@ function getImage(src, className = '', size = 'standard', alt = '', width = null
     const safeAlt = escapeHTML(alt);
     const safeClass = escapeHTML(className);
 
-    // Handle external URLs (HTTP / HTTPS)
-    if (src.startsWith('http://') || src.startsWith('https://')) {
+    // Handle external URLs (HTTP / HTTPS) and runtime Blob object URLs
+    if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('blob:')) {
         const safeSrc = escapeHTML(src);
+        return `<img src="${safeSrc}" alt="${safeAlt}" class="${safeClass}" width="${imgWidth}" height="${imgHeight}" ${loadingAttr}${priorityAttr} decoding="async" draggable="false">`;
+    }
+
+    // Emote assets in assets/avatars/emotes/ are pre-compiled standalone animated and static WebP files
+    if (src.includes('assets/avatars/emotes/')) {
+        const cleanSrc = src.startsWith('/') ? src : `/${src}`;
+        const safeSrc = escapeHTML(cleanSrc);
         return `<img src="${safeSrc}" alt="${safeAlt}" class="${safeClass}" width="${imgWidth}" height="${imgHeight}" ${loadingAttr}${priorityAttr} decoding="async" draggable="false">`;
     }
 

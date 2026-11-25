@@ -39,6 +39,7 @@ $border-secondary: var(--border-secondary);
 $border-accent: var(--border-accent);
 $border-danger: var(--border-danger);
 $border-inverse: var(--border-inverse);
+$border-prestige-muted: var(--border-prestige-muted);
 $border-card: color-mix(in srgb, $border-primary 70%, transparent);
 $border-card-hover: color-mix(in srgb, $accent-primary 35%, $border-primary);
 $outline-focus: var(--outline-focus);
@@ -156,6 +157,9 @@ $color-gold-glow: var(--color-gold-glow);
 $color-gold-glow-shadow: var(--color-gold-glow-shadow);
 $filter-glow-gold-sm: drop-shadow(0 0 6px $color-gold-glow-shadow);
 $filter-glow-gold-md: drop-shadow(0 0 8px $color-gold-glow-shadow);
+$color-prestige: var(--color-prestige);
+$color-prestige-glow-shadow: var(--color-prestige-glow-shadow);
+$filter-glow-prestige-sm: drop-shadow(0 0 6px $color-prestige-glow-shadow);
 $filter-glow-epic: drop-shadow(0 0 6px color-mix(in srgb, $palette-purple-400 60%, transparent));
 $filter-glow-legendary: drop-shadow(0 0 6px color-mix(in srgb, $palette-yellow-400 60%, transparent));
 

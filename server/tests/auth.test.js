@@ -158,10 +158,16 @@ test('isAuthorizedForUser enforces ownership rules based on authRequired flag', 
 test('AUTH_CONSTANTS exposes valid avatar specifications', () => {
     const { AUTH_CONSTANTS, getRandomAvatar } = require('../constants.js');
     assert.ok(Array.isArray(AUTH_CONSTANTS.VALID_AVATARS));
-    assert.deepEqual(AUTH_CONSTANTS.VALID_AVATARS, [
-        'archer', 'builder', 'giant', 'goblin', 'golem', 'hogRider', 'hog', 'skeleton'
-    ]);
+    assert.ok(AUTH_CONSTANTS.VALID_CLASSIC_AVATARS.length > 0);
+    assert.ok(AUTH_CONSTANTS.VALID_EMOTE_AVATARS.length > 0);
+    assert.equal(
+        AUTH_CONSTANTS.VALID_AVATARS.length,
+        AUTH_CONSTANTS.VALID_CLASSIC_AVATARS.length + AUTH_CONSTANTS.VALID_EMOTE_AVATARS.length
+    );
+    assert.ok(AUTH_CONSTANTS.BONUS_AVATARS.every((a) => AUTH_CONSTANTS.VALID_EMOTE_AVATARS.includes(a)));
     const randomAvatar = getRandomAvatar();
+    assert.ok(AUTH_CONSTANTS.VALID_CLASSIC_AVATARS.includes(randomAvatar));
+    assert.equal(AUTH_CONSTANTS.BONUS_AVATARS.includes(randomAvatar), false);
     assert.ok(AUTH_CONSTANTS.VALID_AVATARS.includes(randomAvatar));
 });
 

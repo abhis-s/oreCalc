@@ -195,6 +195,16 @@
     border: 1px solid $border-secondary;
     transition: background-color $duration-fast $ease-smooth, border-color $duration-fast $ease-smooth;
 
+    &[hidden] {
+        display: none;
+    }
+
+    &--block {
+        flex-direction: column;
+        align-items: stretch;
+        gap: $spacing-md;
+    }
+
     &--update {
         border-color: color-mix(in srgb, $accent-primary 45%, $border-secondary);
         background-color: color-mix(in srgb, $accent-primary 6%, $bg-surface-secondary);
@@ -224,6 +234,28 @@
         &:has(> .management-item-actions > .management-item-value, > .management-item-actions > .status-indicator) {
             flex-wrap: wrap;
             gap: $spacing-xs $spacing-md;
+        }
+    }
+}
+
+.management-item-row__header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+
+    @media (max-width: $breakpoint-phone) {
+        flex-wrap: wrap;
+
+        .management-item-info {
+            flex: 1 1 calc(100% - 40px - #{$spacing-md});
+        }
+
+        .management-item-actions {
+            width: 100%;
+
+            button {
+                width: 100%;
+            }
         }
     }
 }

@@ -102,3 +102,21 @@
 .shake {
 	animation: shake 500ms $ease-smooth;
 }
+
+@keyframes avatar-in-game-pop {
+	0% {
+		transform: scale(1);
+	}
+	14% {
+		transform: scale(1.22);
+	}
+	75% {
+		transform: scale(1.20);
+	}
+	92% {
+		transform: scale(1.06);
+	}
+	100% {
+		transform: scale(1);
+	}
+}

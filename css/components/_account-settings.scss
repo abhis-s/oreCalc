@@ -53,6 +53,41 @@
             outline-offset: 2px;
         }
 
+        &.is-animating {
+            &.is-popout {
+                overflow: visible;
+                z-index: 2;
+
+                &:hover {
+                    transform: none;
+                }
+
+                > clashcalc-assets-image,
+                > orecalc-assets-image,
+                > img {
+                    animation: avatar-in-game-pop 2417ms ease-in-out forwards;
+                    will-change: transform;
+                }
+
+                @media (prefers-reduced-motion: reduce) {
+                    > clashcalc-assets-image,
+                    > orecalc-assets-image,
+                    > img {
+                        animation: none;
+                    }
+                }
+            }
+        }
+
+        &.is-bonus {
+            border-color: $border-prestige-muted;
+
+            &:hover {
+                border-color: $color-prestige;
+                box-shadow: 0 0 6px $color-prestige-glow-shadow;
+            }
+        }
+
         clashcalc-assets-image,
         orecalc-assets-image {
             display: flex;
@@ -77,6 +112,13 @@
         min-width: 0;
     }
 
+    .account-user-profile-name-row {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        min-width: 0;
+    }
+
     .account-user-profile-name {
         font-size: $font-size-md;
         font-weight: $font-weight-bold;
@@ -84,6 +126,52 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        min-width: 0;
+    }
+}
+
+.supporter-status-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: $icon-size-sm;
+    height: $icon-size-sm;
+    color: $text-muted;
+    opacity: 0.45;
+    transition: color $transition-fast, opacity $transition-fast, filter $transition-fast;
+
+    &.is-supporter {
+        color: $color-prestige;
+        opacity: 1;
+        filter: $filter-glow-prestige-sm;
+
+        @media (forced-colors: active) {
+            color: Highlight;
+            filter: none;
+        }
+    }
+
+    &[hidden],
+    &.is-hidden {
+        display: none !important;
+    }
+
+    svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        fill: currentColor;
+    }
+
+    &--profile {
+        width: $icon-size-base;
+        height: $icon-size-base;
+
+        @media (max-width: $breakpoint-phone) {
+            width: $icon-size-sm;
+            height: $icon-size-sm;
+        }
     }
 }
 
@@ -119,6 +207,39 @@
     &.is-open {
         border-color: $accent-primary;
         color: $accent-primary;
+    }
+
+    &.is-bonus {
+        border-color: $border-prestige-muted;
+
+        &:hover:not(:disabled) {
+            border-color: $color-prestige;
+            box-shadow: 0 0 6px $color-prestige-glow-shadow;
+        }
+
+        &.is-open,
+        &[aria-expanded="true"] {
+            border-color: $color-prestige;
+            box-shadow: 0 0 6px $color-prestige-glow-shadow;
+            color: $color-prestige;
+        }
+
+        &.is-animating.is-popout {
+            .header-account-avatar-img {
+                overflow: visible;
+
+                > img {
+                    animation: avatar-in-game-pop 2417ms ease-in-out forwards;
+                    will-change: transform;
+                }
+
+                @media (prefers-reduced-motion: reduce) {
+                    > img {
+                        animation: none;
+                    }
+                }
+            }
+        }
     }
 
     .header-account-update-dot {

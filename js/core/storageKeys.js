@@ -16,6 +16,7 @@ export const CANONICAL_PLAYER_PREFIX = 'clashCalc_player_';
 
 export const SPOTRIGHT_RECENTS_KEY = 'clashCalc_spotrightRecentSearches';
 export const CANONICAL_HAS_PASSWORD_KEY = 'clashCalc_hasPassword';
+export const CANONICAL_IS_SUPPORTER_KEY = 'clashCalc_isSupporter';
 
 export const ALLOWED_STATIC_STORAGE_KEYS = Object.freeze(new Set([
     'clashCalc_appSettings',
@@ -28,6 +29,7 @@ export const ALLOWED_STATIC_STORAGE_KEYS = Object.freeze(new Set([
     'clashCalc_username',
     'clashCalc_avatar',
     'clashCalc_hasPassword',
+    'clashCalc_isSupporter',
     'clashCalc_damageCalcState',
     'clashCalc_spotrightRecentSearches',
     'oreCalc_appSettings',

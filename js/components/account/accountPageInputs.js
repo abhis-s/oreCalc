@@ -8,8 +8,7 @@ import { showAlert, showConfirm } from '../../ui/noticeModal.js';
 import { showToast } from '../../ui/toast.js';
 import {
     getAuthenticatedUser,
-    logout,
-    updateAvatar
+    logout
 } from '../../services/authClientService.js';
 import {
     addPasskey,
@@ -28,12 +27,18 @@ import { syncPlayerTagToUrl } from '../../core/playerUrlRouter.js';
 import { getActiveUserId } from '../../core/storageKeys.js';
 import { isValidUUID } from '../../utils/uuidGenerator.js';
 import { importUserData } from '../../services/cloudSaveService.js';
+import { hideCardHelpPopover } from '../../utils/cardHelpPopover.js';
 import { enhanceClipboardInput, triggerAutoPaste } from '../common/clipboardInputController.js';
 import {
-    hasRealPlayerProfile,
-    highlightActiveAvatarInTray,
-    renderPasskeysInlineList,
+    getAvatarMilestoneContext,
+    renderAvatarLockStates,
     toggleAvatarTray
+} from './accountPageAvatarDisplay.js';
+import {
+    hasRealPlayerProfile,
+    renderPasskeysInlineList,
+    toggleSupporterCodeDrawer,
+    toggleSupporterPanel
 } from './accountPageDisplay.js';
 import { renderPasswordSection } from './accountPagePasswordDisplay.js';
 import {
@@ -41,9 +46,11 @@ import {
     setGuestPairingActiveTab,
     toggleGuestPairingDrawer
 } from './accountPageSessionsDisplay.js';
+import { initAccountAvatarModule } from './accountPageAvatarInputs.js';
 import { initAccountErasure } from './accountPageErasure.js';
 import { initAccountPasswordModule } from './accountPagePassword.js';
 import { initAccountSessionsModule } from './accountPageSessions.js';
+import { initAccountSupporterModule } from './accountPageSupporter.js';
 
 /** @type {Array<{ credentialID: string, deviceName: string, createdAt: number }>} */
 let cachedPasskeys = [];
@@ -150,6 +157,7 @@ async function refreshInlinePasskeys() {
 
     const user = getAuthenticatedUser();
     renderPasswordSection(user?.hasPassword !== false, cachedPasskeys.length);
+    renderAvatarLockStates(getAvatarMilestoneContext(user, cachedPasskeys));
 
     const nameInput = /** @type {HTMLInputElement | null} */ (document.getElementById('account-add-passkey-name'));
     if (nameInput) {
@@ -229,55 +237,6 @@ async function handleDeletePasskey(credentialId) {
 }
 
 /**
- * Selects and persists a new avatar image for the authenticated user.
- *
- * @param {string} avatar - Desired avatar identifier ('archer', 'builder', etc.).
- */
-async function handleSelectAvatar(avatar) {
-    if (!avatar) return;
-
-    highlightActiveAvatarInTray(avatar);
-    try {
-        await updateAvatar(avatar);
-    } catch (err) {
-        logger.error('[Account] Failed to update avatar:', err);
-    }
-}
-
-/**
- * Handles keyboard navigation within the avatar options grid.
- *
- * @param {KeyboardEvent} e - Keyboard interaction event.
- */
-function handleAvatarGridKeyDown(e) {
-    const activeBtn = document.activeElement?.closest('.avatar-option-btn');
-    if (!activeBtn) return;
-
-    const tray = document.getElementById('account-avatar-tray');
-    if (!tray) return;
-
-    const btns = Array.from(tray.querySelectorAll('.avatar-option-btn'));
-    const index = btns.indexOf(/** @type {HTMLButtonElement} */ (activeBtn));
-    if (index === -1) return;
-
-    let targetIndex = -1;
-    if (e.key === 'ArrowRight') targetIndex = (index + 1) % btns.length;
-    else if (e.key === 'ArrowLeft') targetIndex = (index - 1 + btns.length) % btns.length;
-    else if (e.key === 'ArrowDown') targetIndex = (index + 4) % btns.length;
-    else if (e.key === 'ArrowUp') targetIndex = (index - 4 + btns.length) % btns.length;
-    else if (e.key === 'Escape') {
-        toggleAvatarTray(false);
-        document.getElementById('account-profile-avatar-btn')?.focus();
-        return;
-    }
-
-    if (targetIndex !== -1) {
-        e.preventDefault();
-        btns[targetIndex].focus();
-    }
-}
-
-/**
  * Initializes all event listeners for the Account & Security page.
  */
 export function initAccountPageInputs() {
@@ -287,33 +246,20 @@ export function initAccountPageInputs() {
     const guestCreateBtn = document.getElementById('account-guest-create-btn');
     guestCreateBtn?.addEventListener('click', () => openAuthModal('register'));
 
-    // Profile & Avatar Tray
-    const toggleAvatar = () => {
-        const user = getAuthenticatedUser();
-        const isOpen = toggleAvatarTray();
-        if (isOpen && user?.avatar) {
-            highlightActiveAvatarInTray(user.avatar);
-            const activeBtn = document.querySelector(`.avatar-option-btn[data-avatar="${user.avatar}"]`);
-            /** @type {HTMLElement | null} */ (activeBtn)?.focus();
+    const supporterBadgeBtn = document.getElementById('account-profile-supporter-btn');
+    supporterBadgeBtn?.addEventListener('click', () => {
+        const isOpen = toggleSupporterPanel();
+        if (isOpen) {
+            hideCardHelpPopover();
+            toggleAvatarTray(false);
         }
-    };
-
-    const avatarBtn = document.getElementById('account-profile-avatar-btn');
-    avatarBtn?.addEventListener('click', toggleAvatar);
-
-    const avatarDoneBtn = document.getElementById('account-btn-avatar-done');
-    avatarDoneBtn?.addEventListener('click', () => {
-        toggleAvatarTray(false);
-        document.getElementById('account-profile-avatar-btn')?.focus();
     });
 
-    const avatarTray = document.getElementById('account-avatar-tray');
-    avatarTray?.addEventListener('keydown', handleAvatarGridKeyDown);
-    avatarTray?.addEventListener('click', (e) => {
-        const btn = /** @type {HTMLElement} */ (e.target).closest('.avatar-option-btn');
-        if (btn) {
-            const avatar = btn.getAttribute('data-avatar');
-            if (avatar) handleSelectAvatar(avatar);
+    const toggleSupporterCodeBtn = document.getElementById('account-btn-toggle-supporter-code');
+    toggleSupporterCodeBtn?.addEventListener('click', () => {
+        const isOpen = toggleSupporterCodeDrawer();
+        if (isOpen) {
+            document.getElementById('account-supporter-code-input')?.focus();
         }
     });
 
@@ -523,8 +469,10 @@ function initGuestDeviceSync() {
     }
 }
 
+    initAccountAvatarModule();
     initAccountErasure();
     initGuestDeviceSync();
     initAccountPasswordModule();
     initAccountSessionsModule();
+    initAccountSupporterModule();
 }

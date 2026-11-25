@@ -551,6 +551,17 @@ function createDevServerParams(overrides = {}) {
                 return res.end(html);
             }
 
+            if (pathname.startsWith('/assets/avatars/emotes/') && pathname.endsWith('.webp')) {
+                const distEmotePath = path.join(process.cwd(), 'dist', pathname);
+                if (fs.existsSync(distEmotePath) && fs.statSync(distEmotePath).isFile()) {
+                    res.writeHead(200, {
+                        'Content-Type': 'image/webp',
+                        'Cache-Control': 'public, max-age=3600'
+                    });
+                    return res.end(fs.readFileSync(distEmotePath));
+                }
+            }
+
             // Check if the requested path corresponds to an existing static file on disk
             const staticFilePath = path.join(process.cwd(), pathname);
             if (fs.existsSync(staticFilePath) && fs.statSync(staticFilePath).isFile()) {

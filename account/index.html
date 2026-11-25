@@ -174,15 +174,21 @@
                 <div class="management-grid">
                     <div class="management-card" id="account-profile-card">
                         <div class="account-profile-header">
-                            <button type="button" id="account-profile-avatar-btn" class="account-profile-avatar-btn" aria-label="Change Avatar" data-i18n-aria-label="auth.changeAvatar" title="Change Avatar" data-i18n-title="auth.changeAvatar">
+                            <button type="button" id="account-profile-avatar-btn" class="account-profile-avatar-btn" aria-label="Change Avatar" data-i18n-aria-label="auth.changeAvatar" title="Change Avatar" data-i18n-title="auth.changeAvatar" aria-expanded="false">
                                 <clashcalc-assets-image id="account-profile-avatar-img" class="account-profile-avatar" src="/assets/avatars/archer.png" alt="Avatar" data-i18n-alt="auth.avatarAlt" size="standard"></clashcalc-assets-image>
                                 <span class="account-profile-avatar-overlay" aria-hidden="true">
                                     <clashcalc-assets-svg name="edit"></clashcalc-assets-svg>
+                                </span>
+                                <span class="account-profile-avatar-badge" aria-hidden="true">
+                                    <clashcalc-assets-svg name="edit" width="14" height="14"></clashcalc-assets-svg>
                                 </span>
                             </button>
                             <div class="account-profile-info">
                                 <div class="account-profile-title-row">
                                     <h3 id="account-profile-username" class="account-profile-username">User</h3>
+                                    <button type="button" id="account-profile-supporter-btn" class="account-profile-supporter-btn is-hidden" aria-expanded="false" aria-controls="account-supporter-panel" title="Standard Account" data-i18n-title="auth.supporter.statusInactive" aria-label="Standard Account" data-i18n-aria-label="auth.supporter.statusInactive" hidden>
+                                        <clashcalc-assets-svg id="account-profile-supporter-icon" class="supporter-status-icon supporter-status-icon--profile" name="premium" width="20" height="20" aria-hidden="true"></clashcalc-assets-svg>
+                                    </button>
                                 </div>
                                 <div class="account-profile-villages-row" id="account-profile-villages-row">
                                     <div class="account-village-stack" id="account-village-stack" aria-hidden="true">
@@ -200,7 +206,11 @@
                                 <h4 class="account-avatar-tray__title" data-i18n="auth.chooseAvatar">Choose Avatar</h4>
                                 <button type="button" id="account-btn-avatar-done" class="btn btn--secondary" data-i18n="actions.done">Done</button>
                             </div>
-                            <div class="avatar-options-grid" role="group" aria-label="Avatar options">
+                            <div class="account-avatar-tray__tabs segmented-control" role="tablist" aria-label="Avatar Categories" data-i18n-aria-label="auth.avatarCategoryLabel">
+                                <button type="button" class="segmented-btn is-active" id="account-avatar-tab-classic" role="tab" aria-selected="true" aria-controls="account-avatar-grid-classic" data-avatar-tab="classic" data-i18n="auth.avatarTabs.classic">Classic</button>
+                                <button type="button" class="segmented-btn" id="account-avatar-tab-animated" role="tab" aria-selected="false" aria-controls="account-avatar-grid-animated" data-avatar-tab="animated" data-i18n="auth.avatarTabs.animated">Animated</button>
+                            </div>
+                            <div id="account-avatar-grid-classic" class="avatar-options-grid" role="tabpanel" aria-labelledby="account-avatar-tab-classic">
                                 <button type="button" class="avatar-option-btn" data-avatar="archer" aria-label="Archer" data-i18n-aria-label="entities.unitTypes.archer">
                                     <clashcalc-assets-image src="/assets/avatars/archer.png" alt=""></clashcalc-assets-image>
                                 </button>
@@ -225,6 +235,114 @@
                                 <button type="button" class="avatar-option-btn" data-avatar="skeleton" aria-label="Skeleton" data-i18n-aria-label="auth.avatars.skeleton">
                                     <clashcalc-assets-image src="/assets/avatars/skeleton.png" alt=""></clashcalc-assets-image>
                                 </button>
+                            </div>
+                            <div id="account-avatar-grid-animated" class="avatar-options-grid avatar-options-grid--animated is-hidden" role="tabpanel" aria-labelledby="account-avatar-tab-animated" hidden>
+                                <button type="button" class="avatar-option-btn" data-avatar="barbarian_thumbs_up" aria-label="Barbarian (Thumbs Up)" data-i18n-aria-label="auth.avatars.barbarianThumbsUp">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/barbarian_thumbs_up-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="barbarian_angry" aria-label="Barbarian (Angry)" data-i18n-aria-label="auth.avatars.barbarianAngry">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/barbarian_angry-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="barbarian_sad" aria-label="Barbarian (Sad)" data-i18n-aria-label="auth.avatars.barbarianSad">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/barbarian_sad-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="barbarian_laugh" aria-label="Barbarian (Laughing)" data-i18n-aria-label="auth.avatars.barbarianLaugh">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/barbarian_laugh-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="barbarian_confused" aria-label="Barbarian (Confused)" data-i18n-aria-label="auth.avatars.barbarianConfused">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/barbarian_confused-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="skeleton_league" aria-label="Skeleton (League)" data-i18n-aria-label="auth.avatars.skeletonLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/skeleton_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="barbarian_league" aria-label="Barbarian (League)" data-i18n-aria-label="auth.avatars.barbarianLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/barbarian_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="archer_league" aria-label="Archer (League)" data-i18n-aria-label="auth.avatars.archerLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/archer_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="wizard_league" aria-label="Wizard (League)" data-i18n-aria-label="auth.avatars.wizardLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/wizard_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn is-bonus" data-avatar="bk_ranked_bonus" aria-label="Barbarian King (Prestige)" data-i18n-aria-label="auth.avatars.bkRankedBonus">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/bk_ranked_bonus-100-static.webp" alt=""></clashcalc-assets-image>
+                                    <span class="avatar-lock-overlay is-hidden" aria-hidden="true" hidden>
+                                        <clashcalc-assets-svg name="lock" width="20" height="20"></clashcalc-assets-svg>
+                                    </span>
+                                    <span class="avatar-lock-badge is-hidden" aria-hidden="true" hidden>
+                                        <clashcalc-assets-svg name="lock" width="10" height="10"></clashcalc-assets-svg>
+                                    </span>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="valkyrie_league" aria-label="Valkyrie (League)" data-i18n-aria-label="auth.avatars.valkyrieLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/valkyrie_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="witch_league" aria-label="Witch (League)" data-i18n-aria-label="auth.avatars.witchLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/witch_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="golem_league" aria-label="Golem (League)" data-i18n-aria-label="auth.avatars.golemLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/golem_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="pekka_league" aria-label="P.E.K.K.A (League)" data-i18n-aria-label="auth.avatars.pekkaLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/pekka_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn is-bonus" data-avatar="aq_ranked_bonus" aria-label="Archer Queen (Prestige)" data-i18n-aria-label="auth.avatars.aqRankedBonus">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/aq_ranked_bonus-100-static.webp" alt=""></clashcalc-assets-image>
+                                    <span class="avatar-lock-overlay is-hidden" aria-hidden="true" hidden>
+                                        <clashcalc-assets-svg name="lock" width="20" height="20"></clashcalc-assets-svg>
+                                    </span>
+                                    <span class="avatar-lock-badge is-hidden" aria-hidden="true" hidden>
+                                        <clashcalc-assets-svg name="lock" width="10" height="10"></clashcalc-assets-svg>
+                                    </span>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="titan_league" aria-label="Electro Titan (League)" data-i18n-aria-label="auth.avatars.titanLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/titan_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="dragon_league" aria-label="Dragon (League)" data-i18n-aria-label="auth.avatars.dragonLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/dragon_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="electro_dragon_league" aria-label="Electro Dragon (League)" data-i18n-aria-label="auth.avatars.electroDragonLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/electro_dragon_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn" data-avatar="super_dragon_league" aria-label="Super Dragon (League)" data-i18n-aria-label="auth.avatars.superDragonLeague">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/super_dragon_league-100-static.webp" alt=""></clashcalc-assets-image>
+                                </button>
+                                <button type="button" class="avatar-option-btn is-bonus" data-avatar="dd_ranked_bonus" aria-label="Dragon Duke (Prestige)" data-i18n-aria-label="auth.avatars.ddRankedBonus">
+                                    <clashcalc-assets-image src="/assets/avatars/emotes/dd_ranked_bonus-100-static.webp" alt=""></clashcalc-assets-image>
+                                    <span class="avatar-lock-overlay is-hidden" aria-hidden="true" hidden>
+                                        <clashcalc-assets-svg name="lock" width="20" height="20"></clashcalc-assets-svg>
+                                    </span>
+                                    <span class="avatar-lock-badge is-hidden" aria-hidden="true" hidden>
+                                        <clashcalc-assets-svg name="lock" width="10" height="10"></clashcalc-assets-svg>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="account-supporter-panel" class="account-supporter-panel" hidden>
+                            <div class="account-supporter-panel__row">
+                                <div class="account-supporter-panel__summary">
+                                    <clashcalc-assets-svg id="account-supporter-panel-icon" class="account-supporter-panel__icon" name="bmc" width="20" height="20" aria-hidden="true"></clashcalc-assets-svg>
+                                    <div class="account-supporter-panel__copy">
+                                        <h4 id="account-supporter-panel-title" class="account-supporter-panel__title" data-i18n="auth.supporter.title">ClashCalc Supporter</h4>
+                                        <p id="account-supporter-panel-desc" class="account-supporter-panel__desc" data-i18n="auth.supporter.description">Support infrastructure and unlock the Prestige avatar.</p>
+                                    </div>
+                                </div>
+                                <div class="account-supporter-panel__actions">
+                                    <a href="https://buymeacoffee.com/orecalc" target="_blank" rel="noopener noreferrer" class="btn btn--secondary account-btn-bmc" id="account-btn-bmc">
+                                        <clashcalc-assets-svg name="bmc" width="16" height="16"></clashcalc-assets-svg>
+                                        <span data-i18n="views.settings.about.buyMeACoffee">Buy Me A Coffee</span>
+                                    </a>
+                                    <button type="button" id="account-btn-toggle-supporter-code" class="btn btn--secondary" aria-expanded="false" aria-controls="account-supporter-code-drawer" data-i18n="auth.supporter.redeemBtn">Redeem Code</button>
+                                </div>
+                            </div>
+                            <div id="account-supporter-code-drawer" class="account-supporter-code-drawer" hidden>
+                                <form id="account-supporter-code-form" class="account-supporter-code-form" novalidate autocomplete="off">
+                                    <input type="text" id="account-supporter-code-input" class="account-input account-supporter-input" maxlength="40" spellcheck="false" placeholder="Enter supporter code" data-i18n-placeholder="auth.supporter.codePlaceholder" aria-label="Enter supporter code" data-i18n-aria-label="auth.supporter.codePlaceholder" aria-describedby="account-supporter-code-feedback" autocomplete="off">
+                                    <button type="submit" id="account-btn-redeem-code" class="btn btn--primary" data-i18n="actions.redeem">Redeem</button>
+                                </form>
+                                <div id="account-supporter-code-feedback" class="account-field-error" role="alert" hidden>
+                                    <clashcalc-assets-svg name="error" class="account-field-error__icon"></clashcalc-assets-svg>
+                                    <span id="account-supporter-code-feedback-text" class="account-field-error__text"></span>
+                                </div>
                             </div>
                         </div>
                     </div>

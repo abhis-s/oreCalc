@@ -17,6 +17,7 @@ import { logger } from '../utils/logger.js';
 import { getApiBaseUrl } from './apiService.js';
 import {
     applyAuthSession,
+    getAuthenticatedUser,
     getRequestHeaders,
     resolveCurrentUserId,
     throwApiError
@@ -420,5 +421,22 @@ export async function deletePasskey(credentialId) {
 
     if (!response.ok) {
         await throwApiError(response);
+    }
+
+    try {
+        const data = await response.json();
+        if (data?.avatar && typeof localStorage !== 'undefined') {
+            const prevAvatar = localStorage.getItem('clashCalc_avatar');
+            if (prevAvatar !== data.avatar) {
+                localStorage.setItem('clashCalc_avatar', data.avatar);
+                if (typeof document !== 'undefined' && typeof document.dispatchEvent === 'function') {
+                    document.dispatchEvent(new CustomEvent('auth:state-change', {
+                        detail: { action: 'profile-update', user: getAuthenticatedUser() }
+                    }));
+                }
+            }
+        }
+    } catch {
+        // Ignore empty or non-JSON responses on successful deletion
     }
 }

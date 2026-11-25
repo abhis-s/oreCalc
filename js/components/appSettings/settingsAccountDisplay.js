@@ -5,7 +5,9 @@
 
 import { getLanguageFromPath } from '../../core/languageRouter.js';
 import { state } from '../../core/state.js';
+import { translate } from '../../i18n/translator.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
+import { getAvatarSrc, isBonusAvatar, stopAvatarAnimation, syncSupporterIconState } from '../../utils/avatarUtils.js';
 import { isRunningStandalone, isPwaInstallSupported } from '../../services/pwaService.js';
 
 /**
@@ -317,7 +319,7 @@ function applyPopoverConfiguration() {
 /**
  * Updates all account identity UI elements across header and modular popover.
  *
- * @param {{ username: string, avatar?: string }|null} authUser
+ * @param {{ username: string, avatar?: string, isSupporter?: boolean }|null} authUser
  */
 export function updateAccountUI(authUser) {
     const headerBtn = document.getElementById('header-account-btn');
@@ -327,6 +329,7 @@ export function updateAccountUI(authUser) {
     const popoverAuthSection = document.getElementById('account-popover-auth-section');
     const popoverGuestSection = document.getElementById('account-popover-guest-section');
     const popoverUsername = document.getElementById('account-popover-username');
+    const popoverSupporterIcon = document.getElementById('account-popover-supporter-icon');
     const popoverAvatarImg = document.getElementById('account-popover-avatar-img');
 
     updateLocalizedHref(document.getElementById('account-popover-avatar-link'), '/account/');
@@ -337,19 +340,47 @@ export function updateAccountUI(authUser) {
     if (authUser && authUser.username) {
         const safeName = escapeHTML(authUser.username);
         const avatar = authUser.avatar || 'archer';
+        const isBonus = isBonusAvatar(avatar);
+        const isSupporter = Boolean(authUser.isSupporter);
 
         if (popoverUsername) {
             popoverUsername.textContent = safeName;
         }
+        syncSupporterIconState(
+            popoverSupporterIcon,
+            isSupporter ? 'supporter' : 'standard',
+            translate(isSupporter ? 'auth.supporter.statusActive' : 'auth.supporter.statusInactive')
+        );
         if (popoverAvatarImg) {
-            popoverAvatarImg.setAttribute('src', `assets/avatars/${avatar}.png`);
+            const prevPopoverAvatar = popoverAvatarImg.getAttribute('data-active-avatar');
+            if (prevPopoverAvatar && prevPopoverAvatar !== avatar) {
+                stopAvatarAnimation(popoverAvatarImg, avatar, '100');
+            } else if (!/** @type {any} */ (popoverAvatarImg)._avatarAnimTimer && !/** @type {any} */ (popoverAvatarImg)._avatarAnimPending) {
+                popoverAvatarImg.setAttribute('src', getAvatarSrc(avatar, { animated: false, size: '100' }));
+            }
+            popoverAvatarImg.setAttribute('data-active-avatar', avatar);
         }
+        const popoverAvatarLink = document.getElementById('account-popover-avatar-link');
+        if (isBonus) {
+            headerBtn?.classList?.add('is-bonus');
+            popoverAvatarLink?.classList?.add('is-bonus');
+        } else {
+            headerBtn?.classList?.remove('is-bonus');
+            popoverAvatarLink?.classList?.remove('is-bonus');
+        }
+
         popoverGuestSection?.classList.add('is-hidden');
         popoverAuthSection?.classList.remove('is-hidden');
 
         headerBtn?.classList.add('is-authenticated');
         if (headerAvatarImg) {
-            headerAvatarImg.setAttribute('src', `assets/avatars/${avatar}.png`);
+            const prevHeaderAvatar = headerAvatarImg.getAttribute('data-active-avatar');
+            if (prevHeaderAvatar && prevHeaderAvatar !== avatar) {
+                stopAvatarAnimation(headerAvatarImg, avatar, '100');
+            } else if (!/** @type {any} */ (headerAvatarImg)._avatarAnimTimer && !/** @type {any} */ (headerAvatarImg)._avatarAnimPending) {
+                headerAvatarImg.setAttribute('src', getAvatarSrc(avatar, { animated: false, size: '100' }));
+            }
+            headerAvatarImg.setAttribute('data-active-avatar', avatar);
             headerAvatarImg.classList.remove('is-hidden');
         }
         headerIconWrapper?.classList.add('is-hidden');
@@ -357,10 +388,21 @@ export function updateAccountUI(authUser) {
         if (popoverUsername) {
             popoverUsername.textContent = '';
         }
+        if (popoverAvatarImg) {
+            stopAvatarAnimation(popoverAvatarImg, 'archer', '100');
+            popoverAvatarImg.removeAttribute('data-active-avatar');
+        }
+        if (headerAvatarImg) {
+            stopAvatarAnimation(headerAvatarImg, 'archer', '100');
+            headerAvatarImg.removeAttribute('data-active-avatar');
+        }
+        syncSupporterIconState(popoverSupporterIcon, 'hidden');
         popoverAuthSection?.classList.add('is-hidden');
         popoverGuestSection?.classList.remove('is-hidden');
 
         headerBtn?.classList.remove('is-authenticated');
+        headerBtn?.classList.remove('is-bonus');
+        document.getElementById('account-popover-avatar-link')?.classList.remove('is-bonus');
         headerAvatarImg?.classList.add('is-hidden');
         headerIconWrapper?.classList.remove('is-hidden');
     }

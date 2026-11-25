@@ -1,11 +1,11 @@
 @use 'abstracts/variables' as *;
 @use 'abstracts/mixins' as *;
 @use 'components/buttons';
+@use 'account/account-passwords';
 @use 'account/account-cards';
 @use 'account/account-erasure';
 @use 'account/account-avatar-tray';
 @use 'account/account-passkeys';
-@use 'account/account-passwords';
 @use 'account/account-sessions';
 @use 'components/segmented-control';
 @use 'components/clipboard-input';

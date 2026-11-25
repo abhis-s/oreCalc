@@ -1,6 +1,25 @@
 @use '../abstracts/variables' as *;
 
+@keyframes avatar-in-game-pop {
+    0% {
+        transform: scale(1);
+    }
+    14% {
+        transform: scale(1.22);
+    }
+    75% {
+        transform: scale(1.20);
+    }
+    92% {
+        transform: scale(1.06);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 .account-avatar-tray {
+    position: relative;
     padding: $spacing-md;
     background-color: $bg-surface-secondary;
     border: 1px solid $border-secondary;
@@ -26,6 +45,10 @@
         color: $text-primary;
         margin: 0;
     }
+
+    &__tabs {
+        width: 100%;
+    }
 }
 
 .avatar-options-grid {
@@ -35,8 +58,26 @@
     padding: $spacing-xs 0;
     justify-items: center;
 
+    &[hidden],
+    &.is-hidden {
+        display: none !important;
+    }
+
+    &--animated {
+        grid-template-columns: repeat(5, 1fr);
+        max-height: 280px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        padding-right: $spacing-2xs;
+
+        @media (max-width: $breakpoint-phone) {
+            grid-template-columns: repeat(4, 1fr);
+            gap: $spacing-sm;
+        }
+    }
+
     @media (max-width: $breakpoint-phone) {
-        grid-template-columns: repeat(4, 1fr);
         gap: $spacing-sm;
     }
 }
@@ -52,10 +93,12 @@
     background-color: $bg-surface-primary;
     padding: 0;
     cursor: pointer;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
     transition: transform $transition-fast, box-shadow $transition-fast, border-color $transition-fast;
 
     clashcalc-assets-image,
+    orecalc-assets-image,
     img {
         display: flex;
         align-items: center;
@@ -63,6 +106,8 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        border-radius: $shape-corner-full;
+        overflow: hidden;
     }
 
     &:hover {
@@ -75,8 +120,145 @@
         box-shadow: 0 0 0 2px $accent-primary;
     }
 
+    &.is-locked {
+        &:hover,
+        &:focus-visible {
+            .avatar-lock-overlay {
+                opacity: 1;
+            }
+        }
+    }
+
     &:focus-visible {
         outline: 2px solid $accent-primary;
         outline-offset: 2px;
+    }
+
+    &.is-bonus,
+    &[data-avatar="bk_ranked_bonus"],
+    &[data-avatar="aq_ranked_bonus"],
+    &[data-avatar="dd_ranked_bonus"] {
+        border-color: $border-prestige-muted;
+
+        &:hover {
+            border-color: $color-prestige;
+            box-shadow: 0 0 8px $color-prestige-glow-shadow;
+        }
+
+        &.is-selected {
+            border-color: $color-prestige;
+            box-shadow: 0 0 0 2px $color-prestige, 0 0 8px $color-prestige-glow-shadow;
+        }
+
+        &:focus-visible {
+            outline-color: $color-prestige;
+
+            @media (forced-colors: active) {
+                outline-color: Highlight;
+            }
+        }
+    }
+
+    &.is-animating {
+        z-index: 1;
+
+        .avatar-lock-overlay,
+        .avatar-lock-badge {
+            opacity: 0 !important;
+            pointer-events: none;
+        }
+
+        &.is-popout {
+            overflow: visible;
+            z-index: 2;
+
+            &:hover {
+                transform: none;
+            }
+
+            > clashcalc-assets-image,
+            > orecalc-assets-image,
+            > img {
+                animation: avatar-in-game-pop 2417ms ease-in-out forwards;
+                will-change: transform;
+                overflow: visible;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                > clashcalc-assets-image,
+                > orecalc-assets-image,
+                > img {
+                    animation: none;
+                }
+            }
+        }
+    }
+}
+
+.avatar-lock-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: $shape-corner-full;
+    background-color: $palette-overlay-dark-50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $color-white-const;
+    opacity: 0;
+    z-index: $z-index-base;
+    transition: opacity $transition-fast;
+    pointer-events: none;
+
+    &[hidden],
+    &.is-hidden {
+        display: none !important;
+    }
+
+    clashcalc-assets-svg,
+    orecalc-assets-svg,
+    svg {
+        fill: currentColor;
+        width: 20px;
+        height: 20px;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+    }
+}
+
+.avatar-lock-badge {
+    position: absolute;
+    inset-block-end: -$spacing-2xs;
+    inset-inline-end: -$spacing-2xs;
+    width: 20px;
+    height: 20px;
+    border-radius: $shape-corner-full;
+    background-color: $bg-surface-secondary;
+    border: 2px solid $border-accent;
+    color: $text-primary;
+    box-shadow: $elevation-1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    z-index: $z-index-interactive;
+    pointer-events: none;
+    transition: background-color $transition-fast, border-color $transition-fast, color $transition-fast, opacity $transition-fast;
+
+    clashcalc-assets-svg,
+    orecalc-assets-svg,
+    svg {
+        width: 10px;
+        height: 10px;
+        fill: currentColor;
+    }
+
+    &[hidden],
+    &.is-hidden {
+        display: none !important;
+    }
+
+    @media (forced-colors: active) {
+        background-color: Canvas;
+        border-color: CanvasText;
+        color: CanvasText;
     }
 }

@@ -174,10 +174,11 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         }
     });
 
-    test('ALLOWED_STATIC_STORAGE_KEYS whitelist retains auth token, username, and avatar', () => {
+    test('ALLOWED_STATIC_STORAGE_KEYS whitelist retains auth token, username, avatar, and supporter flag', () => {
         assert.ok(ALLOWED_STATIC_STORAGE_KEYS.has('clashCalc_authToken'));
         assert.ok(ALLOWED_STATIC_STORAGE_KEYS.has('clashCalc_username'));
         assert.ok(ALLOWED_STATIC_STORAGE_KEYS.has('clashCalc_avatar'));
+        assert.ok(ALLOWED_STATIC_STORAGE_KEYS.has('clashCalc_isSupporter'));
         assert.equal(ALLOWED_STATIC_STORAGE_KEYS.has('clashCalc_activePasskeyId'), false);
     });
 
@@ -265,23 +266,34 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
 
         const ids = [
             'account-popover-guest-section', 'account-popover-auth-section', 'account-popover-username',
-            'account-popover-avatar-img',
+            'account-popover-supporter-icon', 'account-popover-avatar-img',
             'header-account-btn', 'header-account-icon-wrapper', 'header-account-avatar-img'
         ];
         ids.forEach(createEl);
 
         globalThis.document.getElementById = (id) => elements.get(id) || null;
 
-        // Authenticated user with custom avatar
-        updateAccountUI({ username: 'layout_user_1', avatar: 'golem' });
+        // Authenticated non-supporter user still shows badge in muted state (without .is-supporter)
+        updateAccountUI({ username: 'layout_user_1', avatar: 'golem', isSupporter: false });
         assert.equal(elements.get('account-popover-username').textContent, 'layout_user_1');
-        assert.equal(elements.get('account-popover-avatar-img').getAttribute('src'), 'assets/avatars/golem.png');
-        assert.equal(elements.get('header-account-avatar-img').getAttribute('src'), 'assets/avatars/golem.png');
+        assert.equal(elements.get('account-popover-avatar-img').getAttribute('src'), '/assets/avatars/golem.png');
+        assert.equal(elements.get('header-account-avatar-img').getAttribute('src'), '/assets/avatars/golem.png');
         assert.ok(elements.get('header-account-btn').classList.contains('is-authenticated'));
         assert.ok(elements.get('header-account-icon-wrapper').classList.contains('is-hidden'));
         assert.ok(!elements.get('header-account-avatar-img').classList.contains('is-hidden'));
         assert.ok(elements.get('account-popover-guest-section').classList.contains('is-hidden'));
         assert.ok(!elements.get('account-popover-auth-section').classList.contains('is-hidden'));
+        assert.ok(!elements.get('account-popover-supporter-icon').classList.contains('is-hidden'));
+        assert.equal(elements.get('account-popover-supporter-icon').attributes.has('hidden'), false);
+        assert.ok(!elements.get('account-popover-supporter-icon').classList.contains('is-supporter'));
+        assert.equal(elements.get('account-popover-supporter-icon').getAttribute('data-i18n-title'), 'auth.supporter.statusInactive');
+
+        // Authenticated supporter shows active gold premium icon next to username
+        updateAccountUI({ username: 'layout_user_1', avatar: 'golem', isSupporter: true });
+        assert.ok(!elements.get('account-popover-supporter-icon').classList.contains('is-hidden'));
+        assert.equal(elements.get('account-popover-supporter-icon').attributes.has('hidden'), false);
+        assert.ok(elements.get('account-popover-supporter-icon').classList.contains('is-supporter'));
+        assert.equal(elements.get('account-popover-supporter-icon').getAttribute('data-i18n-title'), 'auth.supporter.statusActive');
 
         // Guest user (null)
         updateAccountUI(null);
@@ -291,6 +303,9 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.ok(elements.get('header-account-avatar-img').classList.contains('is-hidden'));
         assert.ok(!elements.get('account-popover-guest-section').classList.contains('is-hidden'));
         assert.ok(elements.get('account-popover-auth-section').classList.contains('is-hidden'));
+        assert.ok(elements.get('account-popover-supporter-icon').classList.contains('is-hidden'));
+        assert.ok(!elements.get('account-popover-supporter-icon').classList.contains('is-supporter'));
+        assert.equal(elements.get('account-popover-supporter-icon').attributes.has('hidden'), true);
     });
 
     test('normalizeWebAuthnError normalizes WebAuthn errors and DOMExceptions accurately', () => {
@@ -686,6 +701,20 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
         assert.equal(eventsReceived.length, 3);
         assert.equal(eventsReceived[2].action, 'profile-update');
 
+        store.set('clashCalc_authToken', 'new.cross.tab.jwt');
+        store.set('clashCalc_username', 'cross_tab_user');
+        store.set('clashCalc_isSupporter', 'true');
+        globalThis.window.dispatchEvent({
+            type: 'storage',
+            key: 'clashCalc_isSupporter',
+            newValue: 'true',
+            oldValue: 'false'
+        });
+
+        assert.equal(eventsReceived.length, 4);
+        assert.equal(eventsReceived[3].action, 'supporter-update');
+        assert.equal(eventsReceived[3].user?.isSupporter, true);
+
         globalThis.document.removeEventListener('auth:state-change', handler);
     });
 
@@ -865,6 +894,37 @@ describe('Auth Client Integration & Session Invariants Suite', () => {
             assert.equal(isAuthenticated(), false);
         } finally {
             globalThis.fetch = originalFetch;
+        }
+    });
+
+    test('redeemSupporterCode persists supporter flag and broadcasts auth:state-change', async () => {
+        const { redeemSupporterCode } = await import('../../js/services/authClientService.js');
+        store.set('clashCalc_authToken', 'jwt.supporter.token');
+        store.set('clashCalc_username', 'Chief');
+        store.set('clashCalc_isSupporter', 'false');
+
+        const events = [];
+        const onChange = (e) => events.push(e.detail);
+        globalThis.document.addEventListener('auth:state-change', onChange);
+
+        const originalFetch = globalThis.fetch;
+        globalThis.fetch = async (url) => {
+            if (String(url).includes('/api/auth/redeem-supporter')) {
+                return { ok: true, status: 200, json: async () => ({ message: 'Activated', isSupporter: true }) };
+            }
+            return { ok: false, status: 404, json: async () => ({}) };
+        };
+
+        try {
+            const res = await redeemSupporterCode('CC-TEST-CODE-1234');
+            assert.equal(res.isSupporter, true);
+            assert.equal(store.get('clashCalc_isSupporter'), 'true');
+            assert.equal(events.length, 1);
+            assert.equal(events[0].action, 'supporter-redeemed');
+            assert.equal(events[0].user?.isSupporter, true);
+        } finally {
+            globalThis.fetch = originalFetch;
+            globalThis.document.removeEventListener('auth:state-change', onChange);
         }
     });
 });

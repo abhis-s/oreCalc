@@ -118,7 +118,14 @@ router.post('/register-passkey-verify', async (req, res) => {
         });
 
         const token = generateToken({ username: displayUsername, userId: finalUserId }, sessionId);
-        res.status(201).json({ token, username: displayUsername, userId: finalUserId, avatar: initialAvatar, hasPassword: false });
+        res.status(201).json({
+            token,
+            username: displayUsername,
+            userId: finalUserId,
+            avatar: initialAvatar,
+            hasPassword: false,
+            isSupporter: false
+        });
     } catch (err) {
         if (/** @type {any} */ (err).code === 'ALREADY_EXISTS') {
             return res.status(409).json({ reason: 'usernameTaken', message: 'This username is already taken.' });
@@ -225,7 +232,8 @@ router.post('/login-passkey-verify', async (req, res) => {
             username: account.username,
             userId: account.userId,
             avatar: account.avatar,
-            hasPassword: Boolean(account.passwordHash)
+            hasPassword: Boolean(account.passwordHash),
+            isSupporter: Boolean(account.isSupporter)
         });
     } catch (err) {
         console.error('[Auth] Passkey login verification failed:', err);
@@ -350,8 +358,19 @@ router.delete('/passkeys/:credentialId', requireAuth, async (req, res) => {
             });
         }
 
-        await accountRef.update({ passkeys: filtered });
-        res.status(200).json({ message: 'Passkey deleted successfully.' });
+        /** @type {Record<string, any>} */
+        const updatePayload = { passkeys: filtered };
+        let updatedAvatar = account?.avatar;
+        if (filtered.length === 0 && account?.avatar === 'aq_ranked_bonus') {
+            updatedAvatar = getRandomAvatar();
+            updatePayload.avatar = updatedAvatar;
+        }
+
+        await accountRef.update(updatePayload);
+        res.status(200).json({
+            message: 'Passkey deleted successfully.',
+            ...(updatePayload.avatar ? { avatar: updatedAvatar } : {})
+        });
     } catch (err) {
         console.error('[Auth] Delete passkey error:', err);
         res.status(500).json({ reason: 'internalError', message: 'Failed to delete passkey.' });

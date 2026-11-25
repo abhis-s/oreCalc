@@ -61,6 +61,22 @@ const RATE_LIMIT_DEFAULTS = deepFreeze({
     }
 });
 
+const VALID_CLASSIC_AVATARS = [
+    'archer', 'builder', 'giant', 'goblin', 'golem', 'hogRider', 'hog', 'skeleton'
+];
+
+const VALID_EMOTE_AVATARS = [
+    'barbarian_thumbs_up', 'barbarian_angry', 'barbarian_sad', 'barbarian_laugh',
+    'barbarian_confused', 'skeleton_league', 'barbarian_league', 'archer_league',
+    'wizard_league', 'bk_ranked_bonus', 'valkyrie_league', 'witch_league',
+    'golem_league', 'pekka_league', 'aq_ranked_bonus', 'titan_league',
+    'dragon_league', 'electro_dragon_league', 'super_dragon_league', 'dd_ranked_bonus'
+];
+
+const BONUS_AVATARS = [
+    'bk_ranked_bonus', 'aq_ranked_bonus', 'dd_ranked_bonus'
+];
+
 const AUTH_CONSTANTS = deepFreeze({
     SALT_ROUNDS: 12,
     TOKEN_EXPIRY: '90d',
@@ -68,7 +84,10 @@ const AUTH_CONSTANTS = deepFreeze({
     MIN_PASSWORD_LENGTH: 6,
     MAX_PASSWORD_LENGTH: 72,
     CHALLENGE_TTL_MS: 120 * 1000,
-    VALID_AVATARS: ['archer', 'builder', 'giant', 'goblin', 'golem', 'hogRider', 'hog', 'skeleton']
+    VALID_CLASSIC_AVATARS,
+    VALID_EMOTE_AVATARS,
+    BONUS_AVATARS,
+    VALID_AVATARS: [...VALID_CLASSIC_AVATARS, ...VALID_EMOTE_AVATARS]
 });
 
 /**
@@ -77,7 +96,7 @@ const AUTH_CONSTANTS = deepFreeze({
  * @returns {string}
  */
 function getRandomAvatar() {
-    return AUTH_CONSTANTS.VALID_AVATARS[Math.floor(Math.random() * AUTH_CONSTANTS.VALID_AVATARS.length)];
+    return VALID_CLASSIC_AVATARS[Math.floor(Math.random() * VALID_CLASSIC_AVATARS.length)];
 }
 
 const LAB_SCALING_TROOP_KEYS = deepFreeze({

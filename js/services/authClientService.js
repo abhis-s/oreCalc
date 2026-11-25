@@ -11,11 +11,13 @@ import {
     getActiveUserIdKey,
     getStorageItem,
     isClashCalcHost,
-    CANONICAL_HAS_PASSWORD_KEY
+    CANONICAL_HAS_PASSWORD_KEY,
+    CANONICAL_IS_SUPPORTER_KEY
 } from '../core/storageKeys.js';
 import { setResettingState } from '../core/localStorageManager.js';
 import { syncPlayerTagToUrl } from '../core/playerUrlRouter.js';
 import { state } from '../core/state.js';
+import { CLASSIC_AVATARS } from '../utils/avatarUtils.js';
 import { detectOperatingSystem } from '../utils/devicePlatform.js';
 import { generateUUID } from '../utils/uuidGenerator.js';
 import { safeJsonParse } from '../utils/jsonUtils.js';
@@ -24,32 +26,22 @@ const AUTH_TOKEN_KEY = 'clashCalc_authToken';
 const AUTH_USERNAME_KEY = 'clashCalc_username';
 const AUTH_AVATAR_KEY = 'clashCalc_avatar';
 const AUTH_HAS_PASSWORD_KEY = CANONICAL_HAS_PASSWORD_KEY;
+const AUTH_IS_SUPPORTER_KEY = CANONICAL_IS_SUPPORTER_KEY;
 const USER_ID_KEY = 'clashCalc_userId';
 
-const AVATAR_KEYS = Object.freeze([
-    'archer',
-    'builder',
-    'giant',
-    'goblin',
-    'golem',
-    'hogRider',
-    'hog',
-    'skeleton'
-]);
-
 /**
- * Returns a random avatar identifier from the canonical avatar keys.
+ * Returns a random avatar identifier from the canonical classic avatar keys.
  *
  * @returns {string}
  */
 function getRandomAvatar() {
-    return AVATAR_KEYS[Math.floor(Math.random() * AVATAR_KEYS.length)];
+    return CLASSIC_AVATARS[Math.floor(Math.random() * CLASSIC_AVATARS.length)];
 }
 
 /**
  * Returns current authenticated session details if token and username exist.
  *
- * @returns {{ username: string, token: string, avatar: string, hasPassword?: boolean }|null}
+ * @returns {{ username: string, token: string, avatar: string, hasPassword?: boolean, isSupporter?: boolean }|null}
  */
 export function getAuthenticatedUser() {
     if (typeof localStorage === 'undefined') return null;
@@ -58,8 +50,10 @@ export function getAuthenticatedUser() {
     const avatar = localStorage.getItem(AUTH_AVATAR_KEY) || getRandomAvatar();
     const rawHasPass = localStorage.getItem(AUTH_HAS_PASSWORD_KEY);
     const hasPassword = rawHasPass === null ? undefined : rawHasPass === 'true';
+    const rawIsSupporter = localStorage.getItem(AUTH_IS_SUPPORTER_KEY);
+    const isSupporter = rawIsSupporter === 'true';
     if (token && username) {
-        return { username, token, avatar, hasPassword };
+        return { username, token, avatar, hasPassword, isSupporter };
     }
     return null;
 }
@@ -170,7 +164,7 @@ export function isTokenLocallyExpired(token, now = Date.now()) {
  * Applies an authenticated session locally and broadcasts state change.
  * Purges prior local guest/player data on login or new-device pairing claim.
  *
- * @param {{ token?: string, username?: string, userId?: string, avatar?: string, hasPassword?: boolean }} data
+ * @param {{ token?: string, username?: string, userId?: string, avatar?: string, hasPassword?: boolean, isSupporter?: boolean }} data
  * @param {'login' | 'register' | 'pairing-claim' | 'pairing-already-linked' | 'token-refresh'} [action='login']
  */
 export function applyAuthSession(data, action = 'login') {
@@ -193,6 +187,9 @@ export function applyAuthSession(data, action = 'login') {
         }
         if (data.avatar) {
             localStorage.setItem(AUTH_AVATAR_KEY, data.avatar);
+        }
+        if (data.isSupporter !== undefined) {
+            localStorage.setItem(AUTH_IS_SUPPORTER_KEY, data.isSupporter ? 'true' : 'false');
         }
     }
     if (typeof sessionStorage !== 'undefined') {
@@ -346,6 +343,7 @@ export function purgeAccountDataOnLogout() {
     localStorage.removeItem(AUTH_USERNAME_KEY);
     localStorage.removeItem(AUTH_AVATAR_KEY);
     localStorage.removeItem(AUTH_HAS_PASSWORD_KEY);
+    localStorage.removeItem(AUTH_IS_SUPPORTER_KEY);
 
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -498,7 +496,7 @@ export async function deleteAccount() {
 /**
  * Retrieves the authenticated user's account details and security metadata.
  *
- * @returns {Promise<{ username: string, userId: string, avatar: string, hasPassword: boolean, passkeysCount: number, createdAt: number }>}
+ * @returns {Promise<{ username: string, userId: string, avatar: string, hasPassword: boolean, passkeysCount: number, isSupporter?: boolean, createdAt: number }>}
  */
 export async function fetchAccountDetails() {
     const url = `${getApiBaseUrl()}/api/auth/account`;
@@ -513,8 +511,58 @@ export async function fetchAccountDetails() {
     }
 
     const data = await response.json();
-    if (typeof localStorage !== 'undefined' && typeof data.hasPassword === 'boolean') {
-        localStorage.setItem(AUTH_HAS_PASSWORD_KEY, String(data.hasPassword));
+    let supporterChanged = false;
+    let avatarChanged = false;
+    if (typeof localStorage !== 'undefined') {
+        if (typeof data.hasPassword === 'boolean') {
+            localStorage.setItem(AUTH_HAS_PASSWORD_KEY, String(data.hasPassword));
+        }
+        if (typeof data.isSupporter === 'boolean') {
+            const prevSupporter = localStorage.getItem(AUTH_IS_SUPPORTER_KEY);
+            const nextSupporter = String(data.isSupporter);
+            supporterChanged = prevSupporter !== nextSupporter;
+            localStorage.setItem(AUTH_IS_SUPPORTER_KEY, nextSupporter);
+        }
+        if (typeof data.avatar === 'string' && data.avatar) {
+            const prevAvatar = localStorage.getItem(AUTH_AVATAR_KEY);
+            avatarChanged = prevAvatar !== data.avatar;
+            localStorage.setItem(AUTH_AVATAR_KEY, data.avatar);
+        }
+    }
+    if ((supporterChanged || avatarChanged) && typeof document !== 'undefined' && typeof document.dispatchEvent === 'function') {
+        const action = avatarChanged ? 'profile-update' : 'supporter-update';
+        document.dispatchEvent(new CustomEvent('auth:state-change', {
+            detail: { action, user: getAuthenticatedUser() }
+        }));
+    }
+    return data;
+}
+
+/**
+ * Redeems a supporter code to unlock supporter status and exclusive bonus avatars.
+ *
+ * @param {string} code - Supporter activation code.
+ * @returns {Promise<{ message?: string, isSupporter: boolean }>}
+ */
+export async function redeemSupporterCode(code) {
+    const url = `${getApiBaseUrl()}/api/auth/redeem-supporter`;
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: getRequestHeaders(),
+        body: JSON.stringify({ code })
+    });
+
+    if (!response.ok) {
+        await throwApiError(response);
+    }
+
+    const data = await response.json();
+    if (typeof localStorage !== 'undefined' && data?.isSupporter) {
+        localStorage.setItem(AUTH_IS_SUPPORTER_KEY, 'true');
+    }
+    const user = getAuthenticatedUser();
+    if (typeof document !== 'undefined') {
+        document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: 'supporter-redeemed', user } }));
     }
     return data;
 }
@@ -641,10 +689,15 @@ export function initCrossTabAuthSync() {
                         document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: syncAction, user } }));
                     }
                 }
-            } else if (event.key === AUTH_AVATAR_KEY || event.key === AUTH_USERNAME_KEY) {
+            } else if (
+                event.key === AUTH_AVATAR_KEY ||
+                event.key === AUTH_USERNAME_KEY ||
+                event.key === AUTH_IS_SUPPORTER_KEY
+            ) {
                 const user = getAuthenticatedUser();
+                const action = event.key === AUTH_IS_SUPPORTER_KEY ? 'supporter-update' : 'profile-update';
                 if (typeof document?.dispatchEvent === 'function') {
-                    document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action: 'profile-update', user } }));
+                    document.dispatchEvent(new CustomEvent('auth:state-change', { detail: { action, user } }));
                 }
             }
         };

@@ -118,6 +118,9 @@
 
     --color-gold: #{$palette-gold};
     --color-gold-soft: rgba(255, 215, 0, 0.15);
+    --color-prestige: #{$palette-pink-400};
+    --color-prestige-glow-shadow: color-mix(in srgb, var(--color-prestige) 35%, transparent);
+    --border-prestige-muted: color-mix(in srgb, var(--color-prestige) 50%, var(--border-secondary));
     --color-event-red: #{$palette-red-500};
     --color-event-red-hover: #{$palette-red-700};
 
@@ -288,6 +291,9 @@
 
     --color-gold: #{$palette-yellow-800};
     --color-gold-soft: rgba(227, 116, 0, 0.15);
+    --color-prestige: #{$palette-pink-600};
+    --color-prestige-glow-shadow: color-mix(in srgb, var(--color-prestige) 30%, transparent);
+    --border-prestige-muted: color-mix(in srgb, var(--color-prestige) 50%, var(--border-secondary));
     --color-event-red: #{$palette-red-600};
     --color-event-red-hover: #{$palette-red-800};
 

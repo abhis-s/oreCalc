@@ -12,7 +12,8 @@
     "test": "node --test tests/**/*.test.js",
     "typecheck": "tsc --project jsconfig.json --noEmit",
     "start": "node main.js",
-    "prune": "node scripts/prune-inactive-users.js"
+    "prune": "node scripts/prune-inactive-users.js",
+    "mint-supporter": "node scripts/mint-supporter-code.js"
   },
   "keywords": [],
   "author": "",

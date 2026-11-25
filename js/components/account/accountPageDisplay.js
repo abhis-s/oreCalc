@@ -12,6 +12,15 @@ import { translate } from '../../i18n/translator.js';
 import { fetchPasskeys } from '../../services/authPasskeyClientService.js';
 import { formatDate, getDefaultDateLocale } from '../../utils/dateUtils.js';
 import { escapeHTML } from '../../utils/stringUtils.js';
+import { getAvatarSrc, stopAvatarAnimation, syncSupporterIconState } from '../../utils/avatarUtils.js';
+import { hideCardHelpPopover } from '../../utils/cardHelpPopover.js';
+import {
+    getAvatarMilestoneContext,
+    highlightActiveAvatarInTray,
+    renderAvatarLockStates,
+    resetAvatarMilestoneCache,
+    toggleAvatarTray
+} from './accountPageAvatarDisplay.js';
 import { renderPasswordSection, togglePasswordDrawer } from './accountPagePasswordDisplay.js';
 import {
     renderAccountGuestPairingCard,
@@ -21,55 +30,137 @@ import {
 } from './accountPageSessionsDisplay.js';
 
 /**
- * Toggles the visibility and expanded state of the in-page avatar selector tray.
+ * Renders inline supporter feedback and input error state in the compact supporter drawer.
+ *
+ * @param {'hidden' | 'error' | 'success'} mode - Display mode for feedback message.
+ * @param {string} [message=''] - Feedback message text to show.
+ */
+export function renderSupporterFeedback(mode, message = '') {
+    const codeInput = /** @type {HTMLInputElement | null} */ (document.getElementById('account-supporter-code-input'));
+    const feedbackEl = document.getElementById('account-supporter-code-feedback');
+    const feedbackText = document.getElementById('account-supporter-code-feedback-text');
+
+    codeInput?.classList?.toggle('is-invalid', mode === 'error');
+    if (!feedbackEl) return;
+
+    if (mode === 'hidden') {
+        feedbackEl.setAttribute('hidden', '');
+        if (feedbackText) feedbackText.textContent = '';
+        return;
+    }
+
+    feedbackEl.removeAttribute('hidden');
+    if (feedbackText) feedbackText.textContent = message;
+}
+
+/**
+ * Resets supporter code input value and hides inline feedback.
+ */
+function resetSupporterFormState() {
+    const codeInput = /** @type {HTMLInputElement | null} */ (document.getElementById('account-supporter-code-input'));
+    if (codeInput) {
+        codeInput.value = '';
+    }
+    renderSupporterFeedback('hidden');
+}
+
+/**
+ * Toggles visibility of the supporter code input drawer inside #account-supporter-panel.
  *
  * @param {boolean} [forceState] - Explicit open/closed state.
  * @returns {boolean} Current open state after toggle.
  */
-export function toggleAvatarTray(forceState) {
-    const tray = document.getElementById('account-avatar-tray');
-    if (!tray) return false;
+export function toggleSupporterCodeDrawer(forceState) {
+    const drawer = document.getElementById('account-supporter-code-drawer');
+    const toggleBtn = document.getElementById('account-btn-toggle-supporter-code');
+    if (!drawer) return false;
 
-    const isOpen = forceState !== undefined ? forceState : tray.hasAttribute('hidden');
+    const isOpen = forceState !== undefined ? forceState : drawer.hasAttribute('hidden');
     if (isOpen) {
-        tray.removeAttribute('hidden');
-        tray.setAttribute('aria-expanded', 'true');
+        drawer.removeAttribute('hidden');
     } else {
-        tray.setAttribute('hidden', '');
-        tray.setAttribute('aria-expanded', 'false');
+        drawer.setAttribute('hidden', '');
+        resetSupporterFormState();
     }
 
-    const avatarBtn = document.getElementById('account-profile-avatar-btn');
-    if (avatarBtn) {
-        avatarBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-        const iconSvg = avatarBtn.querySelector('clashcalc-assets-svg, orecalc-assets-svg');
-        if (iconSvg) {
-            iconSvg.setAttribute('name', isOpen ? 'check' : 'edit');
-        }
+    if (toggleBtn) {
+        toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        const labelKey = isOpen ? 'actions.close' : 'auth.supporter.redeemBtn';
+        toggleBtn.textContent = translate(labelKey);
+        toggleBtn.setAttribute('data-i18n', labelKey);
     }
 
     return isOpen;
 }
 
 /**
- * Highlights the actively selected avatar button inside the avatar tray.
+ * Toggles visibility of the collapsible #account-supporter-panel inside #account-profile-card.
  *
- * @param {string} avatar - Active avatar identifier ('archer', 'builder', etc.).
+ * @param {boolean} [forceState] - Explicit open/closed state.
+ * @returns {boolean} Current open state after toggle.
  */
-export function highlightActiveAvatarInTray(avatar) {
-    const tray = document.getElementById('account-avatar-tray');
-    if (!tray) return;
+export function toggleSupporterPanel(forceState) {
+    const panel = document.getElementById('account-supporter-panel');
+    if (!panel) return false;
 
-    const btns = tray.querySelectorAll('.avatar-option-btn');
-    btns.forEach((btn) => {
-        const isMatch = btn.getAttribute('data-avatar') === avatar;
-        btn.classList.toggle('is-selected', isMatch);
-        btn.setAttribute('aria-selected', isMatch ? 'true' : 'false');
-    });
+    const isOpen = forceState !== undefined ? forceState : panel.hasAttribute('hidden');
+    if (isOpen) {
+        panel.removeAttribute('hidden');
+    } else {
+        panel.setAttribute('hidden', '');
+        toggleSupporterCodeDrawer(false);
+    }
 
-    const profileImg = document.getElementById('account-profile-avatar-img');
-    if (profileImg) {
-        profileImg.setAttribute('src', `/assets/avatars/${avatar}.png`);
+    document.getElementById('account-profile-supporter-btn')?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    return isOpen;
+}
+
+/**
+ * Renders supporter badge state and updates the profile supporter panel content.
+ *
+ * @param {boolean} isSupporter - Whether the active user is a verified supporter.
+ */
+export function renderSupporterStatus(isSupporter) {
+    const active = Boolean(isSupporter);
+
+    syncSupporterIconState(
+        document.getElementById('account-profile-supporter-btn'),
+        active ? 'supporter' : 'standard',
+        translate(active ? 'auth.supporter.statusActive' : 'auth.supporter.statusInactive')
+    );
+
+    const panel = document.getElementById('account-supporter-panel');
+    panel?.classList?.toggle('is-supporter', active);
+
+    const panelIcon = document.getElementById('account-supporter-panel-icon');
+    panelIcon?.setAttribute('name', active ? 'premium' : 'bmc');
+
+    const panelTitle = document.getElementById('account-supporter-panel-title');
+    if (panelTitle) {
+        const titleKey = active ? 'auth.supporter.activeTitle' : 'auth.supporter.title';
+        panelTitle.textContent = translate(titleKey);
+        panelTitle.setAttribute('data-i18n', titleKey);
+    }
+
+    const panelDesc = document.getElementById('account-supporter-panel-desc');
+    if (panelDesc) {
+        const descKey = active ? 'auth.supporter.activeDesc' : 'auth.supporter.description';
+        panelDesc.textContent = translate(descKey);
+        panelDesc.setAttribute('data-i18n', descKey);
+    }
+
+    const redeemToggleBtn = document.getElementById('account-btn-toggle-supporter-code');
+    if (redeemToggleBtn) {
+        if (active) {
+            redeemToggleBtn.setAttribute('hidden', '');
+        } else {
+            redeemToggleBtn.removeAttribute('hidden');
+        }
+    }
+
+    if (active) {
+        toggleSupporterCodeDrawer(false);
+        resetSupporterFormState();
     }
 }
 
@@ -205,7 +296,7 @@ export function hasRealPlayerProfile() {
  * Renders the reactive view shell for the Account page based on authentication state.
  *
  * @param {boolean} isAuthenticated - Whether a valid cloud user session exists.
- * @param {{ username: string, avatar?: string, hasPassword?: boolean } | null} [user=null] - Authenticated user details.
+ * @param {{ username: string, avatar?: string, hasPassword?: boolean, isSupporter?: boolean } | null} [user=null] - Authenticated user details.
  */
 export function renderAccountPageShell(isAuthenticated, user = null) {
     const guestView = document.getElementById('account-guest-view');
@@ -218,16 +309,31 @@ export function renderAccountPageShell(isAuthenticated, user = null) {
         authView.removeAttribute('hidden');
 
         const usernameEl = document.getElementById('account-profile-username');
+        const prevUsername = usernameEl?.getAttribute('data-active-username');
+        if (prevUsername && prevUsername !== user.username) {
+            resetAvatarMilestoneCache();
+            toggleSupporterPanel(false);
+            resetSupporterFormState();
+        }
         if (usernameEl) {
             usernameEl.textContent = escapeHTML(user.username);
+            usernameEl.setAttribute('data-active-username', user.username);
         }
 
         const avatar = user.avatar || 'archer';
         const avatarImg = document.getElementById('account-profile-avatar-img');
         if (avatarImg) {
-            avatarImg.setAttribute('src', `/assets/avatars/${avatar}.png`);
+            const prevAvatar = avatarImg.getAttribute('data-active-avatar');
+            if (prevAvatar && prevAvatar !== avatar) {
+                stopAvatarAnimation(avatarImg, avatar, '200');
+            } else if (!/** @type {any} */ (avatarImg)._avatarAnimTimer && !/** @type {any} */ (avatarImg)._avatarAnimPending) {
+                avatarImg.setAttribute('src', getAvatarSrc(avatar, { animated: false, size: '200' }));
+            }
+            avatarImg.setAttribute('data-active-avatar', avatar);
         }
         highlightActiveAvatarInTray(avatar);
+        renderAvatarLockStates(getAvatarMilestoneContext(user));
+        renderSupporterStatus(Boolean(user.isSupporter));
         renderAccountVillagesSummary();
         renderAccountErasureCard(true);
 
@@ -239,11 +345,23 @@ export function renderAccountPageShell(isAuthenticated, user = null) {
             const count = Array.isArray(passkeys) ? passkeys.length : 0;
             renderPasskeysInlineList(passkeys);
             renderPasswordSection(user.hasPassword !== false, count);
+            renderAvatarLockStates(getAvatarMilestoneContext(user, passkeys));
         }).catch(() => {
+            resetAvatarMilestoneCache();
             renderPasskeysInlineList([]);
             renderPasswordSection(user.hasPassword !== false, 0);
+            renderAvatarLockStates(getAvatarMilestoneContext(user, []));
         });
     } else {
+        resetAvatarMilestoneCache();
+        stopAvatarAnimation(document.getElementById('account-profile-avatar-img'), 'archer', '200');
+        document.getElementById('account-profile-avatar-img')?.removeAttribute('data-active-avatar');
+        hideCardHelpPopover();
+        toggleSupporterPanel(false);
+        renderSupporterStatus(false);
+        syncSupporterIconState(document.getElementById('account-profile-supporter-btn'), 'hidden');
+        resetSupporterFormState();
+        document.getElementById('account-profile-username')?.removeAttribute('data-active-username');
         const isAlreadyGuest = !guestView.hasAttribute('hidden');
         const guestPairingDrawer = document.getElementById('account-guest-pairing-drawer');
         const isGuestPairingOpen = isAlreadyGuest && Boolean(guestPairingDrawer && !guestPairingDrawer.hasAttribute('hidden'));

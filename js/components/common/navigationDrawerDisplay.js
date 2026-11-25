@@ -193,7 +193,7 @@ function buildDrawerMetricsHtml(statsList, profileSummary) {
             label = translate('nav.equipment') || 'Equipment';
             value = profileSummary.oresDoneText;
             iconType = 'image';
-            iconSrc = 'assets/shiny_ore.png';
+            iconSrc = '/assets/shiny_ore.png';
         } else if (stat.type === 'hero-journey') {
             label = translate('nav.context.heroJourney') || 'Hero Journey';
             value = profileSummary.nextNodeText;
@@ -208,7 +208,7 @@ function buildDrawerMetricsHtml(statsList, profileSummary) {
             label = translate('entities.defenses.townHall') || 'Town Hall';
             value = `TH${profileSummary.thLevel}`;
             iconType = 'image';
-            iconSrc = getTownHallIconUrl(profileSummary.thLevel);
+            iconSrc = getTownHallIconUrl(profileSummary.thLevel, { rootRelative: true });
         } else {
             label = stat.label || '';
             value = stat.value || '';
@@ -380,7 +380,7 @@ export function renderNavigationDrawerContent(options = {}) {
                             return `
                                 <button type="button" class="navigation-drawer__context-switcher-item ${isCurrent ? 'is-active' : ''}" data-tag="${escapeHtml(p.cleanTag)}">
                                     <div class="navigation-drawer__context-switcher-item-left">
-                                        <clashcalc-assets-image class="navigation-drawer__context-switcher-th" src="${getTownHallIconUrl(pTh)}" alt="TH${pTh}" size="thumbnail"></clashcalc-assets-image>
+                                        <clashcalc-assets-image class="navigation-drawer__context-switcher-th" src="${getTownHallIconUrl(pTh, { rootRelative: true })}" alt="TH${pTh}" size="thumbnail"></clashcalc-assets-image>
                                         <span class="navigation-drawer__context-switcher-name">${escapeHtml(p.name)}</span>
                                     </div>
                                     <span class="navigation-drawer__context-switcher-tag">${escapeHtml(p.tag)}</span>

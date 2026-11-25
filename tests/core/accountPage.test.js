@@ -88,6 +88,10 @@ class MockElement {
 
     focus() {}
 
+    appendChild() {}
+
+    remove() {}
+
     /**
      * @param {string} name
      * @param {string} val
@@ -245,27 +249,71 @@ describe('Account Page Presenter & Interaction Suite', () => {
     });
 
     test('toggleAvatarTray manages hidden attribute, aria-expanded, and icon state', async () => {
-        const { toggleAvatarTray } = await import('../../js/components/account/accountPageDisplay.js');
+        const { toggleAvatarTray } = await import('../../js/components/account/accountPageAvatarDisplay.js');
 
         const tray = getOrCreateMockElement('account-avatar-tray');
         tray.setAttribute('hidden', '');
         const avatarBtn = getOrCreateMockElement('account-profile-avatar-btn');
-        const iconMock = new MockElement();
-        avatarBtn.querySelector = () => iconMock;
+        const overlayIconMock = new MockElement();
+        const badgeIconMock = new MockElement();
+        avatarBtn.querySelector = (selector) => {
+            if (selector.includes('account-profile-avatar-badge')) return badgeIconMock;
+            return overlayIconMock;
+        };
 
         const opened = toggleAvatarTray(true);
         assert.strictEqual(opened, true);
         assert.strictEqual(tray.hasAttribute('hidden'), false);
         assert.strictEqual(tray.getAttribute('aria-expanded'), 'true');
         assert.strictEqual(avatarBtn.getAttribute('aria-expanded'), 'true');
-        assert.strictEqual(iconMock.getAttribute('name'), 'check');
+        assert.strictEqual(overlayIconMock.getAttribute('name'), 'check');
+        assert.strictEqual(badgeIconMock.getAttribute('name'), 'check-simple');
 
         const closed = toggleAvatarTray(false);
         assert.strictEqual(closed, false);
         assert.strictEqual(tray.hasAttribute('hidden'), true);
         assert.strictEqual(tray.getAttribute('aria-expanded'), 'false');
         assert.strictEqual(avatarBtn.getAttribute('aria-expanded'), 'false');
-        assert.strictEqual(iconMock.getAttribute('name'), 'edit');
+        assert.strictEqual(overlayIconMock.getAttribute('name'), 'edit');
+        assert.strictEqual(badgeIconMock.getAttribute('name'), 'edit');
+    });
+
+    test('getAvatarMilestoneContext evaluates all saved profiles, avoids false unlock on unfetched tags, and resets passkey cache', async () => {
+        const {
+            getAvatarMilestoneContext,
+            resetAvatarMilestoneCache
+        } = await import('../../js/components/account/accountPageAvatarDisplay.js');
+        const { state } = await import('../../js/core/state.js');
+
+        state.savedPlayerTags = [];
+        state.allPlayersData = {};
+        state.playerProfile = null;
+        store.clear();
+
+        // Multiple linked profiles where at least one is TH16 suffices even alongside TH10 and TH12
+        store.set('clashCalc_playerTags', JSON.stringify(['TAG10', 'TAG16', 'TAG12']));
+        store.set('clashCalc_player_TAG10', JSON.stringify({ playerProfile: { tag: '#TAG10', townHallLevel: 10 } }));
+        store.set('clashCalc_player_TAG16', JSON.stringify({ playerProfile: { tag: '#TAG16', townHallLevel: 16 } }));
+        store.set('clashCalc_player_TAG12', JSON.stringify({ playerProfile: { tag: '#TAG12', townHallLevel: 12 } }));
+
+        const multiCtx = getAvatarMilestoneContext({ isSupporter: false }, [{ credentialID: 'pk-1' }]);
+        assert.strictEqual(multiCtx.townHallLevel, 16);
+        assert.strictEqual(multiCtx.passkeysCount, 1);
+
+        // Resetting passkey cache prevents stale passkey counts from leaking across account switches
+        resetAvatarMilestoneCache();
+        const resetCtx = getAvatarMilestoneContext({ isSupporter: false }, null);
+        assert.strictEqual(resetCtx.passkeysCount, 0);
+
+        // Unfetched placeholder lacking playerProfile must not infer MAX_TOWN_HALL as unlocked
+        store.clear();
+        store.set('clashCalc_playerTags', JSON.stringify(['UNFETCHED1']));
+        store.set('clashCalc_player_UNFETCHED1', JSON.stringify({ heroes: {} }));
+
+        const unfetchedCtx = getAvatarMilestoneContext({ isSupporter: false }, []);
+        assert.strictEqual(unfetchedCtx.townHallLevel, 0);
+
+        store.clear();
     });
 
     test('renderPasskeysInlineList reveals empty state when passkeys array is empty', async () => {

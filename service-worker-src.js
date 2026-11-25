@@ -66,6 +66,10 @@ self.addEventListener('install', event => {
 
         const filteredManifest = fullManifest.filter(entry => {
             const url = typeof entry === 'string' ? entry : entry.url;
+            // Animated and static emote assets are published exclusively as WebP (no AVIF variant)
+            if (url.includes('assets/avatars/emotes/') && url.endsWith('.webp')) {
+                return true;
+            }
             return !url.endsWith(discardExt);
         });
 
