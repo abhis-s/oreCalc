@@ -7,16 +7,24 @@ const activeToasts = [];
 
 function updateToastPositions() {
     const isMobile = window.innerWidth <= 779;
-    // Row height matches the CSS heights plus a gap (desktop: 50px + 12px gap = 62px; mobile: 40px + 8px gap = 48px)
-    const rowHeight = isMobile ? 48 : 62;
+    const gap = isMobile ? 8 : 12;
+    const fallbackHeight = isMobile ? 40 : 50;
     const maxStackSlots = isMobile ? 2 : 5;
 
-    activeToasts.forEach((toast, index) => {
-        // Enforce max stack rows. Index (maxStackSlots - 1) and above stack on that topmost row.
-        const slotIndex = Math.min(index, maxStackSlots - 1);
-        const targetY = -slotIndex * rowHeight;
+    const heights = activeToasts.map((toast) => toast.offsetHeight || fallbackHeight);
+    const offsets = [];
+    let cumulativeY = 0;
+    for (let i = 0; i < activeToasts.length; i++) {
+        if (i < maxStackSlots) {
+            offsets.push(-cumulativeY);
+            cumulativeY += heights[i] + gap;
+        } else {
+            offsets.push(offsets[maxStackSlots - 1]);
+        }
+    }
 
-        toast.style.transform = `translateY(${targetY}px) scale(1)`;
+    activeToasts.forEach((toast, index) => {
+        toast.style.transform = `translateY(${offsets[index]}px) scale(1)`;
         toast.style.zIndex = `${1000 - index}`;
     });
 }

@@ -64,13 +64,12 @@ async function handleSelectAvatar(avatar) {
         return;
     }
 
-    const profileImg = document.getElementById('account-profile-avatar-img');
-    if (profileImg) {
-        stopAvatarAnimation(profileImg, avatar, '200');
-    }
-
     try {
         await updateAvatar(avatar);
+        const profileImg = document.getElementById('account-profile-avatar-img');
+        if (profileImg) {
+            stopAvatarAnimation(profileImg, avatar, '200');
+        }
         highlightActiveAvatarInTray(avatar);
     } catch (err) {
         logger.error('[Account] Failed to update avatar:', err);
