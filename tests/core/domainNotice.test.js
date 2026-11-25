@@ -3,82 +3,46 @@ import assert from 'node:assert/strict';
 
 import {
     shouldDisplayDomainNotice,
-    SEVEN_DAYS_MS,
-    IS_DOMAIN_NOTICE_ACTIVE,
-    PERMANENT_NOTICE_TIMESTAMP
+    IS_DOMAIN_NOTICE_ACTIVE
 } from '../../js/components/common/domainNotice.js';
 import { buildClashCalcTargetUrl } from '../../js/utils/clashCalcUrl.js';
 
-test('shouldDisplayDomainNotice is active by default and displays on legacy domains', () => {
-    const now = 1757000000000;
-
+test('shouldDisplayDomainNotice is permanently active by default and displays on legacy domains', () => {
     assert.equal(IS_DOMAIN_NOTICE_ACTIVE, true);
-    assert.equal(PERMANENT_NOTICE_TIMESTAMP, Date.UTC(2026, 11, 1, 0, 0, 0));
 
     // Active behavior on legacy domains
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', now }), true);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'www.orecalc.tech', now }), true);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'beta.orecalc.tech', now }), true);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'localhost', now }), false);
-    assert.equal(shouldDisplayDomainNotice({ hostname: '', now }), false);
-    assert.equal(shouldDisplayDomainNotice({ hostname: null, now }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech' }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'www.orecalc.tech' }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'beta.orecalc.tech' }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'localhost' }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: '' }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: null }), false);
 
     // Dormant override suppresses unless query flag is present
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', isActive: false, now }), false);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', isActive: false, search: '?domainNotice=true', now }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', isActive: false }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', isActive: false, search: '?domainNotice=true' }), true);
 
     // Query overrides allow inspection on localhost
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'localhost', search: '?domainNotice=true', now }), true);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'localhost', search: '?testDomainNotice=true', now }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'localhost', search: '?domainNotice=true' }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'localhost', search: '?testDomainNotice=true' }), true);
 
     // Target clashcalc.com domain remains strictly immune even with query flag
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'clashcalc.com', search: '?domainNotice=true', now }), false);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'www.clashcalc.com', search: '?testDomainNotice=true', now }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'clashcalc.com', search: '?domainNotice=true' }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'www.clashcalc.com', search: '?testDomainNotice=true' }), false);
 });
 
 test('shouldDisplayDomainNotice displays notice strictly on orecalc.tech domains when activated', () => {
-    const now = 1757000000000;
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', isActive: true }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'www.orecalc.tech', isActive: true }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'beta.orecalc.tech', isActive: true }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc-domain-test.local', isActive: true }), true);
 
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc.tech', isActive: true, now }), true);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'www.orecalc.tech', isActive: true, now }), true);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'beta.orecalc.tech', isActive: true, now }), true);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'orecalc-domain-test.local', isActive: true, now }), true);
-
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'clashcalc.com', isActive: true, now }), false);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'www.clashcalc.com', isActive: true, now }), false);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'beta.clashcalc.com', isActive: true, now }), false);
-    assert.equal(shouldDisplayDomainNotice({ hostname: 'localhost', isActive: true, now }), false);
-    assert.equal(shouldDisplayDomainNotice({ hostname: '', isActive: true, now }), false);
-    assert.equal(shouldDisplayDomainNotice({ hostname: null, isActive: true, now }), false);
-});
-
-test('shouldDisplayDomainNotice respects session dismissal before December 1, 2026', () => {
-    const beforeCutoff = Date.UTC(2026, 10, 15, 12, 0, 0); // Nov 15, 2026
-    const dismissedTimestamp = beforeCutoff - 1000;
-
-    assert.equal(shouldDisplayDomainNotice({
-        hostname: 'orecalc.tech',
-        dismissedTimestamp,
-        now: beforeCutoff
-    }), false);
-});
-
-test('shouldDisplayDomainNotice becomes permanent starting December 1, 2026 regardless of dismissal', () => {
-    const atCutoff = PERMANENT_NOTICE_TIMESTAMP; // Dec 1, 2026 00:00:00 UTC
-    const afterCutoff = Date.UTC(2026, 11, 15, 12, 0, 0); // Dec 15, 2026
-    const dismissedTimestamp = atCutoff - 1000;
-
-    assert.equal(shouldDisplayDomainNotice({
-        hostname: 'orecalc.tech',
-        dismissedTimestamp,
-        now: atCutoff
-    }), true);
-
-    assert.equal(shouldDisplayDomainNotice({
-        hostname: 'orecalc.tech',
-        dismissedTimestamp,
-        now: afterCutoff
-    }), true);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'clashcalc.com', isActive: true }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'www.clashcalc.com', isActive: true }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'beta.clashcalc.com', isActive: true }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: 'localhost', isActive: true }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: '', isActive: true }), false);
+    assert.equal(shouldDisplayDomainNotice({ hostname: null, isActive: true }), false);
 });
 
 test('buildClashCalcTargetUrl correctly routes root and tool paths to clashcalc.com', () => {

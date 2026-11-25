@@ -20,19 +20,19 @@ describe('Static Build Routes Verification Suite', () => {
 
         const content = fs.readFileSync(rootIndex, 'utf8');
         assert.ok(content.includes('<html lang="en">'));
-        assert.ok(content.includes('<link rel="canonical" href="https://orecalc.tech/">'));
-        assert.ok(content.includes('<link rel="alternate" hreflang="en" href="https://orecalc.tech/" />'));
-        assert.ok(content.includes('<link rel="alternate" hreflang="x-default" href="https://orecalc.tech/" />'));
-        assert.ok(content.includes('<link rel="alternate" hreflang="de" href="https://orecalc.tech/de/" />'));
-        assert.ok(content.includes('<link rel="alternate" hreflang="tr" href="https://orecalc.tech/tr/" />'));
-        assert.ok(content.includes('<link rel="alternate" hreflang="zh" href="https://orecalc.tech/zh/" />'));
+        assert.ok(content.includes('<link rel="canonical" href="https://clashcalc.com/ore-calculator/">'));
+        assert.ok(content.includes('<link rel="alternate" hreflang="en" href="https://clashcalc.com/ore-calculator/" />'));
+        assert.ok(content.includes('<link rel="alternate" hreflang="x-default" href="https://clashcalc.com/ore-calculator/" />'));
+        assert.ok(content.includes('<link rel="alternate" hreflang="de" href="https://clashcalc.com/de/ore-calculator/" />'));
+        assert.ok(content.includes('<link rel="alternate" hreflang="tr" href="https://clashcalc.com/tr/ore-calculator/" />'));
+        assert.ok(content.includes('<link rel="alternate" hreflang="zh" href="https://clashcalc.com/zh/ore-calculator/" />'));
     });
 
     test('verifies non-English localized index.html routes exist with correct canonical URLs', () => {
         const languages = [
-            { code: 'de', canonical: 'https://orecalc.tech/de/' },
-            { code: 'tr', canonical: 'https://orecalc.tech/tr/' },
-            { code: 'zh', canonical: 'https://orecalc.tech/zh/' }
+            { code: 'de', canonical: 'https://clashcalc.com/de/ore-calculator/' },
+            { code: 'tr', canonical: 'https://clashcalc.com/tr/ore-calculator/' },
+            { code: 'zh', canonical: 'https://clashcalc.com/zh/ore-calculator/' }
         ];
 
         for (const { code, canonical } of languages) {
@@ -63,10 +63,10 @@ describe('Static Build Routes Verification Suite', () => {
 
     test('verifies standalone hero-journey routes exist across all supported locales', () => {
         const hjRoutes = [
-            { path: path.join(distDir, 'hero-journey', 'index.html'), lang: 'en', canonical: 'https://orecalc.tech/hero-journey/' },
-            { path: path.join(distDir, 'de', 'hero-journey', 'index.html'), lang: 'de', canonical: 'https://orecalc.tech/de/hero-journey/' },
-            { path: path.join(distDir, 'tr', 'hero-journey', 'index.html'), lang: 'tr', canonical: 'https://orecalc.tech/tr/hero-journey/' },
-            { path: path.join(distDir, 'zh', 'hero-journey', 'index.html'), lang: 'zh', canonical: 'https://orecalc.tech/zh/hero-journey/' }
+            { path: path.join(distDir, 'hero-journey', 'index.html'), lang: 'en', canonical: 'https://clashcalc.com/hero-journey/' },
+            { path: path.join(distDir, 'de', 'hero-journey', 'index.html'), lang: 'de', canonical: 'https://clashcalc.com/de/hero-journey/' },
+            { path: path.join(distDir, 'tr', 'hero-journey', 'index.html'), lang: 'tr', canonical: 'https://clashcalc.com/tr/hero-journey/' },
+            { path: path.join(distDir, 'zh', 'hero-journey', 'index.html'), lang: 'zh', canonical: 'https://clashcalc.com/zh/hero-journey/' }
         ];
 
         for (const { path: routePath, lang, canonical } of hjRoutes) {
@@ -89,10 +89,10 @@ describe('Static Build Routes Verification Suite', () => {
 
     test('verifies standalone ore-calculator routes exist across all supported locales', () => {
         const oreRoutes = [
-            { path: path.join(distDir, 'ore-calculator', 'index.html'), lang: 'en', canonical: 'https://orecalc.tech/ore-calculator/' },
-            { path: path.join(distDir, 'de', 'ore-calculator', 'index.html'), lang: 'de', canonical: 'https://orecalc.tech/de/ore-calculator/' },
-            { path: path.join(distDir, 'tr', 'ore-calculator', 'index.html'), lang: 'tr', canonical: 'https://orecalc.tech/tr/ore-calculator/' },
-            { path: path.join(distDir, 'zh', 'ore-calculator', 'index.html'), lang: 'zh', canonical: 'https://orecalc.tech/zh/ore-calculator/' }
+            { path: path.join(distDir, 'ore-calculator', 'index.html'), lang: 'en', canonical: 'https://clashcalc.com/ore-calculator/' },
+            { path: path.join(distDir, 'de', 'ore-calculator', 'index.html'), lang: 'de', canonical: 'https://clashcalc.com/de/ore-calculator/' },
+            { path: path.join(distDir, 'tr', 'ore-calculator', 'index.html'), lang: 'tr', canonical: 'https://clashcalc.com/tr/ore-calculator/' },
+            { path: path.join(distDir, 'zh', 'ore-calculator', 'index.html'), lang: 'zh', canonical: 'https://clashcalc.com/zh/ore-calculator/' }
         ];
 
         for (const { path: routePath, lang, canonical } of oreRoutes) {

@@ -563,11 +563,11 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
         });
 
         describe('Feature 10: Static Analyzers & Type Checks', () => {
-            test('10.1: Canonical en.json dictionary keys flatten to exactly 1161 keys', () => {
+            test('10.1: Canonical en.json dictionary keys flatten to exactly 1160 keys', () => {
                 const enJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/en.json'), 'utf8'));
                 const flattened = getFlattenedI18nKeys(enJson);
                 const keys = Object.keys(flattened);
-                assert.equal(keys.length, 1161);
+                assert.equal(keys.length, 1160);
             });
 
             test('10.2: Developer-managed localized dictionaries have 100% key parity with reference en.json', () => {
@@ -1186,9 +1186,9 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
                 assert.equal(emojiRegex.test(rootHtml), false);
                 assert.equal(emojiRegex.test(hjHtml), false);
 
-                // Valid canonical links
-                assert.ok(rootHtml.includes('https://orecalc.tech/'));
-                assert.ok(hjHtml.includes('https://orecalc.tech/hero-journey/'));
+                // Valid canonical links pointing to ClashCalc
+                assert.ok(rootHtml.includes('https://clashcalc.com/ore-calculator/'));
+                assert.ok(hjHtml.includes('https://clashcalc.com/hero-journey/'));
             }
         });
     });
@@ -1303,8 +1303,8 @@ describe('E2E Requirement Tiers (Tiers 1-4) Comprehensive Verification Suite', (
             const zhDict = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/zh.json'), 'utf8'));
 
             const enKeyCount = Object.keys(getFlattenedI18nKeys(enDict)).length;
-            assert.equal(enKeyCount, 1161, 'Reference dictionary must have 1161 keys');
-            assert.equal(Object.keys(getFlattenedI18nKeys(deDict)).length, enKeyCount, 'de.json must have 1161 keys');
+            assert.equal(enKeyCount, 1160, 'Reference dictionary must have 1160 keys');
+            assert.equal(Object.keys(getFlattenedI18nKeys(deDict)).length, enKeyCount, 'de.json must have 1160 keys');
             assert.ok(Object.keys(getFlattenedI18nKeys(trDict)).length >= 1146, 'tr.json preserves community translation boundary');
             assert.ok(Object.keys(getFlattenedI18nKeys(zhDict)).length >= 1146, 'zh.json preserves community translation boundary');
 

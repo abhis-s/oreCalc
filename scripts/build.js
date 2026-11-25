@@ -295,7 +295,7 @@ async function build() {
             const srcPathEn = path.join(projectRoot, page.srcEn);
             if (fs.existsSync(srcPathEn)) {
                 let htmlEn = fs.readFileSync(srcPathEn, 'utf8');
-                const canonicalUrlEn = `https://orecalc.tech/${page.name}/`;
+                const canonicalUrlEn = `https://clashcalc.com/${page.name}/`;
                 if (htmlEn.includes('<link rel="canonical"')) {
                     htmlEn = htmlEn.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${canonicalUrlEn}">`);
                 } else {
@@ -311,7 +311,7 @@ async function build() {
                 const srcPathDe = path.join(projectRoot, page.srcDe);
                 if (fs.existsSync(srcPathDe)) {
                     let htmlDe = fs.readFileSync(srcPathDe, 'utf8');
-                    const canonicalUrlDe = `https://orecalc.tech/de/${page.name}/`;
+                    const canonicalUrlDe = `https://clashcalc.com/de/${page.name}/`;
                     if (htmlDe.includes('<link rel="canonical"')) {
                         htmlDe = htmlDe.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${canonicalUrlDe}">`);
                     } else {

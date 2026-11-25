@@ -138,7 +138,9 @@ function generateLocalizedHtml(baseHtml, lang) {
     const title = translations.app?.title || 'Clash of Clans Ore Calculator & Equipment Planner | OreCalc';
     const description = translations.app?.description || '';
     const locale = localesMap[lang] || `${lang}_${lang.toUpperCase()}`;
-    const url = `https://orecalc.tech/${lang}/`;
+    const url = lang === 'en'
+        ? 'https://clashcalc.com/ore-calculator/'
+        : `https://clashcalc.com/${lang}/ore-calculator/`;
 
     let html = baseHtml;
     html = html.replace(/<html lang="[^"]*">/, `<html lang="${lang}">`);

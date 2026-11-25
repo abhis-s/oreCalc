@@ -17,13 +17,6 @@
     z-index: $z-index-consent-banner;
     padding: 8px 16px;
     padding-top: calc(8px + env(safe-area-inset-top, 0px));
-    transition: opacity $duration-moderate $ease-smooth, transform $duration-moderate $ease-exit;
-
-    &--exiting {
-        opacity: 0;
-        transform: translateY(-100%);
-        pointer-events: none;
-    }
 
     .domain-notice-inner {
         max-width: 1170px;
@@ -84,63 +77,16 @@
         }
     }
 
-    .domain-notice-dismiss-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-        background-color: $bg-surface-tertiary;
-        border: 1px solid $border-primary;
-        padding: 0;
-        color: $text-secondary;
-        cursor: pointer;
-        border-radius: 50%;
-        flex-shrink: 0;
-        transition: background-color $duration-fast $ease-smooth,
-                    border-color $duration-fast $ease-smooth,
-                    color $duration-fast $ease-smooth,
-                    transform $duration-fast $ease-smooth;
-
-        svg,
-        orecalc-assets-svg {
-            width: 12px;
-            height: 12px;
-        }
-
-        &:hover {
-            color: $text-primary;
-            background-color: $bg-surface-primary;
-            border-color: $border-secondary;
-            transform: scale(1.08);
-        }
-
-        &:active {
-            transform: scale(0.92);
-        }
-
-        &:focus-visible {
-            outline: 2px solid $outline-focus;
-            outline-offset: 1px;
-        }
-
-        &:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-    }
-
     @media (max-width: $breakpoint-phone) {
         padding: 8px 12px;
         padding-top: calc(8px + env(safe-area-inset-top, 0px));
 
         .domain-notice-inner {
             display: grid;
-            grid-template-columns: 16px 1fr 24px;
+            grid-template-columns: 16px 1fr;
             grid-template-areas:
-                "badge text    dismiss"
-                "cta   cta     cta";
+                "badge text"
+                "cta   cta";
             column-gap: 10px;
             row-gap: 8px;
             align-items: center;
@@ -166,14 +112,6 @@
             height: 32px;
             padding: 0 12px;
         }
-
-        .domain-notice-dismiss-btn {
-            grid-area: dismiss;
-            align-self: center;
-            justify-self: end;
-            width: 24px;
-            height: 24px;
-        }
     }
 }
 
@@ -181,7 +119,7 @@
     transition: margin-top $duration-moderate $ease-smooth;
 }
 
-body:has(.domain-notice:not(.domain-notice--exiting)) {
+body:has(.domain-notice) {
     .header-container {
         top: calc(15px + var(--domain-notice-height, 48px));
 

@@ -145,8 +145,7 @@
         "description": "专业的《部落冲突》矿石计算与升级规划工具。预测矿石收入量，通过拖放日历规划英雄装备升级，并管理多个账号。支持完整的矿石收益追踪、升级优先级列表、离线使用（PWA）以及云端同步。",
         "domainNotice": {
             "cta": "切换到 ClashCalc",
-            "dismiss": "关闭提示",
-            "message": "OreCalc 已升级为 ClashCalc！前往新站点，体验更多功能并获取后续更新。"
+            "message": "OreCalc 已迁移至 ClashCalc！orecalc.tech 将于 2027 年 1 月 10 日重定向至 clashcalc.com。立即切换以保留你的已保存进度。"
         },
         "latest": "最新",
         "madeIn": "德国精心打造",

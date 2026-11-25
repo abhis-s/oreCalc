@@ -1,5 +1,6 @@
 const path = require('path');
-const admin = require('firebase-admin');
+const { initializeApp, cert, getApps } = require('firebase-admin/app');
+const { getFirestore, FieldValue, Timestamp } = require('firebase-admin/firestore');
 const { safeJsonParse } = require('../utils/jsonUtils.js');
 const { isValidUserId } = require('../utils/validation.js');
 
@@ -16,13 +17,11 @@ if (!serviceAccount) {
     process.exit(1);
 }
 
-if (admin.apps.length === 0) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
-}
+const app = getApps().length === 0
+    ? initializeApp({ credential: cert(serviceAccount) })
+    : getApps()[0];
 
-const db = admin.firestore();
+const db = getFirestore(app);
 
 /**
  * Checks whether a given user UUID has been marked as deleted (tombstone).
@@ -37,7 +36,8 @@ async function isUserDeleted(userId) {
 }
 
 module.exports = {
-    admin,
     db,
+    FieldValue,
+    Timestamp,
     isUserDeleted
 };

@@ -101,7 +101,7 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
 
     let resolvedRoutePath = routePath;
     if (!resolvedRoutePath) {
-        const canonicalMatch = baseHtml.match(/<link rel="canonical" href="https:\/\/orecalc\.tech\/([^"\/]+)\/">/);
+        const canonicalMatch = baseHtml.match(/<link rel="canonical" href="https:\/\/(?:orecalc\.tech|clashcalc\.com)\/([^"\/]+)\/">/);
         if (canonicalMatch && !['de', 'tr', 'zh'].includes(canonicalMatch[1])) {
             resolvedRoutePath = canonicalMatch[1];
         }
@@ -114,9 +114,10 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
         ? translations.views.heroJourneyPage.metaDescription
         : (translations.app?.description || '');
     const locale = localesMap[lang] || `${lang}_${lang.toUpperCase()}`;
+    const canonicalRoutePath = resolvedRoutePath || 'ore-calculator';
     const url = isRoot
-        ? (resolvedRoutePath ? `https://orecalc.tech/${resolvedRoutePath}/` : 'https://orecalc.tech/')
-        : (resolvedRoutePath ? `https://orecalc.tech/${lang}/${resolvedRoutePath}/` : `https://orecalc.tech/${lang}/`);
+        ? `https://clashcalc.com/${canonicalRoutePath}/`
+        : `https://clashcalc.com/${lang}/${canonicalRoutePath}/`;
 
     let html = baseHtml;
     html = html.replace(/<html lang="[^"]*">/, `<html lang="${lang}">`);
@@ -126,9 +127,8 @@ function generateLocalizedHtml(baseHtml, lang, supportedLanguages, isRoot = fals
 
     const hreflangTags = supportedLanguages.map(l => {
         const prefix = l === 'en' ? '' : l + '/';
-        const sub = resolvedRoutePath ? `${resolvedRoutePath}/` : '';
-        return `<link rel="alternate" hreflang="${l}" href="https://orecalc.tech/${prefix}${sub}" />`;
-    }).concat([`<link rel="alternate" hreflang="x-default" href="https://orecalc.tech/${resolvedRoutePath ? resolvedRoutePath + '/' : ''}" />`]).join('\n    ');
+        return `<link rel="alternate" hreflang="${l}" href="https://clashcalc.com/${prefix}${canonicalRoutePath}/" />`;
+    }).concat([`<link rel="alternate" hreflang="x-default" href="https://clashcalc.com/${canonicalRoutePath}/" />`]).join('\n    ');
     html = html.replace(/(<link rel="alternate" hreflang="[^"]*" href="[^"]*" \/>\s*)+/g, `${hreflangTags}\n    `);
     html = html.replace(/<meta property="og:title" content="[^"]*">/g, `<meta property="og:title" content="${title}">`);
     html = html.replace(/<meta property="og:description"\s+content="[^"]*">/g, `<meta property="og:description" content="${description}">`);

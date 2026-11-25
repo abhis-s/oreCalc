@@ -1,5 +1,6 @@
 const path = require('path');
-const admin = require('firebase-admin');
+const { initializeApp, cert, getApps } = require('firebase-admin/app');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const { safeJsonParse } = require('../utils/jsonUtils.js');
 const { SERVER_CONSTANTS } = require('../constants.js');
 
@@ -16,15 +17,10 @@ if (!serviceAccount) {
     process.exit(1);
 }
 
-let db;
-if (admin.apps.length === 0) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
-    db = admin.firestore();
-} else {
-    db = admin.firestore();
-}
+const app = getApps().length === 0
+    ? initializeApp({ credential: cert(serviceAccount) })
+    : getApps()[0];
+const db = getFirestore(app);
 
 /**
  * Scans and prunes userStates documents that have been inactive past the threshold period.
@@ -77,7 +73,7 @@ async function pruneInactiveUsers() {
         // Persist audit record in pruneAuditLogs collection
         const auditLogRef = await db.collection('pruneAuditLogs').add({
             executedAt: new Date().toISOString(),
-            serverTimestamp: admin.firestore.FieldValue.serverTimestamp(),
+            serverTimestamp: FieldValue.serverTimestamp(),
             inactiveThresholdDate: thresholdIsoString,
             inactiveDaysThreshold: SERVER_CONSTANTS.INACTIVE_USER_DAYS_THRESHOLD,
             prunedCount,

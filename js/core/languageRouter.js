@@ -65,6 +65,10 @@ export function syncLanguageUrl(lang, replace = false) {
         pathSegments.shift();
     }
 
+    if (pathSegments.length > 0 && pathSegments.at(-1)?.toLowerCase() === 'index.html') {
+        pathSegments.pop();
+    }
+
     const currentSearch = window.location.search || '';
     const currentHash = window.location.hash || '';
     let formattedPath = pathSegments.join('/');
@@ -74,16 +78,15 @@ export function syncLanguageUrl(lang, replace = false) {
 
     let newPathname;
     let canonicalHref;
-    const baseOrigin = (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null')
-        ? window.location.origin
-        : 'https://orecalc.tech';
+    const canonicalOrigin = 'https://clashcalc.com';
+    const canonicalPath = formattedPath || 'ore-calculator/';
 
     if (lang === 'en') {
         newPathname = formattedPath ? `/${formattedPath}` : '/';
-        canonicalHref = formattedPath ? `${baseOrigin}/${formattedPath}` : `${baseOrigin}/`;
+        canonicalHref = `${canonicalOrigin}/${canonicalPath}`;
     } else {
         newPathname = formattedPath ? `/${lang}/${formattedPath}` : `/${lang}/`;
-        canonicalHref = formattedPath ? `${baseOrigin}/${lang}/${formattedPath}` : `${baseOrigin}/${lang}/`;
+        canonicalHref = `${canonicalOrigin}/${lang}/${canonicalPath}`;
     }
 
     const newUrl = `${newPathname}${currentSearch}${currentHash}`;
