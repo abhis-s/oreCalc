@@ -240,8 +240,22 @@
             } catch (e) {}
         };
 
+        var allowControllerReload = ('serviceWorker' in navigator) && Boolean(navigator.serviceWorker.controller);
+
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.addEventListener('controllerchange', function () {
+                if (!allowControllerReload) {
+                    allowControllerReload = true;
+                    return;
+                }
+                try {
+                    var lastSwReload = Number(sessionStorage.getItem('clashCalc_lastSwReload') || 0);
+                    var now = Date.now();
+                    if (lastSwReload && (now - lastSwReload < 10000)) {
+                        return;
+                    }
+                    sessionStorage.setItem('clashCalc_lastSwReload', String(now));
+                } catch (e) {}
                 window.location.reload();
             });
         }
@@ -323,13 +337,17 @@
             return false;
         };
 
+        function isFailureScreenVisible(screen) {
+            return Boolean(screen && (!screen.hidden || (screen.style.display && screen.style.display !== 'none')));
+        }
+
         window.__APP_LOADED__ = function () {
             appLoaded = true;
             window.__APP_LOADED_STATUS__ = true;
 
             // Self-healing recovery: If load failure screen was shown due to network latency, hide it when app finishes loading
             var screen = document.getElementById('load-failure-screen');
-            if (screen && (screen.style.display !== 'none' || !screen.hidden)) {
+            if (isFailureScreenVisible(screen)) {
                 screen.hidden = true;
                 screen.style.display = 'none';
                 console.info('Watchdog: Application successfully recovered and initialized in background.');
@@ -348,6 +366,7 @@
                             console.error('Watchdog: SW update check failed:', err);
                         });
                         if (reg.waiting) {
+                            allowControllerReload = true;
                             reg.waiting.postMessage({ type: 'SKIP_WAITING' });
                         }
                     }
@@ -355,6 +374,7 @@
             }
 
             setTimeout(function () {
+                if (appLoaded || window.__APP_LOADED_STATUS__) return;
                 var screen = document.getElementById('load-failure-screen');
                 var preloader = document.getElementById('preloader');
                 if (screen) {
@@ -374,7 +394,7 @@
         var backgroundPoller = setInterval(function () {
             if (appLoaded || window.__APP_LOADED_STATUS__) {
                 var screen = document.getElementById('load-failure-screen');
-                if (screen && (screen.style.display !== 'none' || !screen.hidden)) {
+                if (isFailureScreenVisible(screen)) {
                     screen.hidden = true;
                     screen.style.display = 'none';
                 }

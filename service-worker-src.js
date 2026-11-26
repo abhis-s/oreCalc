@@ -133,13 +133,28 @@ self.addEventListener('fetch', event => {
 
     if (cacheKey) {
         event.respondWith((async () => {
-            const cached = await precacheController.matchPrecache(targetUrl);
-            if (cached) return cached;
-            return precacheController.strategy.handle({
-                event,
-                request: event.request,
-                params: { cacheKey }
-            });
+            try {
+                const cached = await precacheController.matchPrecache(targetUrl);
+                if (cached) return cached;
+                const handled = await precacheController.strategy.handle({
+                    event,
+                    request: event.request,
+                    params: { cacheKey }
+                });
+                if (handled) return handled;
+            } catch (_) {}
+
+            try {
+                const networkRes = await fetch(targetUrl);
+                if (networkRes) return networkRes;
+            } catch (_) {}
+
+            try {
+                const fallbackCached = await caches.match(targetUrl, { ignoreSearch: true });
+                if (fallbackCached) return fallbackCached;
+            } catch (_) {}
+
+            return Response.error();
         })());
         return;
     }

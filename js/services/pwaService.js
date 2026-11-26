@@ -151,6 +151,7 @@ export function initializePwaService() {
     window.__WB__ = wb;
 
     let refreshing = false;
+    let hasController = typeof navigator !== 'undefined' && Boolean(navigator.serviceWorker?.controller);
 
     const markSWUpdated = () => {
         try {
@@ -185,8 +186,13 @@ export function initializePwaService() {
         document.addEventListener('visibilitychange', onVisibilityChange);
     };
 
-    // Reload cleanly ONLY when the controller actually changes to avoid mismatched dynamic imports
+    // Reload cleanly ONLY when replacing an active controller to avoid aborting first-visit loads
     wb.addEventListener('controlling', () => {
+        if (!hasController) {
+            hasController = true;
+            markSWUpdated();
+            return;
+        }
         if (refreshing) return;
         const lastSwReload = Number(sessionStorage.getItem('clashCalc_lastSwReload') || 0);
         const now = Date.now();

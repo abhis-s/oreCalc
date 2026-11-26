@@ -35,7 +35,7 @@ if (typeof globalThis.document === 'undefined') {
 }
 
 import { state } from '../../js/core/state.js';
-import { translate, loadTranslations, getTranslations } from '../../js/i18n/translator.js';
+import { translate, loadTranslations, getTranslations, hasAnyTranslations } from '../../js/i18n/translator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,6 +43,58 @@ const projectRoot = path.resolve(__dirname, '../..');
 
 const enJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/en.json'), 'utf8'));
 const deJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'js/i18n/de.json'), 'utf8'));
+
+test('loadTranslations recovers from transient TypeError network failures', async () => {
+    state.uiSettings = { language: 'en' };
+    const origFetch = globalThis.fetch;
+    const retryEn = JSON.parse(JSON.stringify(enJson));
+    retryEn.entities.ores.shiny = 'Recovered Shiny Ore';
+    let attempts = 0;
+
+    globalThis.fetch = async (url) => {
+        if (url.includes('/en.json')) {
+            attempts += 1;
+            if (attempts === 1) {
+                throw new TypeError('Failed to fetch');
+            }
+            return { ok: true, json: async () => retryEn };
+        }
+        return { ok: false, status: 404 };
+    };
+
+    try {
+        await loadTranslations('en');
+        assert.equal(hasAnyTranslations(), true);
+        assert.equal(translate('entities.ores.shiny'), 'Recovered Shiny Ore');
+    } finally {
+        globalThis.fetch = origFetch;
+    }
+});
+
+test('loadTranslations falls back to CacheStorage when network fetches fail', async () => {
+    state.uiSettings = { language: 'en' };
+    const origFetch = globalThis.fetch;
+    const origCaches = globalThis.caches;
+    const cachedEn = JSON.parse(JSON.stringify(enJson));
+    cachedEn.entities.ores.shiny = 'Cached Shiny Ore';
+
+    globalThis.fetch = async () => {
+        throw new TypeError('Failed to fetch');
+    };
+    globalThis.caches = {
+        match: async (url) => (String(url).includes('/en.json')
+            ? { ok: true, json: async () => cachedEn }
+            : null)
+    };
+
+    try {
+        await loadTranslations('en');
+        assert.equal(translate('entities.ores.shiny'), 'Cached Shiny Ore');
+    } finally {
+        globalThis.fetch = origFetch;
+        globalThis.caches = origCaches;
+    }
+});
 
 test('loadTranslations loads english and german dictionaries into translator', async () => {
     state.uiSettings = { language: 'en' };

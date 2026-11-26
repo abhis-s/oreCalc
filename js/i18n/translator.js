@@ -2,6 +2,88 @@ import { state } from '../core/state.js';
 import { setNumberFormatterLocale } from '../utils/numberFormatter.js';
 
 const translations = {};
+const inFlightLoads = new Map();
+const LOCALE_FETCH_TIMEOUT_MS = 4000;
+const LOCALE_RETRY_DELAYS_MS = [150, 350];
+
+/**
+ * Waits briefly between transient fetch retries.
+ * @param {number} ms - Delay duration in milliseconds.
+ * @returns {Promise<void>}
+ */
+function waitRetryDelay(ms) {
+    if (ms <= 0 || (typeof navigator !== 'undefined' && navigator.onLine === false)) {
+        return Promise.resolve();
+    }
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Fetches a locale dictionary with per-attempt timeout, transient retries, and CacheStorage fallback.
+ * @param {string} lang - Canonical locale code.
+ * @returns {Promise<object>} Parsed dictionary object.
+ */
+async function fetchLocaleDictionary(lang) {
+    const url = `/js/i18n/${lang}.json`;
+    let lastError = null;
+
+    for (let attempt = 0; attempt <= LOCALE_RETRY_DELAYS_MS.length; attempt++) {
+        if (attempt > 0) {
+            await waitRetryDelay(LOCALE_RETRY_DELAYS_MS[attempt - 1]);
+        }
+
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timeoutId = controller ? setTimeout(() => controller.abort(), LOCALE_FETCH_TIMEOUT_MS) : null;
+
+        try {
+            const fetchOptions = attempt > 0
+                ? { cache: 'no-store', ...(controller ? { signal: controller.signal } : {}) }
+                : (controller ? { signal: controller.signal } : undefined);
+
+            const response = fetchOptions !== undefined
+                ? await fetch(url, /** @type {RequestInit} */ (fetchOptions))
+                : await fetch(url);
+
+            if (!response.ok) {
+                const status = Number(response.status) || 0;
+                const err = new Error(`Failed to load translation file for ${lang}`);
+                if (status >= 400 && status < 500) {
+                    lastError = err;
+                    break;
+                }
+                throw err;
+            }
+            return await response.json();
+        } catch (err) {
+            lastError = err;
+        } finally {
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+            }
+        }
+    }
+
+    if (typeof caches !== 'undefined' && typeof caches.match === 'function') {
+        try {
+            const cachedRes = await caches.match(url, { ignoreSearch: true });
+            if (cachedRes && cachedRes.ok) {
+                return await cachedRes.json();
+            }
+        } catch (_) {}
+    }
+
+    throw lastError || new Error(`Failed to load translation file for ${lang}`);
+}
+
+/**
+ * Returns whether at least one locale dictionary has been loaded into memory.
+ * @returns {boolean} True when any non-empty dictionary is available.
+ */
+export function hasAnyTranslations() {
+    return Object.values(translations).some(
+        (dict) => Boolean(dict && typeof dict === 'object' && Object.keys(dict).length > 0)
+    );
+}
 
 /**
  * Loads a JSON translation dictionary for a specified locale and caches it.
@@ -12,19 +94,29 @@ export async function loadTranslations(language) {
     const targetLanguage = (!language || language === 'auto') ? 'en' : language;
     setNumberFormatterLocale(targetLanguage);
 
-    const loadLocale = async (lang) => {
-        try {
-            const response = await fetch(`/js/i18n/${lang}.json`);
-            if (!response.ok) {
-                throw new Error(`Failed to load translation file for ${lang}`);
-            }
-            translations[lang] = await response.json();
-        } catch (error) {
-            console.error(error);
-            if (lang !== 'en') {
-                await loadLocale('en');
-            }
+    const loadLocale = (lang) => {
+        if (inFlightLoads.has(lang)) {
+            return inFlightLoads.get(lang);
         }
+
+        const promise = (async () => {
+            try {
+                const dict = await fetchLocaleDictionary(lang);
+                if (dict && typeof dict === 'object') {
+                    translations[lang] = dict;
+                }
+            } catch (error) {
+                console.error(error);
+                if (lang !== 'en') {
+                    await loadLocale('en');
+                }
+            } finally {
+                inFlightLoads.delete(lang);
+            }
+        })();
+
+        inFlightLoads.set(lang, promise);
+        return promise;
     };
 
     const promises = [loadLocale(targetLanguage)];

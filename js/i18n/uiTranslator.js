@@ -1,5 +1,5 @@
 import { getDynamicTranslationArgs } from './i18nParams.js';
-import { translate } from './translator.js';
+import { hasAnyTranslations, translate } from './translator.js';
 
 import { state } from '../core/state.js';
 import { applyThemeSettings } from '../core/themeManager.js';
@@ -15,6 +15,14 @@ import { sanitizeHTML } from '../utils/stringUtils.js';
 export function updateUIWithTranslations(isInitialLoad = false) {
     const currentLang = state.uiSettings?.language || 'en';
     setDefaultDateLocale(currentLang);
+
+    if (!hasAnyTranslations()) {
+        if (!isInitialLoad && state.uiSettings) {
+            applyThemeSettings(state.uiSettings.theme || 'dark', state.uiSettings.accentColor || 'blue');
+        }
+        document.documentElement.lang = state.uiSettings?.language || 'auto';
+        return;
+    }
 
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
