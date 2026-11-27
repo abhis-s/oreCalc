@@ -39,6 +39,7 @@
         "paste": "粘贴",
         "previous": "上一步",
         "processing": "处理中……",
+        "redeem": "Redeem",
         "refresh": "刷新",
         "reload": "重新加载",
         "remove": "移除",
@@ -169,8 +170,14 @@
             "giant": "巨人",
             "goblin": "哥布林",
             "golem": "戈仑石人",
+            "golemLeague": "Golem (League)",
             "hog": "野猪骑士",
-            "skeleton": "骷髅兵"
+            "skeleton": "骷髅兵",
+            "witchLeague": "Witch (League)"
+        },
+        "avatarTabs": {
+            "animated": "Animated",
+            "classic": "Classic"
         },
         "changeAvatar": "更换头像",
         "chooseAvatar": "选择头像",
@@ -184,6 +191,7 @@
         "defaultPasskeyName": "通行密钥",
         "deleteAccount": "删除账号",
         "deletePasskey": "删除通行密钥",
+        "deviceAlreadyLinkedTitle": "Already Linked",
         "deviceLinked": "Device Linked",
         "disclaimer": "创建账号即表示你同意我们的<a href=\"#\" id=\"auth-terms-link\" class=\"theme-link\">使用条款</a>，并确认已阅读并同意<a href=\"#\" id=\"auth-privacy-link\" class=\"theme-link\">隐私政策</a>。",
         "dividerOr": "或",
@@ -212,7 +220,14 @@
         "signInWithPassword": "使用密码登录",
         "signOut": "退出登录",
         "signOutConfirm": "确定要退出登录吗？你的村庄数据会安全保存到云端。",
+        "supporter": {
+            "redeemBtn": "Redeem Code",
+            "statusActive": "Supporter"
+        },
         "togglePasswordVisibility": "显示 / 隐藏密码",
+        "unlockRequirement": {
+            "ddProgress": "{status}"
+        },
         "username": "用户名",
         "usernamePlaceholder": "3～20 个字符（字母、数字或 _）"
     },
